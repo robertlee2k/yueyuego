@@ -22,7 +22,7 @@ public abstract class BaseClassifier {
 	public static final String WEKA_MODEL_EXTENSION = "-WEKA.model";
 	public static final String MODEL_FILE_EXTENSION = ".mdl";
 	
-	
+	 
 	//子类定义的工作路径
 	public String classifierName;	
 	public String WORK_PATH ;
