@@ -55,8 +55,8 @@ public class ProcessData {
 	//经过主成分分析后的数据
 	public static final String M5PAB_PREDICT_MODEL="\\extData2005-2016-m5pAB-201607 MA ";
 	public static final String M5PAB_EVAL_MODEL="\\extData2005-2016-m5pAB-201607 MA "; 
-	public static final String MLPAB_PREDICT_MODEL="\\extData2005-2016-mlpAB-201607 MA ";
-	public static final String MLPAB_EVAL_MODEL="\\extData2005-2016-mlpAB-201607 MA "; 
+	public static final String MLPAB_PREDICT_MODEL="\\extData2005-2016-mlpAB-2016 MA ";
+	public static final String MLPAB_EVAL_MODEL="\\extData2005-2016-mlpAB-2016 MA "; 
 	public static final String BAGGING_PREDICT_MODEL="\\extData2005-2016-baggingM5P-201606 MA ";
 	public static final String BAGGING_EVAL_MODEL="\\extData2005-2016-baggingM5P-201607 MA ";
 	
@@ -68,10 +68,10 @@ public class ProcessData {
 	public static void main(String[] args) {
 		try {
 			//用模型预测每日增量数据
-			callDailyPredict();
+//			callDailyPredict();
 
 			//调用回测函数回测
-//			callTestBack();
+			callTestBack();
 			
 			//用最新的单次交易数据，更新原始的交易数据文件
 //			UpdateHistoryArffFile.callRefreshInstances();
@@ -150,17 +150,17 @@ public class ProcessData {
 //		MLPClassifier nModel = new MLPClassifier();
 		MLPABClassifier nModel = new MLPABClassifier();
 //		RandomForestClassifier nModel=new RandomForestClassifier (); 
-		Instances nominalResult=testBackward(nModel);
+//		Instances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
-//		Instances nominalResult=loadBackTestResultFromFile(nModel.classifierName);
+		Instances nominalResult=loadBackTestResultFromFile(nModel.classifierName);
 
 		//按连续分类器回测历史数据
 //		M5PClassifier cModel=new M5PClassifier();
 //		M5PABClassifier cModel=new M5PABClassifier();
 		BaggingM5P cModel=new BaggingM5P();
-//		Instances continuousResult=testBackward(cModel);
+		Instances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
-		Instances continuousResult=loadBackTestResultFromFile(cModel.classifierName);
+//		Instances continuousResult=loadBackTestResultFromFile(cModel.classifierName);
 		
 		//统一输出统计结果
 		nModel.outputClassifySummary();
