@@ -141,7 +141,8 @@ public class BaggingM5P extends ContinousClassifier {
 		model.setBatchSize(batchSize);
 		model.setMinNumInstances(minNumObj);
 		model.setNumDecimalPlaces(6);
-		
+		model.setDebug(true);
+		classifier.setDebug(true);
 		classifier.setClassifier(model);
 		
 
@@ -152,6 +153,7 @@ public class BaggingM5P extends ContinousClassifier {
 	    bagger.setNumExecutionSlots(3);
 	    bagger.setBagSizePercent(bagging_samplePercent);
 	    bagger.setCalcOutOfBag(true); //计算袋外误差
+	    bagger.setDebug(true);
 	    bagger.buildClassifier(train);
 		return bagger;
 	}

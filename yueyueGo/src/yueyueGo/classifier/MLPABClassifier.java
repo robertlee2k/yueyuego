@@ -133,8 +133,8 @@ public class MLPABClassifier extends NominalClassifier {
 		
 		m_noCaculationAttrib=false; //使用计算字段
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
-		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = true;
+		m_skipTrainInBacktest = false;
+		m_skipEvalInBacktest = false;
 		m_sepeperate_eval_HS300=true;//单独评估
 		m_seperate_classify_HS300=true;
 		
@@ -158,9 +158,9 @@ public class MLPABClassifier extends NominalClassifier {
 		model.setBatchSize(batchSize);
 		model.setNumDecimalPlaces(6);
 		model.setHiddenLayers("a");
-
+		model.setDebug(true);
 		classifier.setClassifier(model);
-	
+		classifier.setDebug(true);
 		classifier.buildClassifier(train);
 		System.out.println("finish buiding mlp-AB model.");
 
