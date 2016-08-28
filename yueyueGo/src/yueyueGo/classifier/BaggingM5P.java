@@ -6,6 +6,7 @@ import weka.classifiers.trees.M5P;
 import weka.core.Instances;
 import yueyueGo.ContinousClassifier;
 import yueyueGo.MyAttributionSelectorWithPCA;
+import yueyueGo.ThresholdData;
 
 
 //1. 新模型 按年评估 （取meanabserror和thredsholdbottom均值为阀值），其他参数同2.
@@ -108,7 +109,7 @@ public class BaggingM5P extends ContinousClassifier {
 		super();
 		classifierName = "baggingM5P";
 		WORK_PATH =WORK_PATH+classifierName+"\\";
-		m_skipTrainInBacktest = false;
+		m_skipTrainInBacktest = true;
 		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 
@@ -124,7 +125,7 @@ public class BaggingM5P extends ContinousClassifier {
 
 	@Override
 	protected Classifier buildModel(Instances train) throws Exception {
-		return buildModelWithPrePCA(train);
+		return buildModelWithPostPCA(train);
 	}
 
 	//bagging 内的每个模型自己有单独的PCA
@@ -208,13 +209,13 @@ public class BaggingM5P extends ContinousClassifier {
 		
 		//为特定年份下半年增加一个模型，提高准确度
 		String halfYearString="";
-//		if(yearSplit.length()==6){
-//			int inputMonth=Integer.parseInt(yearSplit.substring(4,6));
-//			//TODO 
-//			if ((inputYear==2016) && inputMonth>=6){
-//				halfYearString="06";
-//			}
-//		}
+		if(yearSplit.length()==6){
+			int inputMonth=Integer.parseInt(yearSplit.substring(4,6));
+			//TODO 
+			if ((inputYear==2016) && inputMonth>=6){
+				halfYearString="06";
+			}
+		}
 		String filename=this.WORK_PATH+this.WORK_FILE_PREFIX +"-"+this.classifierName+ "-" + inputYear +halfYearString+ MA_PREFIX + policySplit;//如果使用固定模型
 		
 		this.setModelFileName(filename);
@@ -222,4 +223,12 @@ public class BaggingM5P extends ContinousClassifier {
 	
 		return loadModelFromFile();
 	}	
+	
+	@Override
+	protected ThresholdData processThresholdData(ThresholdData eval){
+		double adjustedBottom=(eval.getThresholdMin()+eval.getMeanABError())/2;
+		System.out.println("----adjusted threshold bottom is :"+Double.toString(adjustedBottom)+ " because meanABError="+Double.toString(eval.getMeanABError()));
+		eval.setThresholdMin(adjustedBottom);
+		return eval;
+	}
 }

@@ -153,6 +153,8 @@ public abstract class ContinousClassifier extends BaseClassifier {
 		Vector<Double> v = new Vector<Double>();
 		v.add(new Double(thresholdBottom));
 		v.add(new Double(thresholdTop));
+		v.add(new Double(startPercent));
+		v.add(new Double(endPercent));
 		return v;
 	}
 
@@ -229,11 +231,5 @@ public abstract class ContinousClassifier extends BaseClassifier {
 		return structure;
 	}
 
-	@Override
-	protected ThresholdData processThresholdData(ThresholdData eval){
-		double adjustedBottom=(eval.getThresholdMin()+eval.getMeanABError())/2;
-		System.out.println("----adjusted threshold bottom is :"+Double.toString(adjustedBottom)+ " because meanABError="+Double.toString(eval.getMeanABError()));
-		eval.setThresholdMin(adjustedBottom);
-		return eval;
-	}
+
 }

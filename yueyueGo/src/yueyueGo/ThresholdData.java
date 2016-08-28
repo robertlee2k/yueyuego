@@ -7,8 +7,8 @@ import weka.core.SerializationHelper;
 public class ThresholdData {
 	private double thresholdMin=99999;
 	private double thresholdMax=99999;
-//	private double thresholdMin_hs300=99999;
-//	private double thresholdMax_hs300=99999;
+	private double startPercent=99999;
+	private double endPercent=99999;
 	private double meanABError=99999;
 
 	
@@ -23,7 +23,13 @@ public class ThresholdData {
 		//TODO 是否真的要设置上限需要评估8888
 		thresholdMax = ((Double) v_threshold.get(1)).doubleValue();
 		System.out.println("full market thresholding value：between "	+ thresholdMin + " , "+ thresholdMax);
-		meanABError=((Double) v_threshold.get(2)).doubleValue();
+
+		startPercent = ((Double) v_threshold.get(2)).doubleValue();
+		//TODO 是否真的要设置上限需要评估8888
+		endPercent = ((Double) v_threshold.get(3)).doubleValue();
+		System.out.println("full market percentile value：between "	+ startPercent + " , "+ endPercent);
+		
+		meanABError=((Double) v_threshold.get(4)).doubleValue();
 		System.out.println("full market meanABError value：between= "	+ meanABError);
 //		thresholdMin_hs300=-1;
 //		thresholdMax_hs300=-1;

@@ -111,11 +111,13 @@ public class NominalClassifier extends BaseClassifier{
 		Instances result = tc.getCurve(eval.predictions(), classIndex);
 
 		double thresholdBottom = 0;
+		double startPercent=100;
 		int round=1;
 		while (thresholdBottom == 0 && tp_fp_ratio > TP_FP_BOTTOM_LINE){
 			System.out.println("try number: "+round);
 			Vector<Double> v_threshold = computeThresholds(sample_limit, sample_upper,tp_fp_ratio, result);
 			thresholdBottom=v_threshold.get(0).doubleValue();
+			startPercent=100*(1-v_threshold.get(1).doubleValue()); //第二行存的是sampleSize
 			if (thresholdBottom>0)
 				break;
 			else {
@@ -134,7 +136,9 @@ public class NominalClassifier extends BaseClassifier{
 		//TODO 先将模型阀值上限设为1，以后找到合适的算法再计算。
 		double thresholdTop=1; 
 		v.add(new Double(thresholdTop));
-		
+		v.add(new Double(startPercent));
+		//先将模型end percent设为100，以后找到合适的算法再计算。
+		v.add(new Double(100));
 		double meanABError=eval.meanAbsoluteError();
 		System.out.println("----meanAbsoluteError is ="+meanABError);
 		v.add(new Double(meanABError));
@@ -195,6 +199,7 @@ public class NominalClassifier extends BaseClassifier{
 
 		Vector<Double> v = new Vector<Double>();
 		v.add(new Double(thresholdBottom));
+		v.add(new Double(finalSampleSize));
 		return v;
 	}
 
