@@ -31,17 +31,19 @@ public abstract class ContinousClassifier extends BaseClassifier {
 		double meanABError=eval.meanAbsoluteError();
 		
 		System.out.println(" -----------evaluating for FULL Market....");
-		Vector<Double> v = doModelEvaluation(train, model, sample_limit,sample_upper, tp_fp_ratio,meanABError);
+		Vector<Double> v = doModelEvaluation(train, model, sample_limit,sample_upper, tp_fp_ratio);
+		System.out.println("----meanAbsoluteError is="+meanABError);
+		v.add(new Double(meanABError));
 		System.out.println(" *********** end of evaluating for FULL Market....");		
-		// add HS300
-		if (m_sepeperate_eval_HS300==true){
-			System.out.println(" -----------evaluating for HS300 INDEX....");
-			Instances hs300=InstanceUtility.filterDataForIndex(train, ArffFormat.IS_HS300);
-			Vector<Double> v_hs300 = doModelEvaluation(hs300, model, sample_limit,sample_upper, tp_fp_ratio*0.9,meanABError); //对沪深300的TPFP降低要求
-			v.addAll(v_hs300);
-			System.out.println(" *********** end of evaluating for HS300 INDEX....");		
-		}
-		saveEvaluationToFile(v);
+//		// add HS300
+//		if (m_sepeperate_eval_HS300==true){
+//			System.out.println(" -----------evaluating for HS300 INDEX....");
+//			Instances hs300=InstanceUtility.filterDataForIndex(train, ArffFormat.IS_HS300);
+//			Vector<Double> v_hs300 = doModelEvaluation(hs300, model, sample_limit,sample_upper, tp_fp_ratio*0.9); //对沪深300的TPFP降低要求
+//			v.addAll(v_hs300);
+//			System.out.println(" *********** end of evaluating for HS300 INDEX....");		
+//		}
+		ThresholdData.saveEvaluationToFile(this.getEvaluationFilename(), v);
 		return v;
 		
 	}
@@ -49,7 +51,7 @@ public abstract class ContinousClassifier extends BaseClassifier {
 	//具体的模型评估方法
 	protected Vector<Double> doModelEvaluation(Instances train,
 			Classifier model, double sample_limit, double sample_upper,
-			double tp_fp_ratio,double meanABError) throws Exception {
+			double tp_fp_ratio) throws Exception {
 		DescriptiveStatistics stat_pred = new DescriptiveStatistics();
 		double pred = 0.0;
 		//新创建的Instances对象，用于存放预测值和实际值
@@ -75,14 +77,14 @@ public abstract class ContinousClassifier extends BaseClassifier {
 
 		}
 
-		Vector<Double> v = computeThresholds(sample_limit, sample_upper,tp_fp_ratio, stat_pred, predictions,meanABError);
+		Vector<Double> v = computeThresholds(sample_limit, sample_upper,tp_fp_ratio, stat_pred, predictions);
 		return v;
 	}
 
 	//计算给定预测结果集的最佳的阀值选择区间
 	protected Vector<Double> computeThresholds(double sample_limit,
 			double sample_upper, double tp_fp_ratio,
-			DescriptiveStatistics stat_pred, Instances predictions,double meanABError)
+			DescriptiveStatistics stat_pred, Instances predictions)
 			throws Exception {
 		//获取预测值的对应百分位数值
 		double currentPercent =(1-sample_upper) * 100;
@@ -143,15 +145,13 @@ public abstract class ContinousClassifier extends BaseClassifier {
 
 		// 如果找不到合适的值，似乎应该不可能出现这个情况
 		if (thresholdBottom==0){ 
-			thresholdBottom=meanABError; // 最小样本处的值
-			startPercent=0;
+			thresholdBottom=currentThreshold; // 最小样本处的值
+			startPercent=currentPercent;
 		}
 		System.out.println("----finally, we choose value at percentile: from "+startPercent+ " to "+endPercent);
 		System.out.println("----threshold is between: "+ Double.toString(thresholdBottom)+" - "+Double.toString(thresholdTop));
-		double adjustedBottom=(thresholdBottom+meanABError)/2;
-		System.out.println("----adjusted threshold bottom is :"+Double.toString(adjustedBottom)+ " because meanABError="+Double.toString(meanABError)); 
 		Vector<Double> v = new Vector<Double>();
-		v.add(new Double(adjustedBottom));
+		v.add(new Double(thresholdBottom));
 		v.add(new Double(thresholdTop));
 		return v;
 	}
@@ -229,4 +229,11 @@ public abstract class ContinousClassifier extends BaseClassifier {
 		return structure;
 	}
 
+	@Override
+	protected ThresholdData processThresholdData(ThresholdData eval){
+		double adjustedBottom=(eval.getThresholdMin()+eval.getMeanABError())/2;
+		System.out.println("----adjusted threshold bottom is :"+Double.toString(adjustedBottom)+ " because meanABError="+Double.toString(eval.getMeanABError()));
+		eval.setThresholdMin(adjustedBottom);
+		return eval;
+	}
 }

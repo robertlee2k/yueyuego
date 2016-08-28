@@ -6,6 +6,7 @@ import weka.classifiers.Classifier;
 import weka.classifiers.trees.RandomForest;
 import weka.core.Instances;
 import yueyueGo.NominalClassifier;
+import yueyueGo.ThresholdData;
 
 //效果不好
 @Deprecated  
@@ -14,12 +15,10 @@ public class RandomForestClassifier extends NominalClassifier	 {
 		super();
 		classifierName = "randomForest";
 		WORK_PATH =WORK_PATH+classifierName+"\\";
-		m_noCaculationAttrib=false; //添加计算字段
 		m_skipTrainInBacktest = true;
 		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
-		m_sepeperate_eval_HS300=false;//单独为HS300评估阀值
-		m_seperate_classify_HS300=false; //M5P不适用沪深300，缺省不单独评估HS300
+		m_noCaculationAttrib=false; //添加计算字段
 		EVAL_RECENT_PORTION = 0.9; // 计算最近数据阀值从历史记录中选取多少比例的最近样本
 		SAMPLE_LOWER_LIMIT = new double[]{ 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限 
 		SAMPLE_UPPER_LIMIT = new double[]  { 0.06, 0.07, 0.1, 0.11, 0.12 };
@@ -81,14 +80,8 @@ public class RandomForestClassifier extends NominalClassifier	 {
 		v.add(new Double(0.5+outofBagError));
 		v.add(new Double(999));
 		System.out.println(" *********** end evaluating for FULL Market....");		
-		// add HS300
-		if (m_sepeperate_eval_HS300==true){
-			System.out.println(" -----------evaluating for HS300 INDEX....");
-			v.add(new Double(0.5+outofBagError));
-			v.add(new Double(999));
-			System.out.println(" *********** end of evaluating for HS300 INDEX....");		
-		}
-		saveEvaluationToFile(v);
+
+		ThresholdData.saveEvaluationToFile(this.getEvaluationFilename(),v);
 		return v;
 		
 	}

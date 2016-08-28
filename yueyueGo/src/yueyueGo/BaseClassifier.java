@@ -40,7 +40,7 @@ public abstract class BaseClassifier {
 	public boolean m_skipTrainInBacktest = true; //在子类构造函数中赋值覆盖
 	public boolean m_skipEvalInBacktest = true;  //在子类构造函数中赋值覆盖
 	public boolean m_saveArffInBacktest = false; //缺省为false
-	public boolean m_sepeperate_eval_HS300=false;//单独为HS300评估阀值
+//	public final boolean m_sepeperate_eval_HS300=false;//不单独为HS300评估阀值
 	
 	//无须由外界函数设置的，在各子类中近乎常量的值
 	protected double EVAL_RECENT_PORTION;// 计算最近数据阀值从历史记录中选取多少比例的最近样本
@@ -50,14 +50,14 @@ public abstract class BaseClassifier {
 	protected double TP_FP_BOTTOM_LINE=0.5; //TP/FP的缺省下限
 	
 	//用于评估时使用
-	public boolean m_seperate_classify_HS300=false;//使用单独的阀值为HS300分类。
+//	public final boolean m_seperate_classify_HS300=false;//不使用单独的阀值为HS300分类。
 
 
 	
 	protected String model_filename;
 	protected String evaluation_filename;
-	protected String m_yearSplit; //当前回测数据的时间段
-	protected String m_policySplit; //当前的均线类别
+//	protected String m_yearSplit; //当前回测数据的时间段
+//	protected String m_policySplit; //当前的均线类别
 	//统计信息
 	protected DescriptiveStatistics summary_selected_TPR;
 	protected DescriptiveStatistics summary_selected_positive;
@@ -142,28 +142,20 @@ public abstract class BaseClassifier {
 	public  String predictData(Instances test, Instances result)
 			throws Exception {
 
-		//读取Threshold数据文件
-		@SuppressWarnings("unchecked")
-		Vector<Object> v_threshold = loadEvaluationFromFile();
-		double thresholdMin = ((Double) v_threshold.get(0)).doubleValue();
-		//TODO 是否真的要设置上限需要评估8888
-		double thresholdMax = ((Double) v_threshold.get(1)).doubleValue();
-		System.out.println("full market thresholding value：between "	+ thresholdMin + " , "+ thresholdMax);		
-		double thresholdMin_hs300=-1;
-		double thresholdMax_hs300=-1;
-		if (m_seperate_classify_HS300==true){
-			thresholdMin_hs300=((Double) v_threshold.get(2)).doubleValue();
-			//TODO 是否真的要设置上限需要评估
-			thresholdMax_hs300=((Double) v_threshold.get(3)).doubleValue();
-			System.out.println("HS300 index thresholding value：between "	+ thresholdMin_hs300 + " , "+ thresholdMax_hs300);
-		}
+		
+		ThresholdData evalData=new ThresholdData();
+		evalData.loadDataFromFile(this.getEvaluationFilename());
+		
+		evalData=processThresholdData(evalData);
+		
+		double thresholdMin=evalData.getThresholdMin();
+		double thresholdMax=evalData.getThresholdMax();
 		
 //		//20160711临时放开预测阀值
 //		if (thresholdMin>=0.16 && thresholdMin<=0.161) thresholdMin=0.12;
-		
-		
-		return predictWithThresHolds(test, result, thresholdMin, thresholdMax,
-				thresholdMin_hs300, thresholdMax_hs300);
+
+		return predictWithThresHolds(test, result,thresholdMin, thresholdMax);
+
 	}
 
 	/**
@@ -178,8 +170,7 @@ public abstract class BaseClassifier {
 	 * @throws IllegalStateException
 	 */
 	private String predictWithThresHolds(Instances test, Instances result,
-			double thresholdMin, double thresholdMax,
-			double thresholdMin_hs300, double thresholdMax_hs300)
+			double thresholdMin, double thresholdMax)
 			throws Exception, IllegalStateException {
 		// read classify model and header
 		String modelFileName=this.getModelFileName()+MODEL_FILE_EXTENSION;
@@ -250,12 +241,6 @@ public abstract class BaseClassifier {
 			double t_min=thresholdMin;
 			double t_max=thresholdMax;
 			double selected = 0.0;
-			if (m_seperate_classify_HS300==true){
-				if (ArffFormat.isHS300(curr)==true){
-					t_min=thresholdMin_hs300;
-					t_max=thresholdMax_hs300;
-				}	
-			}
 			
 			if (pred >=t_min  && pred <= t_max) {
 				selected = 1.0;
@@ -417,11 +402,6 @@ public abstract class BaseClassifier {
 		System.out.println("......................");
 		System.out.println("......................");
 		System.out.println("......................");
-		System.out.println("......................");
-		System.out.println("......................");
-		System.out.println("......................");
-		System.out.println("......................");
-		System.out.println("......................");
 		System.out.println("===============================output summary===================================== for : "+classifierName);
 		System.out.println("Monthly selected_TPR mean: "+selected_TPR_mean+" standard deviation="+selected_TPR_SD+" Skewness="+selected_TPR_SKW+" Kurtosis="+selected_TPR_Kur);
 		System.out.println("Monthly selected_LIFT mean : "+lift_mean);
@@ -437,35 +417,7 @@ public abstract class BaseClassifier {
 		System.out.println("......................");
 		System.out.println("......................");
 		System.out.println("......................");
-		System.out.println("......................");
-		System.out.println("......................");
-		System.out.println("......................");
-		System.out.println("......................");
-		System.out.println("......................");
 
-//		if (writeFile==true){
-//			String header ="所选正收益股数,所选总股数,所选股TPR,提升率,所选股平均收益率,整体平均收益率,收益率差\r\n";
-//			//"selected_TPR,LIFT,selected_positive,selected_count,selectedShouyilv,totalShouyilv,shouyilvDifference\r\n";
-//			StringBuffer strBuff = new StringBuffer();
-//			long size=summary_totalShouyilv.getN();
-//			for (int i = 0; i < size; i++) {
-//				strBuff.append(summary_selected_positive.getElement(i));
-//				strBuff.append(",");
-//				strBuff.append(summary_selected_count.getElement(i));
-//				strBuff.append(",");
-//				strBuff.append(FormatUtility.formatPercent(summary_selected_TPR.getElement(i)));
-//				strBuff.append(",");
-//				strBuff.append(summary_lift.getElement(i));
-//				strBuff.append(",");
-//				strBuff.append(FormatUtility.formatPercent(summary_selectedShouyilv.getElement(i)));
-//				strBuff.append(",");
-//				strBuff.append(FormatUtility.formatPercent(summary_totalShouyilv.getElement(i)));
-//				strBuff.append(",");
-//				strBuff.append(FormatUtility.formatPercent(summary_selectedShouyilv.getElement(i)-summary_totalShouyilv.getElement(i)));
-//				strBuff.append("\r\n");
-//			}
-//			FileUtility.write(ProcessData.BACKTEST_RESULT_DIR+this.classifierName+"-monthlySummary.csv", header+strBuff, "UTF-8");
-//		}
 	}
 	
 	public String getModelFileName() {
@@ -478,8 +430,6 @@ public abstract class BaseClassifier {
 	
 	//生成回测时使用的model文件和eval文件名称
 	public void generateModelAndEvalFileName(String yearSplit,String policySplit) {
-//		this.m_policySplit=policySplit;
-//		this.m_yearSplit=yearSplit;
 		String modelFile=this.WORK_PATH+this.WORK_FILE_PREFIX +"-"+this.classifierName+ "-" + yearSplit + MA_PREFIX + policySplit;
 		setModelFileName(modelFile);
 		setEvaluationFilename(modelFile+THRESHOLD_EXTENSION);
@@ -510,27 +460,17 @@ public abstract class BaseClassifier {
 		System.out.println("models saved to :"+ modelFileName);
 	}
 	
-	protected void saveEvaluationToFile(Vector<Double> v) throws Exception {
-		String evalFileName=this.getEvaluationFilename();
-		SerializationHelper.write( evalFileName, v);
-		System.out.println("evaluation saved to :"+ evalFileName);
-	}
-	
-	@SuppressWarnings("rawtypes")
-	protected Vector loadEvaluationFromFile()	throws Exception {
-		String evalFileName=this.getEvaluationFilename();
-		System.out.println("Classifier Threshold Loaded From: "+ evalFileName);
-		return (Vector) SerializationHelper.read( evalFileName);
-	}
-	
-
-	
 	// arffType="train" or "test" or "eval"
 	public void saveArffFile(Instances trainingData,String arffType,String yearSplit,String policySplit) throws IOException{
 		String trainingFileName = this.WORK_PATH+this.WORK_FILE_PREFIX + " "+arffType+" " + yearSplit + MA_PREFIX+ policySplit + ARFF_EXTENSION;
 		FileUtility.SaveDataIntoFile(trainingData, trainingFileName);
 	}
 	
+
+	//对于父类来说，do nothing
+	protected ThresholdData processThresholdData(ThresholdData eval){
+		return eval;
+	}
 
 	
 }

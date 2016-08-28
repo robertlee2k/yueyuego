@@ -82,15 +82,16 @@ public class NominalClassifier extends BaseClassifier{
 		System.out.println(" -----------evaluating for FULL Market....");
 		Vector<Double> v = doModelEvaluation(train, model, sample_limit,sample_upper, tp_fp_ratio);
 		System.out.println(" *********** end of evaluating for FULL Market....");		
-		// add HS300
-		if (m_sepeperate_eval_HS300==true){
-			System.out.println(" -----------evaluating for HS300 INDEX....");
-			Instances hs300=InstanceUtility.filterDataForIndex(train, ArffFormat.IS_HS300);
-			Vector<Double> v_hs300 = doModelEvaluation(hs300, model, sample_limit,sample_upper, tp_fp_ratio*0.9); //对沪深300的TPFP降低要求
-			v.addAll(v_hs300);
-			System.out.println(" *********** end of evaluating for HS300 INDEX....");		
-		}
-		saveEvaluationToFile(v);
+//		// add HS300
+//		if (m_sepeperate_eval_HS300==true){
+//			System.out.println(" -----------evaluating for HS300 INDEX....");
+//			Instances hs300=InstanceUtility.filterDataForIndex(train, ArffFormat.IS_HS300);
+//			Vector<Double> v_hs300 = doModelEvaluation(hs300, model, sample_limit,sample_upper, tp_fp_ratio*0.9); //对沪深300的TPFP降低要求
+//			v.addAll(v_hs300);
+//			System.out.println(" *********** end of evaluating for HS300 INDEX....");		
+//		}
+
+		ThresholdData.saveEvaluationToFile(this.getEvaluationFilename(), v);
 		return v;
 		
 	}
@@ -99,6 +100,7 @@ public class NominalClassifier extends BaseClassifier{
 			throws Exception {
 		//评估模型
 		Evaluation eval = getEvaluation(train, model,1-EVAL_RECENT_PORTION);
+
 		
 		System.out.println("finish evaluating model, try to get best threshold for model...");
 
@@ -132,6 +134,10 @@ public class NominalClassifier extends BaseClassifier{
 		//TODO 先将模型阀值上限设为1，以后找到合适的算法再计算。
 		double thresholdTop=1; 
 		v.add(new Double(thresholdTop));
+		
+		double meanABError=eval.meanAbsoluteError();
+		System.out.println("----meanAbsoluteError is ="+meanABError);
+		v.add(new Double(meanABError));
 		return v;
 	}
 

@@ -30,8 +30,7 @@ public class VotedPerceptionClassifier extends NominalClassifier {
 		m_skipEvalInBacktest = true;
 		
 		EVAL_RECENT_PORTION = 0.7; // 计算最近数据阀值从历史记录中选取多少比例的最近样本
-		m_sepeperate_eval_HS300=false;//不单独为HS300评估阀值
-		m_seperate_classify_HS300=false;
+
 		
 		SAMPLE_LOWER_LIMIT =new double[] { 0.01, 0.01, 0.02, 0.02, 0.02 }; // 各条均线选择样本的下限
 		SAMPLE_UPPER_LIMIT =new double[] {0.07, 0.09, 0.12, 0.15, 0.2 }; // 各条均线选择样本的上限
