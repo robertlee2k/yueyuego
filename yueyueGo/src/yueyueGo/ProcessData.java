@@ -60,12 +60,19 @@ public class ProcessData {
 	public static final String MLPAB_EVAL_MODEL="\\extData2005-2016-mlpAB-2016 MA "; 
 	public static final String BAGGING_PREDICT_MODEL="\\extData2005-2016-baggingM5P-201606 MA ";
 	public static final String BAGGING_EVAL_MODEL="\\extData2005-2016-baggingM5P-201607 MA ";
+	public static final String ADABOOST_PREDICT_MODEL="\\extData2005-2016-adaboost-201606 MA ";
+	public static final String ADABOOST_EVAL_MODEL="\\extData2005-2016-adaboost-201606 MA ";
+	
+	public static final double SHOUYILV_THREDHOLD=0.01; //收益率的筛选阀值
+	private final static int BEGIN_FROM_POLICY=0; // 当回测需要跳过某些均线时，0表示不跳过
 	
 	public static final String[] splitYear ={
-	  "2008","2009","2010","2011","2012","2013","2014","2015","2016"
+//	  "2008","2009","2010","2011","2012","2013","2014","2015","2016"
 //	"200801","200802","200803","200804","200805","200806","200807","200808","200809","200810","200811","200812","200901","200902","200903","200904","200905","200906","200907","200908","200909","200910","200911","200912","201001","201002","201003","201004","201005","201006","201007","201008","201009","201010","201011","201012","201101","201102","201103","201104","201105","201106","201107","201108","201109","201110","201111","201112","201201","201202","201203","201204","201205","201206","201207","201208","201209","201210","201211","201212","201301","201302","201303","201304","201305","201306","201307","201308","201309","201310","201311","201312","201401","201402","201403","201404","201405","201406","201407","201408","201409","201410","201411","201412","201501","201502","201503","201504","201505","201506","201507","201508","201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607"
-		
+//		"201606","201607"	
+		"2015","2016"
 	};
+
 
 	public static void main(String[] args) {
 		try {
@@ -85,8 +92,6 @@ public class ProcessData {
 //			UpdateHistoryArffFile.mergeExtData();
 			
 //			UpdateHistoryArffFile.createTransInstances();
-			
-			
 			
 		} catch (Exception e) {
 			
@@ -120,8 +125,18 @@ public class ProcessData {
 		
 		//BaggingM5P
 		BaggingM5P cBagModel=new BaggingM5P();
-		predictWithDB(cBagModel,PREDICT_WORK_DIR);		
-
+		Instances baggingInstances=predictWithDB(cBagModel,PREDICT_WORK_DIR);		
+		
+		//Adaboost
+		AdaboostClassifier adaModel=new AdaboostClassifier();
+		Instances adaboostInstances=predictWithDB(adaModel,PREDICT_WORK_DIR);		
+		
+		//合并adaboost和bagging
+		System.out.println("-----now output combined predictions----------"+adaModel.classifierName);
+		Instances left=InstanceUtility.removeAttribs(adaboostInstances, "5,6"); //只是为了使用下面的方法
+		Instances mergedOutput=mergeResults(adaboostInstances,baggingInstances,ArffFormat.RESULT_PREDICTED_PROFIT,left);
+		FileUtility.saveCSVFile(mergedOutput, PREDICT_WORK_DIR + "Merged Selected Result-"+adaModel.classifierName+"-"+FormatUtility.getDateStringFor(1)+".csv");
+		
 //			//使用文件预测
 //			String dataFileName=("t_stock_avgline_increment_zuixin_v"+FormatUtility.getDateStringFor(-1)).trim();
 //			//用二分类模型预测每日增量数据
@@ -153,27 +168,30 @@ public class ProcessData {
 //		MLPABClassifier nModel = new MLPABClassifier();
 //		RandomForestClassifier nModel=new RandomForestClassifier ();
 		AdaboostClassifier nModel=new AdaboostClassifier();
-		Instances nominalResult=testBackward(nModel);
+//		Instances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
-//		Instances nominalResult=loadBackTestResultFromFile(nModel.classifierName);
+		Instances nominalResult=loadBackTestResultFromFile(nModel.classifierName);
 
 		//按连续分类器回测历史数据
 //		M5PClassifier cModel=new M5PClassifier();
 //		M5PABClassifier cModel=new M5PABClassifier();
 		BaggingM5P cModel=new BaggingM5P();
-//		Instances continuousResult=testBackward(cModel);
+		Instances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
-		Instances continuousResult=loadBackTestResultFromFile(cModel.classifierName);
+//		Instances continuousResult=loadBackTestResultFromFile(cModel.classifierName);
 		
 		//统一输出统计结果
 		nModel.outputClassifySummary();
 		cModel.outputClassifySummary();
 
 		//输出用于计算收益率的CSV文件
+		System.out.println("-----now output continuous predictions----------"+cModel.classifierName);
 		Instances m5pOutput=mergeResultWithData(continuousResult,nominalResult,ArffFormat.RESULT_PREDICTED_WIN_RATE,cModel.arff_format);
 		saveSelectedFileForMarkets(m5pOutput,cModel.classifierName);
+		System.out.println("-----now output nominal predictions----------"+nModel.classifierName);
 		Instances mlpOutput=mergeResultWithData(nominalResult,continuousResult,ArffFormat.RESULT_PREDICTED_PROFIT,nModel.arff_format);
 		saveSelectedFileForMarkets(mlpOutput,nModel.classifierName);
+		System.out.println("-----end of test backward------");
 	}
 
 
@@ -191,13 +209,11 @@ public class ProcessData {
 	}
 	
 	//直接访问数据库预测每天的增量数据
-	protected static void predictWithDB(BaseClassifier clModel, String pathName) throws Exception {
+	protected static Instances predictWithDB(BaseClassifier clModel, String pathName) throws Exception {
 		System.out.println("-----------------------------");
 		Instances fullData = DBAccess.LoadDataFromDB(clModel.arff_format);
+		return predict(clModel, pathName, fullData);
 
-		
-		predict(clModel, pathName, fullData);
-		System.out.println("Database updated and mission completed.");
 	}
 	
 	//用模型预测数据
@@ -259,6 +275,11 @@ public class ProcessData {
 						+  clModel.m_policySubGroup[j]	;
 				evalFileName = pathName+"\\"+clModel.classifierName+BAGGING_EVAL_MODEL
 						 + clModel.m_policySubGroup[j]+BaseClassifier.THRESHOLD_EXTENSION	;				
+			}else if (clModel instanceof AdaboostClassifier ){
+				modelFileName = pathName+"\\"+clModel.classifierName+ADABOOST_PREDICT_MODEL
+						+  clModel.m_policySubGroup[j]	;
+				evalFileName = pathName+"\\"+clModel.classifierName+ADABOOST_EVAL_MODEL
+						 + clModel.m_policySubGroup[j]+BaseClassifier.THRESHOLD_EXTENSION	;				
 			}else {
 				throw new Exception("undefined predict model");
 			}
@@ -297,10 +318,6 @@ public class ProcessData {
 		clModel.outputClassifySummary();
 		return result;
 	}
-
-
-
-
 
 	//历史回测
 	protected static Instances testBackward(BaseClassifier clModel) throws Exception,
@@ -344,7 +361,7 @@ public class ProcessData {
 			Instances trainingData = null;
 			Instances testingRawData = null;
 
-			for (int j = 0; j < clModel.m_policySubGroup.length; j++) {
+			for (int j = BEGIN_FROM_POLICY; j < clModel.m_policySubGroup.length; j++) {
 				// 加载原始arff文件
 				if (fullSetData == null) {
 
@@ -479,8 +496,7 @@ public class ProcessData {
 		String evalSummary=yearSplit+","+policySplit+",";
 		evalSummary+=clModel.predictData(testingData, result);
 		testingData=null;
-		System.out.println("accumulated predicted rows: "
-				+ result.numInstances());
+		System.out.println("accumulated predicted rows: "+ result.numInstances());
 		System.out.println("complete for " + yearSplit + "均线策略: " + policySplit);
 		return evalSummary;
 	}
@@ -518,23 +534,49 @@ public class ProcessData {
 		}else if (format==ArffFormat.LEGACY_FORMAT){ //LEGACY 有少量模型尚使用原有格式
 			left=FileUtility.loadDataFromFile(C_ROOT_DIRECTORY+"AllTransaction20052016-left.arff");
 		}
+
+		Instances mergedResult = mergeResults(resultData, referenceData,dataToAdd, left);
+		
+		//返回结果之前需要按TradeDate重新排序
+		int tradeDateIndex=InstanceUtility.findATTPosition(mergedResult, ArffFormat.TRADE_DATE);
+		mergedResult.sort(tradeDateIndex-1);
+		
+		//TODO 给mergedResult瘦身。
+		mergedResult=InstanceUtility.removeAttribs(mergedResult, "2,6,7,9");
+
+
+		return mergedResult;
+	}
+
+
+
+	/**
+	 * @param resultData
+	 * @param referenceData
+	 * @param dataToAdd
+	 * @param left
+	 * @return
+	 * @throws IllegalStateException
+	 * @throws Exception
+	 */
+	protected static Instances mergeResults(Instances resultData,Instances referenceData, String dataToAdd, Instances left)
+			throws IllegalStateException, Exception {
 		System.out.println("incoming resultData size, row="+resultData.numInstances()+" column="+resultData.numAttributes());
 		System.out.println("incoming referenceData size, row="+referenceData.numInstances()+" column="+referenceData.numAttributes());
 		System.out.println("Left data loaded, row="+left.numInstances()+" column="+left.numAttributes());
-
 
 	    // 创建输出结果
 	    Instances mergedResult = new Instances(left, 0);
 	    mergedResult=InstanceUtility.AddAttribute(mergedResult,ArffFormat.RESULT_PREDICTED_PROFIT, mergedResult.numAttributes());
 	    mergedResult=InstanceUtility.AddAttribute(mergedResult,ArffFormat.RESULT_PREDICTED_WIN_RATE, mergedResult.numAttributes());
 	    mergedResult=InstanceUtility.AddAttribute(mergedResult,ArffFormat.RESULT_SELECTED, mergedResult.numAttributes());
-
 		
 		Instance leftCurr;
 		Instance resultCurr;
 		Instance referenceCurr;
 		Instance newData;
 		Attribute leftMA=left.attribute(ArffFormat.SELECTED_AVG_LINE);
+		Attribute shouyilvAtt=left.attribute(ArffFormat.SHOUYILV);	
 		Attribute resultMA=resultData.attribute(ArffFormat.SELECTED_AVG_LINE);
 		Attribute leftBias5=left.attribute("bias5");
 		Attribute resultBias5=resultData.attribute("bias5");
@@ -542,14 +584,11 @@ public class ProcessData {
 		Attribute outputSelectedAtt=mergedResult.attribute(ArffFormat.RESULT_SELECTED);
 		Attribute outputPredictAtt=mergedResult.attribute(ArffFormat.RESULT_PREDICTED_PROFIT);
 		Attribute outputWinrateAtt=mergedResult.attribute(ArffFormat.RESULT_PREDICTED_WIN_RATE);
-				
-		
 		
 		//传入的结果集result不是排序的,而left的数据是按tradeDate日期排序的， 所以都先按ID排序。
 		left.sort(ArffFormat.ID_POSITION-1);
 		resultData.sort(ArffFormat.ID_POSITION-1);
 		referenceData.sort(ArffFormat.ID_POSITION-1);
-		
 		
 		double idInResults=0;
 		double idInLeft=0;
@@ -558,7 +597,11 @@ public class ProcessData {
 		int leftIndex=0;
 		int referenceIndex=0;
 		int referenceDataNum=referenceData.numInstances();
-
+		
+		//以下变量是为合并时修改选择结果而设
+		int resultChanged=0;
+		int goodChangeNum=0;
+		double changedShouyilv=0;
 
 		while (leftIndex<left.numInstances() && resultIndex<resultData.numInstances()){				
 			resultCurr=resultData.instance(resultIndex);
@@ -604,7 +647,6 @@ public class ProcessData {
 					}
 				}
 				
-				
 				//接下来做冗余字段的数据校验
 				if ( ArffFormat.checkSumBeforeMerge(leftCurr, resultCurr, leftMA, resultMA,leftBias5, resultBias5)) {
 					newData=new DenseInstance(mergedResult.numAttributes());
@@ -617,21 +659,42 @@ public class ProcessData {
 					//根据传入的参数判断需要当前有什么，需要补充的数据是什么
 					double profit;
 					double winrate;
+					double selected=resultCurr.value(resultSelectedAtt);
+					
+
 					if (dataToAdd.equals(ArffFormat.RESULT_PREDICTED_WIN_RATE)){
 						//当前结果集里有什么数据
 						profit=resultCurr.value(resultData.attribute(ArffFormat.RESULT_PREDICTED_PROFIT));
 						//需要添加参考集里的什么数据
 						winrate=referenceCurr.value(referenceData.attribute(ArffFormat.RESULT_PREDICTED_WIN_RATE));
-					}else{
+//						//当为连续分类器合并胜率时，如果参照的二分类器预期胜率小于等于0.5，则不选择该条记录?
+//						if (winrate<=0.5 && selected==1){
+//							selected=0;
+//							resultChanged++;
+//						}
+					}else{ 
 						//当前结果集里有什么数据
 						winrate=resultCurr.value(resultData.attribute(ArffFormat.RESULT_PREDICTED_WIN_RATE));
 						//需要添加参考集里的什么数据
 						profit=referenceCurr.value(referenceData.attribute(ArffFormat.RESULT_PREDICTED_PROFIT));
+						//当为二分类器合并收益率时，如果参照的连续分类器预期收益率小于等于某阀值（0或1%）时，则不选择该条记录。
+
+						if (profit<=SHOUYILV_THREDHOLD && selected==1){
+							selected=0;
+							resultChanged++;
+							double shouyilv=leftCurr.value(shouyilvAtt);
+							changedShouyilv+=shouyilv;
+							if (shouyilv<=SHOUYILV_THREDHOLD){
+								//如果变化的实际收益率也小于阀值，说明这是一次正确的变换
+								goodChangeNum++;
+							}
+						}
 					}
 
 					newData.setValue(outputPredictAtt, profit);
 					newData.setValue(outputWinrateAtt, winrate);
-					newData.setValue(outputSelectedAtt, resultCurr.value(resultSelectedAtt));
+					newData.setValue(outputSelectedAtt,selected );						
+
 					mergedResult.add(newData);
 					resultIndex++;
 					leftIndex++;
@@ -644,43 +707,53 @@ public class ProcessData {
 			}
 		}// end left processed
 		if (mergedResult.numInstances()!=resultData.numInstances()){
-//			throw new Exception
-			System.out.println("------Attention!!! not all data in result have been processed , processed= "+mergedResult.numInstances()+" ,while total result="+resultData.numInstances());
+			System.err.println("------Attention!!! not all data in result have been processed , processed= "+mergedResult.numInstances()+" ,while total result="+resultData.numInstances());
 		}else {
 			System.out.println("number of results merged and processed: "+ mergedResult.numInstances());
 		}
 		
-		//返回结果之前需要按TradeDate重新排序
-		int tradeDateIndex=InstanceUtility.findATTPosition(mergedResult, ArffFormat.TRADE_DATE);
-		mergedResult.sort(tradeDateIndex-1);
-		
-		//TODO 给mergedResult瘦身。
-		mergedResult=InstanceUtility.removeAttribs(mergedResult, "2,6,7,9");
-
-
+		System.out.println("result changed because of reference data not matched="+resultChanged+" while good change number="+goodChangeNum);
+		if (resultChanged>0){
+			double goodRatio=new Double(goodChangeNum).doubleValue()/resultChanged;
+			System.out.print(" good ratio="+FormatUtility.formatPercent(goodRatio));
+			System.out.print(" average changed shouyilv="+FormatUtility.formatPercent(changedShouyilv/resultChanged));
+			System.out.println(" @ thredhold="+FormatUtility.formatPercent(SHOUYILV_THREDHOLD));
+		}
 		return mergedResult;
 	}
 
 
 	private static void saveBacktestResultFile(Instances result,String classiferName) throws IOException{
-	FileUtility.SaveDataIntoFile(result, BACKTEST_RESULT_DIR+"回测结果-"+ classiferName+".arff" );
-}
-protected static Instances loadBackTestResultFromFile(String classiferName) throws Exception{
-	Instances result=FileUtility.loadDataFromFile(BACKTEST_RESULT_DIR+"回测结果-"+ classiferName+".arff" );
-	return result;
-}
+		FileUtility.SaveDataIntoFile(result, BACKTEST_RESULT_DIR+"回测结果-"+ classiferName+".arff" );
+	}
+	protected static Instances loadBackTestResultFromFile(String classiferName) throws Exception{
+		Instances result=FileUtility.loadDataFromFile(BACKTEST_RESULT_DIR+"回测结果-"+ classiferName+".arff" );
+		return result;
+	}
 
-protected static void saveSelectedFileForMarkets(Instances fullOutput,String classiferName) throws Exception{
-	//输出全市场结果
-	Instances fullMarketSelected=InstanceUtility.getInstancesSubset(fullOutput, InstanceUtility.WEKA_ATT_PREFIX +fullOutput.numAttributes()+" = 1");
-	FileUtility.saveCSVFile(fullMarketSelected, BACKTEST_RESULT_DIR+"选股-"+ classiferName+"-full" + RESULT_EXTENSION );
-	//输出沪深300
-	Instances subsetMarketSelected=InstanceUtility.filterDataForIndex(fullMarketSelected,ArffFormat.IS_HS300);
-	FileUtility.saveCSVFile(subsetMarketSelected, BACKTEST_RESULT_DIR+"选股-"+ classiferName+"-hs300" + RESULT_EXTENSION );
-	//输出中证300
-	subsetMarketSelected=InstanceUtility.filterDataForIndex(fullMarketSelected,ArffFormat.IS_ZZ500);
-	FileUtility.saveCSVFile(subsetMarketSelected, BACKTEST_RESULT_DIR+"选股-"+ classiferName+"-zz500" + RESULT_EXTENSION );
-}
+	protected static void saveSelectedFileForMarkets(Instances fullOutput,String classiferName) throws Exception{
+		//输出全市场概况
+		Attribute shouyilvAttribute=fullOutput.attribute(ArffFormat.SHOUYILV);
+		System.out.println("number of records for full market="+fullOutput.numInstances());
+		System.out.println("shouyilv average for full market="+FormatUtility.formatPercent(fullOutput.meanOrMode(shouyilvAttribute),2,2));
+		
+		//输出全市场选股结果
+		Instances fullMarketSelected=InstanceUtility.getInstancesSubset(fullOutput, InstanceUtility.WEKA_ATT_PREFIX +fullOutput.numAttributes()+" = 1");
+		shouyilvAttribute=fullMarketSelected.attribute(ArffFormat.SHOUYILV);
+		System.out.println("selected shouyilv average for full market ="+FormatUtility.formatPercent(fullMarketSelected.meanOrMode(shouyilvAttribute),2,2)+" count="+fullMarketSelected.numInstances());
+		FileUtility.saveCSVFile(fullMarketSelected, BACKTEST_RESULT_DIR+"选股-"+ classiferName+"-full" + RESULT_EXTENSION );
+
+		//输出沪深300
+		Instances subsetMarketSelected=InstanceUtility.filterDataForIndex(fullMarketSelected,ArffFormat.IS_HS300);
+		shouyilvAttribute=subsetMarketSelected.attribute(ArffFormat.SHOUYILV);
+		System.out.println("selected shouyilv average for hs300 ="+FormatUtility.formatPercent(subsetMarketSelected.meanOrMode(shouyilvAttribute),2,2)+" count="+subsetMarketSelected.numInstances());
+		FileUtility.saveCSVFile(subsetMarketSelected, BACKTEST_RESULT_DIR+"选股-"+ classiferName+"-hs300" + RESULT_EXTENSION );
+		//输出中证300
+		subsetMarketSelected=InstanceUtility.filterDataForIndex(fullMarketSelected,ArffFormat.IS_ZZ500);
+		shouyilvAttribute=subsetMarketSelected.attribute(ArffFormat.SHOUYILV);
+		System.out.println("selected shouyilv average for zz500 ="+FormatUtility.formatPercent(subsetMarketSelected.meanOrMode(shouyilvAttribute),2,2)+" count="+subsetMarketSelected.numInstances());
+		FileUtility.saveCSVFile(subsetMarketSelected, BACKTEST_RESULT_DIR+"选股-"+ classiferName+"-zz500" + RESULT_EXTENSION );
+	}
 
 
 

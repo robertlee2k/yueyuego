@@ -98,6 +98,9 @@ import yueyueGo.MyAttributionSelectorWithPCA;
 //mixed selected positive rate: 34.78%
 //Monthly summary_judge_result summary: good number= 278 bad number=237
 //===============================end of summary=====================================for : baggingM5P
+//shouyilv average for full market selected=2.76%
+//shouyilv average for hs300 selected=0.28%
+//shouyilv average for zz500 selected=1.95%
 
 public class BaggingM5P extends ContinousClassifier {
 
@@ -105,8 +108,8 @@ public class BaggingM5P extends ContinousClassifier {
 		super();
 		classifierName = "baggingM5P";
 		WORK_PATH =WORK_PATH+classifierName+"\\";
-		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = true;
+		m_skipTrainInBacktest = false;
+		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 
 		m_noCaculationAttrib=false; //添加计算字段!
@@ -120,10 +123,13 @@ public class BaggingM5P extends ContinousClassifier {
 	}
 
 
-
-
 	@Override
 	protected Classifier buildModel(Instances train) throws Exception {
+		return buildModelWithPrePCA(train);
+	}
+
+	//bagging 内的每个模型自己有单独的PCA
+	private  Classifier buildModelWithPostPCA(Instances train) throws Exception {
 		//bagging特有参数
 		int bagging_iteration=10;
 		int bagging_samplePercent=70;
@@ -131,7 +137,6 @@ public class BaggingM5P extends ContinousClassifier {
 		int leafMinObjNum=300;
 		
 		//设置基础的m5p classifier参数
-		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();
 		M5P model = new M5P();
 		int minNumObj=train.numInstances()/300;
 		if (minNumObj<leafMinObjNum){
@@ -142,9 +147,10 @@ public class BaggingM5P extends ContinousClassifier {
 		model.setMinNumInstances(minNumObj);
 		model.setNumDecimalPlaces(6);
 		model.setDebug(true);
+		
+		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();
 		classifier.setDebug(true);
 		classifier.setClassifier(model);
-		
 
 	    // set up the bagger and build the classifier
 	    Bagging bagger = new Bagging();
@@ -152,10 +158,48 @@ public class BaggingM5P extends ContinousClassifier {
 	    bagger.setNumIterations(bagging_iteration);
 	    bagger.setNumExecutionSlots(3);
 	    bagger.setBagSizePercent(bagging_samplePercent);
-	    bagger.setCalcOutOfBag(true); //计算袋外误差
+	    bagger.setCalcOutOfBag(false); //不计算袋外误差
 	    bagger.setDebug(true);
 	    bagger.buildClassifier(train);
 		return bagger;
+	}
+	
+	//bagging 之前使用PCA，bagging大家用同一的
+	private  Classifier buildModelWithPrePCA(Instances train) throws Exception {
+		//bagging特有参数
+		int bagging_iteration=10;
+		int bagging_samplePercent=100;
+		//m5p特有参数
+		int leafMinObjNum=300;
+		
+		//设置基础的m5p classifier参数
+		M5P model = new M5P();
+		int minNumObj=train.numInstances()/300;
+		if (minNumObj<leafMinObjNum){
+			minNumObj=leafMinObjNum; //防止树过大
+		}
+		String batchSize=Integer.toString(minNumObj);
+		model.setBatchSize(batchSize);
+		model.setMinNumInstances(minNumObj);
+		model.setNumDecimalPlaces(6);
+		model.setDebug(true);
+	
+	    // set up the bagger and build the classifier
+	    Bagging bagger = new Bagging();
+		bagger.setDebug(true);
+		bagger.setClassifier(model);
+	    bagger.setNumIterations(bagging_iteration);
+	    bagger.setNumExecutionSlots(3);
+	    bagger.setBagSizePercent(bagging_samplePercent);
+	    bagger.setCalcOutOfBag(true); //计算袋外误差
+	    bagger.setDebug(true);
+	    
+		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();	    
+	    classifier.setDebug(true);
+	    classifier.setClassifier(bagger);
+	    classifier.buildClassifier(train);
+	    
+		return classifier;
 	}
 	
 	@Override
