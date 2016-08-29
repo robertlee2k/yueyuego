@@ -109,8 +109,8 @@ public class BaggingM5P extends ContinousClassifier {
 		super();
 		classifierName = "baggingM5P";
 		WORK_PATH =WORK_PATH+classifierName+"\\";
-		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = true;
+		m_skipTrainInBacktest = false;
+		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 
 		m_noCaculationAttrib=false; //添加计算字段!
@@ -125,7 +125,7 @@ public class BaggingM5P extends ContinousClassifier {
 
 	@Override
 	protected Classifier buildModel(Instances train) throws Exception {
-		return buildModelWithPostPCA(train);
+		return buildModelWithPrePCA(train);
 	}
 
 	//bagging 内的每个模型自己有单独的PCA
