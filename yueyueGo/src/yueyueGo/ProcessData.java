@@ -63,14 +63,13 @@ public class ProcessData {
 	public static final String ADABOOST_PREDICT_MODEL="\\extData2005-2016-adaboost-201606 MA ";
 	public static final String ADABOOST_EVAL_MODEL="\\extData2005-2016-adaboost-201606 MA ";
 	
-	public static final double SHOUYILV_THREDHOLD=0.01; //收益率的筛选阀值
+	public static final double[] SHOUYILV_THREDHOLD={0.02,0.03,0.04,0.05,0.06}; //收益率的筛选阀值
 	private final static int BEGIN_FROM_POLICY=0; // 当回测需要跳过某些均线时，0表示不跳过
 	
 	public static final String[] splitYear ={
-//	  "2008","2009","2010","2011","2012","2013","2014","2015","2016","201606"
+	  "2008","2009","2010","2011","2012","2013","2014","2015","2016"
 //	"200801","200802","200803","200804","200805","200806","200807","200808","200809","200810","200811","200812","200901","200902","200903","200904","200905","200906","200907","200908","200909","200910","200911","200912","201001","201002","201003","201004","201005","201006","201007","201008","201009","201010","201011","201012","201101","201102","201103","201104","201105","201106","201107","201108","201109","201110","201111","201112","201201","201202","201203","201204","201205","201206","201207","201208","201209","201210","201211","201212","201301","201302","201303","201304","201305","201306","201307","201308","201309","201310","201311","201312","201401","201402","201403","201404","201405","201406","201407","201408","201409","201410","201411","201412","201501","201502","201503","201504","201505","201506","201507","201508","201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607"
-//		"201606","201607"	
-		"2013","2016"
+	//	"201606","201607"	
 	};
 
 
@@ -163,11 +162,6 @@ public class ProcessData {
 //		REPTreeClassifier nModel = new REPTreeClassifier();
 //		Instances nominalResult=testBackward(nModel);
 
-//		//TODO 临时生成eval文件
-//		MLPABClassifier mlModel = new MLPABClassifier();
-//		testBackward(mlModel);
-//		M5PABClassifier mModel=new M5PABClassifier();
-//		testBackward(mModel);
 		
 		//神经网络
 //		MLPClassifier nModel = new MLPClassifier();
@@ -688,17 +682,21 @@ public class ProcessData {
 						profit=referenceCurr.value(referenceData.attribute(ArffFormat.RESULT_PREDICTED_PROFIT));
 						//当为二分类器合并收益率时，如果参照的连续分类器预期收益率小于等于某阀值（0或1%）时，则不选择该条记录。
 
-						if (profit<=SHOUYILV_THREDHOLD && selected==1){
-							selected=0;
-							resultChanged++;
-							double shouyilv=leftCurr.value(shouyilvAtt);
-							changedShouyilv+=shouyilv;
-							if (shouyilv<=SHOUYILV_THREDHOLD){
-								//如果变化的实际收益率也小于阀值，说明这是一次正确的变换
-								goodChangeNum++;
-							}
-						}
-					}
+						
+						if (selected==1){
+							int index=new Double(resultCurr.value(resultMA)).intValue();
+							if (profit<=SHOUYILV_THREDHOLD[index]){ 
+								selected=0;
+								resultChanged++;
+								double shouyilv=leftCurr.value(shouyilvAtt);
+								changedShouyilv+=shouyilv;
+								if (shouyilv<=SHOUYILV_THREDHOLD[index]){
+									//如果变化的实际收益率也小于阀值，说明这是一次正确的变换
+									goodChangeNum++;
+								}// end if shouyilv<=
+							}// end profit<=
+						}// end if (selected
+					}//end else of dataToAdd
 
 					newData.setValue(outputPredictAtt, profit);
 					newData.setValue(outputWinrateAtt, winrate);
@@ -712,8 +710,8 @@ public class ProcessData {
 					}
 				}else {
 					throw new Exception("data value in header data and result data does not equal left="+leftCurr.toString()+" /while result= "+resultCurr.toString());
-				}
-			}
+				}// end else of ArffFormat.checkSumBeforeMerge
+			}// end else if (idInLeft==idInResults )
 		}// end left processed
 		if (mergedResult.numInstances()!=resultData.numInstances()){
 			System.err.println("------Attention!!! not all data in result have been processed , processed= "+mergedResult.numInstances()+" ,while total result="+resultData.numInstances());
@@ -726,7 +724,11 @@ public class ProcessData {
 			double goodRatio=new Double(goodChangeNum).doubleValue()/resultChanged;
 			System.out.print(" good ratio="+FormatUtility.formatPercent(goodRatio));
 			System.out.print(" average changed shouyilv="+FormatUtility.formatPercent(changedShouyilv/resultChanged));
-			System.out.println(" @ thredhold="+FormatUtility.formatPercent(SHOUYILV_THREDHOLD));
+			System.out.print(" @ thredhold=");
+			for (int i = 0; i < SHOUYILV_THREDHOLD.length; i++) {
+				System.out.print(" /"+FormatUtility.formatPercent(SHOUYILV_THREDHOLD[i]));
+			}
+			System.out.print(" /");
 		}
 		return mergedResult;
 	}
