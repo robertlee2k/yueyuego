@@ -163,20 +163,20 @@ public class ProcessData {
 //		REPTreeClassifier nModel = new REPTreeClassifier();
 //		Instances nominalResult=testBackward(nModel);
 
-		//TODO 临时生成eval文件
-		MLPABClassifier mlModel = new MLPABClassifier();
-		testBackward(mlModel);
-		M5PABClassifier mModel=new M5PABClassifier();
-		testBackward(mModel);
+//		//TODO 临时生成eval文件
+//		MLPABClassifier mlModel = new MLPABClassifier();
+//		testBackward(mlModel);
+//		M5PABClassifier mModel=new M5PABClassifier();
+//		testBackward(mModel);
 		
 		//神经网络
 //		MLPClassifier nModel = new MLPClassifier();
 //		MLPABClassifier nModel = new MLPABClassifier();
 //		RandomForestClassifier nModel=new RandomForestClassifier ();
 		AdaboostClassifier nModel=new AdaboostClassifier();
-//		Instances nominalResult=testBackward(nModel);
+		Instances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
-		Instances nominalResult=loadBackTestResultFromFile(nModel.classifierName);
+//		Instances nominalResult=loadBackTestResultFromFile(nModel.classifierName);
 
 		//按连续分类器回测历史数据
 //		M5PClassifier cModel=new M5PClassifier();

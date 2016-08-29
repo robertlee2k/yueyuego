@@ -68,7 +68,7 @@ public class AdaboostClassifier extends NominalClassifier {
 		WORK_PATH =WORK_PATH+classifierName+"\\";
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = false;
+		m_skipEvalInBacktest = true;
 		
 		m_noCaculationAttrib=false; //使用计算字段
 
