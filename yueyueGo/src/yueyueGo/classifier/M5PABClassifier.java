@@ -82,7 +82,7 @@ public class M5PABClassifier extends ContinousClassifier {
 		WORK_PATH =WORK_PATH+classifierName+"\\";
 
 		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = true;
+		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 		
 		m_noCaculationAttrib=false; //添加计算字段

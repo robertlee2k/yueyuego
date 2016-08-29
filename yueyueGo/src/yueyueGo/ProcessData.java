@@ -63,13 +63,13 @@ public class ProcessData {
 	public static final String ADABOOST_PREDICT_MODEL="\\extData2005-2016-adaboost-201606 MA ";
 	public static final String ADABOOST_EVAL_MODEL="\\extData2005-2016-adaboost-201606 MA ";
 	
-	public static final double[] SHOUYILV_THREDHOLD={0.02,0.03,0.04,0.05,0.06}; //收益率的筛选阀值
+	public static final double[] SHOUYILV_THREDHOLD={0.02,0.025,0.03,0.035,0.045}; //收益率的筛选阀值
 	private final static int BEGIN_FROM_POLICY=0; // 当回测需要跳过某些均线时，0表示不跳过
 	
 	public static final String[] splitYear ={
 	  "2008","2009","2010","2011","2012","2013","2014","2015","2016"
 //	"200801","200802","200803","200804","200805","200806","200807","200808","200809","200810","200811","200812","200901","200902","200903","200904","200905","200906","200907","200908","200909","200910","200911","200912","201001","201002","201003","201004","201005","201006","201007","201008","201009","201010","201011","201012","201101","201102","201103","201104","201105","201106","201107","201108","201109","201110","201111","201112","201201","201202","201203","201204","201205","201206","201207","201208","201209","201210","201211","201212","201301","201302","201303","201304","201305","201306","201307","201308","201309","201310","201311","201312","201401","201402","201403","201404","201405","201406","201407","201408","201409","201410","201411","201412","201501","201502","201503","201504","201505","201506","201507","201508","201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607"
-	//	"201606","201607"	
+	//	"201606",
 	};
 
 
@@ -77,7 +77,7 @@ public class ProcessData {
 		try {
 			//用模型预测每日增量数据
 //			callDailyPredict();
-
+//			DBAccess.LoadZiXuanDataFromDB("2016-08-29");
 			//调用回测函数回测
 			callTestBack();
 			
@@ -107,12 +107,12 @@ public class ProcessData {
 		//用二分类模型预测每日增量数据
 //		MLPClassifier nModel=new MLPClassifier();
 		
-		//用旧连续模型预测每日增量数据
-		M5P_PREDICT_MODEL="\\交易分析2005-2016 by month-new-m5p-201605 MA ";
-		M5P_EVAL_MODEL="\\交易分析2005-2016 by month-new-m5p-201605 MA ";
-		M5PClassifier cModel=new M5PClassifier();
-		cModel.arff_format=ArffFormat.LEGACY_FORMAT; 
-		predictWithDB(cModel,PREDICT_WORK_DIR);
+//		//用旧连续模型预测每日增量数据
+//		M5P_PREDICT_MODEL="\\交易分析2005-2016 by month-new-m5p-201605 MA ";
+//		M5P_EVAL_MODEL="\\交易分析2005-2016 by month-new-m5p-201605 MA ";
+//		M5PClassifier cModel=new M5PClassifier();
+//		cModel.arff_format=ArffFormat.LEGACY_FORMAT; 
+//		predictWithDB(cModel,PREDICT_WORK_DIR);
 		
 		//MLP主成分分析预测
 		MLPABClassifier nABModel=new MLPABClassifier();
@@ -168,17 +168,17 @@ public class ProcessData {
 //		MLPABClassifier nModel = new MLPABClassifier();
 //		RandomForestClassifier nModel=new RandomForestClassifier ();
 		AdaboostClassifier nModel=new AdaboostClassifier();
-		Instances nominalResult=testBackward(nModel);
+//		Instances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
-//		Instances nominalResult=loadBackTestResultFromFile(nModel.classifierName);
+		Instances nominalResult=loadBackTestResultFromFile(nModel.classifierName);
 
 		//按连续分类器回测历史数据
 //		M5PClassifier cModel=new M5PClassifier();
 //		M5PABClassifier cModel=new M5PABClassifier();
 		BaggingM5P cModel=new BaggingM5P();
-		Instances continuousResult=testBackward(cModel);
+//		Instances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
-//		Instances continuousResult=loadBackTestResultFromFile(cModel.classifierName);
+		Instances continuousResult=loadBackTestResultFromFile(cModel.classifierName);
 		
 
 
@@ -688,12 +688,14 @@ public class ProcessData {
 							if (profit<=SHOUYILV_THREDHOLD[index]){ 
 								selected=0;
 								resultChanged++;
-								double shouyilv=leftCurr.value(shouyilvAtt);
-								changedShouyilv+=shouyilv;
-								if (shouyilv<=SHOUYILV_THREDHOLD[index]){
-									//如果变化的实际收益率也小于阀值，说明这是一次正确的变换
-									goodChangeNum++;
-								}// end if shouyilv<=
+								if (shouyilvAtt!=null){
+									double shouyilv=leftCurr.value(shouyilvAtt);
+									changedShouyilv+=shouyilv;
+									if (shouyilv<=SHOUYILV_THREDHOLD[index]){
+										//如果变化的实际收益率也小于阀值，说明这是一次正确的变换
+										goodChangeNum++;
+									}// end if shouyilv<=
+								}
 							}// end profit<=
 						}// end if (selected
 					}//end else of dataToAdd
