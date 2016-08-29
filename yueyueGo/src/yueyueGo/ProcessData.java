@@ -75,11 +75,14 @@ public class ProcessData {
 
 	public static void main(String[] args) {
 		try {
+			//预测全市场数据
+			callZiXuanPredict();
+			
 			//用模型预测每日增量数据
-//			callDailyPredict();
-//			DBAccess.LoadZiXuanDataFromDB("2016-08-29");
+			callDailyPredict();
+
 			//调用回测函数回测
-			callTestBack();
+//			callTestBack();
 			
 			//用最新的单次交易数据，更新原始的交易数据文件
 //			UpdateHistoryArffFile.callRefreshInstances();
@@ -146,6 +149,26 @@ public class ProcessData {
 //			predictWithFile(cModel,PREDICT_WORK_DIR,dataFileName);
 	}
 
+	/**
+	 * @throws Exception
+	 */
+	protected static void callZiXuanPredict() throws Exception {
+
+		//BaggingM5P
+		BaggingM5P cBagModel=new BaggingM5P();
+		Instances baggingInstances=predictZiXuanWithDB(cBagModel,PREDICT_WORK_DIR);		
+		
+		//Adaboost
+		AdaboostClassifier adaModel=new AdaboostClassifier();
+		Instances adaboostInstances=predictZiXuanWithDB(adaModel,PREDICT_WORK_DIR);		
+		
+		//合并adaboost和bagging
+		System.out.println("-----now output combined predictions----------"+adaModel.classifierName);
+		Instances left=InstanceUtility.removeAttribs(adaboostInstances, "5,6"); //只是为了使用下面的方法
+		Instances mergedOutput=mergeResults(adaboostInstances,baggingInstances,ArffFormat.RESULT_PREDICTED_PROFIT,left);
+		FileUtility.saveCSVFile(mergedOutput, PREDICT_WORK_DIR + "ZiXuan Selected Result-"+adaModel.classifierName+"-"+FormatUtility.getDateStringFor(1)+".csv");
+		
+	}	
 
 
 	/**
@@ -211,12 +234,21 @@ public class ProcessData {
 		System.out.println("file saved and mission completed.");
 	}
 	
+	//直接访问数据库预测每天的自选股数据，不单独保存每个模型的选股
+	protected static Instances predictZiXuanWithDB(BaseClassifier clModel, String pathName) throws Exception {
+		System.out.println("-----------------------------");
+		Instances fullData = DBAccess.LoadZiXuanDataFromDB(FormatUtility.getDateStringFor(0));
+		Instances result=predict(clModel, pathName, fullData);
+		return result;
+	}
+
 	//直接访问数据库预测每天的增量数据
 	protected static Instances predictWithDB(BaseClassifier clModel, String pathName) throws Exception {
 		System.out.println("-----------------------------");
 		Instances fullData = DBAccess.LoadDataFromDB(clModel.arff_format);
-		return predict(clModel, pathName, fullData);
-
+		Instances result=predict(clModel, pathName, fullData);
+		FileUtility.saveCSVFile(result, pathName + clModel.classifierName+"Selected Result"+FormatUtility.getDateStringFor(1)+".csv");
+		return result;
 	}
 	
 	//用模型预测数据
@@ -316,8 +348,8 @@ public class ProcessData {
 			throw new Exception("not all data have been processed!!!!! incoming Data number = " +inData.numInstances() + " while predicted number is "+result.numInstances());
 		}
 		
-		result.renameAttribute(1, ArffFormat.SELECTED_AVG_LINE); //输出文件的“均线策略”名字不一样
-		FileUtility.saveCSVFile(result, pathName + clModel.classifierName+"Selected Result"+FormatUtility.getDateStringFor(1)+".csv");		
+//		result.renameAttribute(1, ArffFormat.SELECTED_AVG_LINE); //输出文件的“均线策略”名字不一样
+		
 		clModel.outputClassifySummary();
 		return result;
 	}

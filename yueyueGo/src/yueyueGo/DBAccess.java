@@ -130,7 +130,8 @@ public class DBAccess  {
 				queryData+=", ";
 			}
 		}
-		queryData+=" FROM "+target_view +" where date='"+dateString+"'"; //2016-07-25
+		//TODO 后两个条件是临时加的
+		queryData+=" FROM "+target_view +" where date='"+dateString+"' and zhangdieting>-1 and sw_zhishu_code>0"; //2016-07-25
 		System.out.println(queryData);
 		return queryData;
 	}

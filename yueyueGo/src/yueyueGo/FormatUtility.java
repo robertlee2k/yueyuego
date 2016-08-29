@@ -11,7 +11,7 @@ public class FormatUtility {
 	public static String getDateStringFor(int offset) {
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.DATE, offset);
-		String dateString = new SimpleDateFormat("yyyyMMdd ").format(cal
+		String dateString = new SimpleDateFormat("yyyy-MM-dd ").format(cal
 				.getTime());
 		return dateString;
 	}
