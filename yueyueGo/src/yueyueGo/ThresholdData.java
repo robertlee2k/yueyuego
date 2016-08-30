@@ -30,7 +30,7 @@ public class ThresholdData {
 		System.out.println("full market percentile value：between "	+ startPercent + " , "+ endPercent);
 		
 		meanABError=((Double) v_threshold.get(4)).doubleValue();
-		System.out.println("full market meanABError value：between= "	+ meanABError);
+		System.out.println("full market meanABError value= "	+ meanABError);
 //		thresholdMin_hs300=-1;
 //		thresholdMax_hs300=-1;
 //		if (seperate_classify_HS300==true){

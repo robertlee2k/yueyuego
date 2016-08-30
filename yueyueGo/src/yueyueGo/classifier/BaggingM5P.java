@@ -140,7 +140,7 @@ import yueyueGo.ThresholdData;
 
 public class BaggingM5P extends ContinousClassifier {
 	boolean adjustThresholdBottom=false; //不用MeanABSError调整threshold
-	boolean useMultiPCA=false; //bagging 内的每个模型自己有单独的PCA
+	boolean useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
 	int bagging_iteration=10;	//bagging特有参数
 	int leafMinObjNum=300; 	//m5p特有参数
 	
