@@ -140,18 +140,18 @@ import yueyueGo.ThresholdData;
 
 public class BaggingM5P extends ContinousClassifier {
 	boolean adjustThresholdBottom=false; //不用MeanABSError调整threshold
-	boolean useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
+	boolean useMultiPCA=false; //bagging 内的每个模型自己有单独的PCA
 	int bagging_iteration=10;	//bagging特有参数
 	int leafMinObjNum=300; 	//m5p特有参数
 	
 	public BaggingM5P() {
 		super();
 		if (useMultiPCA==true){
-			classifierName = "baggingM5P-multiPCA";
-			WORK_PATH =WORK_PATH+classifierName+"\\";
+			classifierName = "baggingM5P";
+			WORK_PATH =WORK_PATH+classifierName+"-multiPCA\\";
 		}else{
-			classifierName = "baggingM5P-singlePCA";
-			WORK_PATH =WORK_PATH+classifierName+"\\";
+			classifierName = "baggingM5P";
+			WORK_PATH =WORK_PATH+classifierName+"-singlePCA\\";
 		}
 		m_skipTrainInBacktest = true;
 		m_skipEvalInBacktest = true;
