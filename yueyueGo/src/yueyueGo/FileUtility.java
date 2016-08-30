@@ -67,7 +67,7 @@ public class FileUtility {
 	
 	
 	// 从增量的交易CSV文件中加载数据
-	public static Instances loadDataFromIncrementalCSVFile(String fileName) throws Exception{ 
+	protected static Instances loadDataFromIncrementalCSVFile(String fileName) throws Exception{ 
 		return loadDataWithFormatFromCSVFile(fileName,ArffFormat.TRANS_DATA_FORMAT_NEW);
 	}
 	
