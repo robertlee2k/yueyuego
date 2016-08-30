@@ -80,10 +80,10 @@ public class ProcessData {
 		try {
 
 			//用模型预测每日增量数据
-//			callDailyPredict();
+			callDailyPredict();
 
 			//调用回测函数回测
-			callTestBack();
+//			callTestBack();
 			
 			//用最新的单次交易数据，更新原始的交易数据文件
 //			UpdateHistoryArffFile.callRefreshInstances();
@@ -256,34 +256,34 @@ public class ProcessData {
 			String evalFileName;
 			if (clModel instanceof MLPClassifier ){
 
-				modelFileName = pathName+"\\"+clModel.classifierName+ MLP_PREDICT_MODEL
+				modelFileName = pathName+"\\"+clModel.getIdentifyName()+ MLP_PREDICT_MODEL
 						+ clModel.m_policySubGroup[j]	;				
-				evalFileName = pathName+"\\"+clModel.classifierName+MLP_EVAL_MODEL
+				evalFileName = pathName+"\\"+clModel.getIdentifyName()+MLP_EVAL_MODEL
 						 + clModel.m_policySubGroup[j]+BaseClassifier.THRESHOLD_EXTENSION	;				
 			}else if (clModel instanceof M5PClassifier ){
-				modelFileName = pathName+"\\"+clModel.classifierName+M5P_PREDICT_MODEL
+				modelFileName = pathName+"\\"+clModel.getIdentifyName()+M5P_PREDICT_MODEL
 						+  clModel.m_policySubGroup[j]	;
-				evalFileName = pathName+"\\"+clModel.classifierName+M5P_EVAL_MODEL
+				evalFileName = pathName+"\\"+clModel.getIdentifyName()+M5P_EVAL_MODEL
 						 + clModel.m_policySubGroup[j]+BaseClassifier.THRESHOLD_EXTENSION	;				
 			}else if (clModel instanceof M5PABClassifier ){
-				modelFileName = pathName+"\\"+clModel.classifierName+M5PAB_PREDICT_MODEL
+				modelFileName = pathName+"\\"+clModel.getIdentifyName()+M5PAB_PREDICT_MODEL
 						+  clModel.m_policySubGroup[j]	;
-				evalFileName = pathName+"\\"+clModel.classifierName+M5PAB_EVAL_MODEL
+				evalFileName = pathName+"\\"+clModel.getIdentifyName()+M5PAB_EVAL_MODEL
 						 + clModel.m_policySubGroup[j]+BaseClassifier.THRESHOLD_EXTENSION	;				
 			}else if (clModel instanceof MLPABClassifier ){
-				modelFileName = pathName+"\\"+clModel.classifierName+MLPAB_PREDICT_MODEL
+				modelFileName = pathName+"\\"+clModel.getIdentifyName()+MLPAB_PREDICT_MODEL
 						+  clModel.m_policySubGroup[j]	;
-				evalFileName = pathName+"\\"+clModel.classifierName+MLPAB_EVAL_MODEL
+				evalFileName = pathName+"\\"+clModel.getIdentifyName()+MLPAB_EVAL_MODEL
 						 + clModel.m_policySubGroup[j]+BaseClassifier.THRESHOLD_EXTENSION	;				
 			}else if (clModel instanceof BaggingM5P ){
-				modelFileName = pathName+"\\"+clModel.classifierName+BAGGING_PREDICT_MODEL
+				modelFileName = pathName+"\\"+clModel.getIdentifyName()+BAGGING_PREDICT_MODEL
 						+  clModel.m_policySubGroup[j]	;
-				evalFileName = pathName+"\\"+clModel.classifierName+BAGGING_EVAL_MODEL
+				evalFileName = pathName+"\\"+clModel.getIdentifyName()+BAGGING_EVAL_MODEL
 						 + clModel.m_policySubGroup[j]+BaseClassifier.THRESHOLD_EXTENSION	;				
 			}else if (clModel instanceof AdaboostClassifier ){
-				modelFileName = pathName+"\\"+clModel.classifierName+ADABOOST_PREDICT_MODEL
+				modelFileName = pathName+"\\"+clModel.getIdentifyName()+ADABOOST_PREDICT_MODEL
 						+  clModel.m_policySubGroup[j]	;
-				evalFileName = pathName+"\\"+clModel.classifierName+ADABOOST_EVAL_MODEL
+				evalFileName = pathName+"\\"+clModel.getIdentifyName()+ADABOOST_EVAL_MODEL
 						 + clModel.m_policySubGroup[j]+BaseClassifier.THRESHOLD_EXTENSION	;				
 			}else {
 				throw new Exception("undefined predict model");
