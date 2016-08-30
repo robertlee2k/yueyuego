@@ -103,7 +103,7 @@ import yueyueGo.ThresholdData;
 //shouyilv average for hs300 selected=0.28%
 //shouyilv average for zz500 selected=1.95%
 
-//5. 按月评估， 评估全量， 且不考虑meanABSError（即5/10日线阀值降低，20-60日阀值提高）
+//5. 年度阀值模型按月评估， 评估全量， 且不考虑meanABSError（即5/10日线阀值降低，20-60日阀值提高）
 //2008-2016 全市场 收益率优先10-20-30-50，年平均收益率为21%-24%-21%-17%（累计净值3.7/4.7/3.9/3.0) 
 //与之前模型相比2014年收益不错，12%-45%之间。但胜率优先交易方法收益率大幅下降（平均13%，累计净值在1.6-2.6之间)
 //boolean adjustThresholdBottom=false; //不用MeanABSError调整threshold
@@ -132,6 +132,20 @@ import yueyueGo.ThresholdData;
 //selected shouyilv average for hs300 =0.20% count=2000
 //selected shouyilv average for zz500 =1.81% count=3654
 
+//6. 月度阀值模型评估，其他与上面一样。从mixed selected TPR相同来看，这个模型比较稳定
+//===============================output summary===================================== for : baggingM5P-multiPCA
+//Monthly selected_TPR mean: 24.35% standard deviation=29.32% Skewness=1.08 Kurtosis=0.22
+//Monthly selected_LIFT mean : 0.74
+//Monthly selected_positive summary: 7,979
+//Monthly selected_count summary: 19,768
+//Monthly selected_shouyilv average: 1.54% standard deviation=9.49% Skewness=4.99 Kurtosis=35.44
+//Monthly total_shouyilv average: 0.98% standard deviation=6.13% Skewness=3.04 Kurtosis=15.43
+//mixed selected positive rate: 40.36%
+//Monthly summary_judge_result summary: good number= 283 bad number=232
+//===============================end of summary=====================================for : baggingM5P-multiPCA
+//selected shouyilv average for full market =2.87% count=19768
+//selected shouyilv average for hs300 =0.17% count=1889
+//selected shouyilv average for zz500 =1.82% count=3383
 
 public class BaggingM5P extends ContinousClassifier {
 	boolean adjustThresholdBottom=false; //不用MeanABSError调整threshold
