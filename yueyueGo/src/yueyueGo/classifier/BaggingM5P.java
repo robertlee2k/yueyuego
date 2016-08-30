@@ -103,18 +103,61 @@ import yueyueGo.ThresholdData;
 //shouyilv average for hs300 selected=0.28%
 //shouyilv average for zz500 selected=1.95%
 
-public class BaggingM5P extends ContinousClassifier {
+//5. 按月评估， 评估全量， 且不考虑meanABSError（即5/10日线阀值降低，20-60日阀值提高）
+//2008-2016 全市场 收益率优先10-20-30-50，年平均收益率为22%-23%-21%-17%（累计净值3.9/4.3/3.9/3.0) 
+//与之前模型相比2014年收益不错，14%-48%之间。但胜率优先交易方法收益率大幅下降（平均13%，累计净值在2-3之间)
+//boolean adjustThresholdBottom=false; //不用MeanABSError调整threshold
+//boolean useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
+//int bagging_iteration=10;	//bagging特有参数
+//int leafMinObjNum=300; 	//m5p特有参数
+//m_noCaculationAttrib=false; //添加计算字段!
+//EVAL_RECENT_PORTION = 1; // 计算最近数据阀值从历史记录中选取多少比例的最近样本
+//SAMPLE_LOWER_LIMIT = new double[]{ 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限 
+//SAMPLE_UPPER_LIMIT = new double[]  { 0.06, 0.07, 0.1, 0.11, 0.12 };
+//TP_FP_RATIO_LIMIT = new double[] { 1.8, 1.7, 1.5, 1.2, 1}; //选择样本阀值时TP FP RATIO到了何种值就可以提前停止了。
+//TP_FP_BOTTOM_LINE=0.9; //TP/FP的下限
+//===============================output summary===================================== for : baggingM5P
+//Monthly selected_TPR mean: 30.72% standard deviation=15.45% Skewness=0.71 Kurtosis=2.77
+//Monthly selected_LIFT mean : 1.03
+//Monthly selected_positive summary: 8,650
+//Monthly selected_count summary: 21,433
+//Monthly selected_shouyilv average: 0.86% standard deviation=3.26% Skewness=0.76 Kurtosis=2.76
+//Monthly total_shouyilv average: 1.17% standard deviation=2.60% Skewness=1.43 Kurtosis=1.34
+//mixed selected positive rate: 40.36%
+//Monthly summary_judge_result summary: good number= 23 bad number=22
+//===============================end of summary=====================================for : baggingM5P
+//number of records for full market=1412480
+//shouyilv average for full market=0.80%
+//selected shouyilv average for full market =2.84% count=21433
+//selected shouyilv average for hs300 =0.20% count=2000
+//selected shouyilv average for zz500 =1.81% count=3654
+//m_noCaculationAttrib=false; //添加计算字段!
+//EVAL_RECENT_PORTION = 1; // 计算最近数据阀值从历史记录中选取多少比例的最近样本
+//SAMPLE_LOWER_LIMIT = new double[]{ 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限 
+//SAMPLE_UPPER_LIMIT = new double[]  { 0.06, 0.07, 0.1, 0.11, 0.12 };
+//TP_FP_RATIO_LIMIT = new double[] { 1.8, 1.7, 1.5, 1.2, 1}; //选择样本阀值时TP FP RATIO到了何种值就可以提前停止了。
+//TP_FP_BOTTOM_LINE=0.9; //TP/FP的下限
 
+public class BaggingM5P extends ContinousClassifier {
+	boolean adjustThresholdBottom=false; //不用MeanABSError调整threshold
+	boolean useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
+	int bagging_iteration=10;	//bagging特有参数
+	int leafMinObjNum=300; 	//m5p特有参数
+	
 	public BaggingM5P() {
 		super();
-		classifierName = "baggingM5P";
-		WORK_PATH =WORK_PATH+classifierName+"\\";
+		if (useMultiPCA==true){
+			classifierName = "baggingM5P-multiPCA";
+			WORK_PATH =WORK_PATH+classifierName+"\\";
+		}else{
+			classifierName = "baggingM5P-singlePCA";
+			WORK_PATH =WORK_PATH+classifierName+"\\";
+		}
 		m_skipTrainInBacktest = true;
 		m_skipEvalInBacktest = true;
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 
 		m_noCaculationAttrib=false; //添加计算字段!
-
 		EVAL_RECENT_PORTION = 1; // 计算最近数据阀值从历史记录中选取多少比例的最近样本
 		SAMPLE_LOWER_LIMIT = new double[]{ 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限 
 		SAMPLE_UPPER_LIMIT = new double[]  { 0.06, 0.07, 0.1, 0.11, 0.12 };
@@ -125,16 +168,16 @@ public class BaggingM5P extends ContinousClassifier {
 
 	@Override
 	protected Classifier buildModel(Instances train) throws Exception {
-		return buildModelWithPostPCA(train);
+		if (useMultiPCA==true){
+			return buildModelWithMultiPCA(train);
+		}else{
+			return buildModelWithSinglePCA(train);
+		}
 	}
 
 	//bagging 内的每个模型自己有单独的PCA
-	private  Classifier buildModelWithPostPCA(Instances train) throws Exception {
-		//bagging特有参数
-		int bagging_iteration=10;
-		int bagging_samplePercent=70;
-		//m5p特有参数
-		int leafMinObjNum=300;
+	private  Classifier buildModelWithMultiPCA(Instances train) throws Exception {
+		int bagging_samplePercent=70;//bagging sample 取样率
 		
 		//设置基础的m5p classifier参数
 		M5P model = new M5P();
@@ -165,12 +208,8 @@ public class BaggingM5P extends ContinousClassifier {
 	}
 	
 	//bagging 之前使用PCA，bagging大家用同一的
-	private  Classifier buildModelWithPrePCA(Instances train) throws Exception {
-		//bagging特有参数
-		int bagging_iteration=10;
-		int bagging_samplePercent=100;
-		//m5p特有参数
-		int leafMinObjNum=300;
+	private  Classifier buildModelWithSinglePCA(Instances train) throws Exception {
+		int bagging_samplePercent=100; // PrePCA算袋外误差时要求percent都为100
 		
 		//设置基础的m5p classifier参数
 		M5P model = new M5P();
@@ -226,9 +265,11 @@ public class BaggingM5P extends ContinousClassifier {
 	
 	@Override
 	protected ThresholdData processThresholdData(ThresholdData eval){
-		double adjustedBottom=(eval.getThresholdMin()+eval.getMeanABError())/2;
-		System.out.println("----adjusted threshold bottom is :"+Double.toString(adjustedBottom)+ " because meanABError="+Double.toString(eval.getMeanABError()));
-		eval.setThresholdMin(adjustedBottom);
+		if (adjustThresholdBottom==true){
+			double adjustedBottom=(eval.getThresholdMin()+eval.getMeanABError())/2;
+			System.out.println("----adjusted threshold bottom is :"+Double.toString(adjustedBottom)+ " because meanABError="+Double.toString(eval.getMeanABError()));
+			eval.setThresholdMin(adjustedBottom);
+		}
 		return eval;
 	}
 }
