@@ -54,4 +54,15 @@ public class ProcessDataFullModel extends ProcessData {
 		Instances result=predict(clModel, pathName, fullData);
 		return result;
 	}	
+	
+	
+	/**
+	 * 隐藏父类的函数。
+	 * @param splitTrainYearClause
+	 * @param policy
+	 * @return
+	 */
+	protected static String getSplitClause(String splitYearClause,	String policy) {
+		return splitYearClause;
+	}
 }

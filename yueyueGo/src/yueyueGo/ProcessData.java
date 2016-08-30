@@ -337,29 +337,16 @@ public class ProcessData {
 		evalResultSummary.append("时间段,均线策略,整体正收益股数,整体股数,整体TPR,所选正收益股数,所选总股数,所选股TPR,提升率,所选股平均收益率,整体平均收益率,收益率差,是否改善,阀值下限,阀值上限\r\n");
 		System.out.println("test backward using classifier : "+clModel.getIdentifyName());
 		// 别把数据文件里的ID变成Nominal的，否则读出来的ID就变成相对偏移量了
-		for (int i = 0; i < splitYear.length; i++) { // if i starts from 1, the
-														// first one is to use
-														// as validateData
+		for (int i = 0; i < splitYear.length; i++) { 
 			
 			String splitMark = splitYear[i];
 			System.out.println("****************************start ****************************   "+splitMark);
 
-			String splitTrainYearClause = "";
-			String splitTestYearClause = "";
-
-			String attribuateYear = "ATT" + ArffFormat.YEAR_MONTH_INDEX;
-			if (splitMark.length() == 6) { // 按月分割时
-				splitTrainYearClause = "(" + attribuateYear + " < "
-						+ splitYear[i] + ") ";
-				splitTestYearClause = "(" + attribuateYear + " = "
-						+ splitYear[i] + ") ";
-			} else if (splitMark.length() == 4) {// 按年分割
-				splitTrainYearClause = "(" + attribuateYear + " < "
-						+ splitYear[i] + "01) ";
-				splitTestYearClause = "(" + attribuateYear + " >= "
-						+ splitYear[i] + "01) and (" + attribuateYear + " <= "
-						+ splitYear[i] + "12) ";
-			}
+			//获取分割年的clause，该方法提供子类覆盖的灵活性
+			String[] splitYearClauses = splitYearClause(splitMark);
+			
+			String splitTrainYearClause=splitYearClauses[0];
+			String splitTestYearClause=splitYearClauses[1];
 
 			String policy = null;
 			double lower_limit = 0;
@@ -374,34 +361,12 @@ public class ProcessData {
 				// 加载原始arff文件
 				if (fullSetData == null) {
 
-					// 根据模型来决定是否要使用有计算字段的ARFF
-					String arffFile=null;
-					if (clModel.m_noCaculationAttrib==true){
-						arffFile=ArffFormat.SHORT_ARFF_FILE;
-					}else{
-						arffFile=ArffFormat.LONG_ARFF_FILE;
-					}
-
-					System.out.println("start to load File for fullset from File: "+ arffFile  );
-					fullSetData = FileUtility.loadDataFromFile( C_ROOT_DIRECTORY+arffFile);
-					System.out.println("finish loading fullset Data. row : "+ fullSetData.numInstances() + " column:"+ fullSetData.numAttributes());
+					fullSetData = getBacktestInstances(clModel);
 				}
 
 				// 准备输出数据格式
 				if (result == null) {// initialize result instances
-					Instances header = new Instances(fullSetData, 0);
-					// 去除不必要的字段，保留ID（第1），均线策略（第3）、bias5（第4）、收益率（最后一列）、增加预测值、是否被选择。
-					result = InstanceUtility.removeAttribs(header, ArffFormat.YEAR_MONTH_INDEX + ",5-"
-							+ (header.numAttributes() - 1));
-					if (clModel instanceof NominalClassifier ){
-						result = InstanceUtility.AddAttribute(result, ArffFormat.RESULT_PREDICTED_WIN_RATE,
-								result.numAttributes());
-					}else{
-						result = InstanceUtility.AddAttribute(result, ArffFormat.RESULT_PREDICTED_PROFIT,
-								result.numAttributes());
-					}
-					result = InstanceUtility.AddAttribute(result, ArffFormat.RESULT_SELECTED,
-							result.numAttributes());
+					result = prepareResultInstances(clModel, fullSetData);
 
 				}
 
@@ -409,8 +374,9 @@ public class ProcessData {
 				lower_limit = clModel.SAMPLE_LOWER_LIMIT[j];
 				upper_limit = clModel.SAMPLE_UPPER_LIMIT[j];
 				tp_fp_ratio= clModel.TP_FP_RATIO_LIMIT[j];
-				splitTrainClause = splitTrainYearClause + " and (ATT3 is '"	+ policy + "')";
-				splitTestClause = splitTestYearClause + " and (ATT3 is '"+ policy + "')";
+				splitTrainClause = getSplitClause(splitTrainYearClause,	policy);
+				splitTestClause = getSplitClause(splitTestYearClause, policy);
+				
 				if (clModel.m_skipTrainInBacktest == false || clModel.m_skipEvalInBacktest==false ) { //如果不需要培训和评估，则无需训练样本
 					System.out.println("start to split training set");
 					trainingData = InstanceUtility.getInstancesSubset(fullSetData,
@@ -460,6 +426,90 @@ public class ProcessData {
 
 		System.out.println(clModel.getIdentifyName()+" test result file saved.");
 		return result;
+	}
+
+	/**
+	 * 可以考虑子类中覆盖
+	 * @param clModel
+	 * @param fullSetData
+	 * @return
+	 * @throws Exception
+	 */
+	protected static Instances prepareResultInstances(BaseClassifier clModel,
+			Instances fullSetData) throws Exception {
+		Instances result;
+		Instances header = new Instances(fullSetData, 0);
+		// 去除不必要的字段，保留ID（第1），均线策略（第3）、bias5（第4）、收益率（最后一列）、增加预测值、是否被选择。
+		result = InstanceUtility.removeAttribs(header, ArffFormat.YEAR_MONTH_INDEX + ",5-"
+				+ (header.numAttributes() - 1));
+		if (clModel instanceof NominalClassifier ){
+			result = InstanceUtility.AddAttribute(result, ArffFormat.RESULT_PREDICTED_WIN_RATE,
+					result.numAttributes());
+		}else{
+			result = InstanceUtility.AddAttribute(result, ArffFormat.RESULT_PREDICTED_PROFIT,
+					result.numAttributes());
+		}
+		result = InstanceUtility.AddAttribute(result, ArffFormat.RESULT_SELECTED,
+				result.numAttributes());
+		return result;
+	}
+
+	/**
+	 * 可以考虑子类中覆盖
+	 * @param clModel
+	 * @return
+	 * @throws Exception
+	 */
+	protected static Instances getBacktestInstances(BaseClassifier clModel)
+			throws Exception {
+		Instances fullSetData;
+		// 根据模型来决定是否要使用有计算字段的ARFF
+		String arffFile=null;
+		if (clModel.m_noCaculationAttrib==true){
+			arffFile=ArffFormat.SHORT_ARFF_FILE;
+		}else{
+			arffFile=ArffFormat.LONG_ARFF_FILE;
+		}
+
+		System.out.println("start to load File for fullset from File: "+ arffFile  );
+		fullSetData = FileUtility.loadDataFromFile( C_ROOT_DIRECTORY+arffFile);
+		System.out.println("finish loading fullset Data. row : "+ fullSetData.numInstances() + " column:"+ fullSetData.numAttributes());
+		return fullSetData;
+	}
+
+	/**
+	 * 	获取分割年的clause，该方法提供子类覆盖的灵活性
+	 * @param splitMark
+	 * @return
+	 */
+	protected static String[] splitYearClause(String splitMark) {
+		String[] splitYearClauses=new String[2];
+		String attribuateYear = "ATT" + ArffFormat.YEAR_MONTH_INDEX;
+		if (splitMark.length() == 6) { // 按月分割时
+			splitYearClauses[0] = "(" + attribuateYear + " < "
+					+ splitMark + ") ";
+			splitYearClauses[1] = "(" + attribuateYear + " = "
+					+ splitMark + ") ";
+		} else if (splitMark.length() == 4) {// 按年分割
+			splitYearClauses[0] = "(" + attribuateYear + " < "
+					+ splitMark + "01) ";
+			splitYearClauses[1] = "(" + attribuateYear + " >= "
+					+ splitMark + "01) and (" + attribuateYear + " <= "
+					+ splitMark + "12) ";
+		}
+		return splitYearClauses;
+	}
+
+	/**
+	 * 根据policy拼出相应的分割表达式，可以在子类中被覆盖（因为是静态方法，实际上是被子类隐藏）
+	 * @param splitTrainYearClause
+	 * @param policy
+	 * @return
+	 */
+	protected static String getSplitClause(String splitYearClause,	String policy) {
+		String splitClause;
+		splitClause = splitYearClause + " and (ATT3 is '"	+ policy + "')";
+		return splitClause;
 	}
 
 	// paremeter result will be changed in the method! 
