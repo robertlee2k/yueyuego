@@ -24,6 +24,7 @@
 package yueyueGo;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import weka.classifiers.Classifier;
 import weka.core.Attribute;
@@ -49,6 +50,9 @@ public class ProcessData {
 	public static final String PREDICT_WORK_DIR=C_ROOT_DIRECTORY+"03-预测模型\\";
 	public static final String RESULT_EXTENSION = "-Test Result.csv";
 	
+//	public static HashMap<String, String> PREDICT_MODELS= new HashMap(){
+//		M5PClassifier
+//	};	
 	public static String M5P_PREDICT_MODEL="\\extData2005-2016-m5p-201607 MA ";//交易分析2005-2016 by month-new-m5p-201605 MA ";
 	public static String M5P_EVAL_MODEL="\\extData2005-2016-m5p-201607 MA ";//交易分析2005-2016 by month-new-m5p-201605 MA ";
 
@@ -80,10 +84,10 @@ public class ProcessData {
 		try {
 
 			//用模型预测每日增量数据
-			callDailyPredict();
+//			callDailyPredict();
 
 			//调用回测函数回测
-//			callTestBack();
+			callTestBack();
 			
 			//用最新的单次交易数据，更新原始的交易数据文件
 //			UpdateHistoryArffFile.callRefreshInstances();
