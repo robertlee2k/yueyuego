@@ -68,7 +68,7 @@ public class AdaboostClassifier extends NominalClassifier {
 		WORK_PATH =WORK_PATH+classifierName+"\\";
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = true;
+		m_skipEvalInBacktest = false;
 		
 		m_noCaculationAttrib=false; //使用计算字段
 
@@ -131,8 +131,8 @@ public class AdaboostClassifier extends NominalClassifier {
 		
 		this.setModelFileName(filename);
 		
-		// 全年用同一的eval
-		this.setEvaluationFilename(filename+".eval");
+//		// 全年用同一的eval
+//		this.setEvaluationFilename(filename+".eval");
 	
 		return loadModelFromFile();
 	}

@@ -50,11 +50,25 @@ public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 		Instances fullData = FileUtilityFullModel.loadDataFromFullModelCSVFile(sourceFilePrefix+"2005-2006.txt");
 		Instances addData = null;
 		int startYear=2007;
-		int endYear=2016;
+		int endYear=2008;
 		for (int i=startYear;i<=endYear;i++){
 			addData = FileUtilityFullModel.loadDataFromFullModelCSVFile(sourceFilePrefix+i+".txt");
 			fullData=InstanceUtility.mergeTwoInstances(fullData, addData);
-			System.out.println("FULLMODEL...merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
+			System.out.println("FULLMODEL...merged "+i +" File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
+		}
+		return fullData;
+	}
+	
+	private static Instances mergeSrcFullModelFiles2016() throws Exception,	IllegalStateException {
+		String sourceFilePrefix=ProcessDataFullModel.C_ROOT_DIRECTORY+"sourceData\\自选股\\第四组自选股5天后卖出策略数据\\test_onceyield_group4allhis_optional";
+		Instances fullData = FileUtilityFullModel.loadDataFromFullModelCSVFile(sourceFilePrefix+"2013.txt");
+		Instances addData = null;
+		int startYear=2014;
+		int endYear=2015;
+		for (int i=startYear;i<=endYear;i++){
+			addData = FileUtilityFullModel.loadDataFromFullModelCSVFile(sourceFilePrefix+i+".txt");
+			fullData=InstanceUtility.mergeTwoInstances(fullData, addData);
+			System.out.println("FULLMODEL...merged "+i +" File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
 		}
 		return fullData;
 	}
