@@ -78,9 +78,7 @@ public class ProcessData {
 
 	public static void main(String[] args) {
 		try {
-			//预测全市场数据
-//			callZiXuanPredict();
-			
+
 			//用模型预测每日增量数据
 //			callDailyPredict();
 
@@ -199,28 +197,6 @@ public class ProcessData {
 //			predictWithFile(cModel,PREDICT_WORK_DIR,dataFileName);
 	}
 
-	/**
-	 * @throws Exception
-	 */
-	protected static void callZiXuanPredict() throws Exception {
-
-		//BaggingM5P
-		BaggingM5P cBagModel=new BaggingM5P();
-		Instances baggingInstances=predictZiXuanWithDB(cBagModel,PREDICT_WORK_DIR);		
-		
-		//Adaboost
-		AdaboostClassifier adaModel=new AdaboostClassifier();
-		Instances adaboostInstances=predictZiXuanWithDB(adaModel,PREDICT_WORK_DIR);		
-		
-		//合并adaboost和bagging
-		System.out.println("-----now output combined predictions----------"+adaModel.getIdentifyName());
-		Instances left=InstanceUtility.removeAttribs(adaboostInstances, "5,6"); //只是为了使用下面的方法
-		Instances mergedOutput=mergeResults(adaboostInstances,baggingInstances,ArffFormat.RESULT_PREDICTED_PROFIT,left);
-		FileUtility.saveCSVFile(mergedOutput, PREDICT_WORK_DIR + "ZiXuan Selected Result-"+adaModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv");
-		
-	}	
-
-
 	
 
 	//使用文件预测每天的增量数据
@@ -234,14 +210,7 @@ public class ProcessData {
 
 		System.out.println("file saved and mission completed.");
 	}
-	
-	//直接访问数据库预测每天的自选股数据，不单独保存每个模型的选股
-	protected static Instances predictZiXuanWithDB(BaseClassifier clModel, String pathName) throws Exception {
-		System.out.println("-----------------------------");
-		Instances fullData = DBAccess.LoadZiXuanDataFromDB(FormatUtility.getDateStringFor(0));
-		Instances result=predict(clModel, pathName, fullData);
-		return result;
-	}
+
 
 	//直接访问数据库预测每天的增量数据
 	protected static Instances predictWithDB(BaseClassifier clModel, String pathName) throws Exception {
@@ -253,7 +222,7 @@ public class ProcessData {
 	}
 	
 	//用模型预测数据
-	private static Instances predict(BaseClassifier clModel, String pathName, Instances inData) throws Exception {
+	protected static Instances predict(BaseClassifier clModel, String pathName, Instances inData) throws Exception {
 		Instances newData = null;
 		Instances result = null;
 
