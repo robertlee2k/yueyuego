@@ -13,9 +13,7 @@ import weka.core.Instances;
 
 public class UpdateHistoryArffFile {
 
-    String[] columnsToUpdate={
-   		"zhishu_code","huanshoulv_preday_perc","huanshoulv_pre2day_perc","huanshoulv_pre3day_perc","issz50","ishs300","iszz100","iszz500","issz100","isrzbd","zhishu_ma5_indicator","zhishu_ma10_indicator","zhishu_ma20_indicator","zhishu_ma30_indicator","zhishu_ma60_indicator","sw_ma5_indicator","sw_ma10_indicator","sw_ma20_indicator","sw_ma30_indicator","sw_ma60_indicator","zhangdieting"
-    };
+
 	
 	/**
 	 * @throws Exception
@@ -350,7 +348,7 @@ public class UpdateHistoryArffFile {
 	 * @param newData
 	 * @throws ParseException
 	 */
-	private static void processDateColumns(Instances newData)
+	protected static void processDateColumns(Instances newData)
 			throws ParseException {
 		int yearMonthIndex=InstanceUtility.findATTPosition(newData, ArffFormat.ID); //在ID之后插入
 		newData.insertAttributeAt(new Attribute("yearmonth"), yearMonthIndex);

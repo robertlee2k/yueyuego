@@ -67,22 +67,27 @@ public class FileUtility {
 	
 	
 	// 从增量的交易CSV文件中加载数据
-	public static Instances loadDataFromIncrementalCSVFile(String fileName)
+	public static Instances loadDataFromIncrementalCSVFile(String fileName) throws Exception{ 
+		return loadDataWithFormatFromCSVFile(fileName,ArffFormat.TRANS_DATA_FORMAT_NEW);
+	}
+	
+	// 从增量的交易CSV文件中加载数据
+	protected static Instances loadDataWithFormatFromCSVFile(String fileName, String[] format)
 				throws Exception {
 			CSVLoader loader = new CSVLoader();
 			loader.setSource(new File(fileName));
 
 			Instances datasrc = loader.getDataSet();
 			// 对读入的数据字段名称校验 确保其顺序完全和内部训练的arff格式一致
-			datasrc=ArffFormat.validateAttributeNames(datasrc,ArffFormat.TRANS_DATA_FORMAT_NEW);
+			datasrc=ArffFormat.validateAttributeNames(datasrc,format);
 			
 			//数据先作为String全部读进来之后再看怎么转nominal，否则直接加载， nominal的值的顺序会和文件顺序有关，造成数据不对
 			String nominalAttribString=ArffFormat.findNominalAttribs(datasrc);
-			datasrc=InstanceUtility.numToNominal(datasrc, nominalAttribString);//"2-7,53-61");
+			datasrc=InstanceUtility.numToNominal(datasrc, nominalAttribString);
 			// I do the following according to a saying from the weka forum:
 			//"You can't add a value to a nominal attribute once it has been created. 
 			//If you want to do this, you need to use a string attribute instead." 
-			datasrc=InstanceUtility.NominalToString(datasrc, nominalAttribString);//"2-5");
+			datasrc=InstanceUtility.NominalToString(datasrc, nominalAttribString);
 			
 			if (datasrc.classIndex() == -1)
 				  datasrc.setClassIndex(datasrc.numAttributes() - 1);

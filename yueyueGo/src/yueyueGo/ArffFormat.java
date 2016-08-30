@@ -10,9 +10,9 @@ public class ArffFormat {
 	public static final int EXT_FORMAT=2;
 
 	public static final String TRANSACTION_ARFF_PREFIX="trans20052016-ext";//"AllTransaction20052016-ext";
+	
 	public static final String LONG_ARFF_FILE = TRANSACTION_ARFF_PREFIX+"-new.arff";//"AllTransaction20052016-new.arff"; // 包含计算字段的ARFF格式，这是提供给各输入属性独立的分类器使用的，如分类树
 	public static final String SHORT_ARFF_FILE = TRANSACTION_ARFF_PREFIX+"-short.arff";//"AllTransaction20052016-short.arff";// 不包含计算字段的ARFF格式，这是提供给各输入属性独立的分类器使用的，如神经网络
-
 	
 	public static final String SELECTED_AVG_LINE = "selected_avgline"; // 输入输出文件中的“均线策略”名称
 	public static final String IS_HS300 = "ishs300";
@@ -22,7 +22,6 @@ public class ArffFormat {
 	public static final String IS_POSITIVE = "positive";
 	public static final String VALUE_YES = "1";
 	public static final String VALUE_NO = "0";
-
 		
 	public static final String RESULT_PREDICTED_PROFIT = "PredictedProfit";
 	public static final String RESULT_SELECTED = "selected";
@@ -199,7 +198,7 @@ public class ArffFormat {
 	}
 	
 	//返回给定数据集里与searchAttribues内同名字段的位置字符串（从1开始），这主要是为filter使用
-	private static String returnAttribsPosition(Instances data, String[] searchAttributes){
+	public static String returnAttribsPosition(Instances data, String[] searchAttributes){
 		String nominalAttribPosition=null;
 		Attribute incomingAttribue=null;
 		for (int i = 0; i < searchAttributes.length; i++) {
@@ -217,7 +216,7 @@ public class ArffFormat {
 	}
 	
 	// 从All Transaction Data中删除无关字段 (tradeDate到均线策略之前）
-	public static Instances prepareTransData(Instances allData)
+	protected static Instances prepareTransData(Instances allData)
 			throws Exception {
 		String removeString=returnAttribsPosition(allData,TRANS_DATA_NOT_SAVED_IN_ARFF);
 		Instances result = InstanceUtility.removeAttribs(allData,removeString);// "3-9");
@@ -231,7 +230,7 @@ public class ArffFormat {
 			IS_ZZ500,SHOUYILV };
 
 	// 此方法从All Transaction Data中保留计算收益率的相关字段，以及最后的收益率，删除其他计算字段
-	public static Instances getTransLeftPartFromAllTransaction(Instances allData)
+	protected static Instances getTransLeftPartFromAllTransaction(Instances allData)
 			throws Exception {
 		String saveString=returnAttribsPosition(allData,TRANS_DATA_LEFT_PART);
 		Instances result = InstanceUtility.filterAttribs(allData,saveString);
