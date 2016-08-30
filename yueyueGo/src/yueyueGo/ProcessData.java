@@ -63,7 +63,7 @@ public class ProcessData {
 	public static final String ADABOOST_PREDICT_MODEL="\\extData2005-2016-adaboost-201606 MA ";
 	public static final String ADABOOST_EVAL_MODEL="\\extData2005-2016-adaboost-201606 MA ";
 	
-	public static final double[] SHOUYILV_THREDHOLD={0.02,0.025,0.03,0.035,0.045}; //收益率的筛选阀值
+	public static final double[] SHOUYILV_THREDHOLD={0.01,0.02,0.03,0.04,0.05}; //收益率的筛选阀值
 	private final static int BEGIN_FROM_POLICY=0; // 当回测需要跳过某些均线时，0表示不跳过
 	
 	public static final String[] splitYear ={
@@ -124,15 +124,15 @@ public class ProcessData {
 		AdaboostClassifier nModel=new AdaboostClassifier();
 		Instances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
-//		Instances nominalResult=loadBackTestResultFromFile(nModel.classifierName);
+//		Instances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 
 		//按连续分类器回测历史数据
 //		M5PClassifier cModel=new M5PClassifier();
 //		M5PABClassifier cModel=new M5PABClassifier();
 		BaggingM5P cModel=new BaggingM5P();
-		Instances continuousResult=testBackward(cModel);
+//		Instances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
-//		Instances continuousResult=loadBackTestResultFromFile(cModel.classifierName);
+		Instances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 		
 		
 		//统一输出统计结果
@@ -140,12 +140,12 @@ public class ProcessData {
 		cModel.outputClassifySummary();
 
 		//输出用于计算收益率的CSV文件
-		System.out.println("-----now output continuous predictions----------"+cModel.classifierName);
+		System.out.println("-----now output continuous predictions----------"+cModel.getIdentifyName());
 		Instances m5pOutput=mergeResultWithData(continuousResult,nominalResult,ArffFormat.RESULT_PREDICTED_WIN_RATE,cModel.arff_format);
-		saveSelectedFileForMarkets(m5pOutput,cModel.classifierName);
-		System.out.println("-----now output nominal predictions----------"+nModel.classifierName);
+		saveSelectedFileForMarkets(m5pOutput,cModel.getIdentifyName());
+		System.out.println("-----now output nominal predictions----------"+nModel.getIdentifyName());
 		Instances mlpOutput=mergeResultWithData(nominalResult,continuousResult,ArffFormat.RESULT_PREDICTED_PROFIT,nModel.arff_format);
-		saveSelectedFileForMarkets(mlpOutput,nModel.classifierName);
+		saveSelectedFileForMarkets(mlpOutput,nModel.getIdentifyName());
 		System.out.println("-----end of test backward------");
 	}
 
@@ -182,10 +182,10 @@ public class ProcessData {
 		Instances adaboostInstances=predictWithDB(adaModel,PREDICT_WORK_DIR);		
 		
 		//合并adaboost和bagging
-		System.out.println("-----now output combined predictions----------"+adaModel.classifierName);
+		System.out.println("-----now output combined predictions----------"+adaModel.getIdentifyName());
 		Instances left=InstanceUtility.removeAttribs(adaboostInstances, "5,6"); //只是为了使用下面的方法
 		Instances mergedOutput=mergeResults(adaboostInstances,baggingInstances,ArffFormat.RESULT_PREDICTED_PROFIT,left);
-		FileUtility.saveCSVFile(mergedOutput, PREDICT_WORK_DIR + "Merged Selected Result-"+adaModel.classifierName+"-"+FormatUtility.getDateStringFor(1)+".csv");
+		FileUtility.saveCSVFile(mergedOutput, PREDICT_WORK_DIR + "Merged Selected Result-"+adaModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv");
 		
 //			//使用文件预测
 //			String dataFileName=("t_stock_avgline_increment_zuixin_v"+FormatUtility.getDateStringFor(-1)).trim();
@@ -211,10 +211,10 @@ public class ProcessData {
 		Instances adaboostInstances=predictZiXuanWithDB(adaModel,PREDICT_WORK_DIR);		
 		
 		//合并adaboost和bagging
-		System.out.println("-----now output combined predictions----------"+adaModel.classifierName);
+		System.out.println("-----now output combined predictions----------"+adaModel.getIdentifyName());
 		Instances left=InstanceUtility.removeAttribs(adaboostInstances, "5,6"); //只是为了使用下面的方法
 		Instances mergedOutput=mergeResults(adaboostInstances,baggingInstances,ArffFormat.RESULT_PREDICTED_PROFIT,left);
-		FileUtility.saveCSVFile(mergedOutput, PREDICT_WORK_DIR + "ZiXuan Selected Result-"+adaModel.classifierName+"-"+FormatUtility.getDateStringFor(1)+".csv");
+		FileUtility.saveCSVFile(mergedOutput, PREDICT_WORK_DIR + "ZiXuan Selected Result-"+adaModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv");
 		
 	}	
 
@@ -246,7 +246,7 @@ public class ProcessData {
 		System.out.println("-----------------------------");
 		Instances fullData = DBAccess.LoadDataFromDB(clModel.arff_format);
 		Instances result=predict(clModel, pathName, fullData);
-		FileUtility.saveCSVFile(result, pathName + clModel.classifierName+"Selected Result"+FormatUtility.getDateStringFor(1)+".csv");
+		FileUtility.saveCSVFile(result, pathName + clModel.getIdentifyName()+"Selected Result"+FormatUtility.getDateStringFor(1)+".csv");
 		return result;
 	}
 	
@@ -360,7 +360,7 @@ public class ProcessData {
 		Instances result = null;
 		StringBuffer evalResultSummary=new StringBuffer();
 		evalResultSummary.append("时间段,均线策略,整体正收益股数,整体股数,整体TPR,所选正收益股数,所选总股数,所选股TPR,提升率,所选股平均收益率,整体平均收益率,收益率差,是否改善,阀值下限,阀值上限\r\n");
-		System.out.println("test backward using classifier : "+clModel.classifierName);
+		System.out.println("test backward using classifier : "+clModel.getIdentifyName());
 		// 别把数据文件里的ID变成Nominal的，否则读出来的ID就变成相对偏移量了
 		for (int i = 0; i < splitYear.length; i++) { // if i starts from 1, the
 														// first one is to use
@@ -479,11 +479,11 @@ public class ProcessData {
 		}
 
 
-		FileUtility.write(BACKTEST_RESULT_DIR+clModel.classifierName+"-monthlySummary.csv", evalResultSummary.toString(), "GBK");
+		FileUtility.write(BACKTEST_RESULT_DIR+clModel.getIdentifyName()+"-monthlySummary.csv", evalResultSummary.toString(), "GBK");
 
-		saveBacktestResultFile(result,clModel.classifierName);
+		saveBacktestResultFile(result,clModel.getIdentifyName());
 
-		System.out.println(clModel.classifierName+" test result file saved.");
+		System.out.println(clModel.getIdentifyName()+" test result file saved.");
 		return result;
 	}
 

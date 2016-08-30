@@ -8,8 +8,6 @@ import weka.classifiers.Evaluation;
 import weka.classifiers.evaluation.ThresholdCurve;
 import weka.classifiers.functions.MultilayerPerceptron;
 import weka.classifiers.functions.VotedPerceptron;
-import weka.classifiers.trees.J48;
-import weka.classifiers.trees.LMT;
 import weka.classifiers.trees.REPTree;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
@@ -23,7 +21,6 @@ public class NominalClassifier extends BaseClassifier{
 
 	public NominalClassifier() {
 		super();
-		//"voted";//"j48";//"rep";//"lmt";//"mlp";
 		WORK_PATH = ProcessData.NOMINAL_CLASSIFIER_DIR;
 	}
 
@@ -37,23 +34,12 @@ public class NominalClassifier extends BaseClassifier{
 		String batchSize="1000";
 
 		Classifier model=null;
-		if("j48".equals(this.classifierName)){
-			J48 j48=new J48();
-			j48.setBatchSize(batchSize);
-			j48.setMinNumObj(minNumObj);
-			model=j48;
-		}else if ("mlp".equals(this.classifierName)){
+		if ("mlp".equals(this.classifierName)){
 			MultilayerPerceptron mlp=new MultilayerPerceptron();
 			mlp.setBatchSize(batchSize);
 			mlp.setNumDecimalPlaces(6);
 			mlp.setHiddenLayers("a");//("a,a");
 			model=mlp;
-		}else if ("lmt".equals(this.classifierName)){
-			LMT lmt=new LMT();
-			lmt.setBatchSize(batchSize);
-			lmt.setNumDecimalPlaces(6);
-			lmt.setMinNumInstances(minNumObj);
-			model=lmt;
 		}else if ("rep".equals(this.classifierName)){
 			REPTree rep=new REPTree();
 			rep.setBatchSize(batchSize);

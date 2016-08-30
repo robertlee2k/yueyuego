@@ -146,13 +146,8 @@ public class BaggingM5P extends ContinousClassifier {
 	
 	public BaggingM5P() {
 		super();
-		if (useMultiPCA==true){
-			classifierName = "baggingM5P";
-			WORK_PATH =WORK_PATH+classifierName+"-multiPCA\\";
-		}else{
-			classifierName = "baggingM5P";
-			WORK_PATH =WORK_PATH+classifierName+"-singlePCA\\";
-		}
+		classifierName = "baggingM5P";
+		WORK_PATH =WORK_PATH+this.getIdentifyName()+"\\";
 		m_skipTrainInBacktest = true;
 		m_skipEvalInBacktest = true;
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
@@ -271,5 +266,17 @@ public class BaggingM5P extends ContinousClassifier {
 			eval.setThresholdMin(adjustedBottom);
 		}
 		return eval;
+	}
+	
+	@Override
+	public String getIdentifyName(){
+		String idenString;
+		if (useMultiPCA==true){
+			idenString =classifierName+"-multiPCA";
+		}else{
+			idenString =classifierName+"-singlePCA";
+		}
+
+		return idenString;
 	}
 }

@@ -402,7 +402,7 @@ public abstract class BaseClassifier {
 		System.out.println("......................");
 		System.out.println("......................");
 		System.out.println("......................");
-		System.out.println("===============================output summary===================================== for : "+classifierName);
+		System.out.println("===============================output summary===================================== for : "+getIdentifyName());
 		System.out.println("Monthly selected_TPR mean: "+selected_TPR_mean+" standard deviation="+selected_TPR_SD+" Skewness="+selected_TPR_SKW+" Kurtosis="+selected_TPR_Kur);
 		System.out.println("Monthly selected_LIFT mean : "+lift_mean);
 		System.out.println("Monthly selected_positive summary: "+selected_positive_sum);
@@ -413,7 +413,7 @@ public abstract class BaseClassifier {
 			System.out.println("mixed selected positive rate: "+FormatUtility.formatPercent(summary_selected_positive.getSum()/summary_selected_count.getSum()));
 		}
 		System.out.println("Monthly summary_judge_result summary: good number= "+FormatUtility.formatDouble(summary_judge_result.getSum(),8,0) + " bad number=" +FormatUtility.formatDouble((summary_judge_result.getN()-summary_judge_result.getSum()),8,0));
-		System.out.println("===============================end of summary=====================================for : "+classifierName);
+		System.out.println("===============================end of summary=====================================for : "+getIdentifyName());
 		System.out.println("......................");
 		System.out.println("......................");
 		System.out.println("......................");
@@ -470,6 +470,11 @@ public abstract class BaseClassifier {
 	//对于父类来说，do nothing
 	protected ThresholdData processThresholdData(ThresholdData eval){
 		return eval;
+	}
+	
+	//缺省返回classifierName，某些子类再添加参数，这是为了保存文件时区分不同参数用
+	public String getIdentifyName(){
+		return this.classifierName;
 	}
 
 	
