@@ -38,7 +38,6 @@ public class UpdateHistoryArffFile {
 
 		//处理各种nominal字段
 		Instances fullData=FileUtility.loadDataFromFile(RuntimeParams.getC_ROOT_DIRECTORY()+"fullTranFormat.arff");
-		System.out.println("!!!!!verifying input data format , you should read this .... "+ fullData.equalHeadersMsg(rawData));
 		InstanceUtility.calibrateAttributes(rawData, fullData);
 		rawData=null; //试图释放内存
 		

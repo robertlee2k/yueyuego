@@ -17,12 +17,11 @@ import yueyueGo.fullModel.classifier.J48ABFullModel;
 import yueyueGo.fullModel.classifier.M5PABFullModel;
 
 public class ProcessDataFullModel extends ProcessData {
-	protected final String C_ROOT_DIRECTORY = "C:\\trend\\fullModel\\";
 	
-
-	public ProcessDataFullModel() {
-		//这里不要call super()
-		RuntimeParams.createInstance(this.C_ROOT_DIRECTORY);	
+	//覆盖父类
+	public void init() {
+		C_ROOT_DIRECTORY = "C:\\trend\\fullModel\\";
+		RuntimeParams.createInstance(C_ROOT_DIRECTORY);	
 		BACKTEST_RESULT_DIR=RuntimeParams.getBACKTEST_RESULT_DIR();
 		PREDICT_WORK_DIR=RuntimeParams.getPREDICT_WORK_DIR();	
 		
@@ -37,6 +36,9 @@ public class ProcessDataFullModel extends ProcessData {
 	public static void main(String[] args) {
 		try {
 			ProcessDataFullModel fullModelWorker=new ProcessDataFullModel();
+			fullModelWorker.init();
+			
+			
 //			UpdateHistoryArffFullModel.createFullModelInstances();
 			fullModelWorker.callFullModelTestBack();
 			
@@ -103,6 +105,7 @@ public class ProcessDataFullModel extends ProcessData {
 	
 	//直接访问数据库预测每天的自选股数据，不单独保存每个模型的选股
 	protected Instances predictFullModelWithDB(BaseClassifier clModel, String pathName) throws Exception {
+		System.out.println("predict using classifier : "+clModel.getIdentifyName()+" @ prediction work path :"+PREDICT_WORK_DIR);
 		System.out.println("-----------------------------");
 		Instances fullData = DBAccessFullModel.LoadFullModelDataFromDB(FormatUtility.getDateStringFor(0));
 		Instances result=predict(clModel, pathName, fullData);

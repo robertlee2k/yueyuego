@@ -270,16 +270,7 @@ public abstract class BaseClassifier {
 		if (arff_format==ArffFormat.LEGACY_FORMAT){
 			header=ArffFormat.renameOldArffName(header);
 		}
-		String result=header.equalHeadersMsg(test);
-		if (result!=null){
-			try{
-				throw new Exception("fatal error! model and testing data structure is not the same. Here is the difference: "+result);
-			}catch(Exception e){
-				System.err.println(e);
-			}
-		}else {
-			System.out.println("model and testing data structure compared");
-		}
+		InstanceUtility.compareInstancesFormat(test, header);
 	}
 
 	//用于评估单次分类的效果。 对于回测来说，评估的规则有以下几条：

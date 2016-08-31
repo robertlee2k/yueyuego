@@ -23,23 +23,26 @@ public class ThresholdData {
 		//TODO 是否真的要设置上限需要评估8888
 		thresholdMax = ((Double) v_threshold.get(1)).doubleValue();
 		System.out.println("full market thresholding value：between "	+ thresholdMin + " , "+ thresholdMax);
+		try{
+			startPercent = ((Double) v_threshold.get(2)).doubleValue();
+			//TODO 是否真的要设置上限需要评估8888
+			endPercent = ((Double) v_threshold.get(3)).doubleValue();
+			System.out.println("full market percentile value：between "	+ startPercent + " , "+ endPercent);
 
-		startPercent = ((Double) v_threshold.get(2)).doubleValue();
-		//TODO 是否真的要设置上限需要评估8888
-		endPercent = ((Double) v_threshold.get(3)).doubleValue();
-		System.out.println("full market percentile value：between "	+ startPercent + " , "+ endPercent);
-		
-		meanABError=((Double) v_threshold.get(4)).doubleValue();
-		System.out.println("full market meanABError value= "	+ meanABError);
-//		thresholdMin_hs300=-1;
-//		thresholdMax_hs300=-1;
-//		if (seperate_classify_HS300==true){
-//			thresholdMin_hs300=((Double) v_threshold.get(2)).doubleValue();
-//			//TODO 是否真的要设置上限需要评估
-//			thresholdMax_hs300=((Double) v_threshold.get(3)).doubleValue();
-//			System.out.println("HS300 index thresholding value：between "	+ thresholdMin_hs300 + " , "+ thresholdMax_hs300);
-//		}
-		
+			meanABError=((Double) v_threshold.get(4)).doubleValue();
+			System.out.println("full market meanABError value= "	+ meanABError);
+			//		thresholdMin_hs300=-1;
+			//		thresholdMax_hs300=-1;
+			//		if (seperate_classify_HS300==true){
+			//			thresholdMin_hs300=((Double) v_threshold.get(2)).doubleValue();
+			//			//TODO 是否真的要设置上限需要评估
+			//			thresholdMax_hs300=((Double) v_threshold.get(3)).doubleValue();
+			//			System.out.println("HS300 index thresholding value：between "	+ thresholdMin_hs300 + " , "+ thresholdMax_hs300);
+			//		}
+		} catch (java.lang.ArrayIndexOutOfBoundsException e){ //兼容旧的模型
+			System.err.println(e);
+			System.err.println("let's continue using threshold min="+thresholdMin+"  max="+thresholdMax);
+		}
 	}
 	
 

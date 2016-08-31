@@ -317,17 +317,20 @@ public class ArffFormat {
 	public static Instances validateAttributeNames(Instances data,String[] standardFormat) throws Exception {
 		String incomingColumnName=null;
 		int ignoredColumns=0; //当需要忽略standardFormat中的某列时
+		int validColumns=0;
 		for (int i = 0; i < standardFormat.length; i++) {
 			incomingColumnName=data.attribute(i + ignoredColumns).name();
 			if (incomingColumnName.equals(standardFormat[i])){
-				System.out.println("PASSED. input data column name ["
-						+ incomingColumnName
-						+ "] equals to model attribuate name ["
-						+ standardFormat[i] + "]");
+//				System.out.println("PASSED. input data column name ["
+//						+ incomingColumnName
+//						+ "] equals to model attribuate name ["
+//						+ standardFormat[i] + "]");
+				validColumns++;
 			}else {
 				throw new Exception("input data column name is invalid! input column="+incomingColumnName+ " valid column should be:"+standardFormat[i]);
 			}
 		}
+		System.out.println("column name verification PASSED. number of attributes="+validColumns);
 		for (int j=standardFormat.length;j<data.numAttributes();j++){
 			incomingColumnName=data.attribute(j).name();
 			System.err.println("WARNING!!!! input data has additional column. name="+incomingColumnName);

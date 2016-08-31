@@ -147,6 +147,8 @@ public class InstanceUtility {
 	 */
 	public static void calibrateAttributes(Instances input,
 			Instances output) throws Exception, IllegalStateException {
+		InstanceUtility.compareInstancesFormat(input,output);
+		
 		for (int m=0; m<input.numInstances();m++){
 			Instance inst=new DenseInstance(output.numAttributes());
 			inst.setDataset(output);
@@ -207,6 +209,19 @@ public class InstanceUtility {
 		}
 	
 		return extData;
+	}
+
+	/**
+	 * @param test
+	 * @param header
+	 */
+	public static void compareInstancesFormat(Instances test, Instances header) {
+		String result=header.equalHeadersMsg(test);
+		if (result!=null){
+			System.err.println("attention! model and testing data structure is not the same. Here is the difference: "+result);
+		}else {
+			System.out.println("model and testing data structure compared");
+		}
 	}
 
 

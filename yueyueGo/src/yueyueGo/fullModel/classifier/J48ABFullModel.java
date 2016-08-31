@@ -12,6 +12,7 @@ public class J48ABFullModel extends NominalClassifier {
 
 		classifierName = "J48ABFullModel";
 		WORK_PATH =WORK_PATH+this.getIdentifyName()+"\\";
+
 		m_skipTrainInBacktest = false;
 		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{"" };
