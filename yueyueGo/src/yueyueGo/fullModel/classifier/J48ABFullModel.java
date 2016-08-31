@@ -10,7 +10,7 @@ import yueyueGo.classifier.BaggingJ48;
 
 public class J48ABFullModel extends NominalClassifier {
 	protected int leafMinObjNum=1000; 	//j48树最小节点叶子数
-	protected int divided=1000; //将trainingData分成多少份
+	protected int divided=800; //将trainingData分成多少份
 	
 	public J48ABFullModel() {
 		super();
