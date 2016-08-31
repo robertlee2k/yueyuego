@@ -548,7 +548,9 @@ public class ProcessData {
 			clModel.evaluateModel(trainingData, model, lower_limit,
 					upper_limit,tp_fp_ratio);
 		}
-		trainingData=null;
+		
+		trainingData=null;//释放内存
+		model=null;//释放model，后面预测时会方法内重新加载的。
 
 		//处理testingData
 		//对于二分类器，这里要把输入的收益率转换为分类变量
@@ -565,7 +567,7 @@ public class ProcessData {
 		
 		String evalSummary=yearSplit+","+policySplit+",";
 		evalSummary+=clModel.predictData(testingData, result);
-		testingData=null;
+		testingData=null;//释放内存
 		System.out.println("accumulated predicted rows: "+ result.numInstances());
 		System.out.println("complete for " + yearSplit + "均线策略: " + policySplit);
 		return evalSummary;
