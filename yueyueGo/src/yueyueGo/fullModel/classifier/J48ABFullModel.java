@@ -1,7 +1,6 @@
 package yueyueGo.fullModel.classifier;
 
 import weka.classifiers.Classifier;
-import weka.classifiers.meta.Bagging;
 import weka.classifiers.trees.J48;
 import weka.core.Instances;
 import yueyueGo.MyAttributionSelectorWithPCA;
