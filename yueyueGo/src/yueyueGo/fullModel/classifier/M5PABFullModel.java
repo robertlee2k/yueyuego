@@ -1,5 +1,6 @@
 package yueyueGo.fullModel.classifier;
 
+import yueyueGo.RuntimeParams;
 import yueyueGo.classifier.M5PABClassifier;
 
 public class M5PABFullModel extends M5PABClassifier {
@@ -9,11 +10,11 @@ public class M5PABFullModel extends M5PABClassifier {
 		leafMinObjNum=1000;
 		
 		classifierName = "m5pABFullModel";
-		WORK_PATH =WORK_PATH+getIdentifyName()+"\\";
+		WORK_PATH =RuntimeParams.getCONTINOUS_CLASSIFIER_DIR()+getIdentifyName()+"\\";
 
 		m_skipTrainInBacktest = true;
 		m_skipEvalInBacktest = true;
-		m_policySubGroup = new String[]{"none"};
+		m_policySubGroup = new String[]{""};
 		
 		m_noCaculationAttrib=false; //添加计算字段
 		EVAL_RECENT_PORTION = 1; // 计算最近数据阀值从历史记录中选取多少比例的最近样本

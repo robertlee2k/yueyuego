@@ -5,13 +5,14 @@ import weka.classifiers.trees.J48;
 import weka.core.Instances;
 import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.NominalClassifier;
+import yueyueGo.RuntimeParams;
 
 public class J48ABFullModel extends NominalClassifier {
 	int leafMinObjNum=1000; 	//j48特有参数
 	public J48ABFullModel() {
-
+		super();
 		classifierName = "J48ABFullModel";
-		WORK_PATH =WORK_PATH+this.getIdentifyName()+"\\";
+		WORK_PATH =RuntimeParams.getNOMINAL_CLASSIFIER_DIR()+this.getIdentifyName()+"\\";
 
 		m_skipTrainInBacktest = false;
 		m_skipEvalInBacktest = false;
