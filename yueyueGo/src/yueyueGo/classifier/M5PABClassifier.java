@@ -76,13 +76,15 @@ import yueyueGo.MyAttributionSelectorWithPCA;
 //===============================end of summary=====================================for : m5pAB
 
 public class M5PABClassifier extends ContinousClassifier {
+	//m5p特有参数
+	protected int leafMinObjNum=300;
+	
 	public M5PABClassifier() {
 		super();
 		classifierName = "m5pAB";
-		WORK_PATH =WORK_PATH+classifierName+"\\";
-
+		WORK_PATH =WORK_PATH+getIdentifyName()+"\\";
 		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = false;
+		m_skipEvalInBacktest = true;
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 		
 		m_noCaculationAttrib=false; //添加计算字段
@@ -97,8 +99,6 @@ public class M5PABClassifier extends ContinousClassifier {
 	@Override
 	protected Classifier buildModel(Instances train) throws Exception {
 
-		//m5p特有参数
-		int leafMinObjNum=300;
 		
 		//设置基础的m5p classifier参数
 		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();
@@ -115,7 +115,7 @@ public class M5PABClassifier extends ContinousClassifier {
 
 		classifier.setClassifier(model);
 		classifier.buildClassifier(train);
-		System.out.println("finish buiding m5p-AB model. minNumObj value:"+minNumObj);
+		System.out.println("finish buiding"+this.getIdentifyName() +"model. minNumObj value:"+minNumObj);
 		
 		return classifier;
 	}

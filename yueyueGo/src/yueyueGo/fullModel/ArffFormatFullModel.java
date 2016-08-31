@@ -8,6 +8,9 @@ import yueyueGo.InstanceUtility;
 public class ArffFormatFullModel extends ArffFormat {
 	//父类中不包括的两个常量定义
 	protected final static String FULL_MODEL_ARFF_PREFIX="all20052016-ext";//"AllTransaction20052016-ext";
+	protected static final String FULL_MODEL_LONG_ARFF_FILE = FULL_MODEL_ARFF_PREFIX+"-new.arff"; // 包含计算字段的ARFF格式，这是提供给各输入属性独立的分类器使用的，如分类树
+	protected static final String FULL_MODEL_SHORT_ARFF_FILE = FULL_MODEL_ARFF_PREFIX+"-short.arff";// 不包含计算字段的ARFF格式，这是提供给各输入属性独立的分类器使用的，如神经网络
+	
 	protected final static String FULL_MODEL_AVG_LINE = "chicang_days"; // 输入输出文件中的“持仓天数”名称
 	
 	//全模型用的训练字段 

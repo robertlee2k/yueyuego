@@ -17,7 +17,7 @@ public abstract class ContinousClassifier extends BaseClassifier {
 
 	public ContinousClassifier() {
 		super();
-		WORK_PATH = ProcessData.CONTINOUS_CLASSIFIER_DIR;
+		WORK_PATH =RuntimeParams.getCONTINOUS_CLASSIFIER_DIR();
 	}
 	
 

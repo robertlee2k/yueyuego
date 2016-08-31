@@ -8,20 +8,21 @@ import weka.core.Instances;
 import yueyueGo.ArffFormat;
 import yueyueGo.FileUtility;
 import yueyueGo.InstanceUtility;
+import yueyueGo.RuntimeParams;
 import yueyueGo.UpdateHistoryArffFile;
 
 public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 	
 	protected static void createFullModelInstances() throws Exception {
 
-		String arffFileName=ProcessDataFullModel.C_ROOT_DIRECTORY+ArffFormatFullModel.FULL_MODEL_ARFF_PREFIX;
+		String arffFileName=RuntimeParams.getC_ROOT_DIRECTORY()+ArffFormatFullModel.FULL_MODEL_ARFF_PREFIX;
 		Instances rawData = mergeSrcFullModelFiles2016();
 		
 		//处理所有的日期字段，并插入yearmonth
 		processDateColumns(rawData);
 
 		//处理各种nominal字段
-		Instances fullData=FileUtility.loadDataFromFile(ProcessDataFullModel.C_ROOT_DIRECTORY+"fullModelFormat.arff");
+		Instances fullData=FileUtility.loadDataFromFile(RuntimeParams.getC_ROOT_DIRECTORY()+"fullModelFormat.arff");
 		System.out.println("!!!!!verifying input data format , you should read this .... "+ fullData.equalHeadersMsg(rawData));
 		InstanceUtility.calibrateAttributes(rawData, fullData);
 		rawData=null; //试图释放内存
@@ -46,7 +47,7 @@ public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 	}
 	
 	private static Instances mergeSrcFullModelFiles() throws Exception,	IllegalStateException {
-		String sourceFilePrefix=ProcessDataFullModel.C_ROOT_DIRECTORY+"sourceData\\自选股\\第四组自选股5天后卖出策略数据\\test_onceyield_group4allhis_optional";
+		String sourceFilePrefix=RuntimeParams.getC_ROOT_DIRECTORY()+"sourceData\\自选股\\第四组自选股5天后卖出策略数据\\test_onceyield_group4allhis_optional";
 		Instances fullData = FileUtilityFullModel.loadDataFromFullModelCSVFile(sourceFilePrefix+"2005-2006.txt");
 		Instances addData = null;
 		int startYear=2007;
@@ -60,7 +61,7 @@ public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 	}
 	
 	private static Instances mergeSrcFullModelFiles2016() throws Exception,	IllegalStateException {
-		String sourceFilePrefix=ProcessDataFullModel.C_ROOT_DIRECTORY+"sourceData\\自选股\\第四组自选股5天后卖出策略数据\\test_onceyield_group4allhis_optional";
+		String sourceFilePrefix=RuntimeParams.getC_ROOT_DIRECTORY()+"sourceData\\自选股\\第四组自选股5天后卖出策略数据\\test_onceyield_group4allhis_optional";
 		Instances fullData = FileUtilityFullModel.loadDataFromFullModelCSVFile(sourceFilePrefix+"2013.txt");
 		Instances addData = null;
 		int startYear=2014;

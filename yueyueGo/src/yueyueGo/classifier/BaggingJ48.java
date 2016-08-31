@@ -10,7 +10,7 @@ import yueyueGo.NominalClassifier;
 public class BaggingJ48 extends NominalClassifier {
 	boolean useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
 	int bagging_iteration=10;	//bagging特有参数
-	int leafMinObjNum=300; 	//m5p特有参数
+	int leafMinObjNum=300; 	//j48特有参数
 	
 	public BaggingJ48() {
 		super();

@@ -21,7 +21,7 @@ public class NominalClassifier extends BaseClassifier{
 
 	public NominalClassifier() {
 		super();
-		WORK_PATH = ProcessData.NOMINAL_CLASSIFIER_DIR;
+		WORK_PATH = RuntimeParams.getNOMINAL_CLASSIFIER_DIR();
 	}
 
 	@Override

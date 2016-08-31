@@ -40,14 +40,10 @@ import yueyueGo.classifier.MLPClassifier;
 
 public class ProcessData {
 
-	//在子类中可以另外定义根目录
-	public static String C_ROOT_DIRECTORY = "C:\\trend\\";
+	protected final String C_ROOT_DIRECTORY ="C:\\trend\\";
+	protected String BACKTEST_RESULT_DIR=null;
+	protected String PREDICT_WORK_DIR=null;
 	
-	
-	public static final String NOMINAL_CLASSIFIER_DIR = C_ROOT_DIRECTORY+"models\\01-二分类器\\";
-	public static final String CONTINOUS_CLASSIFIER_DIR = C_ROOT_DIRECTORY+"models\\02-连续分类器\\";
-	public static final String BACKTEST_RESULT_DIR=C_ROOT_DIRECTORY+"testResult\\";
-	public static final String PREDICT_WORK_DIR=C_ROOT_DIRECTORY+"03-预测模型\\";
 	public static final String RESULT_EXTENSION = "-Test Result.csv";
 	
 //	public static HashMap<String, String> PREDICT_MODELS= new HashMap(){
@@ -69,10 +65,10 @@ public class ProcessData {
 	public static final String ADABOOST_PREDICT_MODEL="\\extData2005-2016-adaboost-201606 MA ";
 	public static final String ADABOOST_EVAL_MODEL="\\extData2005-2016-adaboost-201606 MA ";
 	
-	public static final double[] SHOUYILV_THREDHOLD={0.01,0.02,0.03,0.04,0.05}; //收益率的筛选阀值
+	protected final double[] SHOUYILV_THREDHOLD={0.01,0.02,0.03,0.04,0.05}; //收益率的筛选阀值
 	private final static int BEGIN_FROM_POLICY=0; // 当回测需要跳过某些均线时，0表示不跳过
 	
-	public static final String[] splitYear ={
+	protected final String[] splitYear ={
 	  "2008","2009","2010","2011","2012","2013","2014","2015","2016"
 //	"200801","200802","200803","200804","200805","200806","200807","200808","200809","200810","200811","200812","200901","200902","200903","200904","200905","200906","200907","200908","200909","200910","200911","200912","201001","201002","201003","201004","201005","201006","201007","201008","201009","201010","201011","201012","201101","201102","201103","201104","201105","201106","201107","201108","201109","201110","201111","201112","201201","201202","201203","201204","201205","201206","201207","201208","201209","201210","201211","201212","201301","201302","201303","201304","201305","201306","201307","201308","201309","201310","201311","201312","201401","201402","201403","201404","201405","201406","201407","201408","201409","201410","201411","201412","201501","201502","201503","201504","201505","201506","201507","201508","201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607"
 	//	"201606"
@@ -80,14 +76,23 @@ public class ProcessData {
 	};
 
 
+	public ProcessData() {
+
+		RuntimeParams.createInstance(this.C_ROOT_DIRECTORY);	
+		BACKTEST_RESULT_DIR=RuntimeParams.getBACKTEST_RESULT_DIR();
+		PREDICT_WORK_DIR=RuntimeParams.getPREDICT_WORK_DIR();	
+	}
+	
+
 	public static void main(String[] args) {
 		try {
+			ProcessData worker=new ProcessData();
 
 			//用模型预测每日增量数据
-//			callDailyPredict();
+//			worker.callDailyPredict();
 
 			//调用回测函数回测
-			callTestBack();
+			worker.callTestBack();
 			
 			//用最新的单次交易数据，更新原始的交易数据文件
 //			UpdateHistoryArffFile.callRefreshInstances();
@@ -110,7 +115,7 @@ public class ProcessData {
 	 * @throws Exception
 	 * @throws IOException
 	 */
-	protected static void callTestBack() throws Exception, IOException {
+	protected void callTestBack() throws Exception, IOException {
 		//按二分类器回测历史数据
 		//	投票感知器
 //		VotedPerceptionClassifier nModel = new VotedPerceptionClassifier();
@@ -159,7 +164,7 @@ public class ProcessData {
 	/**
 	 * @throws Exception
 	 */
-	protected static void callDailyPredict() throws Exception {
+	protected  void callDailyPredict() throws Exception {
 		//用二分类模型预测每日增量数据
 //		MLPClassifier nModel=new MLPClassifier();
 		
@@ -205,7 +210,7 @@ public class ProcessData {
 	
 
 	//使用文件预测每天的增量数据
-	protected static void predictWithFile(BaseClassifier clModel, String pathName,
+	protected void predictWithFile(BaseClassifier clModel, String pathName,
 			String dataFileName) throws Exception {
 		System.out.println("-----------------------------");
 		Instances fullData = FileUtility.loadDailyNewDataFromCSVFile(pathName + dataFileName
@@ -218,7 +223,7 @@ public class ProcessData {
 
 
 	//直接访问数据库预测每天的增量数据
-	protected static Instances predictWithDB(BaseClassifier clModel, String pathName) throws Exception {
+	protected Instances predictWithDB(BaseClassifier clModel, String pathName) throws Exception {
 		System.out.println("-----------------------------");
 		Instances fullData = DBAccess.LoadDataFromDB(clModel.arff_format);
 		Instances result=predict(clModel, pathName, fullData);
@@ -227,7 +232,7 @@ public class ProcessData {
 	}
 	
 	//用模型预测数据
-	protected static Instances predict(BaseClassifier clModel, String pathName, Instances inData) throws Exception {
+	protected Instances predict(BaseClassifier clModel, String pathName, Instances inData) throws Exception {
 		Instances newData = null;
 		Instances result = null;
 
@@ -330,7 +335,7 @@ public class ProcessData {
 	}
 
 	//历史回测
-	protected static Instances testBackward(BaseClassifier clModel) throws Exception,
+	protected  Instances testBackward(BaseClassifier clModel) throws Exception,
 			IOException {
 		Instances fullSetData = null;
 		Instances result = null;
@@ -436,7 +441,7 @@ public class ProcessData {
 	 * @return
 	 * @throws Exception
 	 */
-	protected static Instances prepareResultInstances(BaseClassifier clModel,
+	protected Instances prepareResultInstances(BaseClassifier clModel,
 			Instances fullSetData) throws Exception {
 		Instances result;
 		Instances header = new Instances(fullSetData, 0);
@@ -461,7 +466,7 @@ public class ProcessData {
 	 * @return
 	 * @throws Exception
 	 */
-	protected static Instances getBacktestInstances(BaseClassifier clModel)
+	protected  Instances getBacktestInstances(BaseClassifier clModel)
 			throws Exception {
 		Instances fullSetData;
 		// 根据模型来决定是否要使用有计算字段的ARFF
@@ -483,7 +488,7 @@ public class ProcessData {
 	 * @param splitMark
 	 * @return
 	 */
-	protected static String[] splitYearClause(String splitMark) {
+	protected String[] splitYearClause(String splitMark) {
 		String[] splitYearClauses=new String[2];
 		String attribuateYear = "ATT" + ArffFormat.YEAR_MONTH_INDEX;
 		if (splitMark.length() == 6) { // 按月分割时
@@ -502,12 +507,12 @@ public class ProcessData {
 	}
 
 	/**
-	 * 根据policy拼出相应的分割表达式，可以在子类中被覆盖（因为是静态方法，实际上是被子类隐藏）
+	 * 根据policy拼出相应的分割表达式，可以在子类中被覆盖
 	 * @param splitTrainYearClause
 	 * @param policy
 	 * @return
 	 */
-	protected static String getSplitClause(String splitYearClause,	String policy) {
+	protected String getSplitClause(String splitYearClause,	String policy) {
 		String splitClause;
 		splitClause = splitYearClause + " and (ATT3 is '"	+ policy + "')";
 		return splitClause;
@@ -562,7 +567,7 @@ public class ProcessData {
 	}
 
 	//这是对增量数据nominal label的处理 （因为增量数据中的nominal数据，label会可能不全）
-	private static Instances calibrateAttributesForDailyData(String pathName,Instances incomingData,int formatType) throws Exception {
+	private Instances calibrateAttributesForDailyData(String pathName,Instances incomingData,int formatType) throws Exception {
 		
 		//与本地格式数据比较，这地方基本上会有nominal数据的label不一致，临时处理办法就是先替换掉
 		String formatFile=null;
@@ -584,7 +589,9 @@ public class ProcessData {
 		return outputData;
 	}
 
-	protected static Instances mergeResultWithData(Instances resultData,Instances referenceData,String dataToAdd,int format) throws Exception{
+	
+	//合并格式，子类中可覆盖
+	protected  Instances mergeResultWithData(Instances resultData,Instances referenceData,String dataToAdd,int format) throws Exception{
 		//读取磁盘上预先保存的左侧数据
 		Instances left=null;
 		
@@ -601,7 +608,7 @@ public class ProcessData {
 		int tradeDateIndex=InstanceUtility.findATTPosition(mergedResult, ArffFormat.TRADE_DATE);
 		mergedResult.sort(tradeDateIndex-1);
 		
-		//TODO 给mergedResult瘦身。
+		//TODO should do more gracefully 给mergedResult瘦身。 2=yearmonth, 6=datadate,7=positive,9=bias
 		mergedResult=InstanceUtility.removeAttribs(mergedResult, "2,6,7,9");
 
 
@@ -619,7 +626,7 @@ public class ProcessData {
 	 * @throws IllegalStateException
 	 * @throws Exception
 	 */
-	protected static Instances mergeResults(Instances resultData,Instances referenceData, String dataToAdd, Instances left)
+	protected Instances mergeResults(Instances resultData,Instances referenceData, String dataToAdd, Instances left)
 			throws IllegalStateException, Exception {
 		System.out.println("incoming resultData size, row="+resultData.numInstances()+" column="+resultData.numAttributes());
 		System.out.println("incoming referenceData size, row="+referenceData.numInstances()+" column="+referenceData.numAttributes());
@@ -793,15 +800,15 @@ public class ProcessData {
 	}
 
 
-	private static void saveBacktestResultFile(Instances result,String classiferName) throws IOException{
+	private void saveBacktestResultFile(Instances result,String classiferName) throws IOException{
 		FileUtility.SaveDataIntoFile(result, BACKTEST_RESULT_DIR+"回测结果-"+ classiferName+".arff" );
 	}
-	protected static Instances loadBackTestResultFromFile(String classiferName) throws Exception{
+	protected Instances loadBackTestResultFromFile(String classiferName) throws Exception{
 		Instances result=FileUtility.loadDataFromFile(BACKTEST_RESULT_DIR+"回测结果-"+ classiferName+".arff" );
 		return result;
 	}
 
-	protected static void saveSelectedFileForMarkets(Instances fullOutput,String classiferName) throws Exception{
+	protected void saveSelectedFileForMarkets(Instances fullOutput,String classiferName) throws Exception{
 		//输出全市场概况
 		Attribute shouyilvAttribute=fullOutput.attribute(ArffFormat.SHOUYILV);
 		System.out.println("number of records for full market="+fullOutput.numInstances());

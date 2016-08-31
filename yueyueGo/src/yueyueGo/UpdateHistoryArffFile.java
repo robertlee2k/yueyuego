@@ -28,15 +28,16 @@ public class UpdateHistoryArffFile {
 	
 	
 	protected static void createTransInstances() throws Exception {
+		
 
-		String arffFileName=ProcessData.C_ROOT_DIRECTORY+ArffFormat.TRANSACTION_ARFF_PREFIX;
+		String arffFileName=RuntimeParams.getC_ROOT_DIRECTORY()+ArffFormat.TRANSACTION_ARFF_PREFIX;
 		Instances rawData = mergeSrcTransFiles();
 		
 		//处理所有的日期字段，并插入yearmonth
 		processDateColumns(rawData);
 
 		//处理各种nominal字段
-		Instances fullData=FileUtility.loadDataFromFile(ProcessData.C_ROOT_DIRECTORY+"fullTranFormat.arff");
+		Instances fullData=FileUtility.loadDataFromFile(RuntimeParams.getC_ROOT_DIRECTORY()+"fullTranFormat.arff");
 		System.out.println("!!!!!verifying input data format , you should read this .... "+ fullData.equalHeadersMsg(rawData));
 		InstanceUtility.calibrateAttributes(rawData, fullData);
 		rawData=null; //试图释放内存
@@ -68,7 +69,7 @@ public class UpdateHistoryArffFile {
 	 */
 	private static Instances mergeSrcTransFiles() throws Exception,
 			IllegalStateException {
-		String sourceFilePrefix=ProcessData.C_ROOT_DIRECTORY+"sourceData\\full4group\\test_onceyield_group4allhis";
+		String sourceFilePrefix=RuntimeParams.getC_ROOT_DIRECTORY()+"sourceData\\full4group\\test_onceyield_group4allhis";
 		Instances fullData = FileUtility.loadDataFromIncrementalCSVFile(sourceFilePrefix+"2005-2006.txt");
 		Instances addData = FileUtility.loadDataFromIncrementalCSVFile(sourceFilePrefix+"2007-2008.txt");
 		fullData=InstanceUtility.mergeTwoInstances(fullData, addData);
@@ -90,9 +91,9 @@ public class UpdateHistoryArffFile {
 	@Deprecated
 	//用于将以前的Arff文件变量改名另存为CSV文件 （临时给SPSS使用 20160812）
 	protected static void renameOldArffFile() throws Exception{
-		Instances oldInstances=FileUtility.loadDataFromFile(ProcessData.C_ROOT_DIRECTORY+"AllTransaction20052016-ext-origin-backup.arff");
+		Instances oldInstances=FileUtility.loadDataFromFile(RuntimeParams.getC_ROOT_DIRECTORY()+"AllTransaction20052016-ext-origin-backup.arff");
 		oldInstances=ArffFormat.renameOldArffName(oldInstances);
-		FileUtility.saveCSVFile(oldInstances, ProcessData.C_ROOT_DIRECTORY+"AllTransaction20052016-used201607.csv");
+		FileUtility.saveCSVFile(oldInstances, RuntimeParams.getC_ROOT_DIRECTORY()+"AllTransaction20052016-used201607.csv");
 	}
 	
 	
@@ -104,7 +105,7 @@ public class UpdateHistoryArffFile {
 	protected static void compareRefreshedInstancesForYear(int year,int checkSample) throws Exception {
 		
 		String splitSampleClause = "( ATT" + ArffFormat.YEAR_MONTH_INDEX + " >= " + year + "01) and ( ATT" + ArffFormat.YEAR_MONTH_INDEX+ " <= "	+ year + "12) ";
-		String filePrefix=ProcessData.C_ROOT_DIRECTORY+ArffFormat.TRANSACTION_ARFF_PREFIX;
+		String filePrefix=RuntimeParams.getC_ROOT_DIRECTORY()+ArffFormat.TRANSACTION_ARFF_PREFIX;
 		Instances originData=FileUtility.loadDataFromFile(filePrefix+"-origin.arff");
 		originData=InstanceUtility.getInstancesSubset(originData, splitSampleClause);
 		
@@ -267,7 +268,7 @@ public class UpdateHistoryArffFile {
 	//这里是用最近一年的数据刷新最原始的文件，调整完再用processHistoryData生成有计算字段之后的数据
 	protected static void refreshArffFile(int startYear,int endYear) throws Exception {
 		System.out.println("loading original history file into memory "  );
-		String originFileName=ProcessData.C_ROOT_DIRECTORY+ArffFormat.TRANSACTION_ARFF_PREFIX;
+		String originFileName=RuntimeParams.getC_ROOT_DIRECTORY()+ArffFormat.TRANSACTION_ARFF_PREFIX;
 		Instances fullData = FileUtility.loadDataFromFile(originFileName+"-origin.arff");
 		
 		//做这个处理是因为不知为何有时id之前会出现全角空格
@@ -282,7 +283,7 @@ public class UpdateHistoryArffFile {
 		
 	
 		for (int i=startYear;i<=endYear;i++){
-			fullData = refreshArffForOneYear(i,ProcessData.C_ROOT_DIRECTORY+"sourceData\\full4group\\test_onceyield_group4allhis"+i+".txt",fullData);
+			fullData = refreshArffForOneYear(i,RuntimeParams.getC_ROOT_DIRECTORY()+"sourceData\\full4group\\test_onceyield_group4allhis"+i+".txt",fullData);
 		}
 	
 		//保险起见把新数据按日期重新排序，虽然这样比较花时间，但可以确保日后处理时按tradeDate升序。
@@ -376,7 +377,7 @@ public class UpdateHistoryArffFile {
 	//这是处理历史全量数据，重新切割生成各种长、短以及格式文件的方法
 	protected static void processHistoryFile() throws Exception {
 		System.out.println("loading history file into memory "  );
-		String originFileName=ProcessData.C_ROOT_DIRECTORY+ArffFormat.TRANSACTION_ARFF_PREFIX;
+		String originFileName=RuntimeParams.getC_ROOT_DIRECTORY()+ArffFormat.TRANSACTION_ARFF_PREFIX;
 		Instances fullSetData = FileUtility.loadDataFromFile(originFileName+".arff");
 		System.out.println("finish  loading fullset File  row : "+ fullSetData.numInstances() + " column:"+ fullSetData.numAttributes());
 		generateArffFileSet(originFileName, fullSetData);
@@ -422,14 +423,14 @@ public class UpdateHistoryArffFile {
 			String file2=null;
 			Instances extData=null;
 			
-			file1=ProcessData.C_ROOT_DIRECTORY+"sourceData\\第四组数据\\追加的增量\\test_onceyield_add2005_2010(20160809).txt";
-			file2=ProcessData.C_ROOT_DIRECTORY+"sourceData\\第四组数据\\追加的增量\\test_onceyield_add2011_2016(20160809).txt";
+			file1=RuntimeParams.getC_ROOT_DIRECTORY()+"sourceData\\第四组数据\\追加的增量\\test_onceyield_add2005_2010(20160809).txt";
+			file2=RuntimeParams.getC_ROOT_DIRECTORY()+"sourceData\\第四组数据\\追加的增量\\test_onceyield_add2011_2016(20160809).txt";
 			extData = UpdateHistoryArffFile.mergeExtDataFromTwoFiles(file1, file2);
 
 			System.out.println("NewGroup data loaded. number="+extData.numInstances());
 			
 			//加载原始arff文件
-			String originFileName=ProcessData.C_ROOT_DIRECTORY+"AllTransaction20052016";
+			String originFileName=RuntimeParams.getC_ROOT_DIRECTORY()+"AllTransaction20052016";
 			Instances fullData = FileUtility.loadDataFromFile(originFileName+"-ext-origin.arff");
 
 			//将文件里201603以后的数据删除（这只是针对特殊文件的临时处理，以后可以不用)
@@ -451,8 +452,8 @@ public class UpdateHistoryArffFile {
 			
 			
 //			//处理第三组数据
-//			file1=ProcessData.C_ROOT_DIRECTORY+"sourceData\\单次收益率第三组数据2005_2010.txt";
-//			file2=ProcessData.C_ROOT_DIRECTORY+"sourceData\\单次收益率第三组数据2011_20160531.txt";
+//			file1=RuntimeParams.getC_ROOT_DIRECTORY()+"sourceData\\单次收益率第三组数据2005_2010.txt";
+//			file2=RuntimeParams.getC_ROOT_DIRECTORY()+"sourceData\\单次收益率第三组数据2011_20160531.txt";
 //			extData = InstanceUtility.mergeInstancesFromTwoFiles(file1, file2);
 //			System.out.println("Group 3 full ext data loaded. number="+extData.numInstances());
 //		

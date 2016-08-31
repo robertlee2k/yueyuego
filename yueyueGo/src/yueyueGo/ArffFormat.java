@@ -9,10 +9,9 @@ public class ArffFormat {
 	protected static final int LEGACY_FORMAT=-1;
 	protected static final int EXT_FORMAT=2;
 
-	protected static final String TRANSACTION_ARFF_PREFIX="trans20052016-ext";//"AllTransaction20052016-ext";
-	
-	protected static final String LONG_ARFF_FILE = TRANSACTION_ARFF_PREFIX+"-new.arff";//"AllTransaction20052016-new.arff"; // 包含计算字段的ARFF格式，这是提供给各输入属性独立的分类器使用的，如分类树
-	protected static final String SHORT_ARFF_FILE = TRANSACTION_ARFF_PREFIX+"-short.arff";//"AllTransaction20052016-short.arff";// 不包含计算字段的ARFF格式，这是提供给各输入属性独立的分类器使用的，如神经网络
+	protected static final String TRANSACTION_ARFF_PREFIX="trans20052016-ext";
+	protected static final String LONG_ARFF_FILE = TRANSACTION_ARFF_PREFIX+"-new.arff"; // 包含计算字段的ARFF格式，这是提供给各输入属性独立的分类器使用的，如分类树
+	protected static final String SHORT_ARFF_FILE = TRANSACTION_ARFF_PREFIX+"-short.arff";// 不包含计算字段的ARFF格式，这是提供给各输入属性独立的分类器使用的，如神经网络
 	
 	public static final String SELECTED_AVG_LINE = "selected_avgline"; // 输入输出文件中的“均线策略”名称
 	public static final String IS_HS300 = "ishs300";
@@ -373,8 +372,22 @@ public class ArffFormat {
 
 		boolean result=false;
 		try {
-			String leftMAValue=leftCurr.stringValue(leftMA);  //这里不应该为null，否则就抛出异常算了
-			String rightMAValue=rightCurr.stringValue(rightMA);//这里不应该为null，否则就抛出异常算了
+			String leftMAValue=null;
+			String rightMAValue=null;
+			
+			if (leftMA!=null && rightMA!=null) {
+				//这是用于均线策略时的比较，两个MA都不为null时进行比较
+				leftMAValue=leftCurr.stringValue(leftMA);  
+				rightMAValue=rightCurr.stringValue(rightMA);
+			}else if(leftMA==null && rightMA==null){
+				//这里是用于全市场比较的
+				leftMAValue="";
+				rightMAValue="";
+			}else{
+				//不应该只有一边为null，抛出异常算了
+				throw new Exception("leftMA="+leftMA+",while rightMA="+rightMA);
+			}
+			
 			double leftBias5Value=leftCurr.value(leftBias5); //这里有可能为NaN
 			double rightBias5Value=rightCurr.value(rightBias5);
 			
