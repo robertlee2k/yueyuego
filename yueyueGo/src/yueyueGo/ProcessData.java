@@ -533,16 +533,18 @@ public class ProcessData {
 		clModel.generateModelAndEvalFileName(yearSplit,policySplit);
 
 		Classifier model = null;
-		
+
 		//是否需要重做训练阶段
 		if (clModel.m_skipTrainInBacktest == false) { 
 			System.out.println("start to build model");
 			model = clModel.trainData(trainingData);
-		} else {
-			model = clModel.loadModel(yearSplit,policySplit);
-		}
+		} 
+		
 		//是否需要重做评估阶段
 		if (clModel.m_skipEvalInBacktest == false) {
+			if (model==null) {//如果model不是刚刚新建的，试着从已存在的文件里加载
+				model = clModel.loadModel(yearSplit,policySplit);
+			}
 			clModel.evaluateModel(trainingData, model, lower_limit,
 					upper_limit,tp_fp_ratio);
 		}
@@ -752,7 +754,12 @@ public class ProcessData {
 
 						
 						if (selected==1){
-							int index=new Double(resultCurr.value(resultMA)).intValue();
+							int index;
+							if (resultMA==null){ //非均线策略时默认选择SHOUYILV_THREDHOLD的第一个
+								index=0;
+							}else{//均线策略时按序选择SHOUYILV_THREDHOLD的第一个
+								index=new Double(resultCurr.value(resultMA)).intValue();	
+							}
 							if (profit<=SHOUYILV_THREDHOLD[index]){ 
 								selected=0;
 								resultChanged++;

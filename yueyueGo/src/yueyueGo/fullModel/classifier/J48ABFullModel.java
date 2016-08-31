@@ -17,8 +17,8 @@ public class J48ABFullModel extends NominalClassifier {
 		classifierName = "J48ABFullModel";
 		WORK_PATH =RuntimeParams.getNOMINAL_CLASSIFIER_DIR()+this.getIdentifyName()+"\\";
 
-		m_skipTrainInBacktest = false;
-		m_skipEvalInBacktest = false;
+		m_skipTrainInBacktest = true;
+		m_skipEvalInBacktest = true;
 		m_policySubGroup = new String[]{"" };
 		
 		m_noCaculationAttrib=false; //使用计算字段
