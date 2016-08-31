@@ -4,6 +4,7 @@ import weka.classifiers.Classifier;
 import weka.classifiers.meta.AdaBoostM1;
 import weka.classifiers.trees.J48;
 import weka.core.Instances;
+import yueyueGo.ClassifyUtility;
 import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.NominalClassifier;
 
@@ -91,7 +92,7 @@ public class AdaboostClassifier extends NominalClassifier {
 		
 		cachedOldClassInstances=null; 
 		//设置基础的J48 classifier参数
-		J48 model=BaggingJ48.prepareJ48(train.numInstances(),leafMinObjNum,divided);
+		J48 model=ClassifyUtility.prepareJ48(train.numInstances(),leafMinObjNum,divided);
 
 		
 		AdaBoostM1 adaboost=new  AdaBoostM1();

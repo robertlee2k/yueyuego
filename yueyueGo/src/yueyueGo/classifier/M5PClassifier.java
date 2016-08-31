@@ -3,6 +3,7 @@ package yueyueGo.classifier;
 import weka.classifiers.Classifier;
 import weka.classifiers.trees.M5P;
 import weka.core.Instances;
+import yueyueGo.ClassifyUtility;
 import yueyueGo.ContinousClassifier;
 
 
@@ -135,27 +136,11 @@ public class M5PClassifier extends ContinousClassifier {
 	protected Classifier buildModel(Instances train) throws Exception {
 		
 	
-		M5P model=prepareM5P(train.numInstances(),leafMinObjNum,divided);
+		M5P model=ClassifyUtility.prepareM5P(train.numInstances(),leafMinObjNum,divided);
 
 		model.buildClassifier(train);
 		
 
-		return model;
-	}
-	
-	//设置M5P的相关参数
-	public static M5P prepareM5P(int trainDataCount,int minNumObj,int divide){
-		M5P model = new M5P();
-		int count=trainDataCount/divide;
-		if (count<minNumObj){
-			count=minNumObj; //防止树过大
-		}
-
-		String batchSize=Integer.toString(count);
-		model.setBatchSize(batchSize);
-		model.setMinNumInstances(count);
-		model.setNumDecimalPlaces(6);
-		System.out.println(" preparing m5p model.actual minNumObj value:"+count);
 		return model;
 	}
 	

@@ -4,6 +4,7 @@ import weka.classifiers.Classifier;
 import weka.classifiers.meta.Bagging;
 import weka.classifiers.trees.M5P;
 import weka.core.Instances;
+import yueyueGo.ClassifyUtility;
 import yueyueGo.ContinousClassifier;
 import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.ThresholdData;
@@ -190,7 +191,7 @@ public class BaggingM5P extends ContinousClassifier {
 		int bagging_samplePercent=70;//bagging sample 取样率
 		
 
-		M5P model=M5PClassifier.prepareM5P(train.numInstances(),leafMinObjNum,divided);	
+		M5P model=ClassifyUtility.prepareM5P(train.numInstances(),leafMinObjNum,divided);	
 		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();
 		classifier.setDebug(true);
 		classifier.setClassifier(model);
@@ -212,7 +213,7 @@ public class BaggingM5P extends ContinousClassifier {
 		int bagging_samplePercent=100; // PrePCA算袋外误差时要求percent都为100
 		
 		//设置基础的m5p classifier参数
-		M5P model=M5PClassifier.prepareM5P(train.numInstances(),leafMinObjNum,divided);
+		M5P model=ClassifyUtility.prepareM5P(train.numInstances(),leafMinObjNum,divided);
 	
 	    // set up the bagger and build the classifier
 	    Bagging bagger = new Bagging();

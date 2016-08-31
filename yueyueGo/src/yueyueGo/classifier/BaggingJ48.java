@@ -4,6 +4,7 @@ import weka.classifiers.Classifier;
 import weka.classifiers.meta.Bagging;
 import weka.classifiers.trees.J48;
 import weka.core.Instances;
+import yueyueGo.ClassifyUtility;
 import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.NominalClassifier;
 
@@ -40,27 +41,11 @@ public class BaggingJ48 extends NominalClassifier {
 		}
 	}
 
-	public static J48 prepareJ48(int trainDataCount,int minNumObj,int divide){
-		//设置基础的J48 classifier参数
-		J48 model = new J48();
-		int count=trainDataCount/divide;
-		if (count<minNumObj){
-			count=minNumObj; //防止树过大
-		}
-		String batchSize=Integer.toString(count);
-		model.setBatchSize(batchSize);
-		model.setMinNumObj(count);
-		model.setNumDecimalPlaces(6);
-		model.setDebug(true);
-		System.out.println(" preparing j48 model.actual minNumObj value:"+count);
-		return model;
-	}
-	
 	//bagging 内的每个模型自己有单独的PCA
 	private  Classifier buildModelWithMultiPCA(Instances train) throws Exception {
 		int bagging_samplePercent=70;//bagging sample 取样率
 		
-		J48 model=prepareJ48(train.numInstances(),leafMinObjNum,divided);
+		J48 model=ClassifyUtility.prepareJ48(train.numInstances(),leafMinObjNum,divided);
 		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();
 		classifier.setDebug(true);
 		classifier.setClassifier(model);
@@ -81,7 +66,7 @@ public class BaggingJ48 extends NominalClassifier {
 	private  Classifier buildModelWithSinglePCA(Instances train) throws Exception {
 		int bagging_samplePercent=100; // PrePCA算袋外误差时要求percent都为100
 		
-		J48 model=prepareJ48(train.numInstances(),leafMinObjNum,divided);
+		J48 model=ClassifyUtility.prepareJ48(train.numInstances(),leafMinObjNum,divided);
 		
 	    // set up the bagger and build the classifier
 	    Bagging bagger = new Bagging();

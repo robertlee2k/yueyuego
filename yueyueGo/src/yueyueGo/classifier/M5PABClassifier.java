@@ -5,6 +5,7 @@ package yueyueGo.classifier;
 import weka.classifiers.Classifier;
 import weka.classifiers.trees.M5P;
 import weka.core.Instances;
+import yueyueGo.ClassifyUtility;
 import yueyueGo.ContinousClassifier;
 import yueyueGo.MyAttributionSelectorWithPCA;
 
@@ -105,7 +106,7 @@ public class M5PABClassifier extends ContinousClassifier {
 		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();
 			
 		
-		M5P model=M5PClassifier.prepareM5P(train.numInstances(),leafMinObjNum,divided);
+		M5P model=ClassifyUtility.prepareM5P(train.numInstances(),leafMinObjNum,divided);
 	
 
 		classifier.setClassifier(model);

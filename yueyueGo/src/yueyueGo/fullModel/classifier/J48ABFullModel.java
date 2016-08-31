@@ -3,10 +3,10 @@ package yueyueGo.fullModel.classifier;
 import weka.classifiers.Classifier;
 import weka.classifiers.trees.J48;
 import weka.core.Instances;
+import yueyueGo.ClassifyUtility;
 import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.NominalClassifier;
 import yueyueGo.RuntimeParams;
-import yueyueGo.classifier.BaggingJ48;
 
 public class J48ABFullModel extends NominalClassifier {
 	protected int leafMinObjNum=1000; 	//j48树最小节点叶子数
@@ -35,7 +35,7 @@ public class J48ABFullModel extends NominalClassifier {
 	@Override
 	protected Classifier buildModel(Instances train) throws Exception {
 		//设置基础的J48 classifier参数
-		J48 model=BaggingJ48.prepareJ48(train.numInstances(),leafMinObjNum,divided);
+		J48 model=ClassifyUtility.prepareJ48(train.numInstances(),leafMinObjNum,divided);
 	
 	    
 		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();	    
