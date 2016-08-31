@@ -76,8 +76,6 @@ import yueyueGo.MyAttributionSelectorWithPCA;
 //===============================end of summary=====================================for : m5pAB
 
 public class M5PABClassifier extends ContinousClassifier {
-	//m5p特有参数
-	protected int leafMinObjNum=300;
 	
 	public M5PABClassifier() {
 		super();
@@ -95,6 +93,9 @@ public class M5PABClassifier extends ContinousClassifier {
 		TP_FP_BOTTOM_LINE=0.9; //TP/FP的下限
 	}
 	
+	protected int leafMinObjNum=300; //叶子节点最小的
+	protected int divided=300; //将trainingData分成多少份
+
 	
 	@Override
 	protected Classifier buildModel(Instances train) throws Exception {
@@ -102,20 +103,14 @@ public class M5PABClassifier extends ContinousClassifier {
 		
 		//设置基础的m5p classifier参数
 		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();
-
-		M5P model = new M5P();
-		int minNumObj=train.numInstances()/300;
-		if (minNumObj<leafMinObjNum){
-			minNumObj=leafMinObjNum; //防止树过大
-		}
-		String batchSize=Integer.toString(minNumObj);
-		model.setBatchSize(batchSize);
-		model.setMinNumInstances(minNumObj);
-		model.setNumDecimalPlaces(6);
+			
+		
+		M5P model=M5PClassifier.prepareM5P(train.numInstances(),leafMinObjNum,divided);
+	
 
 		classifier.setClassifier(model);
 		classifier.buildClassifier(train);
-		System.out.println("finish buiding"+this.getIdentifyName() +"model. minNumObj value:"+minNumObj);
+		System.out.println("finish buiding"+this.getIdentifyName() +"model.");
 		
 		return classifier;
 	}

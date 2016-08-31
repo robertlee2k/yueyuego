@@ -10,7 +10,8 @@ import yueyueGo.NominalClassifier;
 public class BaggingJ48 extends NominalClassifier {
 	boolean useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
 	int bagging_iteration=10;	//bagging特有参数
-	int leafMinObjNum=300; 	//j48特有参数
+	protected int leafMinObjNum=300; 	//j48树最小节点叶子数
+	protected int divided=300; //将trainingData分成多少份
 	
 	public BaggingJ48() {
 		super();
@@ -39,22 +40,27 @@ public class BaggingJ48 extends NominalClassifier {
 		}
 	}
 
+	public static J48 prepareJ48(int trainDataCount,int minNumObj,int divide){
+		//设置基础的J48 classifier参数
+		J48 model = new J48();
+		int count=trainDataCount/divide;
+		if (count<minNumObj){
+			count=minNumObj; //防止树过大
+		}
+		String batchSize=Integer.toString(count);
+		model.setBatchSize(batchSize);
+		model.setMinNumObj(count);
+		model.setNumDecimalPlaces(6);
+		model.setDebug(true);
+		System.out.println(" preparing j48 model.actual minNumObj value:"+count);
+		return model;
+	}
+	
 	//bagging 内的每个模型自己有单独的PCA
 	private  Classifier buildModelWithMultiPCA(Instances train) throws Exception {
 		int bagging_samplePercent=70;//bagging sample 取样率
 		
-		//设置基础的J48 classifier参数
-		J48 model = new J48();
-		int minNumObj=train.numInstances()/300;
-		if (minNumObj<leafMinObjNum){
-			minNumObj=leafMinObjNum; //防止树过大
-		}
-		String batchSize=Integer.toString(minNumObj);
-		model.setBatchSize(batchSize);
-		model.setMinNumObj(minNumObj);
-		model.setNumDecimalPlaces(6);
-		model.setDebug(true);
-		
+		J48 model=prepareJ48(train.numInstances(),leafMinObjNum,divided);
 		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();
 		classifier.setDebug(true);
 		classifier.setClassifier(model);
@@ -75,18 +81,8 @@ public class BaggingJ48 extends NominalClassifier {
 	private  Classifier buildModelWithSinglePCA(Instances train) throws Exception {
 		int bagging_samplePercent=100; // PrePCA算袋外误差时要求percent都为100
 		
-		//设置基础的J48 classifier参数
-		J48 model = new J48();
-		int minNumObj=train.numInstances()/300;
-		if (minNumObj<leafMinObjNum){
-			minNumObj=leafMinObjNum; //防止树过大
-		}
-		String batchSize=Integer.toString(minNumObj);
-		model.setBatchSize(batchSize);
-		model.setMinNumObj(minNumObj);
-		model.setNumDecimalPlaces(6);
-		model.setDebug(true);
-	
+		J48 model=prepareJ48(train.numInstances(),leafMinObjNum,divided);
+		
 	    // set up the bagger and build the classifier
 	    Bagging bagger = new Bagging();
 		bagger.setDebug(true);

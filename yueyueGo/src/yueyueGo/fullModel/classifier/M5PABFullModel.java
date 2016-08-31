@@ -7,15 +7,17 @@ public class M5PABFullModel extends M5PABClassifier {
 
 	public M5PABFullModel() {
 		super();
-		leafMinObjNum=1000;
-		
+
+	
 		classifierName = "m5pABFullModel";
 		WORK_PATH =RuntimeParams.getCONTINOUS_CLASSIFIER_DIR()+getIdentifyName()+"\\";
 
-		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = true;
+		m_skipTrainInBacktest = false;
+		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{""};
 		
+		leafMinObjNum=1000;
+		divided=1000;		
 		m_noCaculationAttrib=false; //添加计算字段
 		EVAL_RECENT_PORTION = 1; // 计算最近数据阀值从历史记录中选取多少比例的最近样本
 		SAMPLE_LOWER_LIMIT = new double[]{ 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限 

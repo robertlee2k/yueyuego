@@ -154,7 +154,8 @@ public class BaggingM5P extends ContinousClassifier {
 	boolean adjustThresholdBottom=false; //不用MeanABSError调整threshold
 	boolean useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
 	int bagging_iteration=10;	//bagging特有参数
-	int leafMinObjNum=300; 	//m5p特有参数
+	protected int leafMinObjNum=300; //叶子节点最小的
+	protected int divided=300; //将trainingData分成多少份
 	
 	public BaggingM5P() {
 		super();
@@ -172,6 +173,8 @@ public class BaggingM5P extends ContinousClassifier {
 		TP_FP_BOTTOM_LINE=0.9; //TP/FP的下限
 	}
 
+	
+
 
 	@Override
 	protected Classifier buildModel(Instances train) throws Exception {
@@ -186,18 +189,8 @@ public class BaggingM5P extends ContinousClassifier {
 	private  Classifier buildModelWithMultiPCA(Instances train) throws Exception {
 		int bagging_samplePercent=70;//bagging sample 取样率
 		
-		//设置基础的m5p classifier参数
-		M5P model = new M5P();
-		int minNumObj=train.numInstances()/300;
-		if (minNumObj<leafMinObjNum){
-			minNumObj=leafMinObjNum; //防止树过大
-		}
-		String batchSize=Integer.toString(minNumObj);
-		model.setBatchSize(batchSize);
-		model.setMinNumInstances(minNumObj);
-		model.setNumDecimalPlaces(6);
-		model.setDebug(true);
-		
+
+		M5P model=M5PClassifier.prepareM5P(train.numInstances(),leafMinObjNum,divided);	
 		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();
 		classifier.setDebug(true);
 		classifier.setClassifier(model);
@@ -219,16 +212,7 @@ public class BaggingM5P extends ContinousClassifier {
 		int bagging_samplePercent=100; // PrePCA算袋外误差时要求percent都为100
 		
 		//设置基础的m5p classifier参数
-		M5P model = new M5P();
-		int minNumObj=train.numInstances()/300;
-		if (minNumObj<leafMinObjNum){
-			minNumObj=leafMinObjNum; //防止树过大
-		}
-		String batchSize=Integer.toString(minNumObj);
-		model.setBatchSize(batchSize);
-		model.setMinNumInstances(minNumObj);
-		model.setNumDecimalPlaces(6);
-		model.setDebug(true);
+		M5P model=M5PClassifier.prepareM5P(train.numInstances(),leafMinObjNum,divided);
 	
 	    // set up the bagger and build the classifier
 	    Bagging bagger = new Bagging();

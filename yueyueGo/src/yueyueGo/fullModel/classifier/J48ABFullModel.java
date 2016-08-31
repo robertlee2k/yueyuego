@@ -6,9 +6,12 @@ import weka.core.Instances;
 import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.NominalClassifier;
 import yueyueGo.RuntimeParams;
+import yueyueGo.classifier.BaggingJ48;
 
 public class J48ABFullModel extends NominalClassifier {
-	int leafMinObjNum=1000; 	//j48特有参数
+	protected int leafMinObjNum=1000; 	//j48树最小节点叶子数
+	protected int divided=1000; //将trainingData分成多少份
+	
 	public J48ABFullModel() {
 		super();
 		classifierName = "J48ABFullModel";
@@ -32,16 +35,7 @@ public class J48ABFullModel extends NominalClassifier {
 	@Override
 	protected Classifier buildModel(Instances train) throws Exception {
 		//设置基础的J48 classifier参数
-		J48 model = new J48();
-		int minNumObj=train.numInstances()/300;
-		if (minNumObj<leafMinObjNum){
-			minNumObj=leafMinObjNum; //防止树过大
-		}
-		String batchSize=Integer.toString(minNumObj);
-		model.setBatchSize(batchSize);
-		model.setMinNumObj(minNumObj);
-		model.setNumDecimalPlaces(6);
-		model.setDebug(true);
+		J48 model=BaggingJ48.prepareJ48(train.numInstances(),leafMinObjNum,divided);
 	
 	    
 		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();	    

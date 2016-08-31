@@ -129,22 +129,33 @@ public class M5PClassifier extends ContinousClassifier {
 		TP_FP_BOTTOM_LINE=0.9; //TP/FP的下限
 	}
 
+	protected int leafMinObjNum=300; //叶子节点最小的
+	protected int divided=300; //将trainingData分成多少份
 	@Override
 	protected Classifier buildModel(Instances train) throws Exception {
-		M5P model = new M5P();
-		int minNumObj=train.numInstances()/300;
-		if (minNumObj<1000){
-			minNumObj=1000; //防止树过大
-		}
-
-		String batchSize=Integer.toString(minNumObj);
-		model.setBatchSize(batchSize);
-		model.setMinNumInstances(minNumObj);
-		model.setNumDecimalPlaces(6);
+		
+	
+		M5P model=prepareM5P(train.numInstances(),leafMinObjNum,divided);
 
 		model.buildClassifier(train);
-		System.out.println("finish buiding m5p model. minNumObj value:"+minNumObj);
+		
 
+		return model;
+	}
+	
+	//设置M5P的相关参数
+	public static M5P prepareM5P(int trainDataCount,int minNumObj,int divide){
+		M5P model = new M5P();
+		int count=trainDataCount/divide;
+		if (count<minNumObj){
+			count=minNumObj; //防止树过大
+		}
+
+		String batchSize=Integer.toString(count);
+		model.setBatchSize(batchSize);
+		model.setMinNumInstances(count);
+		model.setNumDecimalPlaces(6);
+		System.out.println(" preparing m5p model.actual minNumObj value:"+count);
 		return model;
 	}
 	
