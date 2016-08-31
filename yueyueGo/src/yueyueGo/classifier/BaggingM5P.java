@@ -132,7 +132,10 @@ import yueyueGo.ThresholdData;
 //selected shouyilv average for hs300 =0.20% count=2000
 //selected shouyilv average for zz500 =1.81% count=3654
 
-//6. 月度阀值模型评估，其他与上面一样。从mixed selected TPR相同来看，这个模型比较稳定
+//6. 月度阀值模型评估，其他与上面5一样。从mixed selected TPR相同来看，这个模型比较稳定,比按年评估模型5有所提升
+//2008-2016 全市场 收益率优先10-20-30-50，年平均收益率为22%-25%-23%-18%（累计净值3.9/4.8/4.1/3.1)
+//胜率优先交易方法收益率也有提升（累计净值在2.5-3.6之间)
+// 沪深300也不错，虽然选股少，但收益率优先和全市场差不多
 //===============================output summary===================================== for : baggingM5P-multiPCA
 //Monthly selected_TPR mean: 24.35% standard deviation=29.32% Skewness=1.08 Kurtosis=0.22
 //Monthly selected_LIFT mean : 0.74

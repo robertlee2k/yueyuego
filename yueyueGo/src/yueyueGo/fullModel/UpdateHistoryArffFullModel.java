@@ -15,7 +15,7 @@ public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 	protected static void createFullModelInstances() throws Exception {
 
 		String arffFileName=ProcessDataFullModel.C_ROOT_DIRECTORY+ArffFormatFullModel.FULL_MODEL_ARFF_PREFIX;
-		Instances rawData = mergeSrcFullModelFiles();
+		Instances rawData = mergeSrcFullModelFiles2016();
 		
 		//处理所有的日期字段，并插入yearmonth
 		processDateColumns(rawData);
