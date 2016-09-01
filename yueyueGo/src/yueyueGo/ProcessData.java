@@ -367,10 +367,15 @@ public class ProcessData {
 			Instances testingRawData = null;
 
 			for (int j = BEGIN_FROM_POLICY; j < clModel.m_policySubGroup.length; j++) {
+				policy = clModel.m_policySubGroup[j];
+				lower_limit = clModel.SAMPLE_LOWER_LIMIT[j];
+				upper_limit = clModel.SAMPLE_UPPER_LIMIT[j];
+				tp_fp_ratio= clModel.TP_FP_RATIO_LIMIT[j];
+				
 				// 加载原始arff文件
 				if (fullSetData == null) {
 
-					fullSetData = getBacktestInstances(clModel);
+					fullSetData = getBacktestInstances(clModel,splitMark,policy);
 				}
 
 				// 准备输出数据格式
@@ -379,10 +384,7 @@ public class ProcessData {
 
 				}
 
-				policy = clModel.m_policySubGroup[j];
-				lower_limit = clModel.SAMPLE_LOWER_LIMIT[j];
-				upper_limit = clModel.SAMPLE_UPPER_LIMIT[j];
-				tp_fp_ratio= clModel.TP_FP_RATIO_LIMIT[j];
+
 				splitTrainClause = getSplitClause(splitTrainYearClause,	policy);
 				splitTestClause = getSplitClause(splitTestYearClause, policy);
 				
@@ -403,20 +405,20 @@ public class ProcessData {
 						clModel.saveArffFile(trainingData,"train", splitMark, policy);
 					}
 				}
+				
 				// prepare testing data
 				System.out.println("start to split testing set");
 				testingRawData = InstanceUtility
 						.getInstancesSubset(fullSetData, splitTestClause);
-				
+				System.out.println(" testing raw data size , row : "
+						+ testingRawData.numInstances() + " column: "
+						+ testingRawData.numAttributes());
 				
 				//在做模型训练时释放内存，改为每次从硬盘加载的方式
 				if (clModel.m_skipTrainInBacktest == false){
 					fullSetData=null; //释放内存
 					System.gc();
 				}				
-				
-
-				
 				
 				String resultSummary = doOneModel(clModel, result,
 						splitMark, policy, lower_limit, upper_limit,tp_fp_ratio,trainingData,testingRawData);
@@ -469,7 +471,7 @@ public class ProcessData {
 	 * @return
 	 * @throws Exception
 	 */
-	protected  Instances getBacktestInstances(BaseClassifier clModel)
+	protected  Instances getBacktestInstances(BaseClassifier clModel,String splitMark,String policy)
 			throws Exception {
 		Instances fullSetData;
 		// 根据模型来决定是否要使用有计算字段的ARFF
