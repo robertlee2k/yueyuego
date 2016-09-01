@@ -178,10 +178,6 @@ public class ProcessDataFullModel extends ProcessData {
 		System.out.println("start to load File for fullset from File: "+C_ROOT_DIRECTORY+ arffFile  );
 		fullSetData = FileUtility.loadDataFromFile( C_ROOT_DIRECTORY+arffFile);
 		
-		int trainingDataSize=fullSetData.numInstances();
-		if (trainingDataSize>EnvConstants.TRAINING_DATA_LIMIT){
-			fullSetData=new Instances(fullSetData,trainingDataSize-EnvConstants.TRAINING_DATA_LIMIT,EnvConstants.TRAINING_DATA_LIMIT);
-		}
 		System.out.println("finish loading fullset Data. row : "+fullSetData.numInstances() + " column:"+ fullSetData.numAttributes());
 		return fullSetData;
 	}

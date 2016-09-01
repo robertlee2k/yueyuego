@@ -394,8 +394,11 @@ public class ProcessData {
 				
 				if (clModel.m_skipTrainInBacktest == false || clModel.m_skipEvalInBacktest==false ) { //如果不需要培训和评估，则无需训练样本
 					System.out.println("start to split training set: "+splitTrainClause);
-					trainingData = InstanceUtility.getInstancesSubset(fullSetData,
-							splitTrainClause);
+					trainingData = InstanceUtility.getInstancesSubset(fullSetData,splitTrainClause);
+					int trainingDataSize=trainingData.numInstances();
+					if (trainingDataSize>EnvConstants.TRAINING_DATA_LIMIT){
+						trainingData=new Instances(trainingData,trainingDataSize-EnvConstants.TRAINING_DATA_LIMIT,EnvConstants.TRAINING_DATA_LIMIT);
+					}
 					trainingData = InstanceUtility.removeAttribs(trainingData,  Integer.toString(ArffFormat.ID_POSITION)+","+ArffFormat.YEAR_MONTH_INDEX);
 
 					//对于二分类器，这里要把输入的收益率转换为分类变量
