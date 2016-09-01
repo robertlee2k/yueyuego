@@ -9,7 +9,7 @@ public class BaggingJ48FullModel extends BaggingJ48 {
 		super();
 		leafMinObjNum=1000; 	//j48树最小节点叶子数
 		divided=800; //将trainingData分成多少份
-		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
+		useMultiPCA=false; //bagging 内的每个模型自己没有单独的PCA
 		bagging_iteration=10;	//bagging特有参数
 		
 		classifierName = "BaggingJ48ABFullModel";

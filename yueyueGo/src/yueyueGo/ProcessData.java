@@ -393,7 +393,7 @@ public class ProcessData {
 				splitTestClause = getSplitClause(splitTestYearClause, policy);
 				
 				if (clModel.m_skipTrainInBacktest == false || clModel.m_skipEvalInBacktest==false ) { //如果不需要培训和评估，则无需训练样本
-					System.out.println("start to split training set");
+					System.out.println("start to split training set: "+splitTrainClause);
 					trainingData = InstanceUtility.getInstancesSubset(fullSetData,
 							splitTrainClause);
 					trainingData = InstanceUtility.removeAttribs(trainingData,  Integer.toString(ArffFormat.ID_POSITION)+","+ArffFormat.YEAR_MONTH_INDEX);
@@ -411,7 +411,7 @@ public class ProcessData {
 				}
 				
 				// prepare testing data
-				System.out.println("start to split testing set");
+				System.out.println("start to split testing set: "+ splitTestClause);
 				testingRawData = InstanceUtility
 						.getInstancesSubset(fullSetData, splitTestClause);
 				System.out.println(" testing raw data size , row : "

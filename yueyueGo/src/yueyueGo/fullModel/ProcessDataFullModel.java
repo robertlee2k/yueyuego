@@ -169,7 +169,7 @@ public class ProcessDataFullModel extends ProcessData {
 		}else{
 			arffFile=ArffFormatFullModel.FULL_MODEL_LONG_ARFF_FILE;
 		}
-		int year=Integer.parseInt(splitMark);
+//		int year=Integer.parseInt(splitMark);
 //		//根据年份查找相应的目录
 //		if (year<=2009){
 //			arffFile="2009\\"+arffFile;

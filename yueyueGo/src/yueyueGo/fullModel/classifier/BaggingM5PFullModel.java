@@ -11,7 +11,7 @@ public class BaggingM5PFullModel extends BaggingM5P {
 		leafMinObjNum=1000;
 		divided=800;	
 		adjustThresholdBottom=false; //不用MeanABSError调整threshold
-		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
+		useMultiPCA=false; //bagging 内的每个模型自己没有单独的PCA
 		bagging_iteration=10;	//bagging特有参数
 		classifierName = "BaggingM5PABFullModel";
 		WORK_PATH =RuntimeParams.getCONTINOUS_CLASSIFIER_DIR()+getIdentifyName()+"\\";
