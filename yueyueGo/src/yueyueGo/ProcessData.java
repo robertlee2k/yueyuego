@@ -418,10 +418,12 @@ public class ProcessData {
 						+ testingRawData.numInstances() + " column: "
 						+ testingRawData.numAttributes());
 				
-				//在做模型训练时释放内存，改为每次从硬盘加载的方式
+				//在不够强的机器上做模型训练时释放内存，改为每次从硬盘加载的方式
 				if (clModel.m_skipTrainInBacktest == false){
-					fullSetData=null; //释放内存
-					System.gc();
+					if (EnvConstants.CPU_CORE_NUMBER<8){
+						fullSetData=null; //释放内存
+						System.gc();
+					}
 				}				
 				
 				String resultSummary = doOneModel(clModel, result,
