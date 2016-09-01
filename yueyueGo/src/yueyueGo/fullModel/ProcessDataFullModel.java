@@ -14,6 +14,8 @@ import yueyueGo.ProcessData;
 import yueyueGo.RuntimeParams;
 import yueyueGo.classifier.AdaboostClassifier;
 import yueyueGo.classifier.BaggingM5P;
+import yueyueGo.fullModel.classifier.BaggingJ48FullModel;
+import yueyueGo.fullModel.classifier.BaggingM5PFullModel;
 import yueyueGo.fullModel.classifier.J48ABFullModel;
 import yueyueGo.fullModel.classifier.M5PABFullModel;
 
@@ -57,13 +59,13 @@ public class ProcessDataFullModel extends ProcessData {
 	 */
 	protected void callFullModelTestBack() throws Exception, IOException {
 		//按二分类器回测历史数据
-		J48ABFullModel nModel=new J48ABFullModel();
+		BaggingJ48FullModel nModel=new BaggingJ48FullModel();
 		Instances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
 //		Instances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 
 		//按连续分类器回测历史数据
-		M5PABFullModel cModel=new M5PABFullModel();
+		BaggingM5PFullModel cModel=new BaggingM5PFullModel();
 		Instances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
 //		Instances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());

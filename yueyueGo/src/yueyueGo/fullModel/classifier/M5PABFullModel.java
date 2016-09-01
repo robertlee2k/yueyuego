@@ -4,6 +4,7 @@ import weka.classifiers.Classifier;
 import yueyueGo.RuntimeParams;
 import yueyueGo.classifier.M5PABClassifier;
 
+@Deprecated
 public class M5PABFullModel extends M5PABClassifier {
 
 	public M5PABFullModel() {
@@ -31,12 +32,12 @@ public class M5PABFullModel extends M5PABClassifier {
 	public Classifier loadModel(String yearSplit, String policySplit) throws Exception{
 
 		int inputYear=Integer.parseInt(yearSplit.substring(0,4));
-		//这是为Fullmodel单独准备的模型，模型文件是按年分阶段读取
-		if (inputYear>2014){
-			inputYear=2014;
-		}else if (inputYear>2009){
-			inputYear=2009;
-		}
+//		//这是为Fullmodel单独准备的模型，模型文件是按年分阶段读取
+//		if (inputYear>2014){
+//			inputYear=2014;
+//		}else if (inputYear>2009){
+//			inputYear=2009;
+//		}
 		String filename=this.WORK_PATH+this.WORK_FILE_PREFIX +"-"+this.classifierName+ "-" + inputYear + MA_PREFIX + policySplit;//如果使用固定模型
 		
 		this.setModelFileName(filename);

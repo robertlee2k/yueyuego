@@ -153,9 +153,9 @@ import yueyueGo.ThresholdData;
 //selected shouyilv average for zz500 =1.82% count=3383
 
 public class BaggingM5P extends ContinousClassifier {
-	boolean adjustThresholdBottom=false; //不用MeanABSError调整threshold
-	boolean useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
-	int bagging_iteration=10;	//bagging特有参数
+	protected boolean adjustThresholdBottom=false; //不用MeanABSError调整threshold
+	protected boolean useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
+	protected int bagging_iteration=10;	//bagging特有参数
 	protected int leafMinObjNum=300; //叶子节点最小的
 	protected int divided=300; //将trainingData分成多少份
 	

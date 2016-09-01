@@ -10,8 +10,8 @@ import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.NominalClassifier;
 
 public class BaggingJ48 extends NominalClassifier {
-	boolean useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
-	int bagging_iteration=10;	//bagging特有参数
+	protected boolean useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
+	protected int bagging_iteration=10;	//bagging特有参数
 	protected int leafMinObjNum=300; 	//j48树最小节点叶子数
 	protected int divided=300; //将trainingData分成多少份
 	
