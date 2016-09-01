@@ -16,8 +16,6 @@ import yueyueGo.classifier.AdaboostClassifier;
 import yueyueGo.classifier.BaggingM5P;
 import yueyueGo.fullModel.classifier.BaggingJ48FullModel;
 import yueyueGo.fullModel.classifier.BaggingM5PFullModel;
-import yueyueGo.fullModel.classifier.J48ABFullModel;
-import yueyueGo.fullModel.classifier.M5PABFullModel;
 
 public class ProcessDataFullModel extends ProcessData {
 	
