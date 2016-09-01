@@ -435,20 +435,31 @@ public abstract class BaseClassifier {
 
 	protected Classifier loadModelFromFile() throws Exception{
 		String modelFileName=this.getModelFileName()+ MODEL_FILE_EXTENSION;
-		@SuppressWarnings("unchecked")
-		Vector<Object> v = (Vector<Object>) SerializationHelper.read(modelFileName);
-		Classifier model = (Classifier) v.get(0);
-		System.out.println("Classifier Model Loaded: "+ modelFileName);
-		return model;
+		try{
+			@SuppressWarnings("unchecked")
+			Vector<Object> v = (Vector<Object>) SerializationHelper.read(modelFileName);
+			Classifier model = (Classifier) v.get(0);
+			System.out.println("Classifier Model Loaded: "+ modelFileName);
+			return model;
+		} catch(IOException e){
+			System.err.println("error when loading: "+modelFileName);
+			throw e;
+		}
 	}	
 
 	protected void saveModelToFiles(Classifier model, Vector<Object> v)
-			throws IOException, Exception {
+			throws Exception {
 		String modelFileName=this.getModelFileName();
-		FileUtility.write(modelFileName+"-"+this.classifierName+TXT_EXTENSION, model.toString(), "utf-8");
-		SerializationHelper.write(modelFileName+MODEL_FILE_EXTENSION, v);
-//		SerializationHelper.write(modelFileName+WEKA_MODEL_EXTENSION, model);
-		System.out.println("models saved to :"+ modelFileName);
+
+		try{
+			FileUtility.write(modelFileName+TXT_EXTENSION, model.toString(), "utf-8");
+			SerializationHelper.write(modelFileName+MODEL_FILE_EXTENSION, v);
+			//		SerializationHelper.write(modelFileName+WEKA_MODEL_EXTENSION, model);
+			System.out.println("models saved to :"+ modelFileName);
+		} catch(IOException e){
+			System.err.println("error when saving: "+modelFileName);
+			throw e;
+		}
 	}
 	
 	// arffType="train" or "test" or "eval"
