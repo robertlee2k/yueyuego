@@ -6,6 +6,7 @@ import weka.classifiers.trees.M5P;
 import weka.core.Instances;
 import yueyueGo.ClassifyUtility;
 import yueyueGo.ContinousClassifier;
+import yueyueGo.EnvConstants;
 import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.ThresholdData;
 
@@ -200,7 +201,7 @@ public class BaggingM5P extends ContinousClassifier {
 	    Bagging bagger = new Bagging();
 	    bagger.setClassifier(classifier);
 	    bagger.setNumIterations(bagging_iteration);
-	    bagger.setNumExecutionSlots(3);
+	    bagger.setNumExecutionSlots(EnvConstants.CPU_CORE_NUMBER-1);
 	    bagger.setBagSizePercent(bagging_samplePercent);
 	    bagger.setCalcOutOfBag(false); //不计算袋外误差
 	    bagger.setDebug(true);
@@ -220,7 +221,7 @@ public class BaggingM5P extends ContinousClassifier {
 		bagger.setDebug(true);
 		bagger.setClassifier(model);
 	    bagger.setNumIterations(bagging_iteration);
-	    bagger.setNumExecutionSlots(2);
+	    bagger.setNumExecutionSlots(EnvConstants.CPU_CORE_NUMBER-2);
 	    bagger.setBagSizePercent(bagging_samplePercent);
 	    bagger.setCalcOutOfBag(true); //计算袋外误差
 	    bagger.setDebug(true);

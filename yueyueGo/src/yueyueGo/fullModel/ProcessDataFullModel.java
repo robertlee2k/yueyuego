@@ -5,6 +5,7 @@ import java.io.IOException;
 import weka.core.Instances;
 import yueyueGo.ArffFormat;
 import yueyueGo.BaseClassifier;
+import yueyueGo.EnvConstants;
 import yueyueGo.FileUtility;
 import yueyueGo.FormatUtility;
 import yueyueGo.InstanceUtility;
@@ -20,7 +21,7 @@ public class ProcessDataFullModel extends ProcessData {
 	
 	//覆盖父类
 	public void init() {
-		C_ROOT_DIRECTORY = "C:\\trend\\fullModel\\";
+		C_ROOT_DIRECTORY = EnvConstants.FULL_MODEL_ROOT_DIR;
 		RuntimeParams.createInstance(C_ROOT_DIRECTORY);	
 		BACKTEST_RESULT_DIR=RuntimeParams.getBACKTEST_RESULT_DIR();
 		PREDICT_WORK_DIR=RuntimeParams.getPREDICT_WORK_DIR();	
@@ -176,8 +177,8 @@ public class ProcessDataFullModel extends ProcessData {
 		fullSetData = FileUtility.loadDataFromFile( C_ROOT_DIRECTORY+arffFile);
 		
 		int trainingDataSize=fullSetData.numInstances();
-		if (trainingDataSize>TRAINING_DATA_LIMIT){
-			fullSetData=new Instances(fullSetData,trainingDataSize-TRAINING_DATA_LIMIT,TRAINING_DATA_LIMIT);
+		if (trainingDataSize>EnvConstants.TRAINING_DATA_LIMIT){
+			fullSetData=new Instances(fullSetData,trainingDataSize-EnvConstants.TRAINING_DATA_LIMIT,EnvConstants.TRAINING_DATA_LIMIT);
 		}
 		System.out.println("finish loading fullset Data. row : "+fullSetData.numInstances() + " column:"+ fullSetData.numAttributes());
 		return fullSetData;

@@ -39,7 +39,7 @@ import yueyueGo.classifier.MLPClassifier;
 
 public class ProcessData {
 
-	protected String C_ROOT_DIRECTORY ="C:\\trend\\";
+	protected String C_ROOT_DIRECTORY =EnvConstants.AVG_LINE_ROOT_DIR;
 	protected String BACKTEST_RESULT_DIR=null;
 	protected String PREDICT_WORK_DIR=null;
 	
@@ -51,8 +51,6 @@ public class ProcessData {
 //	};
 	
 	protected String STRAGEY_NAME; // 策略的名称，只是用于输出。
-	protected int TRAINING_DATA_LIMIT=1000000; //用于训练单个模型的数据条数上限（这个和机器的内存有关）
-	
 	public static String M5P_PREDICT_MODEL="\\extData2005-2016-m5p-201607 MA ";//交易分析2005-2016 by month-new-m5p-201605 MA ";
 	public static String M5P_EVAL_MODEL="\\extData2005-2016-m5p-201607 MA ";//交易分析2005-2016 by month-new-m5p-201605 MA ";
 

@@ -16,7 +16,7 @@ public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 	protected static void createFullModelInstances() throws Exception {
 
 		String arffFileName=RuntimeParams.getC_ROOT_DIRECTORY()+ArffFormatFullModel.FULL_MODEL_ARFF_PREFIX;
-		Instances rawData = mergeSrcFullModelFiles2016();
+		Instances rawData = mergeSrcFullModelFiles();
 		
 		//处理所有的日期字段，并插入yearmonth
 		processDateColumns(rawData);
@@ -50,7 +50,7 @@ public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 		Instances fullData = FileUtilityFullModel.loadDataFromFullModelCSVFile(sourceFilePrefix+"2005-2006.txt");
 		Instances addData = null;
 		int startYear=2007;
-		int endYear=2008;
+		int endYear=2016;
 		for (int i=startYear;i<=endYear;i++){
 			addData = FileUtilityFullModel.loadDataFromFullModelCSVFile(sourceFilePrefix+i+".txt");
 			fullData=InstanceUtility.mergeTwoInstances(fullData, addData);

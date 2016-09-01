@@ -5,6 +5,7 @@ import weka.classifiers.meta.Bagging;
 import weka.classifiers.trees.J48;
 import weka.core.Instances;
 import yueyueGo.ClassifyUtility;
+import yueyueGo.EnvConstants;
 import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.NominalClassifier;
 
@@ -54,7 +55,7 @@ public class BaggingJ48 extends NominalClassifier {
 	    Bagging bagger = new Bagging();
 	    bagger.setClassifier(classifier);
 	    bagger.setNumIterations(bagging_iteration);
-	    bagger.setNumExecutionSlots(3);
+	    bagger.setNumExecutionSlots(EnvConstants.CPU_CORE_NUMBER-1);
 	    bagger.setBagSizePercent(bagging_samplePercent);
 	    bagger.setCalcOutOfBag(false); //不计算袋外误差
 	    bagger.setDebug(true);
@@ -73,7 +74,7 @@ public class BaggingJ48 extends NominalClassifier {
 		bagger.setDebug(true);
 		bagger.setClassifier(model);
 	    bagger.setNumIterations(bagging_iteration);
-	    bagger.setNumExecutionSlots(2);
+	    bagger.setNumExecutionSlots(EnvConstants.CPU_CORE_NUMBER-2);
 	    bagger.setBagSizePercent(bagging_samplePercent);
 	    bagger.setCalcOutOfBag(true); //计算袋外误差
 	    bagger.setDebug(true);
