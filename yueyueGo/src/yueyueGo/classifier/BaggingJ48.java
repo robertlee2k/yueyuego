@@ -55,7 +55,11 @@ public class BaggingJ48 extends NominalClassifier {
 	    Bagging bagger = new Bagging();
 	    bagger.setClassifier(classifier);
 	    bagger.setNumIterations(bagging_iteration);
-	    bagger.setNumExecutionSlots(EnvConstants.CPU_CORE_NUMBER-1);
+	    int threads=EnvConstants.CPU_CORE_NUMBER-1;
+	    if (threads>bagging_iteration){
+	    	threads=bagging_iteration;
+	    }
+	    bagger.setNumExecutionSlots(threads);
 	    bagger.setBagSizePercent(bagging_samplePercent);
 	    bagger.setCalcOutOfBag(false); //不计算袋外误差
 	    bagger.setDebug(true);
@@ -74,7 +78,12 @@ public class BaggingJ48 extends NominalClassifier {
 		bagger.setDebug(true);
 		bagger.setClassifier(model);
 	    bagger.setNumIterations(bagging_iteration);
-	    bagger.setNumExecutionSlots(EnvConstants.CPU_CORE_NUMBER-2);
+	    int threads=EnvConstants.CPU_CORE_NUMBER-2;
+	    if (threads>bagging_iteration){
+	    	threads=bagging_iteration;
+	    }
+	    bagger.setNumExecutionSlots(threads);
+	    
 	    bagger.setBagSizePercent(bagging_samplePercent);
 	    bagger.setCalcOutOfBag(true); //计算袋外误差
 	    bagger.setDebug(true);
