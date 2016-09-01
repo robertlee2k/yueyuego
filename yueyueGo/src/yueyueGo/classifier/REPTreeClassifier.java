@@ -1,6 +1,7 @@
 package yueyueGo.classifier;
 
 import yueyueGo.NominalClassifier;
+import yueyueGo.RuntimeParams;
 
 
 //这个模型60日线不适合，模型评估ROC基本上接近0.5，所以选不出60日线的票
@@ -50,10 +51,10 @@ import yueyueGo.NominalClassifier;
 @Deprecated
 public class REPTreeClassifier extends NominalClassifier {
 
-	public REPTreeClassifier() {
-		super();
+	@Override
+	protected void initializeParams() {
 		classifierName="rep";
-		WORK_PATH =WORK_PATH+classifierName+"\\";
+		setWorkPathAndCheck(RuntimeParams.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
 	
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 		m_skipTrainInBacktest = true;

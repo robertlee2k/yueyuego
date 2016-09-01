@@ -8,6 +8,7 @@ import yueyueGo.ClassifyUtility;
 import yueyueGo.EnvConstants;
 import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.NominalClassifier;
+import yueyueGo.RuntimeParams;
 
 public class BaggingJ48 extends NominalClassifier {
 	protected boolean useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
@@ -15,10 +16,11 @@ public class BaggingJ48 extends NominalClassifier {
 	protected int leafMinObjNum=300; 	//j48树最小节点叶子数
 	protected int divided=300; //将trainingData分成多少份
 	
-	public BaggingJ48() {
-		super();
+	@Override
+	protected void initializeParams() {
+
 		classifierName = "baggingJ48";
-		WORK_PATH =WORK_PATH+this.getIdentifyName()+"\\";
+		setWorkPathAndCheck(RuntimeParams.getNOMINAL_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
 		m_skipTrainInBacktest = false;
 		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{"5","10","20","30","60" };

@@ -5,8 +5,8 @@ import yueyueGo.classifier.BaggingM5P;
 
 public class BaggingM5PFullModel extends BaggingM5P {
 
-	public BaggingM5PFullModel() {
-		super();
+	@Override
+	protected void initializeParams() {
 		
 		leafMinObjNum=1000;
 		divided=800;	
@@ -14,7 +14,7 @@ public class BaggingM5PFullModel extends BaggingM5P {
 		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
 		bagging_iteration=10;	//bagging特有参数
 		classifierName = "BaggingM5PABFullModel";
-		WORK_PATH =RuntimeParams.getCONTINOUS_CLASSIFIER_DIR()+getIdentifyName()+"\\";
+		setWorkPathAndCheck(RuntimeParams.getCONTINOUS_CLASSIFIER_DIR()+getIdentifyName()+"\\");
 
 		m_skipTrainInBacktest = false;
 		m_skipEvalInBacktest = false;

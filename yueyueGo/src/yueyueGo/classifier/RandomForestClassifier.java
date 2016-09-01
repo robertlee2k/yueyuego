@@ -6,15 +6,16 @@ import weka.classifiers.Classifier;
 import weka.classifiers.trees.RandomForest;
 import weka.core.Instances;
 import yueyueGo.NominalClassifier;
+import yueyueGo.RuntimeParams;
 import yueyueGo.ThresholdData;
 
 //效果不好
 @Deprecated  
 public class RandomForestClassifier extends NominalClassifier	 {
-	public RandomForestClassifier() {
-		super();
+	@Override
+	protected void initializeParams() {
 		classifierName = "randomForest";
-		WORK_PATH =WORK_PATH+classifierName+"\\";
+		setWorkPathAndCheck(RuntimeParams.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
 		m_skipTrainInBacktest = true;
 		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{"5","10","20","30","60" };

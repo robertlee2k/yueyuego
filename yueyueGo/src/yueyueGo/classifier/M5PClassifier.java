@@ -5,6 +5,7 @@ import weka.classifiers.trees.M5P;
 import weka.core.Instances;
 import yueyueGo.ClassifyUtility;
 import yueyueGo.ContinousClassifier;
+import yueyueGo.RuntimeParams;
 
 
 //结论1： 5单元格的不可靠，偶然性因素太大， 应该在10-30单元格中间选择
@@ -115,10 +116,10 @@ public class M5PClassifier extends ContinousClassifier {
 //			mixed selected positive rate: 35.47%
 //			Monthly summary_judge_result summary: good number= 274 bad number=236
 //			===============================end of summary=====================================for : m5p	
-	public M5PClassifier() {
-		super();
+	@Override
+	protected void initializeParams() {
 		classifierName = "m5p";
-		WORK_PATH =WORK_PATH+classifierName+"\\";
+		setWorkPathAndCheck(RuntimeParams.getCONTINOUS_CLASSIFIER_DIR()+classifierName+"\\");
 		m_noCaculationAttrib=false; //添加计算
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 		m_skipTrainInBacktest = false;

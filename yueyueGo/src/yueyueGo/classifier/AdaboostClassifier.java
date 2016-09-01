@@ -7,6 +7,7 @@ import weka.core.Instances;
 import yueyueGo.ClassifyUtility;
 import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.NominalClassifier;
+import yueyueGo.RuntimeParams;
 
 //1.按年使用模型和评估文件
 //
@@ -64,10 +65,10 @@ public class AdaboostClassifier extends NominalClassifier {
 	protected int leafMinObjNum=300; 	//j48树最小节点叶子数
 	protected int divided=300; //将trainingData分成多少份
 
-	public AdaboostClassifier() {
-		super();
+	@Override
+	protected void initializeParams() {
 		classifierName="adaboost";
-		WORK_PATH =WORK_PATH+classifierName+"\\";
+		setWorkPathAndCheck(RuntimeParams.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 		m_skipTrainInBacktest = true;
 		m_skipEvalInBacktest = true;

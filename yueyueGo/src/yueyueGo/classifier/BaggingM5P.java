@@ -8,6 +8,7 @@ import yueyueGo.ClassifyUtility;
 import yueyueGo.ContinousClassifier;
 import yueyueGo.EnvConstants;
 import yueyueGo.MyAttributionSelectorWithPCA;
+import yueyueGo.RuntimeParams;
 import yueyueGo.ThresholdData;
 
 
@@ -159,10 +160,10 @@ public class BaggingM5P extends ContinousClassifier {
 	protected int leafMinObjNum=300; //叶子节点最小的
 	protected int divided=300; //将trainingData分成多少份
 	
-	public BaggingM5P() {
-		super();
+	@Override
+	protected void initializeParams() {
 		classifierName = "baggingM5P";
-		WORK_PATH =WORK_PATH+this.getIdentifyName()+"\\";
+		setWorkPathAndCheck(RuntimeParams.getCONTINOUS_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
 		m_skipTrainInBacktest = true;
 		m_skipEvalInBacktest = true;
 		m_policySubGroup = new String[]{"5","10","20","30","60" };

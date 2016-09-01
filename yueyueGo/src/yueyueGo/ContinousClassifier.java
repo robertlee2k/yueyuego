@@ -15,10 +15,6 @@ import weka.classifiers.Evaluation;
 public abstract class ContinousClassifier extends BaseClassifier {
 	
 
-	public ContinousClassifier() {
-		super();
-		WORK_PATH =RuntimeParams.getCONTINOUS_CLASSIFIER_DIR();
-	}
 	
 
 	//对模型进行评估

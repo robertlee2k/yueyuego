@@ -5,15 +5,15 @@ import yueyueGo.classifier.BaggingJ48;
 
 public class BaggingJ48FullModel extends BaggingJ48 {
 
-	public BaggingJ48FullModel() {
-		super();
+	@Override
+	protected void initializeParams() {
 		leafMinObjNum=1000; 	//j48树最小节点叶子数
 		divided=800; //将trainingData分成多少份
 		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
 		bagging_iteration=10;	//bagging特有参数
 		
 		classifierName = "BaggingJ48ABFullModel";
-		WORK_PATH =RuntimeParams.getNOMINAL_CLASSIFIER_DIR()+this.getIdentifyName()+"\\";
+		setWorkPathAndCheck(RuntimeParams.getNOMINAL_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
 
 		m_skipTrainInBacktest = false;
 		m_skipEvalInBacktest = false;

@@ -8,6 +8,7 @@ import weka.core.Instances;
 import yueyueGo.ClassifyUtility;
 import yueyueGo.ContinousClassifier;
 import yueyueGo.MyAttributionSelectorWithPCA;
+import yueyueGo.RuntimeParams;
 
 
 // 2016-07-19 选择 
@@ -78,10 +79,10 @@ import yueyueGo.MyAttributionSelectorWithPCA;
 
 public class M5PABClassifier extends ContinousClassifier {
 	
-	public M5PABClassifier() {
-		super();
+	@Override
+	protected void initializeParams() {
 		classifierName = "m5pAB";
-		WORK_PATH =WORK_PATH+getIdentifyName()+"\\";
+		setWorkPathAndCheck(RuntimeParams.getCONTINOUS_CLASSIFIER_DIR()+getIdentifyName()+"\\");
 		m_skipTrainInBacktest = true;
 		m_skipEvalInBacktest = true;
 		m_policySubGroup = new String[]{"5","10","20","30","60" };

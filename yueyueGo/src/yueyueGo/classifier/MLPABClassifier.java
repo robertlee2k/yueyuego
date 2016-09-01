@@ -4,6 +4,7 @@ import weka.classifiers.functions.MultilayerPerceptron;
 import weka.core.Instances;
 import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.NominalClassifier;
+import yueyueGo.RuntimeParams;
 
 
 // NO.1 选股太多全市场收益率只有7%-8%
@@ -126,10 +127,10 @@ import yueyueGo.NominalClassifier;
 
 public class MLPABClassifier extends NominalClassifier {
 
-	public MLPABClassifier() {
-		super();
+	@Override
+	protected void initializeParams() {
 		classifierName="mlpAB";
-		WORK_PATH =WORK_PATH+classifierName+"\\";
+		setWorkPathAndCheck(RuntimeParams.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
 		
 		m_noCaculationAttrib=false; //使用计算字段
 		m_policySubGroup = new String[]{"5","10","20","30","60" };

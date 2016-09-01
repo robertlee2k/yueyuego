@@ -12,10 +12,10 @@ public class J48ABFullModel extends NominalClassifier {
 	protected int leafMinObjNum=1000; 	//j48树最小节点叶子数
 	protected int divided=800; //将trainingData分成多少份
 	
-	public J48ABFullModel() {
-		super();
+	@Override
+	protected void initializeParams() {
 		classifierName = "J48ABFullModel";
-		WORK_PATH =RuntimeParams.getNOMINAL_CLASSIFIER_DIR()+this.getIdentifyName()+"\\";
+		setWorkPathAndCheck(RuntimeParams.getNOMINAL_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
 
 		m_skipTrainInBacktest = false;
 		m_skipEvalInBacktest = false;

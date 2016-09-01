@@ -14,15 +14,10 @@ import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
 
-public class NominalClassifier extends BaseClassifier{
+public abstract class NominalClassifier extends BaseClassifier{
 	protected double DEFAULT_THRESHOLD=0.7; // 找不出threshold时缺省值。
 	protected Instances cachedOldClassInstances=null;
 
-
-	public NominalClassifier() {
-		super();
-		WORK_PATH = RuntimeParams.getNOMINAL_CLASSIFIER_DIR();
-	}
 
 	@Override
 	protected Classifier buildModel(Instances train) throws Exception {

@@ -87,11 +87,12 @@ public abstract class BaseClassifier {
 		summary_totalShouyilv= new DescriptiveStatistics();
 
 		WORK_FILE_PREFIX = "extData2005-2016";
-		
+		initializeParams();
 	}
 	
 	//一系列需要子类实现的抽象方法
-	abstract protected Classifier buildModel(Instances trainData) throws Exception;
+	protected abstract void initializeParams();
+	protected abstract Classifier buildModel(Instances trainData) throws Exception;
 	public abstract Vector<Double> evaluateModel(Instances train,Classifier model,double sample_limit, double sample_upper,double tp_fp_ratio) throws Exception;
 	protected abstract double classify(Classifier model,Instance curr) throws Exception ;
 	
@@ -479,5 +480,8 @@ public abstract class BaseClassifier {
 		return this.classifierName;
 	}
 
-	
+	public void setWorkPathAndCheck(String apath){
+		WORK_PATH=apath;
+		FileUtility.mkdirIfNotExist(WORK_PATH);
+	}
 }

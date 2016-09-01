@@ -7,12 +7,11 @@ import yueyueGo.classifier.M5PABClassifier;
 @Deprecated
 public class M5PABFullModel extends M5PABClassifier {
 
-	public M5PABFullModel() {
-		super();
-
+	@Override
+	protected void initializeParams() {
 	
 		classifierName = "m5pABFullModel";
-		WORK_PATH =RuntimeParams.getCONTINOUS_CLASSIFIER_DIR()+getIdentifyName()+"\\";
+		setWorkPathAndCheck(RuntimeParams.getCONTINOUS_CLASSIFIER_DIR()+getIdentifyName()+"\\");
 
 		m_skipTrainInBacktest = false;
 		m_skipEvalInBacktest = false;
