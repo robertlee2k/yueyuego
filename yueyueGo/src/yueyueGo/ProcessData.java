@@ -43,11 +43,16 @@ public class ProcessData {
 	protected String BACKTEST_RESULT_DIR=null;
 	protected String PREDICT_WORK_DIR=null;
 	
+	
 	public static final String RESULT_EXTENSION = "-Test Result.csv";
 	
 //	public static HashMap<String, String> PREDICT_MODELS= new HashMap(){
 //		M5PClassifier
-//	};	
+//	};
+	
+	protected String STRAGEY_NAME; // 策略的名称，只是用于输出。
+	protected int TRAINING_DATA_LIMIT=1000000; //用于训练单个模型的数据条数上限（这个和机器的内存有关）
+	
 	public static String M5P_PREDICT_MODEL="\\extData2005-2016-m5p-201607 MA ";//交易分析2005-2016 by month-new-m5p-201605 MA ";
 	public static String M5P_EVAL_MODEL="\\extData2005-2016-m5p-201607 MA ";//交易分析2005-2016 by month-new-m5p-201605 MA ";
 
@@ -75,7 +80,8 @@ public class ProcessData {
 		RuntimeParams.createInstance(this.C_ROOT_DIRECTORY);	
 		BACKTEST_RESULT_DIR=RuntimeParams.getBACKTEST_RESULT_DIR();
 		PREDICT_WORK_DIR=RuntimeParams.getPREDICT_WORK_DIR();
-		
+	
+		STRAGEY_NAME="均线策略";
 		splitYear=new String[] {
 			  "2008","2009","2010","2011","2012","2013","2014","2015","2016"
 //			"200801","200802","200803","200804","200805","200806","200807","200808","200809","200810","200811","200812","200901","200902","200903","200904","200905","200906","200907","200908","200909","200910","200911","200912","201001","201002","201003","201004","201005","201006","201007","201008","201009","201010","201011","201012","201101","201102","201103","201104","201105","201106","201107","201108","201109","201110","201111","201112","201201","201202","201203","201204","201205","201206","201207","201208","201209","201210","201211","201212","201301","201302","201303","201304","201305","201306","201307","201308","201309","201310","201311","201312","201401","201402","201403","201404","201405","201406","201407","201408","201409","201410","201411","201412","201501","201502","201503","201504","201505","201506","201507","201508","201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607"
@@ -325,7 +331,7 @@ public class ProcessData {
  
 			clModel.predictData(newData, result);
 			System.out.println("accumulated predicted rows: "+ result.numInstances());
-			System.out.println("complete for 均线策略: " + clModel.m_policySubGroup[j]);
+			System.out.println("complete for : "+this.STRAGEY_NAME + clModel.m_policySubGroup[j]);
 		}
 		if (result.numInstances()!=inData.numInstances()) {
 			throw new Exception("not all data have been processed!!!!! incoming Data number = " +inData.numInstances() + " while predicted number is "+result.numInstances());
@@ -524,14 +530,14 @@ public class ProcessData {
 	}
 
 	// paremeter result will be changed in the method! 
-	protected static String doOneModel(BaseClassifier clModel,
+	protected String doOneModel(BaseClassifier clModel,
 			 Instances result, String yearSplit,
 			String policySplit, double lower_limit, double upper_limit, double tp_fp_ratio,
 			Instances trainingData, Instances testingData) throws Exception,
 			IOException {
 
 		
-		System.out.println("-----------------start for " + yearSplit + "-----------均线策略: ------" + policySplit);
+		System.out.println("-----------------start for " + yearSplit + "-----------"+ this.STRAGEY_NAME+": ------" + policySplit);
 		clModel.generateModelAndEvalFileName(yearSplit,policySplit);
 
 		Classifier model = null;
@@ -552,7 +558,7 @@ public class ProcessData {
 		}
 		
 		trainingData=null;//释放内存
-		model=null;//释放model，后面预测时会方法内重新加载的。
+		model=null;//释放model，后面预测时会方法内是会重新加载的。
 
 		//处理testingData
 		//对于二分类器，这里要把输入的收益率转换为分类变量
@@ -571,7 +577,7 @@ public class ProcessData {
 		evalSummary+=clModel.predictData(testingData, result);
 		testingData=null;//释放内存
 		System.out.println("accumulated predicted rows: "+ result.numInstances());
-		System.out.println("complete for " + yearSplit + "均线策略: " + policySplit);
+		System.out.println("complete for " + yearSplit + this.STRAGEY_NAME+ ": " + policySplit);
 		return evalSummary;
 	}
 
