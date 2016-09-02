@@ -1,13 +1,10 @@
 package yueyueGo.classifier;
 
 import weka.classifiers.Classifier;
-import weka.classifiers.meta.Bagging;
 import weka.classifiers.trees.M5P;
 import weka.core.Instances;
 import yueyueGo.ClassifyUtility;
 import yueyueGo.ContinousClassifier;
-import yueyueGo.EnvConstants;
-import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.RuntimeParams;
 import yueyueGo.ThresholdData;
 
@@ -186,62 +183,18 @@ public class BaggingM5P extends ContinousClassifier {
 
 	@Override
 	protected Classifier buildModel(Instances train) throws Exception {
+		//设置基础的m5p classifier参数
+		M5P model=ClassifyUtility.prepareM5P(train.numInstances(),leafMinObjNum,divided);
+
 		if (useMultiPCA==true){
-			return buildModelWithMultiPCA(train);
+			int bagging_samplePercent=70;//bagging sample 取样率
+			return ClassifyUtility.buildBaggingWithMultiPCA(train,model,bagging_iteration,bagging_samplePercent);
 		}else{
-			return buildModelWithSinglePCA(train);
+			int bagging_samplePercent=100;// PrePCA算袋外误差时要求percent都为100
+			return ClassifyUtility.buildBaggingWithSinglePCA(train,model,bagging_iteration,bagging_samplePercent);
 		}
 	}
 
-	//bagging 内的每个模型自己有单独的PCA
-	private  Classifier buildModelWithMultiPCA(Instances train) throws Exception {
-		int bagging_samplePercent=70;//bagging sample 取样率
-		
-
-		M5P model=ClassifyUtility.prepareM5P(train.numInstances(),leafMinObjNum,divided);	
-		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();
-		classifier.setDebug(true);
-		classifier.setClassifier(model);
-		
-		Bagging bagger=ClassifyUtility.createBaggingRunner(train.numInstances(), train.numAttributes(),bagging_iteration,bagging_samplePercent);
-	    
-	    bagger.setClassifier(classifier);
-	    bagger.setBagSizePercent(bagging_samplePercent);
-	    bagger.setCalcOutOfBag(false); //不计算袋外误差
-
-	    bagger.buildClassifier(train);
-		return bagger;
-	}
-	
-	//bagging 之前使用PCA，bagging大家用同一的
-	private  Classifier buildModelWithSinglePCA(Instances train) throws Exception {
-		int bagging_samplePercent=100; // PrePCA算袋外误差时要求percent都为100
-		
-		//设置基础的m5p classifier参数
-		M5P model=ClassifyUtility.prepareM5P(train.numInstances(),leafMinObjNum,divided);
-	
-	    // set up the bagger and build the classifier
-	    Bagging bagger = new Bagging();
-		bagger.setDebug(true);
-		bagger.setClassifier(model);
-	    bagger.setNumIterations(bagging_iteration);
-	    int threads=EnvConstants.CPU_CORE_NUMBER-2;
-	    if (threads>bagging_iteration){
-	    	threads=bagging_iteration;
-	    }
-	    bagger.setNumExecutionSlots(threads);
-	    bagger.setBagSizePercent(bagging_samplePercent);
-	    bagger.setCalcOutOfBag(true); //计算袋外误差
-	    bagger.setDebug(true);
-	    
-		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();	    
-	    classifier.setDebug(true);
-	    classifier.setClassifier(bagger);
-	    classifier.buildClassifier(train);
-	    
-		return classifier;
-	}
-	
 	@Override
 	public Classifier loadModel(String yearSplit, String policySplit) throws Exception{
 		//这是单独准备的模型，模型文件是按年读取，但evaluation文件不变仍按月

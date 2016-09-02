@@ -1,12 +1,9 @@
 package yueyueGo.classifier;
 
 import weka.classifiers.Classifier;
-import weka.classifiers.meta.Bagging;
 import weka.classifiers.trees.J48;
 import weka.core.Instances;
 import yueyueGo.ClassifyUtility;
-import yueyueGo.EnvConstants;
-import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.NominalClassifier;
 import yueyueGo.RuntimeParams;
 
@@ -39,68 +36,21 @@ public class BaggingJ48 extends NominalClassifier {
 		DEFAULT_THRESHOLD=0.6; // 找不出threshold时缺省值。
 	}
 
+	
 	@Override
 	protected Classifier buildModel(Instances train) throws Exception {
+		//设置基础的m5p classifier参数
+		J48 model=ClassifyUtility.prepareJ48(train.numInstances(),leafMinObjNum,divided);
+
 		if (useMultiPCA==true){
-			return buildModelWithMultiPCA(train);
+			int bagging_samplePercent=70;//bagging sample 取样率
+			return ClassifyUtility.buildBaggingWithMultiPCA(train,model,bagging_iteration,bagging_samplePercent);
 		}else{
-			return buildModelWithSinglePCA(train);
+			int bagging_samplePercent=100;// PrePCA算袋外误差时要求percent都为100
+			return ClassifyUtility.buildBaggingWithSinglePCA(train,model,bagging_iteration,bagging_samplePercent);
 		}
 	}
 
-	//bagging 内的每个模型自己有单独的PCA
-	private  Classifier buildModelWithMultiPCA(Instances train) throws Exception {
-		int bagging_samplePercent=70;//bagging sample 取样率
-		
-		J48 model=ClassifyUtility.prepareJ48(train.numInstances(),leafMinObjNum,divided);
-		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();
-		classifier.setDebug(true);
-		classifier.setClassifier(model);
-
-	    // set up the bagger and build the classifier
-	    Bagging bagger = new Bagging();
-	    bagger.setClassifier(classifier);
-	    bagger.setNumIterations(bagging_iteration);
-	    int threads=EnvConstants.CPU_CORE_NUMBER-1;
-	    if (threads>bagging_iteration){
-	    	threads=bagging_iteration;
-	    }
-	    bagger.setNumExecutionSlots(6);
-	    bagger.setBagSizePercent(bagging_samplePercent);
-	    bagger.setCalcOutOfBag(false); //不计算袋外误差
-	    bagger.setDebug(true);
-	    bagger.buildClassifier(train);
-		return bagger;
-	}
-	
-	//bagging 之前使用PCA，bagging大家用同一的
-	private  Classifier buildModelWithSinglePCA(Instances train) throws Exception {
-		int bagging_samplePercent=100; // PrePCA算袋外误差时要求percent都为100
-		
-		J48 model=ClassifyUtility.prepareJ48(train.numInstances(),leafMinObjNum,divided);
-		
-	    // set up the bagger and build the classifier
-	    Bagging bagger = new Bagging();
-		bagger.setDebug(true);
-		bagger.setClassifier(model);
-	    bagger.setNumIterations(bagging_iteration);
-	    int threads=EnvConstants.CPU_CORE_NUMBER-2;
-	    if (threads>bagging_iteration){
-	    	threads=bagging_iteration;
-	    }
-	    bagger.setNumExecutionSlots(threads);
-	    
-	    bagger.setBagSizePercent(bagging_samplePercent);
-	    bagger.setCalcOutOfBag(true); //计算袋外误差
-	    bagger.setDebug(true);
-	    
-		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();	    
-	    classifier.setDebug(true);
-	    classifier.setClassifier(bagger);
-	    classifier.buildClassifier(train);
-	    
-		return classifier;
-	}
 	
 	@Override
 	public Classifier loadModel(String yearSplit, String policySplit) throws Exception{
