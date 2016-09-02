@@ -154,11 +154,11 @@ import yueyueGo.ThresholdData;
 //selected shouyilv average for zz500 =1.82% count=3383
 
 public class BaggingM5P extends ContinousClassifier {
-	protected boolean adjustThresholdBottom=false; //不用MeanABSError调整threshold
-	protected boolean useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
-	protected int bagging_iteration=10;	//bagging特有参数
-	protected int leafMinObjNum=300; //叶子节点最小的
-	protected int divided=300; //将trainingData分成多少份
+	protected boolean adjustThresholdBottom; 
+	protected boolean useMultiPCA;
+	protected int bagging_iteration;
+	protected int leafMinObjNum;
+	protected int divided;
 	
 	@Override
 	protected void initializeParams() {
@@ -167,7 +167,12 @@ public class BaggingM5P extends ContinousClassifier {
 		m_skipTrainInBacktest = true;
 		m_skipEvalInBacktest = true;
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
-
+		adjustThresholdBottom=false;//不用MeanABSError调整threshold
+		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
+		bagging_iteration=10;	//bagging特有参数
+		leafMinObjNum=300; //叶子节点最小的
+		divided=300; //将trainingData分成多少份
+		
 		m_noCaculationAttrib=false; //添加计算字段!
 		EVAL_RECENT_PORTION = 1; // 计算最近数据阀值从历史记录中选取多少比例的最近样本
 		SAMPLE_LOWER_LIMIT = new double[]{ 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限 
