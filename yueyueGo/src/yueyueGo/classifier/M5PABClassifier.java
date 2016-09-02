@@ -78,15 +78,20 @@ import yueyueGo.RuntimeParams;
 //===============================end of summary=====================================for : m5pAB
 
 public class M5PABClassifier extends ContinousClassifier {
+	protected int leafMinObjNum; //叶子节点最小的
+	protected int divided; //将trainingData分成多少份
 	
 	@Override
 	protected void initializeParams() {
-		classifierName = "m5pAB";
-		setWorkPathAndCheck(RuntimeParams.getCONTINOUS_CLASSIFIER_DIR()+getIdentifyName()+"\\");
 		m_skipTrainInBacktest = true;
 		m_skipEvalInBacktest = true;
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 		
+		classifierName = "m5pAB";
+		setWorkPathAndCheck(RuntimeParams.getCONTINOUS_CLASSIFIER_DIR()+getIdentifyName()+"\\");
+
+		leafMinObjNum=300; //叶子节点最小的
+		divided=300; //将trainingData分成多少份
 		m_noCaculationAttrib=false; //添加计算字段
 		EVAL_RECENT_PORTION = 0.9; // 计算最近数据阀值从历史记录中选取多少比例的最近样本
 		SAMPLE_LOWER_LIMIT = new double[]{ 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限 
@@ -95,8 +100,7 @@ public class M5PABClassifier extends ContinousClassifier {
 		TP_FP_BOTTOM_LINE=0.9; //TP/FP的下限
 	}
 	
-	protected int leafMinObjNum=300; //叶子节点最小的
-	protected int divided=300; //将trainingData分成多少份
+
 
 	
 	@Override
@@ -104,12 +108,9 @@ public class M5PABClassifier extends ContinousClassifier {
 
 		
 		//设置基础的m5p classifier参数
-		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();
-			
-		
 		M5P model=ClassifyUtility.prepareM5P(train.numInstances(),leafMinObjNum,divided);
 	
-
+		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();
 		classifier.setClassifier(model);
 		classifier.buildClassifier(train);
 		System.out.println("finish buiding"+this.getIdentifyName() +"model.");
