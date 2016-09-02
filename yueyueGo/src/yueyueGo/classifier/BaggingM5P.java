@@ -202,19 +202,13 @@ public class BaggingM5P extends ContinousClassifier {
 		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();
 		classifier.setDebug(true);
 		classifier.setClassifier(model);
-
-	    // set up the bagger and build the classifier
-	    Bagging bagger = new Bagging();
+		
+		Bagging bagger=ClassifyUtility.createBaggingRunner(train.numInstances(), train.numAttributes(),bagging_iteration,bagging_samplePercent);
+	    
 	    bagger.setClassifier(classifier);
-	    bagger.setNumIterations(bagging_iteration);
-	    int threads=EnvConstants.CPU_CORE_NUMBER-1;
-	    if (threads>bagging_iteration){
-	    	threads=bagging_iteration;
-	    }
-	    bagger.setNumExecutionSlots(threads);
 	    bagger.setBagSizePercent(bagging_samplePercent);
 	    bagger.setCalcOutOfBag(false); //不计算袋外误差
-	    bagger.setDebug(true);
+
 	    bagger.buildClassifier(train);
 		return bagger;
 	}

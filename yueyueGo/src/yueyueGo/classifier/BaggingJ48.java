@@ -11,10 +11,10 @@ import yueyueGo.NominalClassifier;
 import yueyueGo.RuntimeParams;
 
 public class BaggingJ48 extends NominalClassifier {
-	protected boolean useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
-	protected int bagging_iteration=10;	//bagging特有参数
-	protected int leafMinObjNum=300; 	//j48树最小节点叶子数
-	protected int divided=300; //将trainingData分成多少份
+	protected boolean useMultiPCA;
+	protected int bagging_iteration;
+	protected int leafMinObjNum;
+	protected int divided;
 	
 	@Override
 	protected void initializeParams() {
@@ -26,7 +26,11 @@ public class BaggingJ48 extends NominalClassifier {
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 		
 		m_noCaculationAttrib=false; //使用计算字段
-
+		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
+		bagging_iteration=10;	//bagging特有参数
+		leafMinObjNum=300; 	//j48树最小节点叶子数
+		divided=300; //将trainingData分成多少份
+		
 		EVAL_RECENT_PORTION = 1; // 计算最近数据阀值从历史记录中选取多少比例的最近样本		
 		SAMPLE_LOWER_LIMIT =new double[] { 0.04, 0.05, 0.06, 0.07, 0.08 }; // 各条均线选择样本的下限
 		SAMPLE_UPPER_LIMIT =new double[] { 0.07, 0.08, 0.11, 0.12, 0.13 }; // 各条均线选择样本的上限
