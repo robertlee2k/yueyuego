@@ -61,7 +61,7 @@ public class BaggingJ48 extends NominalClassifier {
 	    if (threads>bagging_iteration){
 	    	threads=bagging_iteration;
 	    }
-	    bagger.setNumExecutionSlots(threads);
+	    bagger.setNumExecutionSlots(6);
 	    bagger.setBagSizePercent(bagging_samplePercent);
 	    bagger.setCalcOutOfBag(false); //不计算袋外误差
 	    bagger.setDebug(true);
