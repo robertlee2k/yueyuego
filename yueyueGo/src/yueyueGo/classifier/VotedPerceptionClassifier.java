@@ -20,10 +20,10 @@ import yueyueGo.RuntimeParams;
 //===============================end of summary=====================================
 
 public class VotedPerceptionClassifier extends NominalClassifier {
-
+	public static final String classifierName="voted";
 	@Override
 	protected void initializeParams() {
-		classifierName="voted";
+		
 		setWorkPathAndCheck(RuntimeParams.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
 		
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
@@ -44,7 +44,7 @@ public class VotedPerceptionClassifier extends NominalClassifier {
 	public Classifier loadModel(String yearSplit, String policySplit) throws Exception{
 		//这是单独准备的模型，模型文件和evaluation都是按年读取
 		int inputYear=Integer.parseInt(yearSplit.substring(0,4));
-		String filename=this.WORK_PATH+this.WORK_FILE_PREFIX +"-"+this.classifierName+ "-" + inputYear + MA_PREFIX + policySplit;
+		String filename=this.WORK_PATH+this.WORK_FILE_PREFIX +"-"+classifierName+ "-" + inputYear + MA_PREFIX + policySplit;
 //		String evalFileName=this.WORK_PATH+this.WORK_FILE_PREFIX +"-"+this.classifierName+ "-" + inputYear + MA_PREFIX + policySplit+THRESHOLD_EXTENSION;
 		
 		this.setModelFileName(filename);

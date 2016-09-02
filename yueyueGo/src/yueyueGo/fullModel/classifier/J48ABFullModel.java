@@ -9,18 +9,22 @@ import yueyueGo.NominalClassifier;
 import yueyueGo.RuntimeParams;
 @Deprecated
 public class J48ABFullModel extends NominalClassifier {
-	protected int leafMinObjNum=1000; 	//j48树最小节点叶子数
-	protected int divided=800; //将trainingData分成多少份
+	public static final String classifierName= "J48ABFullModel";
+	protected int leafMinObjNum; 	//j48树最小节点叶子数
+	protected int divided; //将trainingData分成多少份
 	
 	@Override
 	protected void initializeParams() {
-		classifierName = "J48ABFullModel";
+
 		setWorkPathAndCheck(RuntimeParams.getNOMINAL_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
 
 		m_skipTrainInBacktest = false;
 		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{"" };
-		
+
+		leafMinObjNum=1000; 	//j48树最小节点叶子数
+		divided=800; //将trainingData分成多少份
+
 		m_noCaculationAttrib=false; //使用计算字段
 
 		EVAL_RECENT_PORTION = 1; // 计算最近数据阀值从历史记录中选取多少比例的最近样本		

@@ -24,6 +24,7 @@
 package yueyueGo;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import weka.classifiers.Classifier;
 import weka.core.Attribute;
@@ -36,7 +37,6 @@ import yueyueGo.classifier.BaggingM5P;
 import yueyueGo.classifier.M5PABClassifier;
 import yueyueGo.classifier.M5PClassifier;
 import yueyueGo.classifier.MLPABClassifier;
-import yueyueGo.classifier.MLPClassifier;
 
 public class ProcessData {
 
@@ -47,26 +47,10 @@ public class ProcessData {
 	
 	public static final String RESULT_EXTENSION = "-Test Result.csv";
 	
-//	public static HashMap<String, String> PREDICT_MODELS= new HashMap(){
-//		M5PClassifier
-//	};
+	public static HashMap<String, String> PREDICT_MODELS;
+
 	
 	protected String STRAGEY_NAME; // 策略的名称，只是用于输出。
-	public static String M5P_PREDICT_MODEL="\\extData2005-2016-m5p-201607 MA ";//交易分析2005-2016 by month-new-m5p-201605 MA ";
-	public static String M5P_EVAL_MODEL="\\extData2005-2016-m5p-201607 MA ";//交易分析2005-2016 by month-new-m5p-201605 MA ";
-
-	public static final String MLP_PREDICT_MODEL= "\\extData2005-2016 month-new-mlp-2016 MA ";
-	public static final String MLP_EVAL_MODEL= "\\extData2005-2016 month-new-mlp-201606 MA ";
-	
-	//经过主成分分析后的数据
-	public static final String M5PAB_PREDICT_MODEL="\\extData2005-2016-m5pAB-201607 MA ";
-	public static final String M5PAB_EVAL_MODEL="\\extData2005-2016-m5pAB-201607 MA "; 
-	public static final String MLPAB_PREDICT_MODEL="\\extData2005-2016-mlpAB-2016 MA ";
-	public static final String MLPAB_EVAL_MODEL="\\extData2005-2016-mlpAB-2016 MA "; 
-	public static final String BAGGING_PREDICT_MODEL="\\extData2005-2016-baggingM5P-201606 MA ";
-	public static final String BAGGING_EVAL_MODEL="\\extData2005-2016-baggingM5P-201607 MA ";
-	public static final String ADABOOST_PREDICT_MODEL="\\extData2005-2016-adaboost-201606 MA ";
-	public static final String ADABOOST_EVAL_MODEL="\\extData2005-2016-adaboost-201606 MA ";
 	
 	protected final double[] SHOUYILV_THREDHOLD={0.01,0.02,0.03,0.03,0.03}; //收益率的筛选阀值
 	private final static int BEGIN_FROM_POLICY=0; // 当回测需要跳过某些均线时，0表示不跳过
@@ -74,7 +58,7 @@ public class ProcessData {
 	protected String[] splitYear =null;
 
 
-	//必须先调用它
+	//初始化环境参数，运行本类的方法必须先调用它
 	public void init(){
 		RuntimeParams.createInstance(this.C_ROOT_DIRECTORY);	
 		BACKTEST_RESULT_DIR=RuntimeParams.getBACKTEST_RESULT_DIR();
@@ -82,24 +66,44 @@ public class ProcessData {
 	
 		STRAGEY_NAME="均线策略";
 		splitYear=new String[] {
-//			  "2008","2009","2010","2011","2012","2013","2014","2015","2016"
+			  "2008","2009","2010","2011","2012","2013","2014","2015","2016"
 //			"200801","200802","200803","200804","200805","200806","200807","200808","200809","200810","200811","200812","200901","200902","200903","200904","200905","200906","200907","200908","200909","200910","200911","200912","201001","201002","201003","201004","201005","201006","201007","201008","201009","201010","201011","201012","201101","201102","201103","201104","201105","201106","201107","201108","201109","201110","201111","201112","201201","201202","201203","201204","201205","201206","201207","201208","201209","201210","201211","201212","201301","201302","201303","201304","201305","201306","201307","201308","201309","201310","201311","201312","201401","201402","201403","201404","201405","201406","201407","201408","201409","201410","201411","201412","201501","201502","201503","201504","201505","201506","201507","201508","201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607"
-				"2016"
 //				"201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607"
 			};		
 	}
 	
+	public void definePredictModels(){
+		PREDICT_MODELS=new HashMap<String, String>();
+		String EVAL="-EVAL";
+		PREDICT_MODELS.put(M5PClassifier.classifierName, "\\extData2005-2016-m5p-201607 MA ");
+		PREDICT_MODELS.put(M5PClassifier.classifierName+EVAL, "\\extData2005-2016-m5p-201607 MA ");
 
+//		public static final String MLP_PREDICT_MODEL= "\\extData2005-2016 month-new-mlp-2016 MA ";
+//		public static final String MLP_EVAL_MODEL= "\\extData2005-2016 month-new-mlp-201606 MA ";
+//		
+//		//经过主成分分析后的数据
+//		public static final String M5PAB_PREDICT_MODEL="\\extData2005-2016-m5pAB-201607 MA ";
+//		public static final String M5PAB_EVAL_MODEL="\\extData2005-2016-m5pAB-201607 MA "; 
+//		public static final String MLPAB_PREDICT_MODEL="\\extData2005-2016-mlpAB-2016 MA ";
+//		public static final String MLPAB_EVAL_MODEL="\\extData2005-2016-mlpAB-2016 MA "; 
+//		public static final String BAGGING_PREDICT_MODEL="\\extData2005-2016-baggingM5P-201606 MA ";
+//		public static final String BAGGING_EVAL_MODEL="\\extData2005-2016-baggingM5P-201607 MA ";
+//		public static final String ADABOOST_PREDICT_MODEL="\\extData2005-2016-adaboost-201606 MA ";
+//		public static final String ADABOOST_EVAL_MODEL="\\extData2005-2016-adaboost-201606 MA ";
+		
+	}
+
+	
 	public static void main(String[] args) {
 		try {
 			ProcessData worker=new ProcessData();
 			worker.init();
 
 			//用模型预测每日增量数据
-//			worker.callDailyPredict();
+			worker.callDailyPredict();
 
 			//调用回测函数回测
-			worker.callTestBack();
+//			worker.callTestBack();
 			
 			//用最新的单次交易数据，更新原始的交易数据文件
 //			UpdateHistoryArffFile.callRefreshInstances();
@@ -176,11 +180,11 @@ public class ProcessData {
 //		MLPClassifier nModel=new MLPClassifier();
 		
 		//用旧连续模型预测每日增量数据
-		M5P_PREDICT_MODEL="\\交易分析2005-2016 by month-new-m5p-201605 MA ";
-		M5P_EVAL_MODEL="\\交易分析2005-2016 by month-new-m5p-201605 MA ";
-		M5PClassifier cModel=new M5PClassifier();
-		cModel.arff_format=ArffFormat.LEGACY_FORMAT; 
-		predictWithDB(cModel,PREDICT_WORK_DIR);
+//		M5P_PREDICT_MODEL="\\交易分析2005-2016 by month-new-m5p-201605 MA ";
+//		M5P_EVAL_MODEL="\\交易分析2005-2016 by month-new-m5p-201605 MA ";
+//		M5PClassifier cModel=new M5PClassifier();
+//		cModel.arff_format=ArffFormat.LEGACY_FORMAT; 
+//		predictWithDB(cModel,PREDICT_WORK_DIR);
 		
 		//MLP主成分分析预测
 		MLPABClassifier nABModel=new MLPABClassifier();
@@ -240,6 +244,7 @@ public class ProcessData {
 	}
 	
 	//用模型预测数据
+	@SuppressWarnings("static-access")
 	protected Instances predict(BaseClassifier clModel, String pathName, Instances inData) throws Exception {
 		Instances newData = null;
 		Instances result = null;
@@ -272,40 +277,12 @@ public class ProcessData {
 			
 			String modelFileName;
 			String evalFileName;
-			if (clModel instanceof MLPClassifier ){
-
-				modelFileName = pathName+"\\"+clModel.getIdentifyName()+ MLP_PREDICT_MODEL
-						+ clModel.m_policySubGroup[j]	;				
-				evalFileName = pathName+"\\"+clModel.getIdentifyName()+MLP_EVAL_MODEL
-						 + clModel.m_policySubGroup[j]+BaseClassifier.THRESHOLD_EXTENSION	;				
-			}else if (clModel instanceof M5PClassifier ){
-				modelFileName = pathName+"\\"+clModel.getIdentifyName()+M5P_PREDICT_MODEL
-						+  clModel.m_policySubGroup[j]	;
-				evalFileName = pathName+"\\"+clModel.getIdentifyName()+M5P_EVAL_MODEL
-						 + clModel.m_policySubGroup[j]+BaseClassifier.THRESHOLD_EXTENSION	;				
-			}else if (clModel instanceof M5PABClassifier ){
-				modelFileName = pathName+"\\"+clModel.getIdentifyName()+M5PAB_PREDICT_MODEL
-						+  clModel.m_policySubGroup[j]	;
-				evalFileName = pathName+"\\"+clModel.getIdentifyName()+M5PAB_EVAL_MODEL
-						 + clModel.m_policySubGroup[j]+BaseClassifier.THRESHOLD_EXTENSION	;				
-			}else if (clModel instanceof MLPABClassifier ){
-				modelFileName = pathName+"\\"+clModel.getIdentifyName()+MLPAB_PREDICT_MODEL
-						+  clModel.m_policySubGroup[j]	;
-				evalFileName = pathName+"\\"+clModel.getIdentifyName()+MLPAB_EVAL_MODEL
-						 + clModel.m_policySubGroup[j]+BaseClassifier.THRESHOLD_EXTENSION	;				
-			}else if (clModel instanceof BaggingM5P ){
-				modelFileName = pathName+"\\"+clModel.getIdentifyName()+BAGGING_PREDICT_MODEL
-						+  clModel.m_policySubGroup[j]	;
-				evalFileName = pathName+"\\"+clModel.getIdentifyName()+BAGGING_EVAL_MODEL
-						 + clModel.m_policySubGroup[j]+BaseClassifier.THRESHOLD_EXTENSION	;				
-			}else if (clModel instanceof AdaboostClassifier ){
-				modelFileName = pathName+"\\"+clModel.getIdentifyName()+ADABOOST_PREDICT_MODEL
-						+  clModel.m_policySubGroup[j]	;
-				evalFileName = pathName+"\\"+clModel.getIdentifyName()+ADABOOST_EVAL_MODEL
-						 + clModel.m_policySubGroup[j]+BaseClassifier.THRESHOLD_EXTENSION	;				
-			}else {
-				throw new Exception("undefined predict model");
-			}
+			modelFileName=this.PREDICT_MODELS.get(clModel.classifierName);
+			evalFileName=this.PREDICT_MODELS.get(clModel.classifierName+"-EVAL");
+			modelFileName = pathName+"\\"+clModel.getIdentifyName()+ modelFileName
+					+ clModel.m_policySubGroup[j]	;				
+			evalFileName = pathName+"\\"+clModel.getIdentifyName()+evalFileName
+					+ clModel.m_policySubGroup[j]+BaseClassifier.THRESHOLD_EXTENSION	;				
 
 			clModel.setModelFileName(modelFileName);
 			clModel.setEvaluationFilename(evalFileName);

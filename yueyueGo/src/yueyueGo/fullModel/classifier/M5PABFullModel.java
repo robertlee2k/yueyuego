@@ -6,11 +6,11 @@ import yueyueGo.classifier.M5PABClassifier;
 
 @Deprecated
 public class M5PABFullModel extends M5PABClassifier {
-
+	public static final String classifierName="m5pABFullModel";
 	@Override
 	protected void initializeParams() {
 	
-		classifierName = "m5pABFullModel";
+		
 		setWorkPathAndCheck(RuntimeParams.getCONTINOUS_CLASSIFIER_DIR()+getIdentifyName()+"\\");
 
 		m_skipTrainInBacktest = false;
@@ -37,7 +37,7 @@ public class M5PABFullModel extends M5PABClassifier {
 //		}else if (inputYear>2009){
 //			inputYear=2009;
 //		}
-		String filename=this.WORK_PATH+this.WORK_FILE_PREFIX +"-"+this.classifierName+ "-" + inputYear + MA_PREFIX + policySplit;//如果使用固定模型
+		String filename=this.WORK_PATH+this.WORK_FILE_PREFIX +"-"+classifierName+ "-" + inputYear + MA_PREFIX + policySplit;//如果使用固定模型
 		
 		this.setModelFileName(filename);
 

@@ -151,6 +151,7 @@ import yueyueGo.ThresholdData;
 //selected shouyilv average for zz500 =1.82% count=3383
 
 public class BaggingM5P extends ContinousClassifier {
+	public static final String classifierName="baggingM5P";
 	protected boolean adjustThresholdBottom; 
 	protected boolean useMultiPCA;
 	protected int bagging_iteration;
@@ -163,7 +164,7 @@ public class BaggingM5P extends ContinousClassifier {
 		m_skipEvalInBacktest = true;
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 
-		classifierName = "baggingM5P";
+		
 		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
 		setWorkPathAndCheck(RuntimeParams.getCONTINOUS_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
 		adjustThresholdBottom=false;//不用MeanABSError调整threshold
@@ -210,7 +211,7 @@ public class BaggingM5P extends ContinousClassifier {
 				halfYearString="06";
 			}
 		}
-		String filename=this.WORK_PATH+this.WORK_FILE_PREFIX +"-"+this.classifierName+ "-" + inputYear +halfYearString+ MA_PREFIX + policySplit;//如果使用固定模型
+		String filename=this.WORK_PATH+this.WORK_FILE_PREFIX +"-"+classifierName+ "-" + inputYear +halfYearString+ MA_PREFIX + policySplit;//如果使用固定模型
 		
 		this.setModelFileName(filename);
 

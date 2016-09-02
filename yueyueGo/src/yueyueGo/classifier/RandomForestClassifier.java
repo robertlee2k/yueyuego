@@ -12,9 +12,10 @@ import yueyueGo.ThresholdData;
 //效果不好
 @Deprecated  
 public class RandomForestClassifier extends NominalClassifier	 {
+	public static final String classifierName="randomForest";
 	@Override
 	protected void initializeParams() {
-		classifierName = "randomForest";
+
 		setWorkPathAndCheck(RuntimeParams.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
 		m_skipTrainInBacktest = true;
 		m_skipEvalInBacktest = false;
@@ -49,7 +50,7 @@ public class RandomForestClassifier extends NominalClassifier	 {
 		model.setNumTrees(100);
 
 		model.buildClassifier(train);
-		System.out.println("finish buiding"+this.classifierName+" model.");
+		System.out.println("finish buiding"+classifierName+" model.");
 
 		return model;
 	}
@@ -59,7 +60,7 @@ public class RandomForestClassifier extends NominalClassifier	 {
 		//这是单独准备的模型，模型文件是按年读取，但evaluation文件不变仍按月
 		int inputYear=Integer.parseInt(yearSplit.substring(0,4));
 
-		String filename=this.WORK_PATH+this.WORK_FILE_PREFIX +"-"+this.classifierName+ "-" + inputYear + MA_PREFIX + policySplit;//如果使用固定模型
+		String filename=this.WORK_PATH+this.WORK_FILE_PREFIX +"-"+classifierName+ "-" + inputYear + MA_PREFIX + policySplit;//如果使用固定模型
 		
 		this.setModelFileName(filename);
 

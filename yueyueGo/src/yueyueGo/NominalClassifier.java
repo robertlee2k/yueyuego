@@ -29,19 +29,19 @@ public abstract class NominalClassifier extends BaseClassifier{
 		String batchSize="1000";
 
 		Classifier model=null;
-		if ("mlp".equals(this.classifierName)){
+		if ("mlp".equals(this.getIdentifyName())){
 			MultilayerPerceptron mlp=new MultilayerPerceptron();
 			mlp.setBatchSize(batchSize);
 			mlp.setNumDecimalPlaces(6);
 			mlp.setHiddenLayers("a");//("a,a");
 			model=mlp;
-		}else if ("rep".equals(this.classifierName)){
+		}else if ("rep".equals(this.getIdentifyName())){
 			REPTree rep=new REPTree();
 			rep.setBatchSize(batchSize);
 			rep.setNumDecimalPlaces(6);
 			rep.setMinNum(minNumObj);
 			model=rep;
-		}else if ("voted".equals(this.classifierName)){
+		}else if ("voted".equals(this.getIdentifyName())){
 			VotedPerceptron voted=new VotedPerceptron();
 			voted.setBatchSize(batchSize);
 			voted.setNumDecimalPlaces(6);

@@ -6,7 +6,7 @@ import yueyueGo.RuntimeParams;
 
 //结论1： 5单元格的不可靠，偶然性因素太大， 应该在10-30单元格中间选择
 //结论2： 这个分类器适用沪深300, 全市场不大合适大熊市（因为2008年亏损大收益率偏低）
-@Deprecated
+
 public class MLPClassifier extends NominalClassifier {
 	// 1. HS300 2008-2016 20-30单元格年均10% 中证500 20/30/50  8%;全市场20/30/50  8-9% 但全市场因为2008年起步亏损大(2008净值最差0.55），累计净值不高;  全市场整体胜率 38183/98804
 	// 参数：  eval 0.5 / 单独评估阀值/ TP——FP RATIO { 1.8, 1.5, 1.2, 1.0, 1.0 }, UPPer { 0.07, 0.09, 0.11, 0.15, 0.2 } TP_FP_BOTTOM_LINE=0.5
@@ -64,16 +64,15 @@ public class MLPClassifier extends NominalClassifier {
 //			mixed selected positive rate: 36.84%
 //			Monthly summary_judge_result summary: good number= 280 bad number=230
 //			===============================end of summary=====================================
-
+	public static final String classifierName="mlp";
 	@Override
 	protected void initializeParams() {
+		
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 		m_skipTrainInBacktest = true;
 		m_skipEvalInBacktest = true;
 		
-		classifierName="mlp";
 		setWorkPathAndCheck(RuntimeParams.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
-		
 		
 		m_noCaculationAttrib=true; //这个模型是用短格式的
 		EVAL_RECENT_PORTION = 0.7; // 计算最近数据阀值从历史记录中选取多少比例的最近样本
@@ -98,7 +97,7 @@ public class MLPClassifier extends NominalClassifier {
 //		}
 //		if (inputYear>=2014)
 //			inputYear=2014;
-		String filename=this.WORK_PATH+this.WORK_FILE_PREFIX +"-"+this.classifierName+ "-" + inputYear + MA_PREFIX + policySplit;//如果使用固定模型
+		String filename=this.WORK_PATH+this.WORK_FILE_PREFIX +"-"+classifierName+ "-" + inputYear + MA_PREFIX + policySplit;//如果使用固定模型
 		
 		this.setModelFileName(filename);
 

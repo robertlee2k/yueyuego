@@ -10,7 +10,7 @@ import yueyueGo.RuntimeParams;
 
 //结论1： 5单元格的不可靠，偶然性因素太大， 应该在10-30单元格中间选择
 //结论2： 这个分类器适用于中证500及全市场， 沪深300上大不合适（选股少）。
-@Deprecated
+
 public class M5PClassifier extends ContinousClassifier {
 	//方案1适合中证500
 	// 1. 全市场 2008-2016最优10单元格年均14% （20单元格11%），中证500 10-20都是14%，30-50都是12%（均为不单独评估），hs300 10格有13% （20格9%） 29941/82650
@@ -117,6 +117,7 @@ public class M5PClassifier extends ContinousClassifier {
 //			mixed selected positive rate: 35.47%
 //			Monthly summary_judge_result summary: good number= 274 bad number=236
 //			===============================end of summary=====================================for : m5p	
+	public static final String classifierName="m5p";
 	protected int leafMinObjNum; //叶子节点最小的
 	protected int divided; //将trainingData分成多少份
 	@Override
@@ -124,8 +125,7 @@ public class M5PClassifier extends ContinousClassifier {
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 		m_skipTrainInBacktest = false;
 		m_skipEvalInBacktest = false;
-		
-		classifierName = "m5p";
+
 		setWorkPathAndCheck(RuntimeParams.getCONTINOUS_CLASSIFIER_DIR()+classifierName+"\\");
 		m_noCaculationAttrib=false; //添加计算
 

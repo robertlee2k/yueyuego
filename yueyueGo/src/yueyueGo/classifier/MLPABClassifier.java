@@ -126,14 +126,13 @@ import yueyueGo.RuntimeParams;
 //===============================end of summary=====================================for : mlpAB
 
 public class MLPABClassifier extends NominalClassifier {
-
+	public static final String classifierName="mlpAB";
 	@Override
 	protected void initializeParams() {
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 		m_skipTrainInBacktest = true;
 		m_skipEvalInBacktest = true;
 		
-		classifierName="mlpAB";
 		setWorkPathAndCheck(RuntimeParams.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
 		
 		m_noCaculationAttrib=false; //使用计算字段
@@ -180,7 +179,7 @@ public class MLPABClassifier extends NominalClassifier {
 //			}
 //		}
 //		
-		String filename=this.WORK_PATH+this.WORK_FILE_PREFIX +"-"+this.classifierName+ "-" + inputYear +halfYearString+ MA_PREFIX + policySplit;
+		String filename=this.WORK_PATH+this.WORK_FILE_PREFIX +"-"+classifierName+ "-" + inputYear +halfYearString+ MA_PREFIX + policySplit;
 		
 		this.setModelFileName(filename);
 		
