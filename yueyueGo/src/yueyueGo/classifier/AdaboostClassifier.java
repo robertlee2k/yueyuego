@@ -62,20 +62,24 @@ import yueyueGo.RuntimeParams;
 //selected shouyilv average for hs300 =1.44% count=2231
 //selected shouyilv average for zz500 =1.58% count=4345
 public class AdaboostClassifier extends NominalClassifier {
-	protected int leafMinObjNum=300; 	//j48树最小节点叶子数
-	protected int divided=300; //将trainingData分成多少份
+	protected int leafMinObjNum; 	//j48树最小节点叶子数
+	protected int divided; //将trainingData分成多少份
+	int boost_iteration; 	//boost特有参数
 
 	@Override
 	protected void initializeParams() {
-		classifierName="adaboost";
-		setWorkPathAndCheck(RuntimeParams.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 		m_skipTrainInBacktest = true;
 		m_skipEvalInBacktest = true;
 		
-		m_noCaculationAttrib=false; //使用计算字段
+		classifierName="adaboost";
+		setWorkPathAndCheck(RuntimeParams.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
 
+		leafMinObjNum=300; 	//j48树最小节点叶子数
+		divided=300; //将trainingData分成多少份
+		boost_iteration=10; 	//boost特有参数
 		
+		m_noCaculationAttrib=false; //使用计算字段
 		EVAL_RECENT_PORTION = 1; // 计算最近数据阀值从历史记录中选取多少比例的最近样本		
 		SAMPLE_LOWER_LIMIT =new double[] { 0.04, 0.05, 0.06, 0.07, 0.08 }; // 各条均线选择样本的下限
 		SAMPLE_UPPER_LIMIT =new double[] { 0.07, 0.08, 0.11, 0.12, 0.13 }; // 各条均线选择样本的上限
@@ -86,16 +90,11 @@ public class AdaboostClassifier extends NominalClassifier {
 		
 	@Override
 	protected Classifier buildModel(Instances train) throws Exception {
-		//boost特有参数
-		int boost_iteration=10;
-		//j48特有参数
-		int leafMinObjNum=300;
 		
 		cachedOldClassInstances=null; 
 		//设置基础的J48 classifier参数
 		J48 model=ClassifyUtility.prepareJ48(train.numInstances(),leafMinObjNum,divided);
 
-		
 		AdaBoostM1 adaboost=new  AdaBoostM1();
 		adaboost.setClassifier(model);
 		adaboost.setNumIterations(boost_iteration);
