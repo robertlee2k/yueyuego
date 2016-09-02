@@ -159,13 +159,14 @@ public class BaggingM5P extends ContinousClassifier {
 	
 	@Override
 	protected void initializeParams() {
-		classifierName = "baggingM5P";
-		setWorkPathAndCheck(RuntimeParams.getCONTINOUS_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
 		m_skipTrainInBacktest = true;
 		m_skipEvalInBacktest = true;
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
-		adjustThresholdBottom=false;//不用MeanABSError调整threshold
+
+		classifierName = "baggingM5P";
 		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
+		setWorkPathAndCheck(RuntimeParams.getCONTINOUS_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
+		adjustThresholdBottom=false;//不用MeanABSError调整threshold
 		bagging_iteration=10;	//bagging特有参数
 		leafMinObjNum=300; //叶子节点最小的
 		divided=300; //将trainingData分成多少份

@@ -69,7 +69,7 @@ public class ProcessData {
 	public static final String ADABOOST_EVAL_MODEL="\\extData2005-2016-adaboost-201606 MA ";
 	
 	protected final double[] SHOUYILV_THREDHOLD={0.01,0.02,0.03,0.03,0.03}; //收益率的筛选阀值
-	private final static int BEGIN_FROM_POLICY=1; // 当回测需要跳过某些均线时，0表示不跳过
+	private final static int BEGIN_FROM_POLICY=0; // 当回测需要跳过某些均线时，0表示不跳过
 	
 	protected String[] splitYear =null;
 

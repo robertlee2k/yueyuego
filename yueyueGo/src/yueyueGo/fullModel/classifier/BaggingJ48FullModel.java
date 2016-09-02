@@ -8,20 +8,19 @@ public class BaggingJ48FullModel extends BaggingJ48 {
 
 	@Override
 	protected void initializeParams() {
-		leafMinObjNum=1000; 	//j48树最小节点叶子数
-		divided=EnvConstants.TRAINING_DATA_LIMIT/3000; //将trainingData分成多少份
-		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
-		bagging_iteration=10;	//bagging特有参数
-		
-		classifierName = "BaggingJ48ABFullModel";
-		setWorkPathAndCheck(RuntimeParams.getNOMINAL_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
-
 		m_skipTrainInBacktest = false;
 		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{""};
+
+		leafMinObjNum=1000; 	//j48树最小节点叶子数
+		divided=EnvConstants.TRAINING_DATA_LIMIT/3000; //将trainingData分成多少份
+		bagging_iteration=10;	//bagging特有参数
+		
+		classifierName = "BaggingJ48ABFullModel";
+		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
+		setWorkPathAndCheck(RuntimeParams.getNOMINAL_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
 		
 		m_noCaculationAttrib=false; //使用计算字段
-
 		EVAL_RECENT_PORTION = 1; // 计算最近数据阀值从历史记录中选取多少比例的最近样本		
 		SAMPLE_LOWER_LIMIT =new double[] { 0.03}; // 各条均线选择样本的下限
 		SAMPLE_UPPER_LIMIT =new double[] { 0.05}; // 各条均线选择样本的上限

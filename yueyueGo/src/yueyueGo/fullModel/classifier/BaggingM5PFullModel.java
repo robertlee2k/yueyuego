@@ -8,19 +8,18 @@ public class BaggingM5PFullModel extends BaggingM5P {
 
 	@Override
 	protected void initializeParams() {
+		m_skipTrainInBacktest = false;
+		m_skipEvalInBacktest = false;
+		m_policySubGroup = new String[]{""};
+
 		
 		leafMinObjNum=1000;
 		divided=EnvConstants.TRAINING_DATA_LIMIT/3000;	
 		adjustThresholdBottom=false; //不用MeanABSError调整threshold
-		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
 		bagging_iteration=10;	//bagging特有参数
 		classifierName = "BaggingM5PABFullModel";
+		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
 		setWorkPathAndCheck(RuntimeParams.getCONTINOUS_CLASSIFIER_DIR()+getIdentifyName()+"\\");
-
-		m_skipTrainInBacktest = false;
-		m_skipEvalInBacktest = false;
-		m_policySubGroup = new String[]{""};
-		
 	
 		m_noCaculationAttrib=false; //添加计算字段
 		EVAL_RECENT_PORTION = 1; // 计算最近数据阀值从历史记录中选取多少比例的最近样本

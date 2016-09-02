@@ -15,15 +15,15 @@ public class BaggingJ48 extends NominalClassifier {
 	
 	@Override
 	protected void initializeParams() {
-
-		classifierName = "baggingJ48";
-		setWorkPathAndCheck(RuntimeParams.getNOMINAL_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
 		m_skipTrainInBacktest = false;
 		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
+
+		classifierName = "baggingJ48";
+		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
+		setWorkPathAndCheck(RuntimeParams.getNOMINAL_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
 		
 		m_noCaculationAttrib=false; //使用计算字段
-		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
 		bagging_iteration=10;	//bagging特有参数
 		leafMinObjNum=300; 	//j48树最小节点叶子数
 		divided=300; //将trainingData分成多少份
