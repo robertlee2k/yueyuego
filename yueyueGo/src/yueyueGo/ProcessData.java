@@ -278,8 +278,8 @@ public class ProcessData {
 			
 			String modelFileName;
 			String evalFileName;
-			modelFileName=this.PREDICT_MODELS.get(clModel.classifierName);
-			evalFileName=this.PREDICT_MODELS.get(clModel.classifierName+"-EVAL");
+			modelFileName=PREDICT_MODELS.get(clModel.classifierName);
+			evalFileName=PREDICT_MODELS.get(clModel.classifierName+"-EVAL");
 			modelFileName = pathName+"\\"+clModel.getIdentifyName()+ modelFileName
 					+ clModel.m_policySubGroup[j]	;				
 			evalFileName = pathName+"\\"+clModel.getIdentifyName()+evalFileName
