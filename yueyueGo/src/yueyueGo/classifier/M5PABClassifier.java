@@ -78,7 +78,7 @@ import yueyueGo.RuntimeParams;
 //===============================end of summary=====================================for : m5pAB
 
 public class M5PABClassifier extends ContinousClassifier {
-	public static final String classifierName="m5pAB";
+	 
 	protected int leafMinObjNum; //叶子节点最小的
 	protected int divided; //将trainingData分成多少份
 	
@@ -88,6 +88,7 @@ public class M5PABClassifier extends ContinousClassifier {
 		m_skipEvalInBacktest = true;
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 		
+		classifierName="m5pAB";
 		setWorkPathAndCheck(RuntimeParams.getCONTINOUS_CLASSIFIER_DIR()+getIdentifyName()+"\\");
 
 		leafMinObjNum=300; //叶子节点最小的

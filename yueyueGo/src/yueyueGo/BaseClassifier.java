@@ -21,7 +21,8 @@ public abstract class BaseClassifier {
 	public static final String TXT_EXTENSION = ".txt";
 	public static final String MODEL_FILE_EXTENSION = ".mdl";
 	
-	public static final String classifierName="BaseClassifer";
+	//名称
+	public String classifierName;
 	
 	//子类定义的工作路径
 	public String WORK_PATH ;

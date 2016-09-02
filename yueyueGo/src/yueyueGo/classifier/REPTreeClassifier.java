@@ -50,10 +50,10 @@ import yueyueGo.RuntimeParams;
 //===============================end of summary=====================================
 @Deprecated
 public class REPTreeClassifier extends NominalClassifier {
-	public static final String classifierName="rep";
+	 
 	@Override
 	protected void initializeParams() {
-
+		classifierName="rep";
 		setWorkPathAndCheck(RuntimeParams.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
 	
 		m_policySubGroup = new String[]{"5","10","20","30","60" };

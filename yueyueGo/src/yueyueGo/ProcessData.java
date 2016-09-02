@@ -75,8 +75,9 @@ public class ProcessData {
 	public void definePredictModels(){
 		PREDICT_MODELS=new HashMap<String, String>();
 		String EVAL="-EVAL";
-		PREDICT_MODELS.put(M5PClassifier.classifierName, "\\extData2005-2016-m5p-201607 MA ");
-		PREDICT_MODELS.put(M5PClassifier.classifierName+EVAL, "\\extData2005-2016-m5p-201607 MA ");
+		String classifierName=new M5PClassifier().classifierName;
+		PREDICT_MODELS.put(classifierName, "\\extData2005-2016-m5p-201607 MA ");
+		PREDICT_MODELS.put(classifierName+EVAL, "\\extData2005-2016-m5p-201607 MA ");
 
 //		public static final String MLP_PREDICT_MODEL= "\\extData2005-2016 month-new-mlp-2016 MA ";
 //		public static final String MLP_EVAL_MODEL= "\\extData2005-2016 month-new-mlp-201606 MA ";
@@ -244,7 +245,7 @@ public class ProcessData {
 	}
 	
 	//用模型预测数据
-	@SuppressWarnings("static-access")
+	
 	protected Instances predict(BaseClassifier clModel, String pathName, Instances inData) throws Exception {
 		Instances newData = null;
 		Instances result = null;

@@ -64,7 +64,7 @@ public class MLPClassifier extends NominalClassifier {
 //			mixed selected positive rate: 36.84%
 //			Monthly summary_judge_result summary: good number= 280 bad number=230
 //			===============================end of summary=====================================
-	public static final String classifierName="mlp";
+	 
 	@Override
 	protected void initializeParams() {
 		
@@ -72,6 +72,7 @@ public class MLPClassifier extends NominalClassifier {
 		m_skipTrainInBacktest = true;
 		m_skipEvalInBacktest = true;
 		
+		classifierName="mlp";
 		setWorkPathAndCheck(RuntimeParams.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
 		
 		m_noCaculationAttrib=true; //这个模型是用短格式的

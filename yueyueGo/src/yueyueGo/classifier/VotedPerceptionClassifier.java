@@ -20,10 +20,10 @@ import yueyueGo.RuntimeParams;
 //===============================end of summary=====================================
 
 public class VotedPerceptionClassifier extends NominalClassifier {
-	public static final String classifierName="voted";
+	
 	@Override
 	protected void initializeParams() {
-		
+		classifierName="voted";
 		setWorkPathAndCheck(RuntimeParams.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
 		
 		m_policySubGroup = new String[]{"5","10","20","30","60" };

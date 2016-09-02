@@ -6,11 +6,11 @@ import yueyueGo.classifier.M5PABClassifier;
 
 @Deprecated
 public class M5PABFullModel extends M5PABClassifier {
-	public static final String classifierName="m5pABFullModel";
+	
 	@Override
 	protected void initializeParams() {
 	
-		
+		classifierName="m5pABFullModel";
 		setWorkPathAndCheck(RuntimeParams.getCONTINOUS_CLASSIFIER_DIR()+getIdentifyName()+"\\");
 
 		m_skipTrainInBacktest = false;

@@ -117,7 +117,7 @@ public class M5PClassifier extends ContinousClassifier {
 //			mixed selected positive rate: 35.47%
 //			Monthly summary_judge_result summary: good number= 274 bad number=236
 //			===============================end of summary=====================================for : m5p	
-	public static final String classifierName="m5p";
+	 
 	protected int leafMinObjNum; //叶子节点最小的
 	protected int divided; //将trainingData分成多少份
 	@Override
@@ -125,7 +125,8 @@ public class M5PClassifier extends ContinousClassifier {
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 		m_skipTrainInBacktest = false;
 		m_skipEvalInBacktest = false;
-
+		
+		classifierName="m5p";
 		setWorkPathAndCheck(RuntimeParams.getCONTINOUS_CLASSIFIER_DIR()+classifierName+"\\");
 		m_noCaculationAttrib=false; //添加计算
 

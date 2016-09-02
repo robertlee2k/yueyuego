@@ -62,7 +62,7 @@ import yueyueGo.RuntimeParams;
 //selected shouyilv average for hs300 =1.44% count=2231
 //selected shouyilv average for zz500 =1.58% count=4345
 public class AdaboostClassifier extends NominalClassifier {
-	public static final String classifierName="adaboost";
+
 	protected int leafMinObjNum; 	//j48树最小节点叶子数
 	protected int divided; //将trainingData分成多少份
 	protected int boost_iteration; 	//boost特有参数
@@ -73,6 +73,7 @@ public class AdaboostClassifier extends NominalClassifier {
 		m_skipTrainInBacktest = true;
 		m_skipEvalInBacktest = true;
 		
+		classifierName="adaboost";
 		setWorkPathAndCheck(RuntimeParams.getNOMINAL_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
 
 		leafMinObjNum=300; 	//j48树最小节点叶子数

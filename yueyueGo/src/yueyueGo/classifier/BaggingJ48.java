@@ -8,7 +8,7 @@ import yueyueGo.NominalClassifier;
 import yueyueGo.RuntimeParams;
 
 public class BaggingJ48 extends NominalClassifier {
-	public static final String classifierName="baggingJ48";
+	
 	protected boolean useMultiPCA;
 	protected int bagging_iteration;
 	protected int leafMinObjNum;
@@ -20,7 +20,7 @@ public class BaggingJ48 extends NominalClassifier {
 		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 
-
+		classifierName="baggingJ48";
 		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
 		setWorkPathAndCheck(RuntimeParams.getNOMINAL_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
 		

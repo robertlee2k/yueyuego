@@ -5,7 +5,7 @@ import yueyueGo.RuntimeParams;
 import yueyueGo.classifier.BaggingJ48;
 
 public class BaggingJ48FullModel extends BaggingJ48 {
-	public static final String classifierName= "BaggingJ48ABFullModel";
+ 
 	@Override
 	protected void initializeParams() {
 		m_skipTrainInBacktest = false;
@@ -16,6 +16,7 @@ public class BaggingJ48FullModel extends BaggingJ48 {
 		divided=EnvConstants.TRAINING_DATA_LIMIT/3000; //将trainingData分成多少份
 		bagging_iteration=10;	//bagging特有参数
 		
+		classifierName= "BaggingJ48ABFullModel";
 		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
 		setWorkPathAndCheck(RuntimeParams.getNOMINAL_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
 		

@@ -12,10 +12,10 @@ import yueyueGo.ThresholdData;
 //效果不好
 @Deprecated  
 public class RandomForestClassifier extends NominalClassifier	 {
-	public static final String classifierName="randomForest";
+	
 	@Override
 	protected void initializeParams() {
-
+		classifierName="randomForest";
 		setWorkPathAndCheck(RuntimeParams.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
 		m_skipTrainInBacktest = true;
 		m_skipEvalInBacktest = false;
