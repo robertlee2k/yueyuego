@@ -126,7 +126,8 @@ import weka.filters.unsupervised.attribute.Standardize;
 	  private int m_numAttribs;
 
 	  /** Number of instances */
-	  private int m_numInstances;
+	  @SuppressWarnings("unused")
+	private int m_numInstances;
 
 	  /** Correlation/covariance matrix for the original data */
 	  private double[][] m_correlation;
