@@ -6,8 +6,8 @@ import weka.classifiers.Classifier;
 import weka.classifiers.trees.RandomForest;
 import weka.core.Instances;
 import yueyueGo.NominalClassifier;
-import yueyueGo.RuntimeParams;
-import yueyueGo.ThresholdData;
+import yueyueGo.utility.RuntimeParams;
+import yueyueGo.utility.ThresholdData;
 
 //效果不好
 @Deprecated  

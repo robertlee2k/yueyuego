@@ -4,10 +4,10 @@ import weka.classifiers.Classifier;
 import weka.classifiers.meta.AdaBoostM1;
 import weka.classifiers.trees.J48;
 import weka.core.Instances;
-import yueyueGo.ClassifyUtility;
 import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.NominalClassifier;
-import yueyueGo.RuntimeParams;
+import yueyueGo.utility.ClassifyUtility;
+import yueyueGo.utility.RuntimeParams;
 
 //1.按年使用模型和评估文件
 //

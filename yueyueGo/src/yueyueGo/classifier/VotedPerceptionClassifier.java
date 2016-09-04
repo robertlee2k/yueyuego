@@ -3,7 +3,7 @@ package yueyueGo.classifier;
 //适合保守类型下的全市场操作
 import weka.classifiers.Classifier;
 import yueyueGo.NominalClassifier;
-import yueyueGo.RuntimeParams;
+import yueyueGo.utility.RuntimeParams;
 
 //1. 全市场20/30/50  14%-13%-11% 净值表现平稳
 //参数：  eval 0.7 / 不单独评估阀值/ TP——FP RATIO {  1.6, 1.4, 1.3, 1.2, 1.1 }, UPPer{0.07, 0.09, 0.12, 0.15, 0.2 } TP_FP_BOTTOM_LINE=0.5

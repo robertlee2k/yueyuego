@@ -1,4 +1,4 @@
-package yueyueGo;
+package yueyueGo.utility;
 
 
 //singleton 

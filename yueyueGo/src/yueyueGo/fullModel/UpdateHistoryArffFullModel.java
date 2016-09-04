@@ -6,10 +6,10 @@ import java.io.IOException;
 
 import weka.core.Instances;
 import yueyueGo.ArffFormat;
-import yueyueGo.FileUtility;
-import yueyueGo.InstanceUtility;
-import yueyueGo.RuntimeParams;
 import yueyueGo.UpdateHistoryArffFile;
+import yueyueGo.utility.FileUtility;
+import yueyueGo.utility.InstanceUtility;
+import yueyueGo.utility.RuntimeParams;
 
 public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 	

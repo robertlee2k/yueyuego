@@ -1,7 +1,8 @@
-package yueyueGo;
+package yueyueGo.utility;
 
 import weka.core.Instances;
 import weka.experiment.InstanceQuery;
+import yueyueGo.ArffFormat;
 
 public class DBAccess  {
 	public final static String URL = "jdbc:mysql://uts.simu800.com/develop?characterEncoding=utf8&autoReconnect=true";
@@ -44,7 +45,7 @@ public class DBAccess  {
 		return queryData;
 	}
 	
-	protected static Instances LoadDataFromDB(int format) throws Exception{
+	public static Instances LoadDataFromDB(int format) throws Exception{
 
 		String[] validateFormat=null;
 		switch (format) {

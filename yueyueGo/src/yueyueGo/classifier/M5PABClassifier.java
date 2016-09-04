@@ -5,10 +5,10 @@ package yueyueGo.classifier;
 import weka.classifiers.Classifier;
 import weka.classifiers.trees.M5P;
 import weka.core.Instances;
-import yueyueGo.ClassifyUtility;
 import yueyueGo.ContinousClassifier;
 import yueyueGo.MyAttributionSelectorWithPCA;
-import yueyueGo.RuntimeParams;
+import yueyueGo.utility.ClassifyUtility;
+import yueyueGo.utility.RuntimeParams;
 
 
 // 2016-07-19 选择 

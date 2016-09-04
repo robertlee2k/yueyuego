@@ -10,6 +10,10 @@ import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
+import yueyueGo.utility.FileUtility;
+import yueyueGo.utility.FormatUtility;
+import yueyueGo.utility.InstanceUtility;
+import yueyueGo.utility.RuntimeParams;
 
 public class UpdateHistoryArffFile {
 

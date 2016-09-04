@@ -3,8 +3,8 @@ package yueyueGo.fullModel;
 import weka.core.Instances;
 import weka.experiment.InstanceQuery;
 import yueyueGo.ArffFormat;
-import yueyueGo.DBAccess;
-import yueyueGo.InstanceUtility;
+import yueyueGo.utility.DBAccess;
+import yueyueGo.utility.InstanceUtility;
 
 public class DBAccessFullModel extends DBAccess {
 	// 全交易的非均线模型

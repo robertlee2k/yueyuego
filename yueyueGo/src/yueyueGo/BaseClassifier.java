@@ -12,6 +12,10 @@ import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.SerializationHelper;
+import yueyueGo.utility.FileUtility;
+import yueyueGo.utility.FormatUtility;
+import yueyueGo.utility.InstanceUtility;
+import yueyueGo.utility.ThresholdData;
 
 public abstract class BaseClassifier {
 	//统一常量

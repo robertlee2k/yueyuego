@@ -1,4 +1,4 @@
-package yueyueGo;
+package yueyueGo.utility;
 import java.util.Vector;
 
 import weka.core.SerializationHelper;

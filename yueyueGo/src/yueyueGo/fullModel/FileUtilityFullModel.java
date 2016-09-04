@@ -1,7 +1,7 @@
 package yueyueGo.fullModel;
 
 import weka.core.Instances;
-import yueyueGo.FileUtility;
+import yueyueGo.utility.FileUtility;
 
 public class FileUtilityFullModel extends FileUtility {
 	// 从增量的fullmodel交易CSV文件中加载数据

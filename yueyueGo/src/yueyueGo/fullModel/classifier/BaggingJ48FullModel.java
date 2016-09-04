@@ -2,8 +2,8 @@ package yueyueGo.fullModel.classifier;
 
 import weka.classifiers.Classifier;
 import yueyueGo.EnvConstants;
-import yueyueGo.RuntimeParams;
 import yueyueGo.classifier.BaggingJ48;
+import yueyueGo.utility.RuntimeParams;
 
 public class BaggingJ48FullModel extends BaggingJ48 {
  

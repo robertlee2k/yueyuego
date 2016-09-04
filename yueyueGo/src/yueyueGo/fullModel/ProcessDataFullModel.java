@@ -6,16 +6,16 @@ import weka.core.Instances;
 import yueyueGo.ArffFormat;
 import yueyueGo.BaseClassifier;
 import yueyueGo.EnvConstants;
-import yueyueGo.FileUtility;
-import yueyueGo.FormatUtility;
-import yueyueGo.InstanceUtility;
 import yueyueGo.NominalClassifier;
 import yueyueGo.ProcessData;
-import yueyueGo.RuntimeParams;
 import yueyueGo.classifier.AdaboostClassifier;
 import yueyueGo.classifier.BaggingM5P;
 import yueyueGo.fullModel.classifier.BaggingJ48FullModel;
 import yueyueGo.fullModel.classifier.BaggingM5PFullModel;
+import yueyueGo.utility.FileUtility;
+import yueyueGo.utility.FormatUtility;
+import yueyueGo.utility.InstanceUtility;
+import yueyueGo.utility.RuntimeParams;
 
 public class ProcessDataFullModel extends ProcessData {
 	

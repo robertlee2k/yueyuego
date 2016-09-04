@@ -13,6 +13,9 @@ import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
+import yueyueGo.utility.FormatUtility;
+import yueyueGo.utility.InstanceUtility;
+import yueyueGo.utility.ThresholdData;
 
 public abstract class NominalClassifier extends BaseClassifier{
 	protected double DEFAULT_THRESHOLD=0.7; // 找不出threshold时缺省值。

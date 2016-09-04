@@ -4,10 +4,12 @@ import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
+import yueyueGo.utility.FormatUtility;
+import yueyueGo.utility.InstanceUtility;
 
 public class ArffFormat {
-	protected static final int LEGACY_FORMAT=-1;
-	protected static final int EXT_FORMAT=2;
+	public static final int LEGACY_FORMAT=-1;
+	public static final int EXT_FORMAT=2;
 
 	protected static final String TRANSACTION_ARFF_PREFIX="trans20052016-ext";
 	protected static final String LONG_ARFF_FILE = TRANSACTION_ARFF_PREFIX+"-new.arff"; // 包含计算字段的ARFF格式，这是提供给各输入属性独立的分类器使用的，如分类树

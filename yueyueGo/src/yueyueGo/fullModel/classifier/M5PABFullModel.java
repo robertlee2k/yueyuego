@@ -1,8 +1,8 @@
 package yueyueGo.fullModel.classifier;
 
 import weka.classifiers.Classifier;
-import yueyueGo.RuntimeParams;
 import yueyueGo.classifier.M5PABClassifier;
+import yueyueGo.utility.RuntimeParams;
 
 @Deprecated
 public class M5PABFullModel extends M5PABClassifier {

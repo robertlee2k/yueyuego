@@ -1,4 +1,4 @@
-package yueyueGo;
+package yueyueGo.utility;
 
 import weka.core.Attribute;
 import weka.core.DenseInstance;
@@ -9,6 +9,7 @@ import weka.filters.unsupervised.attribute.NominalToString;
 import weka.filters.unsupervised.attribute.NumericToNominal;
 import weka.filters.unsupervised.attribute.Remove;
 import weka.filters.unsupervised.instance.SubsetByExpression;
+import yueyueGo.ArffFormat;
 
 public class InstanceUtility {
 	public static final String WEKA_ATT_PREFIX = "ATT";

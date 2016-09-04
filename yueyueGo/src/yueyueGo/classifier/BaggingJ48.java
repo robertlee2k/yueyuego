@@ -3,9 +3,9 @@ package yueyueGo.classifier;
 import weka.classifiers.Classifier;
 import weka.classifiers.trees.J48;
 import weka.core.Instances;
-import yueyueGo.ClassifyUtility;
 import yueyueGo.NominalClassifier;
-import yueyueGo.RuntimeParams;
+import yueyueGo.utility.ClassifyUtility;
+import yueyueGo.utility.RuntimeParams;
 
 public class BaggingJ48 extends NominalClassifier {
 	

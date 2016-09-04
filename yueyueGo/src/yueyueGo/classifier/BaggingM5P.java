@@ -3,10 +3,10 @@ package yueyueGo.classifier;
 import weka.classifiers.Classifier;
 import weka.classifiers.trees.M5P;
 import weka.core.Instances;
-import yueyueGo.ClassifyUtility;
 import yueyueGo.ContinousClassifier;
-import yueyueGo.RuntimeParams;
-import yueyueGo.ThresholdData;
+import yueyueGo.utility.ClassifyUtility;
+import yueyueGo.utility.RuntimeParams;
+import yueyueGo.utility.ThresholdData;
 
 
 //1. 新模型 按年评估 （取meanabserror和thredsholdbottom均值为阀值），其他参数同2.

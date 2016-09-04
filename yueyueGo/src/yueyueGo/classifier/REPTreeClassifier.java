@@ -1,7 +1,7 @@
 package yueyueGo.classifier;
 
 import yueyueGo.NominalClassifier;
-import yueyueGo.RuntimeParams;
+import yueyueGo.utility.RuntimeParams;
 
 
 //这个模型60日线不适合，模型评估ROC基本上接近0.5，所以选不出60日线的票

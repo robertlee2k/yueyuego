@@ -2,8 +2,8 @@ package yueyueGo.fullModel;
 
 import weka.core.Instances;
 import yueyueGo.ArffFormat;
-import yueyueGo.FormatUtility;
-import yueyueGo.InstanceUtility;
+import yueyueGo.utility.FormatUtility;
+import yueyueGo.utility.InstanceUtility;
 
 public class ArffFormatFullModel extends ArffFormat {
 	//父类中不包括的两个常量定义

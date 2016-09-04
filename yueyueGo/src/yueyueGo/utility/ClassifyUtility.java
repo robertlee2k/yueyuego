@@ -1,10 +1,12 @@
-package yueyueGo;
+package yueyueGo.utility;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.meta.Bagging;
 import weka.classifiers.trees.J48;
 import weka.classifiers.trees.M5P;
 import weka.core.Instances;
+import yueyueGo.EnvConstants;
+import yueyueGo.MyAttributionSelectorWithPCA;
 
 // 设置一些基础分类器属性的方法组
 public class ClassifyUtility {

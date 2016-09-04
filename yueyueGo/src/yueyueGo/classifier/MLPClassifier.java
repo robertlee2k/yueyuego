@@ -2,7 +2,7 @@ package yueyueGo.classifier;
 
 import weka.classifiers.Classifier;
 import yueyueGo.NominalClassifier;
-import yueyueGo.RuntimeParams;
+import yueyueGo.utility.RuntimeParams;
 
 //结论1： 5单元格的不可靠，偶然性因素太大， 应该在10-30单元格中间选择
 //结论2： 这个分类器适用沪深300, 全市场不大合适大熊市（因为2008年亏损大收益率偏低）

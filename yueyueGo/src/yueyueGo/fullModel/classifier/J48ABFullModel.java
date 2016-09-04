@@ -3,10 +3,10 @@ package yueyueGo.fullModel.classifier;
 import weka.classifiers.Classifier;
 import weka.classifiers.trees.J48;
 import weka.core.Instances;
-import yueyueGo.ClassifyUtility;
 import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.NominalClassifier;
-import yueyueGo.RuntimeParams;
+import yueyueGo.utility.ClassifyUtility;
+import yueyueGo.utility.RuntimeParams;
 @Deprecated
 public class J48ABFullModel extends NominalClassifier {
  

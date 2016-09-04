@@ -1,4 +1,4 @@
-package yueyueGo;
+package yueyueGo.utility;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -17,6 +17,7 @@ import weka.core.converters.ArffSaver;
 import weka.core.converters.CSVLoader;
 import weka.core.converters.CSVSaver;
 import weka.core.converters.ConverterUtils.DataSource;
+import yueyueGo.ArffFormat;
 
 public class FileUtility {
 	// load full set of data
@@ -67,7 +68,7 @@ public class FileUtility {
 	
 	
 	// 从增量的交易CSV文件中加载数据
-	protected static Instances loadDataFromIncrementalCSVFile(String fileName) throws Exception{ 
+	public static Instances loadDataFromIncrementalCSVFile(String fileName) throws Exception{ 
 		return loadDataWithFormatFromCSVFile(fileName,ArffFormat.TRANS_DATA_FORMAT_NEW);
 	}
 	

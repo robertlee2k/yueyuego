@@ -4,7 +4,7 @@ import weka.classifiers.functions.MultilayerPerceptron;
 import weka.core.Instances;
 import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.NominalClassifier;
-import yueyueGo.RuntimeParams;
+import yueyueGo.utility.RuntimeParams;
 
 
 // NO.1 选股太多全市场收益率只有7%-8%
