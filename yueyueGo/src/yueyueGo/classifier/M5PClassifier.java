@@ -118,6 +118,10 @@ public class M5PClassifier extends ContinousClassifier {
 //			Monthly summary_judge_result summary: good number= 274 bad number=236
 //			===============================end of summary=====================================for : m5p	
 	 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4762523205502146798L;
 	protected int leafMinObjNum; //叶子节点最小的
 	protected int divided; //将trainingData分成多少份
 	@Override

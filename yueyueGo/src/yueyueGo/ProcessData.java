@@ -25,8 +25,11 @@ package yueyueGo;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Vector;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
-import weka.classifiers.Classifier;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
@@ -38,6 +41,7 @@ import yueyueGo.classifier.M5PABClassifier;
 import yueyueGo.classifier.M5PClassifier;
 import yueyueGo.classifier.MLPABClassifier;
 import yueyueGo.classifier.MLPClassifier;
+import yueyueGo.utility.BlockedThreadPoolExecutor;
 import yueyueGo.utility.DBAccess;
 import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.FormatUtility;
@@ -49,7 +53,7 @@ public class ProcessData {
 	protected String C_ROOT_DIRECTORY =EnvConstants.AVG_LINE_ROOT_DIR;
 	protected String BACKTEST_RESULT_DIR=null;
 	protected String PREDICT_WORK_DIR=null;
-	
+	protected int RUNNING_THREADS; //doOneModel时的并发，1表示仅有主线程单线运行。
 	
 	public static final String RESULT_EXTENSION = "-Test Result.csv";
 	
@@ -72,6 +76,7 @@ public class ProcessData {
 		PREDICT_WORK_DIR=RuntimeParams.getPREDICT_WORK_DIR();
 	
 		STRAGEY_NAME="均线策略";
+		RUNNING_THREADS=5;
 		splitYear=new String[] {
 			  "2008","2009","2010","2011","2012","2013","2014","2015","2016"
 //			"200801","200802","200803","200804","200805","200806","200807","200808","200809","200810","200811","200812","200901","200902","200903","200904","200905","200906","200907","200908","200909","200910","200911","200912","201001","201002","201003","201004","201005","201006","201007","201008","201009","201010","201011","201012","201101","201102","201103","201104","201105","201106","201107","201108","201109","201110","201111","201112","201201","201202","201203","201204","201205","201206","201207","201208","201209","201210","201211","201212","201301","201302","201303","201304","201305","201306","201307","201308","201309","201310","201311","201312","201401","201402","201403","201404","201405","201406","201407","201408","201409","201410","201411","201412","201501","201502","201503","201504","201505","201506","201507","201508","201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607"
@@ -169,17 +174,17 @@ public class ProcessData {
 //		RandomForestClassifier nModel=new RandomForestClassifier ();
 //		AdaboostClassifier nModel=new AdaboostClassifier();
 		BaggingJ48 nModel=new BaggingJ48(); 
-//		Instances nominalResult=testBackward(nModel);
+		Instances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
-		Instances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
+//		Instances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 
 		//按连续分类器回测历史数据
 //		M5PClassifier cModel=new M5PClassifier();
 //		M5PABClassifier cModel=new M5PABClassifier();
 		BaggingM5P cModel=new BaggingM5P();
-//		Instances continuousResult=testBackward(cModel);
+		Instances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
-		Instances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
+//		Instances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 		
 		
 		//统一输出统计结果
@@ -354,6 +359,18 @@ public class ProcessData {
 		StringBuffer evalResultSummary=new StringBuffer();
 		evalResultSummary.append("时间段,均线策略,整体正收益股数,整体股数,整体TPR,所选正收益股数,所选总股数,所选股TPR,提升率,所选股平均收益率,整体平均收益率,收益率差,是否改善,阀值下限,阀值上限\r\n");
 		System.out.println("test backward using classifier : "+clModel.getIdentifyName()+" @ model work path :"+clModel.WORK_PATH);
+		
+		 //创建一个可重用固定线程数的线程池
+        ExecutorService threadPool = null;
+        Vector<Instances> threadResult=null;
+        Vector<Future<String>> methodReturn=null;
+        if (RUNNING_THREADS>1){ //需要多线程并发
+        	threadPool=BlockedThreadPoolExecutor.newFixedThreadPool(this.RUNNING_THREADS);
+        	threadResult=new Vector<Instances>();
+        	methodReturn=new Vector<Future<String>>();
+        }
+
+		
 		// 别把数据文件里的ID变成Nominal的，否则读出来的ID就变成相对偏移量了
 		for (int i = 0; i < splitYear.length; i++) { 
 			
@@ -428,23 +445,64 @@ public class ProcessData {
 				
 				//在不够强的机器上做模型训练时释放内存，改为每次从硬盘加载的方式
 				if (clModel.m_skipTrainInBacktest == false){
-//					if (EnvConstants.CPU_CORE_NUMBER<8){
-						fullSetData=null; //释放内存
-						System.gc();
-//					}
+					fullSetData=null; //释放内存
 				}				
-				
-				String resultSummary = doOneModel(clModel, result,
-						splitMark, policy, lower_limit, upper_limit,tp_fp_ratio,trainingData,testingRawData);
-				evalResultSummary.append(resultSummary);
-			}
 
+				if (threadPool!=null){ //需要多线程并发
+
+					//多线程的时候clone一个clModel执行任务，当前的Model继续走下去。
+					BaseClassifier clModelClone=BaseClassifier.makeCopy(clModel);
+					//多线程的时候clone一个空result执行分配给线程。
+					Instances resultClone=new Instances(result);
+					threadResult.add(resultClone);
+					//创建实现了Runnable接口对象
+					ProcessFlowExecutor t = new ProcessFlowExecutor(clModelClone, resultClone,
+							splitMark, policy, lower_limit, upper_limit,tp_fp_ratio,trainingData,testingRawData);
+					//将线程放入池中进行执行
+					Future<String> f=threadPool.submit(t);
+					methodReturn.add(f);
+					
+				}else{
+					//不需要多线程并发的时候，还是按传统方式处理 
+					ProcessFlowExecutor worker=new ProcessFlowExecutor(clModel, result,splitMark, policy, lower_limit, upper_limit,tp_fp_ratio,trainingData,testingRawData);
+					String resultSummary=worker.doPredictProcess();
+					evalResultSummary.append(resultSummary);
+					System.out.println("accumulated predicted rows: "+ result.numInstances());
+				}
+			} //end for (int j = BEGIN_FROM_POLICY
 
 			System.out.println("********************complete **************************** " + splitMark);
 			System.out.println(" ");
+		}//end for (int i 
+
+		if (threadPool!=null){ //需要多线程并发
+			//全部线程已放入线程池，关闭线程池的入口。
+			threadPool.shutdown();		
+
+			//等待所有线程运行完毕
+			try {  
+				boolean loop = true;  
+				do {    //等待所有任务完成  
+					loop = !threadPool.awaitTermination(2, TimeUnit.SECONDS);  //阻塞，直到线程池里所有任务结束
+				} while(loop);  
+			} catch (InterruptedException e) {  
+				e.printStackTrace();  
+			}  
+			//将所有线程的result合并
+			for (Instances temp : threadResult) {
+			  result=InstanceUtility.mergeTwoInstances(result, temp);
+			}
+			
+			
+			//将所有线程的返回值String合并
+			for (Future<String> f : methodReturn) { 
+				// 从Future对象上获取任务的返回值 ，并合并
+				evalResultSummary.append(f.get().toString()); 
+			} 
+			threadResult.removeAllElements(); //释放内存
+			methodReturn.removeAllElements(); //释放内存
 		}
-
-
+        
 		FileUtility.write(BACKTEST_RESULT_DIR+clModel.getIdentifyName()+"-monthlySummary.csv", evalResultSummary.toString(), "GBK");
 
 		saveBacktestResultFile(result,clModel.getIdentifyName());
@@ -452,6 +510,7 @@ public class ProcessData {
 		System.out.println(clModel.getIdentifyName()+" test result file saved.");
 		return result;
 	}
+	
 
 	/**
 	 * 可以考虑子类中覆盖
@@ -537,57 +596,7 @@ public class ProcessData {
 		return splitClause;
 	}
 
-	// paremeter result will be changed in the method! 
-	protected String doOneModel(BaseClassifier clModel,
-			 Instances result, String yearSplit,
-			String policySplit, double lower_limit, double upper_limit, double tp_fp_ratio,
-			Instances trainingData, Instances testingData) throws Exception,
-			IOException {
 
-		
-		System.out.println("-----------------start for " + yearSplit + "-----------"+ this.STRAGEY_NAME+": ------" + policySplit);
-		clModel.generateModelAndEvalFileName(yearSplit,policySplit);
-
-		Classifier model = null;
-
-		//是否需要重做训练阶段
-		if (clModel.m_skipTrainInBacktest == false) { 
-			System.out.println("start to build model");
-			model = clModel.trainData(trainingData);
-		} 
-		
-		//是否需要重做评估阶段
-		if (clModel.m_skipEvalInBacktest == false) {
-			if (model==null) {//如果model不是刚刚新建的，试着从已存在的文件里加载
-				model = clModel.loadModel(yearSplit,policySplit);
-			}
-			clModel.evaluateModel(trainingData, model, lower_limit,
-					upper_limit,tp_fp_ratio);
-		}
-		
-		trainingData=null;//释放内存
-		model=null;//释放model，后面预测时会方法内是会重新加载的。
-
-		//处理testingData
-		//对于二分类器，这里要把输入的收益率转换为分类变量
-		if (clModel instanceof NominalClassifier ){
-			testingData=((NominalClassifier)clModel).processDataForNominalClassifier(testingData,true);
-		}
-		testingData = InstanceUtility.removeAttribs(testingData, ArffFormat.YEAR_MONTH_INDEX);
-		System.out.println("testing data size, row: "
-				+ testingData.numInstances() + " column: "
-				+ testingData.numAttributes());
-		if (clModel.m_saveArffInBacktest) {
-			clModel.saveArffFile(testingData,"test", yearSplit,policySplit);
-		}
-		
-		String evalSummary=yearSplit+","+policySplit+",";
-		evalSummary+=clModel.predictData(testingData, result);
-		testingData=null;//释放内存
-		System.out.println("accumulated predicted rows: "+ result.numInstances());
-		System.out.println("complete for " + yearSplit + this.STRAGEY_NAME+ ": " + policySplit);
-		return evalSummary;
-	}
 
 	//这是对增量数据nominal label的处理 （因为增量数据中的nominal数据，label会可能不全）
 	private Instances calibrateAttributesForDailyData(String pathName,Instances incomingData,int formatType) throws Exception {

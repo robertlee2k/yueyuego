@@ -79,6 +79,10 @@ import yueyueGo.utility.RuntimeParams;
 
 public class M5PABClassifier extends ContinousClassifier {
 	 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -142359614939553696L;
 	protected int leafMinObjNum; //叶子节点最小的
 	protected int divided; //将trainingData分成多少份
 	

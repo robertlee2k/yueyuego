@@ -127,6 +127,10 @@ import yueyueGo.utility.RuntimeParams;
 
 public class MLPABClassifier extends NominalClassifier {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2078976101080790784L;
 	@Override
 	protected void initializeParams() {
 		m_policySubGroup = new String[]{"5","10","20","30","60" };

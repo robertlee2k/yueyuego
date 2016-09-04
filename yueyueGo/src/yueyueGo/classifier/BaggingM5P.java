@@ -152,6 +152,10 @@ import yueyueGo.utility.ThresholdData;
 
 public class BaggingM5P extends ContinousClassifier {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6252159191030935801L;
 	protected boolean adjustThresholdBottom; 
 	protected boolean useMultiPCA;
 	protected int bagging_iteration;

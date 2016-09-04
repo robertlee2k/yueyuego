@@ -18,6 +18,10 @@ import yueyueGo.utility.InstanceUtility;
 import yueyueGo.utility.ThresholdData;
 
 public abstract class NominalClassifier extends BaseClassifier{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5570283670170193026L;
 	protected double DEFAULT_THRESHOLD=0.7; // 找不出threshold时缺省值。
 	protected Instances cachedOldClassInstances=null;
 

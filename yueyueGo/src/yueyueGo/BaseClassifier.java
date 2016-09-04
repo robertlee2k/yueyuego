@@ -1,6 +1,7 @@
 package yueyueGo;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Vector;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
@@ -12,12 +13,17 @@ import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.SerializationHelper;
+import weka.core.SerializedObject;
 import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.InstanceUtility;
 import yueyueGo.utility.ThresholdData;
 
-public abstract class BaseClassifier {
+public abstract class BaseClassifier implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5895562408723104016L;
 	//统一常量
 	public static final String MA_PREFIX = " MA ";
 	public static final String ARFF_EXTENSION = ".arff";
@@ -485,4 +491,16 @@ public abstract class BaseClassifier {
 		WORK_PATH=apath;
 		FileUtility.mkdirIfNotExist(WORK_PATH);
 	}
+	
+	  /**
+	   * Creates a deep copy of the given classifier using serialization.
+	   *
+	   * @param model the classifier to copy
+	   * @return a deep copy of the classifier
+	   * @exception Exception if an error occurs
+	   */
+	  public static BaseClassifier makeCopy(BaseClassifier cl) throws Exception {
+
+	    return (BaseClassifier) new SerializedObject(cl).getObject();
+	  }
 }

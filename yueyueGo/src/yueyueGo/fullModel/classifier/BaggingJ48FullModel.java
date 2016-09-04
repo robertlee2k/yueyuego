@@ -7,6 +7,10 @@ import yueyueGo.utility.RuntimeParams;
 
 public class BaggingJ48FullModel extends BaggingJ48 {
  
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3884731573181625031L;
 	@Override
 	protected void initializeParams() {
 		m_skipTrainInBacktest = true;

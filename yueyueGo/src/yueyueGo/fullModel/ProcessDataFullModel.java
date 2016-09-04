@@ -26,6 +26,7 @@ public class ProcessDataFullModel extends ProcessData {
 		BACKTEST_RESULT_DIR=RuntimeParams.getBACKTEST_RESULT_DIR();
 		PREDICT_WORK_DIR=RuntimeParams.getPREDICT_WORK_DIR();	
 		
+		RUNNING_THREADS=5;
 		STRAGEY_NAME="短线策略";
 		splitYear=new String[] {
 // 			  "2008","2009","2010","2011","2012","2013","2014","2015","2016"

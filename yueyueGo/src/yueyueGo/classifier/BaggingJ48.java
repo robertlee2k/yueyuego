@@ -9,6 +9,10 @@ import yueyueGo.utility.RuntimeParams;
 
 public class BaggingJ48 extends NominalClassifier {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4539124562517081057L;
 	protected boolean useMultiPCA;
 	protected int bagging_iteration;
 	protected int leafMinObjNum;

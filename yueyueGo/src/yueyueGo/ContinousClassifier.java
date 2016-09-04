@@ -20,6 +20,11 @@ public abstract class ContinousClassifier extends BaseClassifier {
 
 	
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6815050020696161183L;
+
 	//对模型进行评估
 	public Vector<Double> evaluateModel(Instances train, Classifier model,
 			double sample_limit, double sample_upper, double tp_fp_ratio)
