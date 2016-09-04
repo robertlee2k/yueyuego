@@ -1,5 +1,6 @@
 package yueyueGo.fullModel.classifier;
 
+import weka.classifiers.Classifier;
 import yueyueGo.EnvConstants;
 import yueyueGo.RuntimeParams;
 import yueyueGo.classifier.BaggingJ48;
@@ -28,5 +29,27 @@ public class BaggingJ48FullModel extends BaggingJ48 {
 		TP_FP_BOTTOM_LINE=0.8; //TP/FP的下限
 		DEFAULT_THRESHOLD=0.6; // 找不出threshold时缺省值。
 	}
+	@Override
+	public Classifier loadModel(String yearSplit, String policySplit) throws Exception{
+		//这是单独准备的模型，模型文件是按年读取，但evaluation文件不变仍按月
+		int inputYear=Integer.parseInt(yearSplit.substring(0,4));
+		
+		//为特定年份下半年增加一个模型，提高准确度
+		String halfYearString="";
+//		if(yearSplit.length()==6){
+//			int inputMonth=Integer.parseInt(yearSplit.substring(4,6));
+//			//TODO 
+//			if ((inputYear==2016) && inputMonth>=6){
+//				halfYearString="06";
+//			}
+//		}
+		String filename=this.WORK_PATH+this.WORK_FILE_PREFIX +"-"+classifierName+ "-" + inputYear +halfYearString+ MA_PREFIX + policySplit;//如果使用固定模型
+		
+		this.setModelFileName(filename);
+		//全年使用一个thresHold
+		this.setEvaluationFilename(filename+THRESHOLD_EXTENSION);
 
+	
+		return loadModelFromFile();
+	}	
 }
