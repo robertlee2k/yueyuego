@@ -10,6 +10,10 @@ import yueyueGo.utility.RuntimeParams;
 @Deprecated
 public class J48ABFullModel extends NominalClassifier {
  
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -3650296432932510448L;
 	protected int leafMinObjNum; 	//j48树最小节点叶子数
 	protected int divided; //将trainingData分成多少份
 	

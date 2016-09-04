@@ -13,6 +13,11 @@ import yueyueGo.utility.ThresholdData;
 @Deprecated  
 public class RandomForestClassifier extends NominalClassifier	 {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4354687069309611335L;
+
 	@Override
 	protected void initializeParams() {
 		classifierName="randomForest";

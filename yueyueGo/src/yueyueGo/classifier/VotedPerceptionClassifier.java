@@ -21,6 +21,10 @@ import yueyueGo.utility.RuntimeParams;
 
 public class VotedPerceptionClassifier extends NominalClassifier {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6603382331120982691L;
 	@Override
 	protected void initializeParams() {
 		classifierName="voted";

@@ -7,6 +7,11 @@ import yueyueGo.utility.RuntimeParams;
 @Deprecated
 public class M5PABFullModel extends M5PABClassifier {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 774038761035568952L;
+
 	@Override
 	protected void initializeParams() {
 	

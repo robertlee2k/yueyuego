@@ -65,6 +65,11 @@ public class MLPClassifier extends NominalClassifier {
 //			Monthly summary_judge_result summary: good number= 280 bad number=230
 //			===============================end of summary=====================================
 	 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2373273778828888365L;
+
 	@Override
 	protected void initializeParams() {
 		

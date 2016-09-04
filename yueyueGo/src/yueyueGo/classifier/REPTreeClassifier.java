@@ -51,6 +51,11 @@ import yueyueGo.utility.RuntimeParams;
 @Deprecated
 public class REPTreeClassifier extends NominalClassifier {
 	 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 473716386542161564L;
+
 	@Override
 	protected void initializeParams() {
 		classifierName="rep";
