@@ -37,6 +37,7 @@ import yueyueGo.classifier.BaggingM5P;
 import yueyueGo.classifier.M5PABClassifier;
 import yueyueGo.classifier.M5PClassifier;
 import yueyueGo.classifier.MLPABClassifier;
+import yueyueGo.classifier.MLPClassifier;
 
 public class ProcessData {
 
@@ -52,7 +53,8 @@ public class ProcessData {
 	
 	protected String STRAGEY_NAME; // 策略的名称，只是用于输出。
 	
-	protected final double[] SHOUYILV_THREDHOLD={0.01,0.02,0.03,0.03,0.03}; //收益率的筛选阀值
+	protected final double[] SHOUYILV_THREDHOLD={0.01,0.02,0.03,0.03,0.03}; //对于胜率优先算法的收益率筛选阀值
+	protected final double[] WINRATE_THREDHOLD={0.55,0.5,0.4,0.35,0.3}; //对于收益率优先算法的胜率筛选阀值
 	private final static int BEGIN_FROM_POLICY=0; // 当回测需要跳过某些均线时，0表示不跳过
 	
 	protected String[] splitYear =null;
@@ -70,28 +72,46 @@ public class ProcessData {
 //			"200801","200802","200803","200804","200805","200806","200807","200808","200809","200810","200811","200812","200901","200902","200903","200904","200905","200906","200907","200908","200909","200910","200911","200912","201001","201002","201003","201004","201005","201006","201007","201008","201009","201010","201011","201012","201101","201102","201103","201104","201105","201106","201107","201108","201109","201110","201111","201112","201201","201202","201203","201204","201205","201206","201207","201208","201209","201210","201211","201212","201301","201302","201303","201304","201305","201306","201307","201308","201309","201310","201311","201312","201401","201402","201403","201404","201405","201406","201407","201408","201409","201410","201411","201412","201501","201502","201503","201504","201505","201506","201507","201508","201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607"
 //				"201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607"
 			};		
+		
 	}
 	
-	public void definePredictModels(){
+	protected void definePredictModels(){
 		PREDICT_MODELS=new HashMap<String, String>();
 		String EVAL="-EVAL";
-		String classifierName=new M5PClassifier().classifierName;
+		String classifierName;
+		
+		//M5P当前使用的预测模型
+		classifierName=new M5PClassifier().classifierName;
 		PREDICT_MODELS.put(classifierName, "\\extData2005-2016-m5p-201607 MA ");
 		PREDICT_MODELS.put(classifierName+EVAL, "\\extData2005-2016-m5p-201607 MA ");
-
-//		public static final String MLP_PREDICT_MODEL= "\\extData2005-2016 month-new-mlp-2016 MA ";
-//		public static final String MLP_EVAL_MODEL= "\\extData2005-2016 month-new-mlp-201606 MA ";
-//		
-//		//经过主成分分析后的数据
-//		public static final String M5PAB_PREDICT_MODEL="\\extData2005-2016-m5pAB-201607 MA ";
-//		public static final String M5PAB_EVAL_MODEL="\\extData2005-2016-m5pAB-201607 MA "; 
-//		public static final String MLPAB_PREDICT_MODEL="\\extData2005-2016-mlpAB-2016 MA ";
-//		public static final String MLPAB_EVAL_MODEL="\\extData2005-2016-mlpAB-2016 MA "; 
-//		public static final String BAGGING_PREDICT_MODEL="\\extData2005-2016-baggingM5P-201606 MA ";
-//		public static final String BAGGING_EVAL_MODEL="\\extData2005-2016-baggingM5P-201607 MA ";
-//		public static final String ADABOOST_PREDICT_MODEL="\\extData2005-2016-adaboost-201606 MA ";
-//		public static final String ADABOOST_EVAL_MODEL="\\extData2005-2016-adaboost-201606 MA ";
 		
+		//MLP当前使用的预测模型
+		classifierName=new MLPClassifier().classifierName;
+		PREDICT_MODELS.put(classifierName, "\\extData2005-2016 month-new-mlp-2016 MA ");
+		PREDICT_MODELS.put(classifierName+EVAL, "\\extData2005-2016 month-new-mlp-201606 MA ");
+		
+		//经过主成分分析后的数据模型---
+		
+		//M5PAB当前使用的预测模型
+		classifierName=new M5PABClassifier().classifierName;
+		PREDICT_MODELS.put(classifierName, "\\extData2005-2016-m5pAB-201607 MA ");
+		PREDICT_MODELS.put(classifierName+EVAL, "\\extData2005-2016-m5pAB-201607 MA ");
+
+		//MLPAB当前使用的预测模型
+		classifierName=new MLPABClassifier().classifierName;
+		PREDICT_MODELS.put(classifierName, "\\extData2005-2016-mlpAB-2016 MA ");
+		PREDICT_MODELS.put(classifierName+EVAL, "\\extData2005-2016-mlpAB-2016 MA ");
+
+		//BaggingM5P当前使用的预测模型
+		classifierName=new BaggingM5P().classifierName;
+		PREDICT_MODELS.put(classifierName, "\\extData2005-2016-baggingM5P-201606 MA ");
+		PREDICT_MODELS.put(classifierName+EVAL, "\\extData2005-2016-baggingM5P-201607 MA ");
+
+		//adaboost当前使用的预测模型
+		classifierName=new AdaboostClassifier().classifierName;
+		PREDICT_MODELS.put(classifierName, "\\extData2005-2016-adaboost-201606 MA ");
+		PREDICT_MODELS.put(classifierName+EVAL, "\\extData2005-2016-adaboost-201606 MA ");
+
 	}
 
 	
@@ -101,10 +121,10 @@ public class ProcessData {
 			worker.init();
 
 			//用模型预测每日增量数据
-			worker.callDailyPredict();
+//			worker.callDailyPredict();
 
 			//调用回测函数回测
-//			worker.callTestBack();
+			worker.callTestBack();
 			
 			//用最新的单次交易数据，更新原始的交易数据文件
 //			UpdateHistoryArffFile.callRefreshInstances();
@@ -144,9 +164,9 @@ public class ProcessData {
 //		RandomForestClassifier nModel=new RandomForestClassifier ();
 //		AdaboostClassifier nModel=new AdaboostClassifier();
 		BaggingJ48 nModel=new BaggingJ48(); 
-		Instances nominalResult=testBackward(nModel);
+//		Instances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
-//		Instances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
+		Instances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 
 		//按连续分类器回测历史数据
 //		M5PClassifier cModel=new M5PClassifier();
@@ -177,15 +197,16 @@ public class ProcessData {
 	 * @throws Exception
 	 */
 	protected  void callDailyPredict() throws Exception {
-		//用二分类模型预测每日增量数据
-//		MLPClassifier nModel=new MLPClassifier();
+		//预先初始化各种模型文件的位置
+		definePredictModels();
 		
-		//用旧连续模型预测每日增量数据
-//		M5P_PREDICT_MODEL="\\交易分析2005-2016 by month-new-m5p-201605 MA ";
-//		M5P_EVAL_MODEL="\\交易分析2005-2016 by month-new-m5p-201605 MA ";
-//		M5PClassifier cModel=new M5PClassifier();
-//		cModel.arff_format=ArffFormat.LEGACY_FORMAT; 
-//		predictWithDB(cModel,PREDICT_WORK_DIR);
+		//用旧的M5P模型预测每日增量数据用于对比
+		String classifierName=new M5PClassifier().classifierName;
+		PREDICT_MODELS.put(classifierName, "\\交易分析2005-2016 by month-new-m5p-201605 MA ");
+		PREDICT_MODELS.put(classifierName+"-EVAL", "\\交易分析2005-2016 by month-new-m5p-201605 MA ");		
+		M5PClassifier cModel=new M5PClassifier();
+		cModel.arff_format=ArffFormat.LEGACY_FORMAT; 
+		predictWithDB(cModel,PREDICT_WORK_DIR);
 		
 		//MLP主成分分析预测
 		MLPABClassifier nABModel=new MLPABClassifier();
@@ -732,11 +753,27 @@ public class ProcessData {
 						profit=resultCurr.value(resultData.attribute(ArffFormat.RESULT_PREDICTED_PROFIT));
 						//需要添加参考集里的什么数据
 						winrate=referenceCurr.value(referenceData.attribute(ArffFormat.RESULT_PREDICTED_WIN_RATE));
-//						//当为连续分类器合并胜率时，如果参照的二分类器预期胜率小于等于0.5，则不选择该条记录?
-//						if (winrate<=0.5 && selected==1){
-//							selected=0;
-//							resultChanged++;
-//						}
+						//当为连续分类器合并胜率时，如果参照的二分类器预期胜率小于等于0.5，则不选择该条记录?
+						if (selected==1){
+							int index;
+							if (resultMA==null){ //非均线策略时默认选择THREDHOLD的第一个
+								index=0;
+							}else{//均线策略时按序选择THREDHOLD的第一个
+								index=new Double(resultCurr.value(resultMA)).intValue();	
+							}
+							if (winrate<WINRATE_THREDHOLD[index]){ 
+								selected=0;
+								resultChanged++;
+								if (shouyilvAtt!=null){
+									double shouyilv=leftCurr.value(shouyilvAtt);
+									changedShouyilv+=shouyilv;
+									if (shouyilv<=0){
+										//如果变化的实际收益率小于0，说明这是一次正确的变换
+										goodChangeNum++;
+									}// end if shouyilv<=
+								}
+							}
+						}// end if (selected
 					}else{ 
 						//当前结果集里有什么数据
 						winrate=resultCurr.value(resultData.attribute(ArffFormat.RESULT_PREDICTED_WIN_RATE));
@@ -793,11 +830,20 @@ public class ProcessData {
 			double goodRatio=new Double(goodChangeNum).doubleValue()/resultChanged;
 			System.out.print(" good ratio="+FormatUtility.formatPercent(goodRatio));
 			System.out.print(" average changed shouyilv="+FormatUtility.formatPercent(changedShouyilv/resultChanged));
-			System.out.print(" @ thredhold=");
-			for (int i = 0; i < SHOUYILV_THREDHOLD.length; i++) {
-				System.out.print(" /"+FormatUtility.formatPercent(SHOUYILV_THREDHOLD[i]));
+			if (dataToAdd.equals(ArffFormat.RESULT_PREDICTED_WIN_RATE)){
+				System.out.print(" @ winrate thredhold=");
+				for (int i = 0; i < WINRATE_THREDHOLD.length; i++) {
+					System.out.print(" /"+FormatUtility.formatPercent(WINRATE_THREDHOLD[i]));
+				}
+				System.out.println(" /");
 			}
-			System.out.print(" /");
+			else{
+				System.out.print(" @ shouyilv thredhold=");
+				for (int i = 0; i < SHOUYILV_THREDHOLD.length; i++) {
+					System.out.print(" /"+FormatUtility.formatPercent(SHOUYILV_THREDHOLD[i]));
+				}
+				System.out.println(" /");
+			}
 		}
 		return mergedResult;
 	}
