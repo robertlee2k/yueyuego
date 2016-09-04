@@ -36,7 +36,7 @@ public class ProcessFlowExecutor implements Callable<String> {
 	public String doPredictProcess() throws Exception {
 
 		
-		System.out.println("-----------------start for " + yearSplit + "-----------------" + policySplit);
+		System.out.println("-----------------start for " + yearSplit + "-----------------policy=" + policySplit);
 		
 		clModel.generateModelAndEvalFileName(yearSplit,policySplit);
 
@@ -48,11 +48,13 @@ public class ProcessFlowExecutor implements Callable<String> {
 			model = clModel.trainData(trainingData);
 		} 
 		
+		//TODO 之所以这样load进来又释放，是因为loadModel里面有子类设置不同mdl和eval的方法，以后再改。
+		if (model==null) {//如果model不是刚刚新建的，试着从已存在的文件里加载
+			model = clModel.loadModel(yearSplit,policySplit);
+		}		
+
 		//是否需要重做评估阶段
 		if (clModel.m_skipEvalInBacktest == false) {
-			if (model==null) {//如果model不是刚刚新建的，试着从已存在的文件里加载
-				model = clModel.loadModel(yearSplit,policySplit);
-			}
 			clModel.evaluateModel(trainingData, model, lower_limit,
 					upper_limit,tp_fp_ratio);
 		}
@@ -76,20 +78,25 @@ public class ProcessFlowExecutor implements Callable<String> {
 		String evalSummary=yearSplit+","+policySplit+",";
 		evalSummary+=clModel.predictData(testingData, result);
 		testingData=null;//释放内存
-		System.out.println("complete for " + yearSplit + policySplit);
+		System.out.println("complete for time " + yearSplit +" policy="+ policySplit);
 		return evalSummary;
 	}
 	
 	 @Override
 	 public String call() {
-		 String result=null;
+		 String resultSummary=null;
 		 System.out.println(Thread.currentThread().getName() + "正在以线程方式执行。。。");
 		 try {
-			 result=this.doPredictProcess();
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return result;
+			 resultSummary=this.doPredictProcess();
+		 } catch (Exception e) {
+			 // TODO Auto-generated catch block
+			 e.printStackTrace();
+		 }
+		 clModel=null;
+		 trainingData=null;
+		 testingData=null;
+		 return resultSummary;
 	 }
+	 
+	 
 }

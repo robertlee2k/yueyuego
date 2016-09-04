@@ -26,8 +26,8 @@ package yueyueGo;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Vector;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import weka.core.Attribute;
@@ -35,7 +35,6 @@ import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
 import yueyueGo.classifier.AdaboostClassifier;
-import yueyueGo.classifier.BaggingJ48;
 import yueyueGo.classifier.BaggingM5P;
 import yueyueGo.classifier.M5PABClassifier;
 import yueyueGo.classifier.M5PClassifier;
@@ -63,7 +62,7 @@ public class ProcessData {
 	protected String STRAGEY_NAME; // 策略的名称，只是用于输出。
 	
 	protected final double[] SHOUYILV_THREDHOLD={0.01,0.02,0.03,0.03,0.03}; //对于胜率优先算法的收益率筛选阀值
-	protected final double[] WINRATE_THREDHOLD={0.55,0.5,0.4,0.35,0.3}; //对于收益率优先算法的胜率筛选阀值
+	protected final double[] WINRATE_THREDHOLD={0,0,0,0,0};//{0.55,0.5,0.4,0.35,0.3}; //对于收益率优先算法的胜率筛选阀值
 	private final static int BEGIN_FROM_POLICY=0; // 当回测需要跳过某些均线时，0表示不跳过
 	
 	protected String[] splitYear =null;
@@ -76,10 +75,10 @@ public class ProcessData {
 		PREDICT_WORK_DIR=RuntimeParams.getPREDICT_WORK_DIR();
 	
 		STRAGEY_NAME="均线策略";
-		RUNNING_THREADS=5;
+		RUNNING_THREADS=8;
 		splitYear=new String[] {
-			  "2008","2009","2010","2011","2012","2013","2014","2015","2016"
-//			"200801","200802","200803","200804","200805","200806","200807","200808","200809","200810","200811","200812","200901","200902","200903","200904","200905","200906","200907","200908","200909","200910","200911","200912","201001","201002","201003","201004","201005","201006","201007","201008","201009","201010","201011","201012","201101","201102","201103","201104","201105","201106","201107","201108","201109","201110","201111","201112","201201","201202","201203","201204","201205","201206","201207","201208","201209","201210","201211","201212","201301","201302","201303","201304","201305","201306","201307","201308","201309","201310","201311","201312","201401","201402","201403","201404","201405","201406","201407","201408","201409","201410","201411","201412","201501","201502","201503","201504","201505","201506","201507","201508","201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607"
+//			  "2008","2009","2010","2011","2012","2013","2014","2015","2016"
+			"200801","200802","200803","200804","200805","200806","200807","200808","200809","200810","200811","200812","200901","200902","200903","200904","200905","200906","200907","200908","200909","200910","200911","200912","201001","201002","201003","201004","201005","201006","201007","201008","201009","201010","201011","201012","201101","201102","201103","201104","201105","201106","201107","201108","201109","201110","201111","201112","201201","201202","201203","201204","201205","201206","201207","201208","201209","201210","201211","201212","201301","201302","201303","201304","201305","201306","201307","201308","201309","201310","201311","201312","201401","201402","201403","201404","201405","201406","201407","201408","201409","201410","201411","201412","201501","201502","201503","201504","201505","201506","201507","201508","201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607"
 //				"201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607"
 			};		
 		
@@ -172,11 +171,11 @@ public class ProcessData {
 //		MLPClassifier nModel = new MLPClassifier();
 //		MLPABClassifier nModel = new MLPABClassifier();
 //		RandomForestClassifier nModel=new RandomForestClassifier ();
-//		AdaboostClassifier nModel=new AdaboostClassifier();
-		BaggingJ48 nModel=new BaggingJ48(); 
-		Instances nominalResult=testBackward(nModel);
+		AdaboostClassifier nModel=new AdaboostClassifier();
+//		BaggingJ48 nModel=new BaggingJ48(); 
+//		Instances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
-//		Instances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
+		Instances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 
 		//按连续分类器回测历史数据
 //		M5PClassifier cModel=new M5PClassifier();
@@ -361,7 +360,7 @@ public class ProcessData {
 		System.out.println("test backward using classifier : "+clModel.getIdentifyName()+" @ model work path :"+clModel.WORK_PATH);
 		
 		 //创建一个可重用固定线程数的线程池
-        ExecutorService threadPool = null;
+		ThreadPoolExecutor threadPool = null;
         Vector<Instances> threadResult=null;
         Vector<Future<String>> methodReturn=null;
         if (RUNNING_THREADS>1){ //需要多线程并发
@@ -449,6 +448,12 @@ public class ProcessData {
 				}				
 
 				if (threadPool!=null){ //需要多线程并发
+					//如果线程池已满，等待一下
+
+					do {    
+						//阻塞等待，直到有空余线程  ，虽然getActiveCount只是给大概的值，但因为只有主进程分发任务，这还是可以信赖的。
+						Thread.sleep(1000);
+					} while(threadPool.getActiveCount()==threadPool.getMaximumPoolSize());  
 
 					//多线程的时候clone一个clModel执行任务，当前的Model继续走下去。
 					BaseClassifier clModelClone=BaseClassifier.makeCopy(clModel);
