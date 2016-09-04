@@ -74,7 +74,8 @@ public class BaggingJ48 extends NominalClassifier {
 		String filename=this.WORK_PATH+this.WORK_FILE_PREFIX +"-"+classifierName+ "-" + inputYear +halfYearString+ MA_PREFIX + policySplit;//如果使用固定模型
 		
 		this.setModelFileName(filename);
-
+		// 全年用同一的eval
+		this.setEvaluationFilename(filename+".eval");
 	
 		return loadModelFromFile();
 	}	

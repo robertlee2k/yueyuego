@@ -35,6 +35,7 @@ import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
 import yueyueGo.classifier.AdaboostClassifier;
+import yueyueGo.classifier.BaggingJ48;
 import yueyueGo.classifier.BaggingM5P;
 import yueyueGo.classifier.M5PABClassifier;
 import yueyueGo.classifier.M5PClassifier;
@@ -171,19 +172,19 @@ public class ProcessData {
 //		MLPClassifier nModel = new MLPClassifier();
 //		MLPABClassifier nModel = new MLPABClassifier();
 //		RandomForestClassifier nModel=new RandomForestClassifier ();
-		AdaboostClassifier nModel=new AdaboostClassifier();
-//		BaggingJ48 nModel=new BaggingJ48(); 
-//		Instances nominalResult=testBackward(nModel);
+//		AdaboostClassifier nModel=new AdaboostClassifier();
+		BaggingJ48 nModel=new BaggingJ48(); 
+		Instances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
-		Instances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
+//		Instances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 
 		//按连续分类器回测历史数据
 //		M5PClassifier cModel=new M5PClassifier();
 //		M5PABClassifier cModel=new M5PABClassifier();
 		BaggingM5P cModel=new BaggingM5P();
-		Instances continuousResult=testBackward(cModel);
+//		Instances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
-//		Instances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
+		Instances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 		
 		
 		//统一输出统计结果
@@ -449,10 +450,14 @@ public class ProcessData {
 
 				if (threadPool!=null){ //需要多线程并发
 					//如果线程池已满，等待一下
-
+					int waitCount=0;
 					do {    
 						//阻塞等待，直到有空余线程  ，虽然getActiveCount只是给大概的值，但因为只有主进程分发任务，这还是可以信赖的。
-						Thread.sleep(1000);
+						Thread.sleep(2000);
+						waitCount++;
+						if (waitCount%30==0){
+							System.out.print("waited for idle thread for seconds: "+ waitCount*2);
+						}
 					} while(threadPool.getActiveCount()==threadPool.getMaximumPoolSize());  
 
 					//多线程的时候clone一个clModel执行任务，当前的Model继续走下去。
