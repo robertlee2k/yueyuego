@@ -10,7 +10,7 @@ public class BaggingJ48FullModel extends BaggingJ48 {
 	@Override
 	protected void initializeParams() {
 		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = true;
+		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{""};
 
 		leafMinObjNum=1000; 	//j48树最小节点叶子数
@@ -47,7 +47,7 @@ public class BaggingJ48FullModel extends BaggingJ48 {
 		
 		this.setModelFileName(filename);
 		//全年使用一个thresHold
-		this.setEvaluationFilename(filename+THRESHOLD_EXTENSION);
+//		this.setEvaluationFilename(filename+THRESHOLD_EXTENSION);
 
 	
 		return loadModelFromFile();

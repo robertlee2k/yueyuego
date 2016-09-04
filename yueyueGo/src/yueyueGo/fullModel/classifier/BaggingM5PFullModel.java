@@ -10,7 +10,7 @@ public class BaggingM5PFullModel extends BaggingM5P {
 	@Override
 	protected void initializeParams() {
 		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = true;
+		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{""};
 
 		
@@ -48,7 +48,7 @@ public class BaggingM5PFullModel extends BaggingM5P {
 		
 		this.setModelFileName(filename);
 		//全年使用一个thresHold
-		this.setEvaluationFilename(filename+THRESHOLD_EXTENSION);
+//		this.setEvaluationFilename(filename+THRESHOLD_EXTENSION);
 		
 		return loadModelFromFile();
 	}
