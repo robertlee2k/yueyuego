@@ -7,6 +7,15 @@ import yueyueGo.NominalClassifier;
 import yueyueGo.utility.ClassifyUtility;
 import yueyueGo.utility.RuntimeParams;
 
+// 按月分析（全年使用同一模型和评估值）
+//number of results merged and processed: 1412480
+//result changed because of reference data not matched=18985 while good change number=13372
+// good ratio=70.43% average changed shouyilv=2.25% @ shouyilv thredhold= /1.00% /2.00% /3.00% /3.00% /3.00% /
+//number of records for full market=1412480
+//shouyilv average for full market=0.80%
+//selected shouyilv average for full market =1.77% count=26492
+//selected shouyilv average for hs300 =-0.19% count=2900
+//selected shouyilv average for zz500 =0.55% count=5545
 public class BaggingJ48 extends NominalClassifier {
 	
 	/**
