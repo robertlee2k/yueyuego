@@ -456,7 +456,7 @@ public class ProcessData {
 						Thread.sleep(2000);
 						waitCount++;
 						if (waitCount%30==0){
-							System.out.print("waited for idle thread for seconds: "+ waitCount*2);
+							System.out.println("waited for idle thread for seconds: "+ waitCount*2);
 						}
 					} while(threadPool.getActiveCount()==threadPool.getMaximumPoolSize());  
 
