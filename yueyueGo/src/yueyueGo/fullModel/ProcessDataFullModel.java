@@ -154,7 +154,7 @@ public class ProcessDataFullModel extends ProcessData {
 	protected Instances predictFullModelWithDB(BaseClassifier clModel, String pathName) throws Exception {
 		System.out.println("predict using classifier : "+clModel.getIdentifyName()+" @ prediction work path :"+PREDICT_WORK_DIR);
 		System.out.println("-----------------------------");
-		Instances fullData = DBAccessFullModel.LoadFullModelDataFromDB();
+		Instances fullData = DBAccessFullModel.LoadFullModelDataFromDB();//"2016-08-26");
 		Instances result=predict(clModel, pathName, fullData);
 		return result;
 	}	
