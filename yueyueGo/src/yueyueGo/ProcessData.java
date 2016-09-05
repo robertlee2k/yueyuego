@@ -35,7 +35,6 @@ import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
 import yueyueGo.classifier.AdaboostClassifier;
-import yueyueGo.classifier.BaggingJ48;
 import yueyueGo.classifier.BaggingM5P;
 import yueyueGo.classifier.M5PABClassifier;
 import yueyueGo.classifier.M5PClassifier;
