@@ -33,8 +33,8 @@ public class ProcessDataFullModel extends ProcessData {
 		
 		splitYear=new String[] {
 // 			  "2008","2009","2010","2011","2012","2013","2014","2015","2016"
-//			"200801","200802","200803","200804","200805","200806","200807","200808","200809","200810","200811","200812","200901","200902","200903","200904","200905","200906","200907","200908","200909","200910","200911","200912","201001","201002","201003","201004","201005","201006","201007","201008","201009","201010","201011","201012","201101","201102","201103","201104","201105","201106","201107","201108","201109","201110","201111","201112","201201","201202","201203","201204","201205","201206","201207","201208","201209","201210","201211","201212","201301","201302","201303","201304","201305","201306","201307","201308","201309","201310","201311","201312","201401","201402","201403","201404","201405","201406","201407","201408","201409","201410","201411","201412","201501","201502","201503","201504","201505","201506","201507","201508","201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607"
-			"201606","201607"
+			"200801","200802","200803","200804","200805","200806","200807","200808","200809","200810","200811","200812","200901","200902","200903","200904","200905","200906","200907","200908","200909","200910","200911","200912","201001","201002","201003","201004","201005","201006","201007","201008","201009","201010","201011","201012","201101","201102","201103","201104","201105","201106","201107","201108","201109","201110","201111","201112","201201","201202","201203","201204","201205","201206","201207","201208","201209","201210","201211","201212","201301","201302","201303","201304","201305","201306","201307","201308","201309","201310","201311","201312","201401","201402","201403","201404","201405","201406","201407","201408","201409","201410","201411","201412","201501","201502","201503","201504","201505","201506","201507","201508","201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607"
+//			"201606","201607"
 		};
 	}
 
@@ -46,8 +46,13 @@ public class ProcessDataFullModel extends ProcessData {
 			
 			
 //			UpdateHistoryArffFullModel.createFullModelInstances();
-			fullModelWorker.callFullModelTestBack();
 			
+			//短线模型的历史回测
+//			fullModelWorker.callFullModelTestBack();
+			
+			//短线模型的每日预测
+			fullModelWorker.callFullModelPredict();
+
 		} catch (Exception e) {
 			
 			e.printStackTrace();
@@ -103,6 +108,24 @@ public class ProcessDataFullModel extends ProcessData {
 		PREDICT_MODELS.put(classifierName, "\\extData2005-2016-BaggingJ48ABFullModel-201606 MA ");
 		PREDICT_MODELS.put(classifierName+EVAL, "\\extData2005-2016-BaggingJ48ABFullModel-201607 MA ");
 	}
+	
+	@Override
+	protected Instances getDailyPredictDataFormat(int formatType)
+			throws Exception {
+		String formatFile=null;
+		switch (formatType) {
+		case ArffFormat.EXT_FORMAT:
+			formatFile=ArffFormatFullModel.FULL_MODEL_ARFF_PREFIX+"-format.arff";
+			break;
+		default:
+			break;
+		}
+
+		Instances outputData=FileUtility.loadDataFromFile(C_ROOT_DIRECTORY+formatFile);
+		return outputData;
+	}
+	
+	
 	/**
 	 * @throws Exception
 	 */
@@ -119,7 +142,8 @@ public class ProcessDataFullModel extends ProcessData {
 		
 		//合并baggingJ48和baggingM5P
 		System.out.println("-----now output combined predictions----------"+cBagModel.getIdentifyName());
-		Instances left=InstanceUtility.removeAttribs(cBagInstances, "5,6"); //只是为了使用下面的方法
+
+		Instances left=InstanceUtility.keepAttributes(cBagInstances, ArffFormat.DAILY_PREDICT_RESULT_LEFT) ; //为了使用下面的合并文件方法造出一个LEFT来
 		Instances mergedOutput=mergeResults(cBagInstances,nBagInstances,ArffFormat.RESULT_PREDICTED_WIN_RATE,left);
 		FileUtility.saveCSVFile(mergedOutput, PREDICT_WORK_DIR + "FullModel Selected Result-"+cBagModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv");
 		
@@ -130,7 +154,7 @@ public class ProcessDataFullModel extends ProcessData {
 	protected Instances predictFullModelWithDB(BaseClassifier clModel, String pathName) throws Exception {
 		System.out.println("predict using classifier : "+clModel.getIdentifyName()+" @ prediction work path :"+PREDICT_WORK_DIR);
 		System.out.println("-----------------------------");
-		Instances fullData = DBAccessFullModel.LoadFullModelDataFromDB(FormatUtility.getDateStringFor(0));
+		Instances fullData = DBAccessFullModel.LoadFullModelDataFromDB();
 		Instances result=predict(clModel, pathName, fullData);
 		return result;
 	}	

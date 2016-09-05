@@ -5,9 +5,15 @@ import weka.experiment.InstanceQuery;
 import yueyueGo.ArffFormat;
 import yueyueGo.utility.DBAccess;
 import yueyueGo.utility.InstanceUtility;
-
+// 全交易的非均线模型
 public class DBAccessFullModel extends DBAccess {
-	// 全交易的非均线模型
+	
+	//取最新交易日的数据预测
+	protected static Instances LoadFullModelDataFromDB() throws Exception{
+		return LoadFullModelDataFromDB(null);
+	}
+	
+	//如果传入的参数 dateString==null; 则取数据库中的最新数据，否则取相应交易日的数据
 	protected static Instances LoadFullModelDataFromDB(String dateString) throws Exception{
 		String[] validateFormat=ArffFormatFullModel.DAILY_DATA_TO_PREDICT_FULL_MODEL;
 
@@ -36,14 +42,23 @@ public class DBAccessFullModel extends DBAccess {
 	}
 	
 	 
+	//如果传入的参数 dateString==null; 则取数据库中的最新数据，否则取相应交易日的数据
 	private static String generateFullModelQueryData(String dateString){
 		
 		String queryData="SELECT ";
 		String[] target_columns=null;
 		String target_view=null;
+		String date_cretiriaString="";
 		
 		target_columns=ArffFormatFullModel.DAILY_DATA_TO_PREDICT_FULL_MODEL;
-		target_view="t_stock_avgline_increment_zuixin_group4_optional"; 
+
+		//如果传入的参数 dateString==null; 则取数据库中的最新数据，否则取相应交易日的数据
+		if (dateString==null){
+			target_view="t_stock_avgline_increment_zuixin_group4_optional";
+		}else{
+			target_view="v_increment_all";
+			date_cretiriaString=" where date='"+dateString+"'";
+		}
 
 		for (int i=0;i<target_columns.length;i++){
 			queryData+= " `"+target_columns[i]+"`";
@@ -51,7 +66,7 @@ public class DBAccessFullModel extends DBAccess {
 				queryData+=", ";
 			}
 		}
-		queryData+=" FROM "+target_view +" where date='"+dateString;//+"' and zhangdieting>-1 and sw_zhishu_code>0"; //2016-07-25
+		queryData+=" FROM "+target_view +date_cretiriaString;  // and zhangdieting>-1 and sw_zhishu_code>0"; //2016-07-25
 		System.out.println(queryData);
 		return queryData;
 	}

@@ -240,7 +240,8 @@ public class ProcessData {
 		
 		//合并adaboost和bagging
 		System.out.println("-----now output combined predictions----------"+adaModel.getIdentifyName());
-		Instances left=InstanceUtility.removeAttribs(adaboostInstances, "5,6"); //只是为了使用下面的方法
+		
+		Instances left=InstanceUtility.keepAttributes(adaboostInstances, ArffFormat.DAILY_PREDICT_RESULT_LEFT) ; //为了使用下面的合并文件方法造出一个LEFT来
 		Instances mergedOutput=mergeResults(adaboostInstances,baggingInstances,ArffFormat.RESULT_PREDICTED_PROFIT,left);
 		FileUtility.saveCSVFile(mergedOutput, PREDICT_WORK_DIR + "Merged Selected Result-"+adaModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv");
 		
@@ -619,6 +620,23 @@ public class ProcessData {
 	private Instances calibrateAttributesForDailyData(String pathName,Instances incomingData,int formatType) throws Exception {
 		
 		//与本地格式数据比较，这地方基本上会有nominal数据的label不一致，临时处理办法就是先替换掉
+		Instances outputData = getDailyPredictDataFormat(formatType);
+		
+		outputData=InstanceUtility.removeAttribs(outputData, ArffFormat.YEAR_MONTH_INDEX);
+		
+
+		InstanceUtility.calibrateAttributes(incomingData, outputData);
+		return outputData;
+	}
+
+	/**
+	 * 可以在子类中覆盖
+	 * @param formatType
+	 * @return
+	 * @throws Exception
+	 */
+	protected Instances getDailyPredictDataFormat(int formatType)
+			throws Exception {
 		String formatFile=null;
 		switch (formatType) {
 		case ArffFormat.LEGACY_FORMAT:
@@ -632,10 +650,6 @@ public class ProcessData {
 		}
 
 		Instances outputData=FileUtility.loadDataFromFile(C_ROOT_DIRECTORY+formatFile);
-		outputData=InstanceUtility.removeAttribs(outputData, "2");
-		
-
-		InstanceUtility.calibrateAttributes(incomingData, outputData);
 		return outputData;
 	}
 
