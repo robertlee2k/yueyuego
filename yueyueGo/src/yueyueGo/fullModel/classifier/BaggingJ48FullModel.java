@@ -4,7 +4,13 @@ import weka.classifiers.Classifier;
 import yueyueGo.EnvConstants;
 import yueyueGo.classifier.BaggingJ48;
 import yueyueGo.utility.RuntimeParams;
-
+//result changed because of reference data not matched=81892 while good change number=49134
+//good ratio=60.00% average changed shouyilv=0.94% @ shouyilv thredhold= /3.00% /
+//number of records for full market=4225771
+//shouyilv average for full market=0.29%
+//selected shouyilv average for full market =2.27% count=44204
+//selected shouyilv average for hs300 =1.63% count=2753
+//selected shouyilv average for zz500 =1.12% count=14042
 public class BaggingJ48FullModel extends BaggingJ48 {
  
 	/**
@@ -13,8 +19,8 @@ public class BaggingJ48FullModel extends BaggingJ48 {
 	private static final long serialVersionUID = -3884731573181625031L;
 	@Override
 	protected void initializeParams() {
-		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = true;
+		m_skipTrainInBacktest = false;
+		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{""};
 
 		leafMinObjNum=1000; 	//j48树最小节点叶子数

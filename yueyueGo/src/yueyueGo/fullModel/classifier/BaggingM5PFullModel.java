@@ -5,6 +5,13 @@ import yueyueGo.EnvConstants;
 import yueyueGo.classifier.BaggingM5P;
 import yueyueGo.utility.RuntimeParams;
 
+//result changed because of reference data not matched=15096 while good change number=5665
+//good ratio=37.53% average changed shouyilv=4.58% @ winrate thredhold= /50.00% /
+//number of records for full market=4225771
+//shouyilv average for full market=0.29%
+//selected shouyilv average for full market =1.58% count=145281
+//selected shouyilv average for hs300 =0.98% count=12875
+//selected shouyilv average for zz500 =1.10% count=32436
 public class BaggingM5PFullModel extends BaggingM5P {
 	 
 	/**
@@ -13,8 +20,8 @@ public class BaggingM5PFullModel extends BaggingM5P {
 	private static final long serialVersionUID = 8505755558382340493L;
 	@Override
 	protected void initializeParams() {
-		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = true;
+		m_skipTrainInBacktest = false;
+		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{""};
 
 		
