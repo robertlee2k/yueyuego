@@ -30,7 +30,7 @@ public class BaggingJ48 extends NominalClassifier {
 	@Override
 	protected void initializeParams() {
 		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = true;
+		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 
 		classifierName="baggingJ48";
@@ -83,8 +83,8 @@ public class BaggingJ48 extends NominalClassifier {
 		String filename=this.WORK_PATH+this.WORK_FILE_PREFIX +"-"+classifierName+ "-" + inputYear +halfYearString+ MA_PREFIX + policySplit;//如果使用固定模型
 		
 		this.setModelFileName(filename);
-		// 全年用同一的eval
-		this.setEvaluationFilename(filename+".eval");
+//		// 全年用同一的eval
+//		this.setEvaluationFilename(filename+".eval");
 	
 		return loadModelFromFile();
 	}	
