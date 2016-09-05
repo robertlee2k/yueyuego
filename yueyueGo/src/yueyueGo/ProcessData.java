@@ -176,9 +176,10 @@ public class ProcessData {
 //		MLPClassifier nModel = new MLPClassifier();
 //		MLPABClassifier nModel = new MLPABClassifier();
 //		RandomForestClassifier nModel=new RandomForestClassifier ();
-//		AdaboostClassifier nModel=new AdaboostClassifier();
-		BaggingJ48 nModel=new BaggingJ48(); 
+		AdaboostClassifier nModel=new AdaboostClassifier();
+		BaggingJ48 n2Model=new BaggingJ48(); 
 		Instances nominalResult=testBackward(nModel);
+		testBackward(n2Model);
 		//不真正回测了，直接从以前的结果文件中加载
 //		Instances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 

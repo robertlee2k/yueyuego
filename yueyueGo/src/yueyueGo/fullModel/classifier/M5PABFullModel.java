@@ -18,8 +18,8 @@ public class M5PABFullModel extends M5PABClassifier {
 		classifierName="m5pABFullModel";
 		setWorkPathAndCheck(RuntimeParams.getCONTINOUS_CLASSIFIER_DIR()+getIdentifyName()+"\\");
 
-		m_skipTrainInBacktest = false;
-		m_skipEvalInBacktest = false;
+		m_skipTrainInBacktest = true;
+		m_skipEvalInBacktest = true;
 		m_policySubGroup = new String[]{""};
 		
 		leafMinObjNum=1000;

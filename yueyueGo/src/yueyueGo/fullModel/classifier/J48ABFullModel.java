@@ -19,8 +19,8 @@ public class J48ABFullModel extends NominalClassifier {
 	
 	@Override
 	protected void initializeParams() {
-		m_skipTrainInBacktest = false;
-		m_skipEvalInBacktest = false;
+		m_skipTrainInBacktest = true;
+		m_skipEvalInBacktest = true;
 		m_policySubGroup = new String[]{"" };
 		
 		classifierName= "J48ABFullModel";
