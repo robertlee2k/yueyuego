@@ -1,6 +1,7 @@
 package yueyueGo.fullModel;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import weka.core.Instances;
 import yueyueGo.ArffFormat;
@@ -8,8 +9,6 @@ import yueyueGo.BaseClassifier;
 import yueyueGo.EnvConstants;
 import yueyueGo.NominalClassifier;
 import yueyueGo.ProcessData;
-import yueyueGo.classifier.AdaboostClassifier;
-import yueyueGo.classifier.BaggingM5P;
 import yueyueGo.fullModel.classifier.BaggingJ48FullModel;
 import yueyueGo.fullModel.classifier.BaggingM5PFullModel;
 import yueyueGo.utility.FileUtility;
@@ -87,25 +86,42 @@ public class ProcessDataFullModel extends ProcessData {
 		saveSelectedFileForMarkets(mlpOutput,nModel.getIdentifyName());
 		System.out.println("-----end of test backward------");
 	}
-	
+
+	@Override
+	protected void definePredictModels(){
+		PREDICT_MODELS=new HashMap<String, String>();
+		String EVAL="-EVAL";
+		String classifierName;
+		
+		//M5P当前使用的预测模型
+		classifierName=new BaggingM5PFullModel().classifierName;
+		PREDICT_MODELS.put(classifierName, "\\extData2005-2016-BaggingM5PABFullModel-201606 MA ");
+		PREDICT_MODELS.put(classifierName+EVAL, "\\extData2005-2016-BaggingM5PABFullModel-201607 MA ");
+		
+		//MLP当前使用的预测模型
+		classifierName=new BaggingJ48FullModel().classifierName;
+		PREDICT_MODELS.put(classifierName, "\\extData2005-2016-BaggingJ48ABFullModel-201606 MA ");
+		PREDICT_MODELS.put(classifierName+EVAL, "\\extData2005-2016-BaggingJ48ABFullModel-201607 MA ");
+	}
 	/**
 	 * @throws Exception
 	 */
 	protected void callFullModelPredict() throws Exception {
-
+		definePredictModels();
+		
 		//BaggingM5P
-		BaggingM5P cBagModel=new BaggingM5P();
-		Instances baggingInstances=predictFullModelWithDB(cBagModel,PREDICT_WORK_DIR);		
+		BaggingM5PFullModel cBagModel=new BaggingM5PFullModel();
+		Instances cBagInstances=predictFullModelWithDB(cBagModel,PREDICT_WORK_DIR);		
 		
-		//Adaboost
-		AdaboostClassifier adaModel=new AdaboostClassifier();
-		Instances adaboostInstances=predictFullModelWithDB(adaModel,PREDICT_WORK_DIR);		
+		//BaggingJ48
+		BaggingJ48FullModel nBagModel=new BaggingJ48FullModel();
+		Instances nBagInstances=predictFullModelWithDB(nBagModel,PREDICT_WORK_DIR);		
 		
-		//合并adaboost和bagging
-		System.out.println("-----now output combined predictions----------"+adaModel.getIdentifyName());
-		Instances left=InstanceUtility.removeAttribs(adaboostInstances, "5,6"); //只是为了使用下面的方法
-		Instances mergedOutput=mergeResults(adaboostInstances,baggingInstances,ArffFormat.RESULT_PREDICTED_PROFIT,left);
-		FileUtility.saveCSVFile(mergedOutput, PREDICT_WORK_DIR + "FullModel Selected Result-"+adaModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv");
+		//合并baggingJ48和baggingM5P
+		System.out.println("-----now output combined predictions----------"+cBagModel.getIdentifyName());
+		Instances left=InstanceUtility.removeAttribs(cBagInstances, "5,6"); //只是为了使用下面的方法
+		Instances mergedOutput=mergeResults(cBagInstances,nBagInstances,ArffFormat.RESULT_PREDICTED_WIN_RATE,left);
+		FileUtility.saveCSVFile(mergedOutput, PREDICT_WORK_DIR + "FullModel Selected Result-"+cBagModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv");
 		
 	}	
 	

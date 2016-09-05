@@ -21,7 +21,7 @@ public class BaggingM5PFullModel extends BaggingM5P {
 	@Override
 	protected void initializeParams() {
 		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = true;
+		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{""};
 
 		
@@ -48,13 +48,13 @@ public class BaggingM5PFullModel extends BaggingM5P {
 		
 		//为特定年份下半年增加一个模型，提高准确度
 		String halfYearString="";
-//		if(yearSplit.length()==6){
-//			int inputMonth=Integer.parseInt(yearSplit.substring(4,6));
-//			//TODO 
-//			if ((inputYear==2016) && inputMonth>=6){
-//				halfYearString="06";
-//			}
-//		}
+		if(yearSplit.length()==6){
+			int inputMonth=Integer.parseInt(yearSplit.substring(4,6));
+			//TODO 
+			if ((inputYear==2016) && inputMonth>=6){
+				halfYearString="06";
+			}
+		}
 		String filename=this.WORK_PATH+this.WORK_FILE_PREFIX +"-"+classifierName+ "-" + inputYear +halfYearString+ MA_PREFIX + policySplit;//如果使用固定模型
 		
 		this.setModelFileName(filename);

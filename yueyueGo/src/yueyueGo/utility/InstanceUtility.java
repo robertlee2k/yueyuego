@@ -248,5 +248,12 @@ public class InstanceUtility {
 		}
 	}
 
+	//如果输入instances中的包含有string[]所定义的attributes，将其保留，将其他的属性删除。
+	public static Instances keepAttributes(Instances incomingData, String[] attributeToKeep) throws Exception{
+		String saveString=ArffFormat.returnAttribsPosition(incomingData,attributeToKeep);
+		Instances result = filterAttribs(incomingData,saveString);
+		return result;
+	}
+
 
 }

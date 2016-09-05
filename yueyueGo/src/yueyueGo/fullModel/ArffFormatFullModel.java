@@ -64,6 +64,10 @@ public class ArffFormatFullModel extends ArffFormat {
 			"yearmonth", TRADE_DATE, "code", SELL_DATE,  
 			DATA_DATE, IS_POSITIVE, SELECTED_AVG_LINE,"bias5",IS_SZ50 ,IS_HS300 , 
 			IS_ZZ500,SHOUYILV };
+	
+	// 每日预测扩展格式数据（数据库和数据文件都是如此)的格式
+	public static String[] DAILY_DATA_TO_PREDICT_FULL_MODEL = FormatUtility.concatStrings(new String[]{ID},FULL_MODEL_ATTRIB_FORMAT_NEW);
+		
 
 	// 此方法从All Transaction Data中保留计算收益率的相关字段，以及最后的收益率，删除其他计算字段
 	protected static Instances getTransLeftPartForFullModel(Instances allData)

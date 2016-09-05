@@ -57,7 +57,7 @@ public class ProcessData {
 	
 	public static final String RESULT_EXTENSION = "-Test Result.csv";
 	
-	public static HashMap<String, String> PREDICT_MODELS;
+	protected HashMap<String, String> PREDICT_MODELS;
 
 	
 	protected String STRAGEY_NAME; // 策略的名称，只是用于输出。
@@ -292,9 +292,8 @@ public class ProcessData {
 			fullData=ArffFormat.addCalculateAttribute(fullData);		
 		}
 		
-//		FileUtility.SaveDataIntoFile(fullData, pathName+FormatUtility.getDateStringFor(1)+"dailyInput-new116.arff");
 		
-//		//获得”均线策略"的位置属性
+		//获得”均线策略"的位置属性, 如果数据集内没有“均线策略”（短线策略的fullmodel），MaIndex为-1
 		int maIndex=InstanceUtility.findATTPosition(fullData,ArffFormat.SELECTED_AVG_LINE);
 
 		if (clModel instanceof NominalClassifier ){
@@ -306,9 +305,12 @@ public class ProcessData {
 
 			System.out.println("start to load data for " + ArffFormat.SELECTED_AVG_LINE+"  : "	+ clModel.m_policySubGroup[j]);
 			String expression=null;
-			expression=InstanceUtility.WEKA_ATT_PREFIX+ maIndex+" is '"+ clModel.m_policySubGroup[j] + "'";
-			
-			newData = InstanceUtility.getInstancesSubset(fullData, expression);
+			if (maIndex>0){// 均线策略
+				expression=InstanceUtility.WEKA_ATT_PREFIX+ maIndex+" is '"+ clModel.m_policySubGroup[j] + "'";
+				newData = InstanceUtility.getInstancesSubset(fullData, expression);
+			}else{ //短线策略（fullmodel)				
+				newData=fullData;
+			}
 
 			
 			String modelFileName;
@@ -327,8 +329,9 @@ public class ProcessData {
 			if (result == null) {// initialize result instances
 				// remove unnecessary data,leave 均线策略 & shouyilv alone
 				Instances header = new Instances(newData, 0);
-				result = InstanceUtility.removeAttribs(header,
-						"4-" + String.valueOf(header.numAttributes() - 1)); 
+				result=InstanceUtility.keepAttributes(header, ArffFormat.DAILY_PREDICT_RESULT_LEFT);
+//				result = InstanceUtility.removeAttribs(header,
+//						"4-" + String.valueOf(header.numAttributes() - 1)); 
 				if (clModel instanceof NominalClassifier ){
 					result = InstanceUtility.AddAttribute(result, ArffFormat.RESULT_PREDICTED_WIN_RATE,
 							result.numAttributes());
