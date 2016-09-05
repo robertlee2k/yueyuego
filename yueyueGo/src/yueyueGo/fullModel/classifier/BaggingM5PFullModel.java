@@ -21,7 +21,7 @@ public class BaggingM5PFullModel extends BaggingM5P {
 	@Override
 	protected void initializeParams() {
 		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = true;
+		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{""};
 
 		
