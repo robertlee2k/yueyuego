@@ -48,10 +48,10 @@ public class ProcessDataFullModel extends ProcessData {
 //			UpdateHistoryArffFullModel.createFullModelInstances();
 			
 			//短线模型的历史回测
-//			fullModelWorker.callFullModelTestBack();
+			fullModelWorker.callFullModelTestBack();
 			
 			//短线模型的每日预测
-			fullModelWorker.callFullModelPredict();
+//			fullModelWorker.callFullModelPredict();
 
 		} catch (Exception e) {
 			
