@@ -223,7 +223,7 @@ public class ProcessDataFullModel extends ProcessData {
 		mergedResult=InstanceUtility.removeAttribs(mergedResult, "2,6,7,8");
 		
 //		//插入一列“均线策略”为计算程序使用
-//		mergedResult=InstanceUtility.AddAttributeWithValue(mergedResult, ArffFormat.SELECTED_AVG_LINE,"numeric","0");
+		mergedResult=InstanceUtility.AddAttributeWithValue(mergedResult, ArffFormat.SELECTED_AVG_LINE,"numeric","0");
 //		mergedResult=InstanceUtility.AddAttribute(mergedResult, ArffFormat.SELECTED_AVG_LINE, 1);// .AddAttributeWithValue(mergedResult, ArffFormat.SELECTED_AVG_LINE,"numeric","0");
 		return mergedResult;
 	}
