@@ -20,8 +20,8 @@ public class BaggingM5PFullModel extends BaggingM5P {
 	private static final long serialVersionUID = 8505755558382340493L;
 	@Override
 	protected void initializeParams() {
-		m_skipTrainInBacktest = false;
-		m_skipEvalInBacktest = false;
+		m_skipTrainInBacktest = true;
+		m_skipEvalInBacktest = true;
 		m_policySubGroup = new String[]{""};
 
 		

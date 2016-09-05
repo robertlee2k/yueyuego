@@ -5,6 +5,7 @@ import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.filters.Filter;
+import weka.filters.unsupervised.attribute.AddUserFields;
 import weka.filters.unsupervised.attribute.NominalToString;
 import weka.filters.unsupervised.attribute.NumericToNominal;
 import weka.filters.unsupervised.attribute.Remove;
@@ -81,14 +82,36 @@ public class InstanceUtility {
 	}
 
 	
-	//在position的位置插入新的属性 （position从0开始） ，这个方法会创建新的instances后再插入，所以似乎可以直接调用原有instances中的insertAttributeAt方法
+	//在position的位置插入新的属性 （position从0开始） 
+	//这个方法会改变原有的instances。
 	public static Instances AddAttribute(Instances data, String attributeName,
 			int position) {
-		Instances newData = new Instances(data);
-		newData.insertAttributeAt(new Attribute(attributeName), position);
-		return newData;
+//		Instances newData = new Instances(data);
+		data.insertAttributeAt(new Attribute(attributeName), position);
+		return data;
 	}
 	
+	//在position的位置插入新的属性 （position从0开始） 
+	//这个方法会改变原有的instances。
+	public static Instances AddAttributeWithValue(Instances data, String attributeName,String type,String value) throws Exception {
+//		AddUserFields.AttributeSpec aSpec=new AddUserFields.AttributeSpec();
+//		aSpec.setName(attributeName);
+//		aSpec.setType(type);
+//		aSpec.setValue(value);
+//		
+//		Vector<AddUserFields.AttributeSpec> aSpecList=new Vector<AddUserFields.AttributeSpec>();
+//		aSpecList.add(aSpec);
+		AddUserFields filter=new AddUserFields();
+//		filter.setAttributeSpecs(aSpecList);
+		String[] options = new String[2];
+		options[0] = "-A"; 
+		options[1] = attributeName+"@"+type+"@"+value; 
+		filter.setOptions(options);
+		filter.setInputFormat(data);
+		Instances output=Filter.useFilter(data, filter);
+		return output;
+		
+	}
 
 
 

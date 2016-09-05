@@ -19,8 +19,8 @@ public class BaggingJ48FullModel extends BaggingJ48 {
 	private static final long serialVersionUID = -3884731573181625031L;
 	@Override
 	protected void initializeParams() {
-		m_skipTrainInBacktest = false;
-		m_skipEvalInBacktest = false;
+		m_skipTrainInBacktest = true;
+		m_skipEvalInBacktest = true;
 		m_policySubGroup = new String[]{""};
 
 		leafMinObjNum=1000; 	//j48树最小节点叶子数
