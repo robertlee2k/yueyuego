@@ -135,10 +135,10 @@ public class ProcessData {
 			worker.init();
 
 			//用模型预测每日增量数据
-//			worker.callDailyPredict();
+			worker.callDailyPredict();
 
 			//调用回测函数回测
-			worker.callTestBack();
+//			worker.callTestBack();
 			
 			//用最新的单次交易数据，更新原始的交易数据文件
 //			UpdateHistoryArffFile.callRefreshInstances();
@@ -177,9 +177,9 @@ public class ProcessData {
 //		MLPABClassifier nModel = new MLPABClassifier();
 //		RandomForestClassifier nModel=new RandomForestClassifier ();
 		AdaboostClassifier nModel=new AdaboostClassifier();
-		BaggingJ48 n2Model=new BaggingJ48(); 
+//		BaggingJ48 nModel=new BaggingJ48(); 
 		Instances nominalResult=testBackward(nModel);
-		testBackward(n2Model);
+
 		//不真正回测了，直接从以前的结果文件中加载
 //		Instances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 
