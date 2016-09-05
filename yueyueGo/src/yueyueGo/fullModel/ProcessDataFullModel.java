@@ -221,9 +221,10 @@ public class ProcessDataFullModel extends ProcessData {
 		
 		//TODO should do more gracefully 给mergedResult瘦身。 2=yearmonth, 6=datadate,7=positive,8=bias
 		mergedResult=InstanceUtility.removeAttribs(mergedResult, "2,6,7,8");
-		//插入一列“均线策略”为计算程序使用
+		
+//		//插入一列“均线策略”为计算程序使用
 //		mergedResult=InstanceUtility.AddAttributeWithValue(mergedResult, ArffFormat.SELECTED_AVG_LINE,"numeric","0");
-		mergedResult=InstanceUtility.AddAttribute(mergedResult, ArffFormat.SELECTED_AVG_LINE, 1);// .AddAttributeWithValue(mergedResult, ArffFormat.SELECTED_AVG_LINE,"numeric","0");
+//		mergedResult=InstanceUtility.AddAttribute(mergedResult, ArffFormat.SELECTED_AVG_LINE, 1);// .AddAttributeWithValue(mergedResult, ArffFormat.SELECTED_AVG_LINE,"numeric","0");
 		return mergedResult;
 	}
 

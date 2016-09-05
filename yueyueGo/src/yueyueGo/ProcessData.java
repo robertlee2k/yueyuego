@@ -685,19 +685,31 @@ public class ProcessData {
 	    mergedResult=InstanceUtility.AddAttribute(mergedResult,ArffFormat.RESULT_PREDICTED_WIN_RATE, mergedResult.numAttributes());
 	    mergedResult=InstanceUtility.AddAttribute(mergedResult,ArffFormat.RESULT_SELECTED, mergedResult.numAttributes());
 		
-		Instance leftCurr;
+	    Attribute resultMA=resultData.attribute(ArffFormat.SELECTED_AVG_LINE);		
+	    if (resultMA==null){ //不是均线策略时，result里面没有均线策略这个属性
+	    	//给输出结果添加均线策略字段（在后面将值设为0）
+	    	mergedResult=InstanceUtility.AddAttribute(mergedResult,ArffFormat.SELECTED_AVG_LINE, mergedResult.numAttributes());
+	    }
+
+	    Instance leftCurr;
 		Instance resultCurr;
 		Instance referenceCurr;
 		Instance newData;
+		
+		//左侧冗余信息文件属性
 		Attribute leftMA=left.attribute(ArffFormat.SELECTED_AVG_LINE);
 		Attribute shouyilvAtt=left.attribute(ArffFormat.SHOUYILV);	
-		Attribute resultMA=resultData.attribute(ArffFormat.SELECTED_AVG_LINE);
 		Attribute leftBias5=left.attribute("bias5");
+		
+		//结果文件属性
 		Attribute resultBias5=resultData.attribute("bias5");
 		Attribute resultSelectedAtt=resultData.attribute(ArffFormat.RESULT_SELECTED);
+		
+		//输出文件的属性
 		Attribute outputSelectedAtt=mergedResult.attribute(ArffFormat.RESULT_SELECTED);
 		Attribute outputPredictAtt=mergedResult.attribute(ArffFormat.RESULT_PREDICTED_PROFIT);
 		Attribute outputWinrateAtt=mergedResult.attribute(ArffFormat.RESULT_PREDICTED_WIN_RATE);
+		Attribute outputMAAtt=mergedResult.attribute(ArffFormat.SELECTED_AVG_LINE);
 		
 		//传入的结果集result不是排序的,而left的数据是按tradeDate日期排序的， 所以都先按ID排序。
 		left.sort(ArffFormat.ID_POSITION-1);
@@ -834,8 +846,10 @@ public class ProcessData {
 
 					newData.setValue(outputPredictAtt, profit);
 					newData.setValue(outputWinrateAtt, winrate);
-					newData.setValue(outputSelectedAtt,selected );						
-
+					newData.setValue(outputSelectedAtt,selected);						
+					if (resultMA==null){ //非均线策略时设置输出结果的MA为0
+						newData.setValue(outputMAAtt,0);
+					}
 					mergedResult.add(newData);
 					resultIndex++;
 					leftIndex++;
