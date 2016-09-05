@@ -20,7 +20,7 @@ public class BaggingJ48FullModel extends BaggingJ48 {
 	@Override
 	protected void initializeParams() {
 		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = false;
+		m_skipEvalInBacktest = true;
 		m_policySubGroup = new String[]{""};
 
 		leafMinObjNum=1000; 	//j48树最小节点叶子数
