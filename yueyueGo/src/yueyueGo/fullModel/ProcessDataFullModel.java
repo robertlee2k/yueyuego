@@ -17,7 +17,7 @@ import yueyueGo.utility.InstanceUtility;
 import yueyueGo.utility.RuntimeParams;
 
 public class ProcessDataFullModel extends ProcessData {
-	private boolean applyToMaModel=false;
+	private boolean applyToMaModel=true;//false;
 	
 	//覆盖父类
 	public void init() {
@@ -74,9 +74,9 @@ public class ProcessDataFullModel extends ProcessData {
 			nModel.m_skipTrainInBacktest=true;
 			nModel.m_skipEvalInBacktest=true;
 		}	
-		Instances nominalResult=testBackward(nModel);
+//		Instances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
-//		Instances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
+		Instances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 
 		//按连续分类器回测历史数据
 		BaggingM5PFullModel cModel=new BaggingM5PFullModel();
@@ -84,9 +84,9 @@ public class ProcessDataFullModel extends ProcessData {
 			cModel.m_skipTrainInBacktest=true;
 			cModel.m_skipEvalInBacktest=true;
 		}
-		Instances continuousResult=testBackward(cModel);
+//		Instances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
-//		Instances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
+		Instances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 		
 		
 		//统一输出统计结果
@@ -298,23 +298,29 @@ public class ProcessDataFullModel extends ProcessData {
 	}
 	
 	protected Instances mergeResultWithData(Instances resultData,Instances referenceData,String dataToAdd,int format) throws Exception{
+		Instances left=null;		
 		//读取磁盘上预先保存的左侧数据
-		Instances left=FileUtility.loadDataFromFile(C_ROOT_DIRECTORY+ArffFormatFullModel.FULL_MODEL_ARFF_PREFIX+"-left.arff");
-		
-
+		if (applyToMaModel==true){
+			left=FileUtility.loadDataFromFile(EnvConstants.AVG_LINE_ROOT_DIR+ArffFormat.TRANSACTION_ARFF_PREFIX+"-left.arff");
+		}else{
+			left=FileUtility.loadDataFromFile(C_ROOT_DIRECTORY+ArffFormatFullModel.FULL_MODEL_ARFF_PREFIX+"-left.arff");
+		}
 		Instances mergedResult = mergeResults(resultData, referenceData,dataToAdd, left);
-		
 		//返回结果之前需要按TradeDate重新排序
 		int tradeDateIndex=InstanceUtility.findATTPosition(mergedResult, ArffFormat.TRADE_DATE);
 		mergedResult.sort(tradeDateIndex-1);
+		// 给mergedResult瘦身。 2=yearmonth, 6=datadate,7=positive,8=bias
+		String[] attributeToRemove=new String[]{ArffFormat.YEAR_MONTH,ArffFormat.DATA_DATE,ArffFormat.IS_POSITIVE,ArffFormat.BIAS5};
+		mergedResult=InstanceUtility.removeAttribs(mergedResult, attributeToRemove);
 		
-		//TODO should do more gracefully 给mergedResult瘦身。 2=yearmonth, 6=datadate,7=positive,8=bias
-		mergedResult=InstanceUtility.removeAttribs(mergedResult, "2,6,7,8");
-		
-//		//插入一列“均线策略”为计算程序使用
-		mergedResult=InstanceUtility.AddAttributeWithValue(mergedResult, ArffFormat.SELECTED_AVG_LINE,"numeric","0");
-//		mergedResult=InstanceUtility.AddAttribute(mergedResult, ArffFormat.SELECTED_AVG_LINE, 1);// .AddAttributeWithValue(mergedResult, ArffFormat.SELECTED_AVG_LINE,"numeric","0");
+		if (applyToMaModel==false){
+			//插入一列“均线策略”为计算程序使用
+			mergedResult=InstanceUtility.AddAttributeWithValue(mergedResult, ArffFormat.SELECTED_AVG_LINE,"numeric","0");
+		}
 		return mergedResult;
+
+		
+
 	}
 
 }

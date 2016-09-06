@@ -89,7 +89,7 @@ public class FormatUtility {
 		if((Double.isNaN(first) && Double.isNaN(second))==false){
 			if (second>=1 || second<=-1){ //绝对值大于1时按照比值比较
 				compare=first/second-1;
-			}else{//绝对值大于1时按照差值比较
+			}else{//绝对值小于1时按照差值比较
 				compare=first-second;
 			}
 			if (compare>=LOWER_LIMIT && compare<=UPPER_LIMIT){

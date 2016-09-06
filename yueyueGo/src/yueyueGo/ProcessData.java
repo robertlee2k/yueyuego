@@ -659,11 +659,10 @@ public class ProcessData {
 		//读取磁盘上预先保存的左侧数据
 		Instances left=null;
 		
-		//TODO 过渡期 有少量模型尚使用原有格式
-		if (format==ArffFormat.EXT_FORMAT){
-			left=FileUtility.loadDataFromFile(C_ROOT_DIRECTORY+ArffFormat.TRANSACTION_ARFF_PREFIX+"-left.arff");
-		}else if (format==ArffFormat.LEGACY_FORMAT){ //LEGACY 有少量模型尚使用原有格式
+		if (format==ArffFormat.LEGACY_FORMAT){ //LEGACY 有少量模型尚使用原有格式
 			left=FileUtility.loadDataFromFile(C_ROOT_DIRECTORY+"AllTransaction20052016-left.arff");
+		}else if (format==ArffFormat.EXT_FORMAT){  
+			left=FileUtility.loadDataFromFile(C_ROOT_DIRECTORY+ArffFormat.TRANSACTION_ARFF_PREFIX+"-left.arff");
 		}
 
 		Instances mergedResult = mergeResults(resultData, referenceData,dataToAdd, left);
@@ -672,9 +671,9 @@ public class ProcessData {
 		int tradeDateIndex=InstanceUtility.findATTPosition(mergedResult, ArffFormat.TRADE_DATE);
 		mergedResult.sort(tradeDateIndex-1);
 		
-		//TODO should do more gracefully 给mergedResult瘦身。 2=yearmonth, 6=datadate,7=positive,9=bias
-		mergedResult=InstanceUtility.removeAttribs(mergedResult, "2,6,7,9");
-
+		// 给mergedResult瘦身。 2=yearmonth, 6=datadate,7=positive,8=bias
+		String[] attributeToRemove=new String[]{ArffFormat.YEAR_MONTH,ArffFormat.DATA_DATE,ArffFormat.IS_POSITIVE,ArffFormat.BIAS5};
+		mergedResult=InstanceUtility.removeAttribs(mergedResult, attributeToRemove);
 
 		return mergedResult;
 	}
@@ -702,11 +701,6 @@ public class ProcessData {
 	    mergedResult=InstanceUtility.AddAttribute(mergedResult,ArffFormat.RESULT_PREDICTED_WIN_RATE, mergedResult.numAttributes());
 	    mergedResult=InstanceUtility.AddAttribute(mergedResult,ArffFormat.RESULT_SELECTED, mergedResult.numAttributes());
 		
-	
-//	    if (resultMA==null){ //不是均线策略时，result里面没有均线策略这个属性
-//	    	//给输出结果添加均线策略字段（在后面将值设为0）
-//	    	mergedResult=InstanceUtility.AddAttribute(mergedResult,ArffFormat.SELECTED_AVG_LINE, mergedResult.numAttributes());
-//	    }
 
 	    Instance leftCurr;
 		Instance resultCurr;
@@ -716,11 +710,11 @@ public class ProcessData {
 		//左侧冗余信息文件属性
 		Attribute leftMA=left.attribute(ArffFormat.SELECTED_AVG_LINE);
 		Attribute shouyilvAtt=left.attribute(ArffFormat.SHOUYILV);	
-		Attribute leftBias5=left.attribute("bias5");
+		Attribute leftBias5=left.attribute(ArffFormat.BIAS5);
 		
 		//结果文件属性
 	    Attribute resultMA=resultData.attribute(ArffFormat.SELECTED_AVG_LINE);	
-		Attribute resultBias5=resultData.attribute("bias5");
+		Attribute resultBias5=resultData.attribute(ArffFormat.BIAS5);
 		Attribute resultSelectedAtt=resultData.attribute(ArffFormat.RESULT_SELECTED);
 		
 		//输出文件的属性
@@ -865,9 +859,7 @@ public class ProcessData {
 					newData.setValue(outputPredictAtt, profit);
 					newData.setValue(outputWinrateAtt, winrate);
 					newData.setValue(outputSelectedAtt,selected);						
-//					if (resultMA==null){ //非均线策略时设置输出结果的MA为0
-//						newData.setValue(outputMAAtt,0);
-//					}
+
 					mergedResult.add(newData);
 					resultIndex++;
 					leftIndex++;

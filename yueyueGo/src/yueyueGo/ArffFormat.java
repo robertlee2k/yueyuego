@@ -11,7 +11,7 @@ public class ArffFormat {
 	public static final int LEGACY_FORMAT=-1;
 	public static final int EXT_FORMAT=2;
 
-	protected static final String TRANSACTION_ARFF_PREFIX="trans20052016-ext";
+	public static final String TRANSACTION_ARFF_PREFIX="trans20052016-ext";
 	public static final String LONG_ARFF_FILE = TRANSACTION_ARFF_PREFIX+"-new.arff"; // 包含计算字段的ARFF格式，这是提供给各输入属性独立的分类器使用的，如分类树
 	public static final String SHORT_ARFF_FILE = TRANSACTION_ARFF_PREFIX+"-short.arff";// 不包含计算字段的ARFF格式，这是提供给各输入属性独立的分类器使用的，如神经网络
 	
@@ -31,7 +31,10 @@ public class ArffFormat {
 	public static final String TRADE_DATE = "tradeDate"; // 之所以定义这个字段，是因为所有的数据都要以它排序
 	public static final String SELL_DATE = "mc_date";
 	public static final String DATA_DATE = "dataDate";
-
+	public static final String BIAS5 = "bias5";
+	public static final String YEAR_MONTH = "yearmonth";
+	public static final String CODE = "code";
+	
 	public static final String ID = "id";
 	public static final int ID_POSITION = 1; // ID的位置
 	public static final String YEAR_MONTH_INDEX = "2"; // yearmonth所处位置，理论上说可以不用这个定义，用findAttPosition查找，暂时保留吧
@@ -44,7 +47,7 @@ public class ArffFormat {
 	
 	// 用于training的数据顺序（最短格式，无计算字段的），这个是要过期的
 	@Deprecated
-	private static final String[] OLD_TRAINING_ARFF_SHORT_FORMAT = { "均线策略", "bias5",
+	private static final String[] OLD_TRAINING_ARFF_SHORT_FORMAT = { "均线策略", BIAS5,
 			"bias10", "bias20", "bias30", "bias60", "bias5前日差", "bias10前日差",
 			"bias20前日差", "bias30前日差", "bias60前日差", "bias5二日差", "bias10二日差",
 			"bias20二日差", "bias30二日差", "bias60二日差", "ma5前日比", "ma10前日比",
@@ -65,7 +68,7 @@ public class ArffFormat {
 	
 	@Deprecated
 	private static final String[] OLD_TRAINING_ATTRIB_MAPPER = {
-		SELECTED_AVG_LINE, "bias5", "bias10", "bias20", "bias30",
+		SELECTED_AVG_LINE, BIAS5, "bias10", "bias20", "bias30",
 		"bias60", "bias5_preday_dif", "bias10_preday_dif",
 		"bias20_preday_dif", "bias30_preday_dif", "bias60_preday_dif",
 		"bias5_pre2day_dif", "bias10_pre2day_dif", "bias20_pre2day_dif",
@@ -117,7 +120,7 @@ public class ArffFormat {
 	
 	//模型用的训练字段 （最基础部分）
 	public static final String[] MODEL_ATTRIB_FORMAT_BASE={
-		SELECTED_AVG_LINE, "bias5", "bias10", "bias20", "bias30",
+		SELECTED_AVG_LINE, BIAS5, "bias10", "bias20", "bias30",
 		"bias60", "bias5_preday_dif", "bias10_preday_dif",
 		"bias20_preday_dif", "bias30_preday_dif", "bias60_preday_dif",
 		"bias5_pre2day_dif", "bias10_pre2day_dif", "bias20_pre2day_dif",
@@ -161,7 +164,7 @@ public class ArffFormat {
 	
 	//每次新扩展ARFF格式的校验位
 	public static final String[] EXT_ARFF_CRC= {
-		ID,TRADE_DATE,"code",SELL_DATE,DATA_DATE,SELECTED_AVG_LINE,"bias5_preday_dif","zhishu_code",
+		ID,TRADE_DATE,CODE,SELL_DATE,DATA_DATE,SELECTED_AVG_LINE,"bias5_preday_dif","zhishu_code",
 	};
 	//每次新扩展ARFF格式增加的数据
 	public static final String[] EXT_ARFF_COLUMNS= {
@@ -176,12 +179,12 @@ public class ArffFormat {
 	public static String[] DAILY_DATA_TO_PREDICT_FORMAT_NEW = FormatUtility.concatStrings(new String[]{ID},MODEL_ATTRIB_FORMAT_NEW);
 	
 	//每日预测数据中的左侧字段，此处顺序无关（positive和收益率其实是二选一的）
-	public static String[] DAILY_PREDICT_RESULT_LEFT={ID,SELECTED_AVG_LINE,"bias5",IS_POSITIVE,SHOUYILV};
+	public static String[] DAILY_PREDICT_RESULT_LEFT={ID,SELECTED_AVG_LINE,BIAS5,IS_POSITIVE,SHOUYILV};
 
 
 	//单次收益率数据中不用保存在ARFF文件中的字段
 	private static final String[] TRANS_DATA_NOT_SAVED_IN_ARFF={ 
-		TRADE_DATE,"code", SELL_DATE, DATA_DATE, IS_POSITIVE
+		TRADE_DATE,CODE, SELL_DATE, DATA_DATE, IS_POSITIVE
 	};
 	// 单次收益率增量数据的格式 （从ID到均线策略之前的字段），后面都和dailyArff的相同了
 	private static final String[] TRANS_DATA_LEFT = FormatUtility.concatStrings(new String[]{ID},TRANS_DATA_NOT_SAVED_IN_ARFF);
@@ -189,7 +192,7 @@ public class ArffFormat {
 
 	//所有数据中需要作为STRING/nominal 处理的数据
 	private static final String[] NOMINAL_ATTRIBS={
-		TRADE_DATE, "code", SELL_DATE, 
+		TRADE_DATE, CODE, SELL_DATE, 
 		DATA_DATE, SELECTED_AVG_LINE, IS_POSITIVE,
 		"zhangdieting",
 		"zhishu_code", "sw_zhishu_code",IS_SZ50 ,IS_HS300 , "iszz100",
@@ -222,15 +225,14 @@ public class ArffFormat {
 	// 从All Transaction Data中删除无关字段 (tradeDate到均线策略之前）
 	protected static Instances prepareTransData(Instances allData)
 			throws Exception {
-		String removeString=returnAttribsPosition(allData,TRANS_DATA_NOT_SAVED_IN_ARFF);
-		Instances result = InstanceUtility.removeAttribs(allData,removeString);// "3-9");
+		Instances result = InstanceUtility.removeAttribs(allData,TRANS_DATA_NOT_SAVED_IN_ARFF);// "3-9");
 		return result;
 	}
 
 	// 交易ARFF数据全集数据的格式 （从ID到均线策略之前，后面都和trainingarff的相同了）
 	private static final String[] TRANS_DATA_LEFT_PART = { ID,
-			"yearmonth", TRADE_DATE, "code", SELL_DATE,  
-			DATA_DATE, IS_POSITIVE, SELECTED_AVG_LINE,"bias5",IS_SZ50 ,IS_HS300 , 
+			YEAR_MONTH, TRADE_DATE, CODE, SELL_DATE,  
+			DATA_DATE, IS_POSITIVE, SELECTED_AVG_LINE,BIAS5,IS_SZ50 ,IS_HS300 , 
 			IS_ZZ500,SHOUYILV };
 
 	// 此方法从All Transaction Data中保留计算收益率的相关字段，以及最后的收益率，删除其他计算字段
@@ -247,11 +249,11 @@ public class ArffFormat {
 		double[][] bias5to60 = { { 0.0, 0.0, 0.0, 0.0, 0.0 },
 				{ 0.0, 0.0, 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0, 0.0, 0.0 } };
 //		String[][] biasAttName = {
-//				{ "bias5", "bias10", "bias20", "bias30", "bias60" },
+//				{ BIAS5, "bias10", "bias20", "bias30", "bias60" },
 //				{ "sw行业bias5", "sw行业bias10", "sw行业bias20", "sw行业bias30",
 //						"sw行业bias60" },
 //				{ "指数bias5", "指数bias10", "指数bias20", "指数bias30", "指数bias60" } };
-		 String[][] biasAttName = {{ "bias5", "bias10", "bias20",
+		 String[][] biasAttName = {{ BIAS5, "bias10", "bias20",
 		 "bias30","bias60"},{"sw_bias5","sw_bias10","sw_bias20","sw_bias30","sw_bias60"},{"zhishu_bias5","zhishu_bias10","zhishu_bias20","zhishu_bias30","zhishu_bias60"}
 		 };
 		for (int x = 0; x < bias5to60.length; x++) {
@@ -386,11 +388,15 @@ public class ArffFormat {
 				leftMAValue=leftCurr.stringValue(leftMA);  
 				rightMAValue=rightCurr.stringValue(rightMA);
 			}else if(leftMA==null && rightMA==null){
-				//这里是用于全市场比较的
+				//这里是用于短线FULLMODEL模型的比较的
 				leftMAValue="";
 				rightMAValue="";
+			}else if(leftMA!=null && rightMA==null){
+				//这里将短线FULLMODEL模型的应用于均线的ARFF数据测试时
+				leftMAValue=leftCurr.stringValue(leftMA);  
+				rightMAValue=leftMAValue;
 			}else{
-				//不应该只有一边为null，抛出异常算了
+				//不应该只有一边leftMA为null，抛出异常算了
 				throw new Exception("leftMA="+leftMA+",while rightMA="+rightMA);
 			}
 			

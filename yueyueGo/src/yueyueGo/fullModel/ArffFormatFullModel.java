@@ -15,11 +15,11 @@ public class ArffFormatFullModel extends ArffFormat {
 	protected static final String FULL_MODEL_LONG_ARFF_FILE = FULL_MODEL_ARFF_PREFIX+"-new.arff"; // 包含计算字段的ARFF格式，这是提供给各输入属性独立的分类器使用的，如分类树
 	protected static final String FULL_MODEL_SHORT_ARFF_FILE = FULL_MODEL_ARFF_PREFIX+"-short.arff";// 不包含计算字段的ARFF格式，这是提供给各输入属性独立的分类器使用的，如神经网络
 	
-	protected final static String FULL_MODEL_AVG_LINE = "chicang_days"; // 输入输出文件中的“持仓天数”名称
+//	protected final static String FULL_MODEL_AVG_LINE = "chicang_days"; // 输入输出文件中的“持仓天数”名称
 	
 	//全模型用的训练字段 
 	protected static final String[] FULL_MODEL_ATTRIB_FORMAT_NEW={
-		 "bias5", "bias10", "bias20", "bias30",
+		 BIAS5, "bias10", "bias20", "bias30",
 		"bias60", "bias5_preday_dif", "bias10_preday_dif",
 		"bias20_preday_dif", "bias30_preday_dif", "bias60_preday_dif",
 		"bias5_pre2day_dif", "bias10_pre2day_dif", "bias20_pre2day_dif",
@@ -56,7 +56,7 @@ public class ArffFormatFullModel extends ArffFormat {
 	
 	//全模型单次收益率数据中不用保存在ARFF文件中的字段
 	private static final String[] FULL_MODEL_DATA_NOT_SAVED_IN_ARFF={ 
-		TRADE_DATE,"code", SELL_DATE, DATA_DATE, "chicang_days", IS_POSITIVE
+		TRADE_DATE,CODE, SELL_DATE, DATA_DATE, "chicang_days", IS_POSITIVE
 	};
 	// 全模型单次收益率增量数据的格式 （从ID到bias5之前的字段），后面都和dailyArff的相同了
 	private static final String[] FULL_MODEL_DATA_LEFT = FormatUtility.concatStrings(new String[]{ID},FULL_MODEL_DATA_NOT_SAVED_IN_ARFF);
@@ -65,8 +65,8 @@ public class ArffFormatFullModel extends ArffFormat {
 	
 	// 交易ARFF数据全集数据的格式 （从ID到均线策略之前，后面都和trainingarff的相同了）
 	private static final String[] FULL_MODEL_DATA_LEFT_PART = { ID,
-			"yearmonth", TRADE_DATE, "code", SELL_DATE,  
-			DATA_DATE, IS_POSITIVE, SELECTED_AVG_LINE,"bias5",IS_SZ50 ,IS_HS300 , 
+			YEAR_MONTH, TRADE_DATE, CODE, SELL_DATE,  
+			DATA_DATE, IS_POSITIVE, SELECTED_AVG_LINE,BIAS5,IS_SZ50 ,IS_HS300 , 
 			IS_ZZ500,SHOUYILV };
 	
 	// 每日预测扩展格式数据（数据库和数据文件都是如此)的格式
@@ -84,8 +84,7 @@ public class ArffFormatFullModel extends ArffFormat {
 	// 从All Transaction Data中删除无关字段 (tradeDate到均线策略之前）
 	protected static Instances prepareTransData(Instances allData)
 			throws Exception {
-		String removeString=returnAttribsPosition(allData,FULL_MODEL_DATA_NOT_SAVED_IN_ARFF);
-		Instances result = InstanceUtility.removeAttribs(allData,removeString);
+		Instances result = InstanceUtility.removeAttribs(allData,FULL_MODEL_DATA_NOT_SAVED_IN_ARFF);
 		return result;
 	}
 }

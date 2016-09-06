@@ -65,7 +65,7 @@ public class InstanceUtility {
 		Instances newData = Filter.useFilter(data, remove); // apply filter
 		return newData;
 	}
-
+	
 	
 	// 根据给定公式，获取数据集的子集
 	public static Instances getInstancesSubset(Instances data, String expression)
@@ -258,5 +258,9 @@ public class InstanceUtility {
 		return result;
 	}
 
-
+	//如果输入instances中的包含有string[]所定义的attributes，将其删除，将其他的属性保留。
+	public static Instances removeAttribs(Instances incomingData, String[] attributeToRemove) throws Exception{
+		String removeString=ArffFormat.returnAttribsPosition(incomingData,attributeToRemove);
+		return removeAttribs(incomingData,removeString,false);
+	}
 }
