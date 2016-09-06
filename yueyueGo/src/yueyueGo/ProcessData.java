@@ -134,10 +134,10 @@ public class ProcessData {
 			worker.init();
 
 			//用模型预测每日增量数据
-//			worker.callDailyPredict();
+			worker.callDailyPredict();
 
 			//调用回测函数回测
-			worker.callTestBack();
+//			worker.callTestBack();
 			
 			//用最新的单次交易数据，更新原始的交易数据文件
 //			UpdateHistoryArffFile.callRefreshInstances();
@@ -214,13 +214,13 @@ public class ProcessData {
 		//预先初始化各种模型文件的位置
 		definePredictModels();
 		
-		//用旧的M5P模型预测每日增量数据用于对比
-		String classifierName=new M5PClassifier().classifierName;
-		PREDICT_MODELS.put(classifierName, "\\交易分析2005-2016 by month-new-m5p-201605 MA ");
-		PREDICT_MODELS.put(classifierName+"-EVAL", "\\交易分析2005-2016 by month-new-m5p-201605 MA ");		
-		M5PClassifier cModel=new M5PClassifier();
-		cModel.setModelArffFormat(ArffFormat.LEGACY_FORMAT); 
-		predictWithDB(cModel,PREDICT_WORK_DIR);
+//		//用旧的M5P模型预测每日增量数据用于对比
+//		String classifierName=new M5PClassifier().classifierName;
+//		PREDICT_MODELS.put(classifierName, "\\交易分析2005-2016 by month-new-m5p-201605 MA ");
+//		PREDICT_MODELS.put(classifierName+"-EVAL", "\\交易分析2005-2016 by month-new-m5p-201605 MA ");		
+//		M5PClassifier cModel=new M5PClassifier();
+//		cModel.setModelArffFormat(ArffFormat.LEGACY_FORMAT); 
+//		predictWithDB(cModel,PREDICT_WORK_DIR);
 		
 		//MLP主成分分析预测
 		MLPABClassifier nABModel=new MLPABClassifier();
