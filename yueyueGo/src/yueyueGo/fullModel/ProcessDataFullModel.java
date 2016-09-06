@@ -88,7 +88,6 @@ public class ProcessDataFullModel extends ProcessData {
 		//不真正回测了，直接从以前的结果文件中加载
 		Instances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 		
-		
 		//统一输出统计结果
 		nModel.outputClassifySummary();
 		cModel.outputClassifySummary();
