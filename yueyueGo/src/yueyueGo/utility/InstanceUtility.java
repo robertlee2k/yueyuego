@@ -171,11 +171,8 @@ public class InstanceUtility {
 	 */
 	public static void calibrateAttributes(Instances input,
 			Instances output) throws Exception, IllegalStateException {
-		if (InstanceUtility.compareInstancesFormat(input,output)==null){
-			//格式完全一样，无须校准，返回原始数据即可。
-			output=input;
-			return;
-		};
+		InstanceUtility.compareInstancesFormat(input,output);
+			
 		System.out.println("start to calibrate Attributes");	
 		
 		for (int m=0; m<input.numInstances();m++){

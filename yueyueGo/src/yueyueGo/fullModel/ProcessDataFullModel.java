@@ -17,7 +17,7 @@ import yueyueGo.utility.InstanceUtility;
 import yueyueGo.utility.RuntimeParams;
 
 public class ProcessDataFullModel extends ProcessData {
-	private boolean applyToMaModel=true;//false;
+	private boolean applyToMaModel=true; //default is false
 	
 	//覆盖父类
 	public void init() {
@@ -49,10 +49,10 @@ public class ProcessDataFullModel extends ProcessData {
 //			UpdateHistoryArffFullModel.createFullModelInstances();
 			
 			//短线模型的历史回测
-//			fullModelWorker.callFullModelTestBack();
+			fullModelWorker.callFullModelTestBack();
 			
 			//短线模型的每日预测
-			fullModelWorker.callFullModelPredict();
+//			fullModelWorker.callFullModelPredict();
 
 		} catch (Exception e) {
 			
@@ -124,11 +124,11 @@ public class ProcessDataFullModel extends ProcessData {
 			throws Exception {
 		String formatFile=null;
 		switch (formatType) {
-		case ArffFormat.EXT_FORMAT:
+		case ArffFormatFullModel.FULLMODEL_FORMAT:
 			formatFile=ArffFormatFullModel.FULL_MODEL_ARFF_PREFIX+"-format.arff";
 			break;
 		default:
-			break;
+			throw new Exception("invalid arffFormat type");
 		}
 
 		Instances outputData=FileUtility.loadDataFromFile(C_ROOT_DIRECTORY+formatFile);

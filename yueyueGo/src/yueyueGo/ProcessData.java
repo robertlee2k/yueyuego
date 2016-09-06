@@ -78,8 +78,8 @@ public class ProcessData {
 
 		RUNNING_THREADS=8;
 
-		SHOUYILV_THREDHOLD=new double[] {0.01,0.02,0.03,0.03,0.03};
-		WINRATE_THREDHOLD=new double[] {0.25,0.25,0.25,0.25,0.25};
+		SHOUYILV_THREDHOLD=new double[] {0.01,0.02,0.03,0.03,0.04};
+		WINRATE_THREDHOLD=new double[] {0.33,0.33,0.3,0.3,0.3};
 		splitYear=new String[] {
 //			  "2008","2009","2010","2011","2012","2013","2014","2015","2016"
 			"200801","200802","200803","200804","200805","200806","200807","200808","200809","200810","200811","200812","200901","200902","200903","200904","200905","200906","200907","200908","200909","200910","200911","200912","201001","201002","201003","201004","201005","201006","201007","201008","201009","201010","201011","201012","201101","201102","201103","201104","201105","201106","201107","201108","201109","201110","201111","201112","201201","201202","201203","201204","201205","201206","201207","201208","201209","201210","201211","201212","201301","201302","201303","201304","201305","201306","201307","201308","201309","201310","201311","201312","201401","201402","201403","201404","201405","201406","201407","201408","201409","201410","201411","201412","201501","201502","201503","201504","201505","201506","201507","201508","201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607"
@@ -134,10 +134,10 @@ public class ProcessData {
 			worker.init();
 
 			//用模型预测每日增量数据
-			worker.callDailyPredict();
+//			worker.callDailyPredict();
 
 			//调用回测函数回测
-//			worker.callTestBack();
+			worker.callTestBack();
 			
 			//用最新的单次交易数据，更新原始的交易数据文件
 //			UpdateHistoryArffFile.callRefreshInstances();
@@ -238,21 +238,18 @@ public class ProcessData {
 		AdaboostClassifier adaModel=new AdaboostClassifier();
 		Instances adaboostInstances=predictWithDB(adaModel,PREDICT_WORK_DIR);		
 		
-		//合并adaboost和bagging
+		//以adaboost为主，合并bagging
 		System.out.println("-----now output combined predictions----------"+adaModel.getIdentifyName());
-		
 		Instances left=InstanceUtility.keepAttributes(adaboostInstances, ArffFormat.DAILY_PREDICT_RESULT_LEFT) ; //为了使用下面的合并文件方法造出一个LEFT来
 		Instances mergedOutput=mergeResults(adaboostInstances,baggingInstances,ArffFormat.RESULT_PREDICTED_PROFIT,left);
 		FileUtility.saveCSVFile(mergedOutput, PREDICT_WORK_DIR + "Merged Selected Result-"+adaModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv");
-		
-//			//使用文件预测
-//			String dataFileName=("t_stock_avgline_increment_zuixin_v"+FormatUtility.getDateStringFor(-1)).trim();
-//			//用二分类模型预测每日增量数据
-//			MLPClassifier nModel=new MLPClassifier();
-//			predictWithFile(nModel,PREDICT_WORK_DIR,dataFileName);
-//			//用连续模型预测每日增量数据
-//			M5PClassifier cModel=new M5PClassifier();
-//			predictWithFile(cModel,PREDICT_WORK_DIR,dataFileName);
+
+		//以bagging为主，合并adaboost
+		System.out.println("-----now output combined predictions----------"+cBagModel.getIdentifyName());
+		Instances leftBagging=InstanceUtility.keepAttributes(baggingInstances, ArffFormat.DAILY_PREDICT_RESULT_LEFT) ; //为了使用下面的合并文件方法造出一个LEFT来
+		Instances mergedOutputBagging=mergeResults(baggingInstances,adaboostInstances,ArffFormat.RESULT_PREDICTED_WIN_RATE,leftBagging);
+		FileUtility.saveCSVFile(mergedOutputBagging, PREDICT_WORK_DIR + "Merged Selected Result-"+cBagModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv");
+
 	}
 
 	
