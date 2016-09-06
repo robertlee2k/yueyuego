@@ -9,7 +9,6 @@ import yueyueGo.BaseClassifier;
 import yueyueGo.EnvConstants;
 import yueyueGo.NominalClassifier;
 import yueyueGo.ProcessData;
-import yueyueGo.fullModel.classifier.AdaboostFullModel;
 import yueyueGo.fullModel.classifier.BaggingJ48FullModel;
 import yueyueGo.fullModel.classifier.BaggingM5PFullModel;
 import yueyueGo.utility.FileUtility;
@@ -18,6 +17,7 @@ import yueyueGo.utility.InstanceUtility;
 import yueyueGo.utility.RuntimeParams;
 
 public class ProcessDataFullModel extends ProcessData {
+	private boolean applyToMaModel=false;
 	
 	//覆盖父类
 	public void init() {
@@ -27,14 +27,14 @@ public class ProcessDataFullModel extends ProcessData {
 		BACKTEST_RESULT_DIR=RuntimeParams.getBACKTEST_RESULT_DIR();
 		PREDICT_WORK_DIR=RuntimeParams.getPREDICT_WORK_DIR();	
 		
-		RUNNING_THREADS=5;
+		RUNNING_THREADS=6;
 		
 		SHOUYILV_THREDHOLD=new double[] {0.05};
 		WINRATE_THREDHOLD=new double[] {0.6};
 		
 		splitYear=new String[] {
-			"201606", "2008","2009","2010","2011","2012","2013","2014","2015","2016"
-//			"200801","200802","200803","200804","200805","200806","200807","200808","200809","200810","200811","200812","200901","200902","200903","200904","200905","200906","200907","200908","200909","200910","200911","200912","201001","201002","201003","201004","201005","201006","201007","201008","201009","201010","201011","201012","201101","201102","201103","201104","201105","201106","201107","201108","201109","201110","201111","201112","201201","201202","201203","201204","201205","201206","201207","201208","201209","201210","201211","201212","201301","201302","201303","201304","201305","201306","201307","201308","201309","201310","201311","201312","201401","201402","201403","201404","201405","201406","201407","201408","201409","201410","201411","201412","201501","201502","201503","201504","201505","201506","201507","201508","201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607"
+//			"201606", "2008","2009","2010","2011","2012","2013","2014","2015","2016"
+			"200801","200802","200803","200804","200805","200806","200807","200808","200809","200810","200811","200812","200901","200902","200903","200904","200905","200906","200907","200908","200909","200910","200911","200912","201001","201002","201003","201004","201005","201006","201007","201008","201009","201010","201011","201012","201101","201102","201103","201104","201105","201106","201107","201108","201109","201110","201111","201112","201201","201202","201203","201204","201205","201206","201207","201208","201209","201210","201211","201212","201301","201302","201303","201304","201305","201306","201307","201308","201309","201310","201311","201312","201401","201402","201403","201404","201405","201406","201407","201408","201409","201410","201411","201412","201501","201502","201503","201504","201505","201506","201507","201508","201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607"
 //			"201606","201607"
 		};
 	}
@@ -67,17 +67,26 @@ public class ProcessDataFullModel extends ProcessData {
 	 */
 	protected void callFullModelTestBack() throws Exception, IOException {
 		//按二分类器回测历史数据
-//		BaggingJ48FullModel nModel=new BaggingJ48FullModel();
-		AdaboostFullModel nModel=new AdaboostFullModel();
+		BaggingJ48FullModel nModel=new BaggingJ48FullModel();
+//		AdaboostFullModel nModel=new AdaboostFullModel();
+		
+		if (applyToMaModel==true){//用fullModel模型来测试均线模型时不用重新build和评估
+			nModel.m_skipTrainInBacktest=true;
+			nModel.m_skipEvalInBacktest=true;
+		}	
 		Instances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
 //		Instances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 
 		//按连续分类器回测历史数据
 		BaggingM5PFullModel cModel=new BaggingM5PFullModel();
-//		Instances continuousResult=testBackward(cModel);
+		if (applyToMaModel==true){//用fullModel模型来测试均线模型时不用重新build和评估
+			cModel.m_skipTrainInBacktest=true;
+			cModel.m_skipEvalInBacktest=true;
+		}
+		Instances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
-		Instances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
+//		Instances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 		
 		
 		//统一输出统计结果
@@ -86,10 +95,10 @@ public class ProcessDataFullModel extends ProcessData {
 
 		//输出用于计算收益率的CSV文件
 		System.out.println("-----now output continuous predictions----------"+cModel.getIdentifyName());
-		Instances m5pOutput=mergeResultWithData(continuousResult,nominalResult,ArffFormat.RESULT_PREDICTED_WIN_RATE,cModel.arff_format);
+		Instances m5pOutput=mergeResultWithData(continuousResult,nominalResult,ArffFormat.RESULT_PREDICTED_WIN_RATE,cModel.getModelArffFormat());
 		saveSelectedFileForMarkets(m5pOutput,cModel.getIdentifyName());
 		System.out.println("-----now output nominal predictions----------"+nModel.getIdentifyName());
-		Instances mlpOutput=mergeResultWithData(nominalResult,continuousResult,ArffFormat.RESULT_PREDICTED_PROFIT,nModel.arff_format);
+		Instances mlpOutput=mergeResultWithData(nominalResult,continuousResult,ArffFormat.RESULT_PREDICTED_PROFIT,nModel.getModelArffFormat());
 		saveSelectedFileForMarkets(mlpOutput,nModel.getIdentifyName());
 		System.out.println("-----end of test backward------");
 	}
@@ -204,9 +213,34 @@ public class ProcessDataFullModel extends ProcessData {
 	 * @return
 	 * @throws Exception
 	 */
+	@Override
 	protected Instances getBacktestInstances(BaseClassifier clModel,String splitMark,String policy)
 			throws Exception {
+
+		String arffFullFileName = null;
+		if (applyToMaModel==true){//用fullModel模型来测试均线模型时加载均线模型的arff
+			arffFullFileName=getMaArffFileName(clModel);
+		}else{
+			arffFullFileName=getFullModelArffFileName(clModel);
+		}
 		Instances fullSetData;
+		System.out.println("start to load File for fullset from File: "+ arffFullFileName  );
+		fullSetData = FileUtility.loadDataFromFile( arffFullFileName);
+		if (applyToMaModel==true){//用fullModel模型来测试均线模型时加载均线模型的arff
+			int pos = InstanceUtility.findATTPosition(fullSetData,ArffFormat.SELECTED_AVG_LINE);
+			fullSetData = InstanceUtility.removeAttribs(fullSetData,""+pos );
+		}
+		System.out.println("finish loading fullset Data. row : "+fullSetData.numInstances() + " column:"+ fullSetData.numAttributes());
+		return fullSetData;
+	}
+
+
+	/**
+	 * 这是加载fullModel的arff文件，用于训练模型或为Fullmodel做评估
+	 * @param clModel
+	 * @return
+	 */
+	private String getFullModelArffFileName(BaseClassifier clModel) {
 		// 根据模型来决定是否要使用有计算字段的ARFF
 		String arffFile=null;
 		if (clModel.m_noCaculationAttrib==true){
@@ -214,17 +248,30 @@ public class ProcessDataFullModel extends ProcessData {
 		}else{
 			arffFile=ArffFormatFullModel.FULL_MODEL_LONG_ARFF_FILE;
 		}
-//		int year=Integer.parseInt(splitMark);
+		String arffFullFileName=C_ROOT_DIRECTORY+arffFile;
+		//		int year=Integer.parseInt(splitMark);
 //		//根据年份查找相应的目录
 //		if (year<=2009){
 //			arffFile="2009\\"+arffFile;
 //		}
-
-		System.out.println("start to load File for fullset from File: "+C_ROOT_DIRECTORY+ arffFile  );
-		fullSetData = FileUtility.loadDataFromFile( C_ROOT_DIRECTORY+arffFile);
-		
-		System.out.println("finish loading fullset Data. row : "+fullSetData.numInstances() + " column:"+ fullSetData.numAttributes());
-		return fullSetData;
+		return arffFullFileName;
+	}
+	
+	/**
+	 * 这是加载原始的arff文件，仅用于回测，不用于训练。
+	 * @param clModel
+	 * @return
+	 */
+	private String getMaArffFileName(BaseClassifier clModel) {
+		// 根据模型来决定是否要使用有计算字段的ARFF
+		String arffFile=null;
+		if (clModel.m_noCaculationAttrib==true){
+			arffFile=ArffFormat.SHORT_ARFF_FILE;
+		}else{
+			arffFile=ArffFormat.LONG_ARFF_FILE;
+		}
+		String arffFullFileName=EnvConstants.AVG_LINE_ROOT_DIR+arffFile;
+		return arffFullFileName;
 	}
 
 	/**

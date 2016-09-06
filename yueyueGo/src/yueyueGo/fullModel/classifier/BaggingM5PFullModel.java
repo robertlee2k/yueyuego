@@ -3,6 +3,7 @@ package yueyueGo.fullModel.classifier;
 import weka.classifiers.Classifier;
 import yueyueGo.EnvConstants;
 import yueyueGo.classifier.BaggingM5P;
+import yueyueGo.fullModel.ArffFormatFullModel;
 import yueyueGo.utility.RuntimeParams;
 
 //result changed because of reference data not matched=15096 while good change number=5665
@@ -23,7 +24,7 @@ public class BaggingM5PFullModel extends BaggingM5P {
 		m_skipTrainInBacktest = true;
 		m_skipEvalInBacktest = true;
 		m_policySubGroup = new String[]{""};
-
+		modelArffFormat=ArffFormatFullModel.FULLMODEL_FORMAT; //这个模型缺省是为FULLMODEL用的格式
 		
 		leafMinObjNum=1000;
 		divided=EnvConstants.TRAINING_DATA_LIMIT/3000;	

@@ -3,6 +3,7 @@ package yueyueGo.fullModel.classifier;
 import weka.classifiers.Classifier;
 import yueyueGo.EnvConstants;
 import yueyueGo.classifier.BaggingJ48;
+import yueyueGo.fullModel.ArffFormatFullModel;
 import yueyueGo.utility.RuntimeParams;
 //result changed because of reference data not matched=81892 while good change number=49134
 //good ratio=60.00% average changed shouyilv=0.94% @ shouyilv thredhold= /3.00% /
@@ -22,6 +23,7 @@ public class BaggingJ48FullModel extends BaggingJ48 {
 		m_skipTrainInBacktest = true;
 		m_skipEvalInBacktest = true;
 		m_policySubGroup = new String[]{""};
+		modelArffFormat=ArffFormatFullModel.FULLMODEL_FORMAT; //这个模型缺省是为FULLMODEL用的格式
 
 		leafMinObjNum=1000; 	//j48树最小节点叶子数
 		divided=EnvConstants.TRAINING_DATA_LIMIT/3000; //将trainingData分成多少份

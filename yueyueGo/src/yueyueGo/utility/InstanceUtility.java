@@ -171,7 +171,11 @@ public class InstanceUtility {
 	 */
 	public static void calibrateAttributes(Instances input,
 			Instances output) throws Exception, IllegalStateException {
-		InstanceUtility.compareInstancesFormat(input,output);
+		if (InstanceUtility.compareInstancesFormat(input,output)==null){
+			//格式完全一样，无须校准
+			return;
+		};
+		System.out.println("start to calibrate Attributes");	
 		
 		for (int m=0; m<input.numInstances();m++){
 			Instance inst=new DenseInstance(output.numAttributes());
@@ -239,13 +243,12 @@ public class InstanceUtility {
 	 * @param test
 	 * @param header
 	 */
-	public static void compareInstancesFormat(Instances test, Instances header) {
+	public static String compareInstancesFormat(Instances test, Instances header) {
 		String result=header.equalHeadersMsg(test);
-		if (result!=null){
-			System.err.println("attention! model and testing data structure is not the same. Here is the difference: "+result);
-		}else {
-			System.out.println("model and testing data structure compared");
+		if (result==null){
+			System.out.println("model and testing data structure compared,everything is just the same");
 		}
+		return result;
 	}
 
 	//如果输入instances中的包含有string[]所定义的attributes，将其保留，将其他的属性删除。

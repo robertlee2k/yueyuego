@@ -134,10 +134,10 @@ public class ProcessData {
 			worker.init();
 
 			//用模型预测每日增量数据
-			worker.callDailyPredict();
+//			worker.callDailyPredict();
 
 			//调用回测函数回测
-//			worker.callTestBack();
+			worker.callTestBack();
 			
 			//用最新的单次交易数据，更新原始的交易数据文件
 //			UpdateHistoryArffFile.callRefreshInstances();
@@ -176,7 +176,7 @@ public class ProcessData {
 //		MLPABClassifier nModel = new MLPABClassifier();
 //		RandomForestClassifier nModel=new RandomForestClassifier ();
 		AdaboostClassifier nModel=new AdaboostClassifier();
-//		BaggingJ48 nModel=new BaggingJ48(); 
+//		BaggingJ48 nModel=new BaggingJ48();
 		Instances nominalResult=testBackward(nModel);
 
 		//不真正回测了，直接从以前的结果文件中加载
@@ -197,10 +197,10 @@ public class ProcessData {
 
 		//输出用于计算收益率的CSV文件
 		System.out.println("-----now output continuous predictions----------"+cModel.getIdentifyName());
-		Instances m5pOutput=mergeResultWithData(continuousResult,nominalResult,ArffFormat.RESULT_PREDICTED_WIN_RATE,cModel.arff_format);
+		Instances m5pOutput=mergeResultWithData(continuousResult,nominalResult,ArffFormat.RESULT_PREDICTED_WIN_RATE,cModel.getModelArffFormat());
 		saveSelectedFileForMarkets(m5pOutput,cModel.getIdentifyName());
 		System.out.println("-----now output nominal predictions----------"+nModel.getIdentifyName());
-		Instances mlpOutput=mergeResultWithData(nominalResult,continuousResult,ArffFormat.RESULT_PREDICTED_PROFIT,nModel.arff_format);
+		Instances mlpOutput=mergeResultWithData(nominalResult,continuousResult,ArffFormat.RESULT_PREDICTED_PROFIT,nModel.getModelArffFormat());
 		saveSelectedFileForMarkets(mlpOutput,nModel.getIdentifyName());
 		System.out.println("-----end of test backward------");
 	}
@@ -219,7 +219,7 @@ public class ProcessData {
 		PREDICT_MODELS.put(classifierName, "\\交易分析2005-2016 by month-new-m5p-201605 MA ");
 		PREDICT_MODELS.put(classifierName+"-EVAL", "\\交易分析2005-2016 by month-new-m5p-201605 MA ");		
 		M5PClassifier cModel=new M5PClassifier();
-		cModel.arff_format=ArffFormat.LEGACY_FORMAT; 
+		cModel.setModelArffFormat(ArffFormat.LEGACY_FORMAT); 
 		predictWithDB(cModel,PREDICT_WORK_DIR);
 		
 		//MLP主成分分析预测
@@ -274,7 +274,7 @@ public class ProcessData {
 	protected Instances predictWithDB(BaseClassifier clModel, String pathName) throws Exception {
 		System.out.println("predict using classifier : "+clModel.getIdentifyName()+" @ prediction work path :"+PREDICT_WORK_DIR);
 		System.out.println("-----------------------------");
-		Instances fullData = DBAccess.LoadDataFromDB(clModel.arff_format);
+		Instances fullData = DBAccess.LoadDataFromDB(clModel.getModelArffFormat());
 		Instances result=predict(clModel, pathName, fullData);
 		FileUtility.saveCSVFile(result, pathName + clModel.getIdentifyName()+"Selected Result"+FormatUtility.getDateStringFor(1)+".csv");
 		return result;
@@ -286,7 +286,7 @@ public class ProcessData {
 		Instances newData = null;
 		Instances result = null;
 
-		Instances fullData=calibrateAttributesForDailyData(pathName, inData,clModel.arff_format);
+		Instances fullData=calibrateAttributesForDailyData(pathName, inData,clModel.getModelArffFormat());
 	
 		//如果模型需要计算字段，则把计算字段加上
 		if (clModel.m_noCaculationAttrib==false){

@@ -3,6 +3,7 @@ package yueyueGo.fullModel.classifier;
 import weka.classifiers.Classifier;
 import yueyueGo.EnvConstants;
 import yueyueGo.classifier.AdaboostClassifier;
+import yueyueGo.fullModel.ArffFormatFullModel;
 import yueyueGo.utility.RuntimeParams;
 
 public class AdaboostFullModel extends AdaboostClassifier {
@@ -17,7 +18,8 @@ public class AdaboostFullModel extends AdaboostClassifier {
 		m_skipTrainInBacktest = false;
 		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{""};
-
+		modelArffFormat=ArffFormatFullModel.FULLMODEL_FORMAT; //这个模型缺省是为FULLMODEL用的格式
+		
 		leafMinObjNum=1000; 	//j48树最小节点叶子数
 		divided=EnvConstants.TRAINING_DATA_LIMIT/3000; //将trainingData分成多少份
 		boost_iteration=10; 	//boost特有参数

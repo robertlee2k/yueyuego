@@ -162,7 +162,7 @@ public class FileUtility {
 	public static void mkdirIfNotExist(String pathName){ 
 		File file =new File(pathName);    
 		//如果文件夹不存在则创建    
-		if  (!file.exists()  && !file.isDirectory())      
+		if  (!file.exists() && !file.isDirectory())      
 		{       
 			System.out.println("mkdirs for "+ pathName+" as it doesn't exist...");  
 			file.mkdirs();    

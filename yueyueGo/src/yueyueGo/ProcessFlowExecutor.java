@@ -68,6 +68,12 @@ public class ProcessFlowExecutor implements Callable<String> {
 			testingData=((NominalClassifier)clModel).processDataForNominalClassifier(testingData,true);
 		}
 		testingData = InstanceUtility.removeAttribs(testingData, ArffFormat.YEAR_MONTH_INDEX);
+		
+//		//TODO  如果用fullmodel对含均线的数据处理的时候
+//		if (clModel.getModelArffFormat()==ArffFormatFullModel.FULLMODEL_FORMAT){
+//			int pos = InstanceUtility.findATTPosition(testingData,ArffFormat.SELECTED_AVG_LINE);
+//			testingData = InstanceUtility.removeAttribs(testingData,""+pos );
+//		}
 		System.out.println("testing data size, row: "
 				+ testingData.numInstances() + " column: "
 				+ testingData.numAttributes());
@@ -89,7 +95,6 @@ public class ProcessFlowExecutor implements Callable<String> {
 		 try {
 			 resultSummary=this.doPredictProcess();
 		 } catch (Exception e) {
-			 // TODO Auto-generated catch block
 			 e.printStackTrace();
 		 }
 		 clModel=null;

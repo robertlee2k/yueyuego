@@ -6,6 +6,10 @@ import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.InstanceUtility;
 
 public class ArffFormatFullModel extends ArffFormat {
+	
+	public static final int FULLMODEL_FORMAT=3;
+	
+	
 	//父类中不包括的两个常量定义
 	protected final static String FULL_MODEL_ARFF_PREFIX="all20052016-ext";//"AllTransaction20052016-ext";
 	protected static final String FULL_MODEL_LONG_ARFF_FILE = FULL_MODEL_ARFF_PREFIX+"-new.arff"; // 包含计算字段的ARFF格式，这是提供给各输入属性独立的分类器使用的，如分类树

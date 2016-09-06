@@ -35,12 +35,13 @@ public abstract class BaseClassifier implements Serializable{
 	public String classifierName;
 	
 	//子类定义的工作路径
-	public String WORK_PATH ;
-	public String WORK_FILE_PREFIX;
+	protected String WORK_PATH ;
+	protected String WORK_FILE_PREFIX;
 	
 
 	public boolean m_noCaculationAttrib=true;  //缺省情况下，限制输入文件中的计算字段 （在子类中覆盖）
-	public int arff_format=ArffFormat.EXT_FORMAT; //缺省使用扩展arff
+	protected int modelArffFormat=ArffFormat.EXT_FORMAT; //缺省使用扩展arff
+
 
 	//用于策略分组
     public String[] m_policySubGroup;//在子类构造函数中赋值覆盖 = {"5","10","20","30","60" }或{""};
@@ -193,7 +194,16 @@ public abstract class BaseClassifier implements Serializable{
 		//删除已保存的ID 列，让待分类数据与模型数据一致 （此处的index是从1开始）
 		test=InstanceUtility.removeAttribs(test,  Integer.toString(ArffFormat.ID_POSITION));
 		//验证数据格式是否一致
-		verifyDataFormat(test, header);
+		String verify=verifyDataFormat(test, header);
+		if (verify!=null){
+			System.err.println("attention! model and testing data structure is not the same. Here is the difference: "+verify);
+			//如果不一致，试着Calibrate一下。
+			Instances outTemp=new Instances(header,0);
+			InstanceUtility.calibrateAttributes(test, outTemp);
+			test=outTemp;
+			//再比一次
+			InstanceUtility.compareInstancesFormat(test, header);
+		}
 		
 		//开始用分类模型和阀值进行预测
 		System.out.println("actual -> predicted....... ");
@@ -273,12 +283,12 @@ public abstract class BaseClassifier implements Serializable{
 	}
 
 	@SuppressWarnings("deprecation")
-	protected void verifyDataFormat(Instances test, Instances header) throws Exception {
+	protected String verifyDataFormat(Instances test, Instances header) throws Exception {
 		//在使用旧格式时，如果有使用旧字段名的模型，试着将其改名后使用
-		if (arff_format==ArffFormat.LEGACY_FORMAT){
+		if (modelArffFormat==ArffFormat.LEGACY_FORMAT){
 			header=ArffFormat.renameOldArffName(header);
 		}
-		InstanceUtility.compareInstancesFormat(test, header);
+		return InstanceUtility.compareInstancesFormat(test, header);
 	}
 
 	//用于评估单次分类的效果。 对于回测来说，评估的规则有以下几条：
@@ -488,19 +498,29 @@ public abstract class BaseClassifier implements Serializable{
 	}
 
 	public void setWorkPathAndCheck(String apath){
-		WORK_PATH=apath;
+		setWorkPath(apath);
 		FileUtility.mkdirIfNotExist(WORK_PATH);
 	}
 	
-	  /**
-	   * Creates a deep copy of the given classifier using serialization.
-	   *
-	   * @param model the classifier to copy
-	   * @return a deep copy of the classifier
-	   * @exception Exception if an error occurs
-	   */
-	  public static BaseClassifier makeCopy(BaseClassifier cl) throws Exception {
+	public void setWorkPath(String apath){
+		WORK_PATH=apath;
+	}
+	/**
+	 * Creates a deep copy of the given classifier using serialization.
+	 *
+	 * @param model the classifier to copy
+	 * @return a deep copy of the classifier
+	 * @exception Exception if an error occurs
+	 */
+	public static BaseClassifier makeCopy(BaseClassifier cl) throws Exception {
 
-	    return (BaseClassifier) new SerializedObject(cl).getObject();
-	  }
+		return (BaseClassifier) new SerializedObject(cl).getObject();
+	}
+	public int getModelArffFormat() {
+		return modelArffFormat;
+	}
+
+	public void setModelArffFormat(int modelArffFormat) {
+		this.modelArffFormat = modelArffFormat;
+	}
 }
