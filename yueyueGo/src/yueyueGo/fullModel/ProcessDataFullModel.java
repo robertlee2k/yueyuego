@@ -77,9 +77,9 @@ public class ProcessDataFullModel extends ProcessData {
 			nModel.m_skipEvalInBacktest=true;
 		}	
 		
-//		Instances nominalResult=testBackward(nModel);
+		Instances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
-		Instances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
+//		Instances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 
 		//按连续分类器回测历史数据
 		BaggingM5PFullModel cModel=new BaggingM5PFullModel();
