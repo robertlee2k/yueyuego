@@ -176,10 +176,10 @@ public class ArffFormat {
 	
 	
 	// 每日预测扩展格式数据（数据库和数据文件都是如此)的格式
-	public static String[] DAILY_DATA_TO_PREDICT_FORMAT_NEW = FormatUtility.concatStrings(new String[]{ID},MODEL_ATTRIB_FORMAT_NEW);
+	public static String[] DAILY_DATA_TO_PREDICT_FORMAT_NEW = FormatUtility.concatStrings(FormatUtility.concatStrings(new String[]{ID},MODEL_ATTRIB_FORMAT_NEW),new String[]{CODE});
 	
 	//每日预测数据中的左侧字段，此处顺序无关（positive和收益率其实是二选一的）
-	public static String[] DAILY_PREDICT_RESULT_LEFT={ID,SELECTED_AVG_LINE,BIAS5,IS_POSITIVE,SHOUYILV};
+	public static String[] DAILY_PREDICT_RESULT_LEFT={ID,SELECTED_AVG_LINE,BIAS5,CODE,IS_POSITIVE,SHOUYILV};
 
 
 	//单次收益率数据中不用保存在ARFF文件中的字段

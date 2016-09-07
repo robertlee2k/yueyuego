@@ -76,13 +76,13 @@ public class ProcessData {
 		BACKTEST_RESULT_DIR=RuntimeParams.getBACKTEST_RESULT_DIR();
 		PREDICT_WORK_DIR=RuntimeParams.getPREDICT_WORK_DIR();
 
-		RUNNING_THREADS=6;
+		RUNNING_THREADS=10;
 
 		SHOUYILV_THREDHOLD=new double[] {0.01,0.02,0.03,0.03,0.04};
 		WINRATE_THREDHOLD=new double[] {0.3,0.3,0.3,0.3,0.3};//{0,0,0,0,0};
 		splitYear=new String[] {
-			  "2008","2009","2010","2011","2012","2013","2014","2015","2016"
-//			"200801","200802","200803","200804","200805","200806","200807","200808","200809","200810","200811","200812","200901","200902","200903","200904","200905","200906","200907","200908","200909","200910","200911","200912","201001","201002","201003","201004","201005","201006","201007","201008","201009","201010","201011","201012","201101","201102","201103","201104","201105","201106","201107","201108","201109","201110","201111","201112","201201","201202","201203","201204","201205","201206","201207","201208","201209","201210","201211","201212","201301","201302","201303","201304","201305","201306","201307","201308","201309","201310","201311","201312","201401","201402","201403","201404","201405","201406","201407","201408","201409","201410","201411","201412","201501","201502","201503","201504","201505","201506","201507","201508","201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607"
+//			  "2008","2009","2010","2011","2012","2013","2014","2015","2016"
+			"200801","200802","200803","200804","200805","200806","200807","200808","200809","200810","200811","200812","200901","200902","200903","200904","200905","200906","200907","200908","200909","200910","200911","200912","201001","201002","201003","201004","201005","201006","201007","201008","201009","201010","201011","201012","201101","201102","201103","201104","201105","201106","201107","201108","201109","201110","201111","201112","201201","201202","201203","201204","201205","201206","201207","201208","201209","201210","201211","201212","201301","201302","201303","201304","201305","201306","201307","201308","201309","201310","201311","201312","201401","201402","201403","201404","201405","201406","201407","201408","201409","201410","201411","201412","201501","201502","201503","201504","201505","201506","201507","201508","201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607"
 //				"201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607"
 			};		
 		
@@ -134,10 +134,10 @@ public class ProcessData {
 			worker.init();
 
 			//用模型预测每日增量数据
-//			worker.callDailyPredict();
+			worker.callDailyPredict();
 
 			//调用回测函数回测
-			worker.callTestBack();
+//			worker.callTestBack();
 			
 			//用最新的单次交易数据，更新原始的交易数据文件
 //			UpdateHistoryArffFile.callRefreshInstances();
@@ -214,7 +214,7 @@ public class ProcessData {
 		//预先初始化各种模型文件的位置
 		definePredictModels();
 		
-//		//用旧的M5P模型预测每日增量数据用于对比
+		//用旧的M5P模型预测每日增量数据用于对比
 //		String classifierName=new M5PClassifier().classifierName;
 //		PREDICT_MODELS.put(classifierName, "\\交易分析2005-2016 by month-new-m5p-201605 MA ");
 //		PREDICT_MODELS.put(classifierName+"-EVAL", "\\交易分析2005-2016 by month-new-m5p-201605 MA ");		
@@ -238,18 +238,27 @@ public class ProcessData {
 		AdaboostClassifier adaModel=new AdaboostClassifier();
 		Instances adaboostInstances=predictWithDB(adaModel,PREDICT_WORK_DIR);		
 		
+		
+//		cModel.outputClassifySummary();
+		nABModel.outputClassifySummary();
+		cABModel.outputClassifySummary();
+		cBagModel.outputClassifySummary();
+		adaModel.outputClassifySummary();
+		
 		//以adaboost为主，合并bagging
 		System.out.println("-----now output combined predictions----------"+adaModel.getIdentifyName());
-		Instances left=InstanceUtility.keepAttributes(adaboostInstances, ArffFormat.DAILY_PREDICT_RESULT_LEFT) ; //为了使用下面的合并文件方法造出一个LEFT来
+		Instances left=FileUtility.loadDataFromFile(PREDICT_WORK_DIR + "LEFT "+FormatUtility.getDateStringFor(1)+".arff"); //获取刚生成的左侧文件（主要存了CODE）
 		Instances mergedOutput=mergeResults(adaboostInstances,baggingInstances,ArffFormat.RESULT_PREDICTED_PROFIT,left);
+		mergedOutput=InstanceUtility.removeAttribs(mergedOutput, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
 		FileUtility.saveCSVFile(mergedOutput, PREDICT_WORK_DIR + "Merged Selected Result-"+adaModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv");
-
+		mergedOutput=null;
+		
 		//以bagging为主，合并adaboost
 		System.out.println("-----now output combined predictions----------"+cBagModel.getIdentifyName());
-		Instances leftBagging=InstanceUtility.keepAttributes(baggingInstances, ArffFormat.DAILY_PREDICT_RESULT_LEFT) ; //为了使用下面的合并文件方法造出一个LEFT来
-		Instances mergedOutputBagging=mergeResults(baggingInstances,adaboostInstances,ArffFormat.RESULT_PREDICTED_WIN_RATE,leftBagging);
+		Instances mergedOutputBagging=mergeResults(baggingInstances,adaboostInstances,ArffFormat.RESULT_PREDICTED_WIN_RATE,left);
+		mergedOutputBagging=InstanceUtility.removeAttribs(mergedOutputBagging, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
 		FileUtility.saveCSVFile(mergedOutputBagging, PREDICT_WORK_DIR + "Merged Selected Result-"+cBagModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv");
-
+		mergedOutputBagging=null;
 	}
 
 	
@@ -272,6 +281,14 @@ public class ProcessData {
 		System.out.println("predict using classifier : "+clModel.getIdentifyName()+" @ prediction work path :"+PREDICT_WORK_DIR);
 		System.out.println("-----------------------------");
 		Instances fullData = DBAccess.LoadDataFromDB(clModel.getModelArffFormat());
+		//保留DAILY RESULT的LEFT部分在磁盘上
+		Instances left = new Instances(fullData);
+		left=InstanceUtility.keepAttributes(fullData, ArffFormat.DAILY_PREDICT_RESULT_LEFT);
+		FileUtility.SaveDataIntoFile(left, pathName + "LEFT "+FormatUtility.getDateStringFor(1)+".arff");
+		
+		//去掉多读入的CODE部分
+		fullData=InstanceUtility.removeAttribs(fullData, new String[]{ArffFormat.CODE});
+
 		Instances result=predict(clModel, pathName, fullData);
 		FileUtility.saveCSVFile(result, pathName + clModel.getIdentifyName()+"Selected Result"+FormatUtility.getDateStringFor(1)+".csv");
 		return result;
@@ -329,11 +346,10 @@ public class ProcessData {
 	
 			System.out.println(" new data size , row : "+ newData.numInstances() + " column: "	+ newData.numAttributes());
 			if (result == null) {// initialize result instances
-				// remove unnecessary data,leave 均线策略 & shouyilv alone
+				// remove unnecessary data,leave 均线策略 & code alone
 				Instances header = new Instances(newData, 0);
 				result=InstanceUtility.keepAttributes(header, ArffFormat.DAILY_PREDICT_RESULT_LEFT);
-//				result = InstanceUtility.removeAttribs(header,
-//						"4-" + String.valueOf(header.numAttributes() - 1)); 
+
 				if (clModel instanceof NominalClassifier ){
 					result = InstanceUtility.AddAttribute(result, ArffFormat.RESULT_PREDICTED_WIN_RATE,
 							result.numAttributes());
@@ -354,9 +370,6 @@ public class ProcessData {
 			throw new Exception("not all data have been processed!!!!! incoming Data number = " +inData.numInstances() + " while predicted number is "+result.numInstances());
 		}
 		
-//		result.renameAttribute(1, ArffFormat.SELECTED_AVG_LINE); //输出文件的“均线策略”名字不一样
-		
-		clModel.outputClassifySummary();
 		return result;
 	}
 

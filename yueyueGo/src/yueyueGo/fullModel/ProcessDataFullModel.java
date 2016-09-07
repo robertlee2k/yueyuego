@@ -49,10 +49,10 @@ public class ProcessDataFullModel extends ProcessData {
 //			UpdateHistoryArffFullModel.createFullModelInstances();
 			
 			//短线模型的历史回测
-			fullModelWorker.callFullModelTestBack();
+//			fullModelWorker.callFullModelTestBack();
 			
 			//短线模型的每日预测
-//			fullModelWorker.callFullModelPredict();
+			fullModelWorker.callFullModelPredict();
 
 		} catch (Exception e) {
 			
@@ -151,12 +151,16 @@ public class ProcessDataFullModel extends ProcessData {
 		//BaggingJ48
 		BaggingJ48FullModel nBagModel=new BaggingJ48FullModel();
 		Instances nBagInstances=predictFullModelWithDB(nBagModel,PREDICT_WORK_DIR);		
+
+		cBagModel.outputClassifySummary();
+		nBagModel.outputClassifySummary();
 		
 		//合并baggingJ48和baggingM5P
 		System.out.println("-----now output combined predictions----------"+cBagModel.getIdentifyName());
-
-		Instances left=InstanceUtility.keepAttributes(cBagInstances, ArffFormat.DAILY_PREDICT_RESULT_LEFT) ; //为了使用下面的合并文件方法造出一个LEFT来
+		Instances left=FileUtility.loadDataFromFile(PREDICT_WORK_DIR + "LEFT "+FormatUtility.getDateStringFor(1)+".arff"); //获取刚生成的左侧文件（主要存了CODE）
+//				InstanceUtility.keepAttributes(cBagInstances, ArffFormat.DAILY_PREDICT_RESULT_LEFT) ; //为了使用下面的合并文件方法造出一个LEFT来
 		Instances mergedOutput=mergeResults(cBagInstances,nBagInstances,ArffFormat.RESULT_PREDICTED_WIN_RATE,left);
+		mergedOutput=InstanceUtility.removeAttribs(mergedOutput, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
 		FileUtility.saveCSVFile(mergedOutput, PREDICT_WORK_DIR + "FullModel Selected Result-"+cBagModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv");
 		
 	}	
@@ -167,7 +171,16 @@ public class ProcessDataFullModel extends ProcessData {
 		System.out.println("predict using classifier : "+clModel.getIdentifyName()+" @ prediction work path :"+PREDICT_WORK_DIR);
 		System.out.println("-----------------------------");
 		Instances fullData = DBAccessFullModel.LoadFullModelDataFromDB();//"2016-08-26");
+		//保留DAILY RESULT的LEFT部分在磁盘上
+		Instances left = new Instances(fullData);
+		left=InstanceUtility.keepAttributes(fullData, ArffFormat.DAILY_PREDICT_RESULT_LEFT);
+		FileUtility.SaveDataIntoFile(left, pathName + "LEFT "+FormatUtility.getDateStringFor(1)+".arff");
+		
+		//去掉多读入的CODE部分
+		fullData=InstanceUtility.removeAttribs(fullData, new String[]{ArffFormat.CODE});
+
 		Instances result=predict(clModel, pathName, fullData);
+
 		return result;
 	}	
 	
@@ -194,6 +207,7 @@ public class ProcessDataFullModel extends ProcessData {
 		Instances result;
 		Instances header = new Instances(fullSetData, 0);
 		// 去除不必要的字段，保留ID（第1），bias5（第3）、收益率（最后一列）、增加预测值、是否被选择。
+		//TODO
 		result = InstanceUtility.removeAttribs(header, ArffFormat.YEAR_MONTH_INDEX + ",4-"
 				+ (header.numAttributes() - 1));
 		if (clModel instanceof NominalClassifier ){
