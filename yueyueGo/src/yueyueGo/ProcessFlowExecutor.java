@@ -4,6 +4,7 @@ import java.util.concurrent.Callable;
 
 import weka.classifiers.Classifier;
 import weka.core.Instances;
+import yueyueGo.utility.ClassifySummaries;
 import yueyueGo.utility.InstanceUtility;
 
 public class ProcessFlowExecutor implements Callable<String> {
@@ -33,7 +34,7 @@ public class ProcessFlowExecutor implements Callable<String> {
 	}
 	
 	// paremeter result will be changed in the method! 
-	public String doPredictProcess() throws Exception {
+	public void doPredictProcess() throws Exception {
 
 		
 		System.out.println("-----------------start for " + yearSplit + "-----------------policy=" + policySplit);
@@ -76,26 +77,28 @@ public class ProcessFlowExecutor implements Callable<String> {
 			clModel.saveArffFile(testingData,"test", yearSplit,policySplit);
 		}
 		
-		String evalSummary=yearSplit+","+policySplit+",";
-		evalSummary+=clModel.predictData(testingData, result);
+		ClassifySummaries cSummaries=clModel.getClassifySummaries();
+		cSummaries.appendEvaluationSummary(yearSplit+","+policySplit+",");
+		clModel.predictData(testingData, result);
 		testingData=null;//释放内存
 		System.out.println("complete for time " + yearSplit +" policy="+ policySplit);
-		return evalSummary;
+
 	}
 	
 	 @Override
 	 public String call() {
-		 String resultSummary=null;
+//		 String resultSummary=null;
 		 System.out.println(Thread.currentThread().getName() + "正在以线程方式执行。。。");
 		 try {
-			 resultSummary=this.doPredictProcess();
+//			 resultSummary=
+					 this.doPredictProcess();
 		 } catch (Exception e) {
 			 e.printStackTrace();
 		 }
 		 clModel=null;
 		 trainingData=null;
 		 testingData=null;
-		 return resultSummary;
+		 return null; //resultSummary;
 	 }
 	 
 	 
