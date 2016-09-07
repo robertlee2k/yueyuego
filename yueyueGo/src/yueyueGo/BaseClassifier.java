@@ -120,10 +120,16 @@ public abstract class BaseClassifier implements Serializable{
 		}
 		return eval;
 	}	
-	
+
+	//为每日预测用，这时候没有yearSplit，也没有policySplit
 	// result parameter will be changed in this method!
-	// return the evaluation summary string for prediction
-	public  void predictData(Instances test, Instances result)
+	public void predictData(Instances test, Instances result)		throws Exception {
+		predictData(test, result,"","");
+	}
+	
+	//为回测历史数据使用
+	// result parameter will be changed in this method!
+	public  void predictData(Instances test, Instances result,String yearSplit,String policySplit)
 			throws Exception {
 
 		
@@ -134,8 +140,8 @@ public abstract class BaseClassifier implements Serializable{
 		
 		double thresholdMin=evalData.getThresholdMin();
 		double thresholdMax=evalData.getThresholdMax();
-		
-		predictWithThresHolds(test, result,thresholdMin, thresholdMax);
+
+		predictWithThresHolds(test, result,thresholdMin, thresholdMax,yearSplit,policySplit);
 
 	}
 
@@ -151,7 +157,7 @@ public abstract class BaseClassifier implements Serializable{
 	 * @throws IllegalStateException
 	 */
 	private void predictWithThresHolds(Instances test, Instances result,
-			double thresholdMin, double thresholdMax)
+			double thresholdMin, double thresholdMax, String yearSplit,String policySplit)
 			throws Exception, IllegalStateException {
 		// read classify model and header
 		String modelFileName=this.getModelFileName()+MODEL_FILE_EXTENSION;
@@ -245,6 +251,8 @@ public abstract class BaseClassifier implements Serializable{
 			inst.setValue(result.numAttributes() - 1, selected);
 			result.add(inst);
 		}
+		
+		classifySummaries.appendEvaluationSummary(yearSplit+","+policySplit+",");
 		classifySummaries.computeClassifySummaries(totalPositiveShouyilv,totalNegativeShouyilv,selectedPositiveShouyilv,selectedNegativeShouyilv);
 		String evalSummary=","+FormatUtility.formatDouble(thresholdMin)+","+FormatUtility.formatDouble(thresholdMax)+"\r\n";  //输出评估结果及所使用阀值上、下限
 		classifySummaries.appendEvaluationSummary(evalSummary);
@@ -378,4 +386,19 @@ public abstract class BaseClassifier implements Serializable{
 		this.evaluation_filename = evaluation_filename;
 	}
 	
+	public void cleanUpClassifySummaries(){
+		ClassifySummaries c=getClassifySummaries();
+		if (c!=null){
+			c.cleanUp();
+			c=null;
+		}
+	}
+	public void outputClassifySummary() throws Exception{
+		ClassifySummaries c=getClassifySummaries();
+		if (c!=null){
+			c.outputClassifySummary();
+		}else{
+			System.out.println("ClassifySummaries object for "+getIdentifyName()+ " is null, cannot output summary");
+		}
+	}
 }

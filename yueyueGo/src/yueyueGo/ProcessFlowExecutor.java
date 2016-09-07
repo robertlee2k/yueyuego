@@ -4,7 +4,6 @@ import java.util.concurrent.Callable;
 
 import weka.classifiers.Classifier;
 import weka.core.Instances;
-import yueyueGo.utility.ClassifySummaries;
 import yueyueGo.utility.InstanceUtility;
 
 public class ProcessFlowExecutor implements Callable<String> {
@@ -77,9 +76,7 @@ public class ProcessFlowExecutor implements Callable<String> {
 			clModel.saveArffFile(testingData,"test", yearSplit,policySplit);
 		}
 		
-		ClassifySummaries cSummaries=clModel.getClassifySummaries();
-		cSummaries.appendEvaluationSummary(yearSplit+","+policySplit+",");
-		clModel.predictData(testingData, result);
+		clModel.predictData(testingData, result,yearSplit,policySplit);
 		testingData=null;//释放内存
 		System.out.println("complete for time " + yearSplit +" policy="+ policySplit);
 

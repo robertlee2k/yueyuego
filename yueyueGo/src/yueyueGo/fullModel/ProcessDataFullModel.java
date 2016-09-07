@@ -11,7 +11,6 @@ import yueyueGo.NominalClassifier;
 import yueyueGo.ProcessData;
 import yueyueGo.fullModel.classifier.BaggingJ48FullModel;
 import yueyueGo.fullModel.classifier.BaggingM5PFullModel;
-import yueyueGo.utility.ClassifySummaries;
 import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.InstanceUtility;
@@ -75,8 +74,6 @@ public class ProcessDataFullModel extends ProcessData {
 			nModel.m_skipTrainInBacktest=true;
 			nModel.m_skipEvalInBacktest=true;
 		}	
-		ClassifySummaries nModelSummaries=new ClassifySummaries(nModel.getIdentifyName());
-		nModel.setClassifySummaries(nModelSummaries);
 		
 //		Instances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
@@ -88,15 +85,14 @@ public class ProcessDataFullModel extends ProcessData {
 			cModel.m_skipTrainInBacktest=true;
 			cModel.m_skipEvalInBacktest=true;
 		}
-		ClassifySummaries cModelSummaries=new ClassifySummaries(cModel.getIdentifyName());
-		cModel.setClassifySummaries(cModelSummaries);
+
 //		Instances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
 		Instances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 		
 		//统一输出统计结果
-		nModelSummaries.outputClassifySummary();
-		cModelSummaries.outputClassifySummary();
+		nModel.outputClassifySummary();
+		cModel.outputClassifySummary();
 
 		//输出用于计算收益率的CSV文件
 		System.out.println("-----now output continuous predictions----------"+cModel.getIdentifyName());

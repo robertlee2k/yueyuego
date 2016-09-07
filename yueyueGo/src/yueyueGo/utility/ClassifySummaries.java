@@ -185,4 +185,15 @@ public class ClassifySummaries {
 		System.out.println("......................");
 
 	}
+	
+	public void cleanUp(){
+		summary_selected_TPR=null;
+		summary_selected_positive=null;
+		summary_lift=null;
+		summary_selected_count=null;
+		summary_judge_result=null;
+		summary_selectedShouyilv=null;
+		summary_totalShouyilv=null;
+		evaluationSummary=null;		
+	}
 }
