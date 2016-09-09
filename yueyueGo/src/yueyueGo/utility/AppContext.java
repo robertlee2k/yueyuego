@@ -1,6 +1,7 @@
 package yueyueGo.utility;
 
 
+
 //singleton 
 public class AppContext {
 	private static AppContext singleton = null;
@@ -10,17 +11,15 @@ public class AppContext {
 	protected String NOMINAL_CLASSIFIER_DIR=null;
 	protected String CONTINOUS_CLASSIFIER_DIR=null;
 	protected String BACKTEST_RESULT_DIR=null;
-	protected String PREDICT_WORK_DIR=null;
-
-    private AppContext(String rootPath) {
+	private AppContext(String rootPath) {
     	C_ROOT_DIRECTORY=rootPath;
 		NOMINAL_CLASSIFIER_DIR = rootPath+"models\\01-二分类器\\";
 		CONTINOUS_CLASSIFIER_DIR = rootPath+"models\\02-连续分类器\\";
 		BACKTEST_RESULT_DIR=rootPath+"testResult\\";
-		PREDICT_WORK_DIR=rootPath+"03-预测模型\\";	
+
     }
 
-    public static AppContext getInstance(String rootPath) {
+    public static AppContext createContext(String rootPath) {
        if(singleton == null) {
     	   Object obj=new Object();
     	   synchronized (obj) {
@@ -53,9 +52,6 @@ public class AppContext {
 		return singleton.BACKTEST_RESULT_DIR;
 	}
 
-	public static String getPREDICT_WORK_DIR() {
-		return singleton.PREDICT_WORK_DIR;
-	}
     
     
 }

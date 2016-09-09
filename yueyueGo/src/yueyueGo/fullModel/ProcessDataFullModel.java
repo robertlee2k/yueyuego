@@ -1,7 +1,6 @@
 package yueyueGo.fullModel;
 
 import java.io.IOException;
-import java.util.HashMap;
 
 import weka.core.Instances;
 import yueyueGo.ArffFormat;
@@ -12,7 +11,6 @@ import yueyueGo.ProcessData;
 import yueyueGo.fullModel.classifier.BaggingJ48FullModel;
 import yueyueGo.fullModel.classifier.BaggingM5PFullModel;
 import yueyueGo.utility.FileUtility;
-import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.InstanceUtility;
 import yueyueGo.utility.AppContext;
 
@@ -24,9 +22,8 @@ public class ProcessDataFullModel extends ProcessData {
 		STRAGEY_NAME="短线策略";
 		C_ROOT_DIRECTORY = EnvConstants.FULL_MODEL_ROOT_DIR;
 		AppContext.clearContext();
-		AppContext.getInstance(C_ROOT_DIRECTORY);	
+		AppContext.createContext(C_ROOT_DIRECTORY);	
 		BACKTEST_RESULT_DIR=AppContext.getBACKTEST_RESULT_DIR();
-		PREDICT_WORK_DIR=AppContext.getPREDICT_WORK_DIR();	
 		
 		RUNNING_THREADS=5;
 		
@@ -103,87 +100,6 @@ public class ProcessDataFullModel extends ProcessData {
 		System.out.println("-----end of test backward------");
 	}
 
-	@Override
-	protected void definePredictModels(){
-		PREDICT_MODELS=new HashMap<String, String>();
-		String EVAL="-EVAL";
-		String classifierName;
-		
-		//M5P当前使用的预测模型
-		classifierName=new BaggingM5PFullModel().classifierName;
-		PREDICT_MODELS.put(classifierName, "\\extData2005-2016-BaggingM5PABFullModel-201606 MA ");
-		PREDICT_MODELS.put(classifierName+EVAL, "\\extData2005-2016-BaggingM5PABFullModel-201607 MA ");
-		
-		//MLP当前使用的预测模型
-		classifierName=new BaggingJ48FullModel().classifierName;
-		PREDICT_MODELS.put(classifierName, "\\extData2005-2016-BaggingJ48ABFullModel-201606 MA ");
-		PREDICT_MODELS.put(classifierName+EVAL, "\\extData2005-2016-BaggingJ48ABFullModel-201607 MA ");
-	}
-	
-	@Override
-	protected Instances getDailyPredictDataFormat(int formatType)
-			throws Exception {
-		String formatFile=null;
-		switch (formatType) {
-		case ArffFormatFullModel.FULLMODEL_FORMAT:
-			formatFile=ArffFormatFullModel.FULL_MODEL_ARFF_PREFIX+"-format.arff";
-			break;
-		default:
-			throw new Exception("invalid arffFormat type");
-		}
-
-		Instances outputData=FileUtility.loadDataFromFile(C_ROOT_DIRECTORY+formatFile);
-		return outputData;
-	}
-	
-	
-	/**
-	 * @throws Exception
-	 */
-	public void callFullModelPredict() throws Exception {
-		definePredictModels();
-		
-		//BaggingM5P
-		BaggingM5PFullModel cBagModel=new BaggingM5PFullModel();
-		Instances cBagInstances=predictFullModelWithDB(cBagModel,PREDICT_WORK_DIR);		
-		
-		//BaggingJ48
-		BaggingJ48FullModel nBagModel=new BaggingJ48FullModel();
-		Instances nBagInstances=predictFullModelWithDB(nBagModel,PREDICT_WORK_DIR);		
-
-		cBagModel.outputClassifySummary();
-		nBagModel.outputClassifySummary();
-		
-		//合并baggingJ48和baggingM5P
-		System.out.println("-----now output combined predictions----------"+cBagModel.getIdentifyName());
-		Instances left=FileUtility.loadDataFromFile(PREDICT_WORK_DIR + "LEFT "+FormatUtility.getDateStringFor(1)+".arff"); //获取刚生成的左侧文件（主要存了CODE）
-//				InstanceUtility.keepAttributes(cBagInstances, ArffFormat.DAILY_PREDICT_RESULT_LEFT) ; //为了使用下面的合并文件方法造出一个LEFT来
-		Instances mergedOutput=mergeResults(cBagInstances,nBagInstances,ArffFormat.RESULT_PREDICTED_WIN_RATE,left);
-		mergedOutput=InstanceUtility.removeAttribs(mergedOutput, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
-		FileUtility.saveCSVFile(mergedOutput, PREDICT_WORK_DIR + "FullModel Selected Result-"+cBagModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv");
-		
-	}	
-	
-	
-	//直接访问数据库预测每天的自选股数据，不单独保存每个模型的选股
-	protected Instances predictFullModelWithDB(BaseClassifier clModel, String pathName) throws Exception {
-		System.out.println("predict using classifier : "+clModel.getIdentifyName()+" @ prediction work path :"+PREDICT_WORK_DIR);
-		System.out.println("-----------------------------");
-		Instances fullData = DBAccessFullModel.LoadFullModelDataFromDB();//"2016-08-26");
-		//保留DAILY RESULT的LEFT部分在磁盘上
-		Instances left = new Instances(fullData);
-		left=InstanceUtility.keepAttributes(fullData, ArffFormat.DAILY_PREDICT_RESULT_LEFT);
-		FileUtility.SaveDataIntoFile(left, pathName + "LEFT "+FormatUtility.getDateStringFor(1)+".arff");
-		
-		//去掉多读入的CODE部分
-		fullData=InstanceUtility.removeAttribs(fullData, new String[]{ArffFormat.CODE});
-
-		Instances result=predict(clModel, pathName, fullData);
-
-		return result;
-	}	
-	
-	
 	/**
 	 * 隐藏父类的函数。
 	 * @param splitTrainYearClause

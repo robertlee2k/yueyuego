@@ -9,7 +9,7 @@ import yueyueGo.utility.InstanceUtility;
 public class DBAccessFullModel extends DBAccess {
 	
 	//取最新交易日的数据预测
-	protected static Instances LoadFullModelDataFromDB() throws Exception{
+	public static Instances LoadFullModelDataFromDB() throws Exception{
 		return LoadFullModelDataFromDB(null);
 	}
 	
