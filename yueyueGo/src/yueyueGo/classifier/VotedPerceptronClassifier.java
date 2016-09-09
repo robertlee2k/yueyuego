@@ -2,6 +2,8 @@ package yueyueGo.classifier;
 
 //适合保守类型下的全市场操作
 import weka.classifiers.Classifier;
+import weka.classifiers.functions.VotedPerceptron;
+import weka.core.Instances;
 import yueyueGo.NominalClassifier;
 import yueyueGo.utility.AppContext;
 
@@ -19,7 +21,7 @@ import yueyueGo.utility.AppContext;
 //Monthly summary_judge_result summary: good number= 285 bad number=220
 //===============================end of summary=====================================
 
-public class VotedPerceptionClassifier extends NominalClassifier {
+public class VotedPerceptronClassifier extends NominalClassifier {
 	
 	/**
 	 * 
@@ -27,7 +29,7 @@ public class VotedPerceptionClassifier extends NominalClassifier {
 	private static final long serialVersionUID = 6603382331120982691L;
 	@Override
 	protected void initializeParams() {
-		classifierName="voted";
+		classifierName="votedPerceptron";
 		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
 		
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
@@ -44,6 +46,22 @@ public class VotedPerceptionClassifier extends NominalClassifier {
 		DEFAULT_THRESHOLD=0.5; // 找不出threshold时缺省值。
 
 	}
+	
+	@Override
+	protected Classifier buildModel(Instances train) throws Exception {
+		cachedOldClassInstances=null; 
+		 
+		int minNumObj=train.numInstances()/300;
+		String batchSize=Integer.toString(minNumObj);
+		VotedPerceptron model=new VotedPerceptron();
+		model.setBatchSize(batchSize);
+		model.setNumDecimalPlaces(6);
+		model.setDebug(true);
+		model.buildClassifier(train);
+
+		return model;
+	}
+	
 	@Override
 	public Classifier loadModel(String yearSplit, String policySplit) throws Exception{
 		//这是单独准备的模型，模型文件和evaluation都是按年读取

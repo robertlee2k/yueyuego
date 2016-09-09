@@ -53,6 +53,8 @@ public class BaggingJ48 extends NominalClassifier {
 	
 	@Override
 	protected Classifier buildModel(Instances train) throws Exception {
+		cachedOldClassInstances=null; 
+		
 		//设置基础的m5p classifier参数
 		J48 model=ClassifyUtility.prepareJ48(train.numInstances(),leafMinObjNum,divided);
 

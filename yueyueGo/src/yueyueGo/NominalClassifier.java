@@ -6,9 +6,6 @@ import java.util.Vector;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.classifiers.evaluation.ThresholdCurve;
-import weka.classifiers.functions.MultilayerPerceptron;
-import weka.classifiers.functions.VotedPerceptron;
-import weka.classifiers.trees.REPTree;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
@@ -26,38 +23,7 @@ public abstract class NominalClassifier extends BaseClassifier{
 	protected Instances cachedOldClassInstances=null;
 
 
-	@Override
-	protected Classifier buildModel(Instances train) throws Exception {
-		cachedOldClassInstances=null; 
-		int minNumObj=train.numInstances()/300;
-		if (minNumObj<1000){
-			minNumObj=1000; //防止树过大
-		}
-		String batchSize="1000";
-
-		Classifier model=null;
-		if ("mlp".equals(this.getIdentifyName())){
-			MultilayerPerceptron mlp=new MultilayerPerceptron();
-			mlp.setBatchSize(batchSize);
-			mlp.setNumDecimalPlaces(6);
-			mlp.setHiddenLayers("a");//("a,a");
-			model=mlp;
-		}else if ("rep".equals(this.getIdentifyName())){
-			REPTree rep=new REPTree();
-			rep.setBatchSize(batchSize);
-			rep.setNumDecimalPlaces(6);
-			rep.setMinNum(minNumObj);
-			model=rep;
-		}else if ("voted".equals(this.getIdentifyName())){
-			VotedPerceptron voted=new VotedPerceptron();
-			voted.setBatchSize(batchSize);
-			voted.setNumDecimalPlaces(6);
-			model=voted;
-		}
-		model.buildClassifier(train);
-
-		return model;
-	}
+	
 
 	//对模型进行评估
 	@Override
