@@ -4,7 +4,7 @@ import weka.classifiers.Classifier;
 import yueyueGo.EnvConstants;
 import yueyueGo.classifier.AdaboostClassifier;
 import yueyueGo.fullModel.ArffFormatFullModel;
-import yueyueGo.utility.RuntimeParams;
+import yueyueGo.utility.AppContext;
 
 public class AdaboostFullModel extends AdaboostClassifier {
 
@@ -25,7 +25,7 @@ public class AdaboostFullModel extends AdaboostClassifier {
 		boost_iteration=10; 	//boost特有参数
 		
 		classifierName="adaboostFullModel";
-		setWorkPathAndCheck(RuntimeParams.getNOMINAL_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
+		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
 		
 		m_noCaculationAttrib=false; //使用计算字段
 		EVAL_RECENT_PORTION = 1; // 计算最近数据阀值从历史记录中选取多少比例的最近样本		

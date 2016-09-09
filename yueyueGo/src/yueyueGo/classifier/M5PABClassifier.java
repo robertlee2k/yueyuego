@@ -8,7 +8,7 @@ import weka.core.Instances;
 import yueyueGo.ContinousClassifier;
 import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.utility.ClassifyUtility;
-import yueyueGo.utility.RuntimeParams;
+import yueyueGo.utility.AppContext;
 
 
 // 2016-07-19 选择 
@@ -93,7 +93,7 @@ public class M5PABClassifier extends ContinousClassifier {
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 		
 		classifierName="m5pAB";
-		setWorkPathAndCheck(RuntimeParams.getCONTINOUS_CLASSIFIER_DIR()+getIdentifyName()+"\\");
+		setWorkPathAndCheck(AppContext.getCONTINOUS_CLASSIFIER_DIR()+getIdentifyName()+"\\");
 
 		leafMinObjNum=300; //叶子节点最小的
 		divided=300; //将trainingData分成多少份

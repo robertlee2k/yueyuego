@@ -5,7 +5,7 @@ import weka.classifiers.trees.M5P;
 import weka.core.Instances;
 import yueyueGo.ContinousClassifier;
 import yueyueGo.utility.ClassifyUtility;
-import yueyueGo.utility.RuntimeParams;
+import yueyueGo.utility.AppContext;
 import yueyueGo.utility.ThresholdData;
 
 
@@ -170,7 +170,7 @@ public class BaggingM5P extends ContinousClassifier {
 
 		classifierName="baggingM5P";	
 		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
-		setWorkPathAndCheck(RuntimeParams.getCONTINOUS_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
+		setWorkPathAndCheck(AppContext.getCONTINOUS_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
 		adjustThresholdBottom=false;//不用MeanABSError调整threshold
 		bagging_iteration=10;	//bagging特有参数
 		leafMinObjNum=300; //叶子节点最小的

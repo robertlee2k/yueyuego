@@ -6,7 +6,7 @@ import weka.core.Instances;
 import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.NominalClassifier;
 import yueyueGo.utility.ClassifyUtility;
-import yueyueGo.utility.RuntimeParams;
+import yueyueGo.utility.AppContext;
 @Deprecated
 public class J48ABFullModel extends NominalClassifier {
  
@@ -24,7 +24,7 @@ public class J48ABFullModel extends NominalClassifier {
 		m_policySubGroup = new String[]{"" };
 		
 		classifierName= "J48ABFullModel";
-		setWorkPathAndCheck(RuntimeParams.getNOMINAL_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
+		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
 
 
 		leafMinObjNum=1000; 	//j48树最小节点叶子数

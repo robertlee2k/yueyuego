@@ -2,7 +2,7 @@ package yueyueGo.classifier;
 
 import weka.classifiers.Classifier;
 import yueyueGo.NominalClassifier;
-import yueyueGo.utility.RuntimeParams;
+import yueyueGo.utility.AppContext;
 
 //结论1： 5单元格的不可靠，偶然性因素太大， 应该在10-30单元格中间选择
 //结论2： 这个分类器适用沪深300, 全市场不大合适大熊市（因为2008年亏损大收益率偏低）
@@ -78,7 +78,7 @@ public class MLPClassifier extends NominalClassifier {
 		m_skipEvalInBacktest = true;
 		
 		classifierName="mlp";
-		setWorkPathAndCheck(RuntimeParams.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
+		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
 		
 		m_noCaculationAttrib=true; //这个模型是用短格式的
 		EVAL_RECENT_PORTION = 0.7; // 计算最近数据阀值从历史记录中选取多少比例的最近样本

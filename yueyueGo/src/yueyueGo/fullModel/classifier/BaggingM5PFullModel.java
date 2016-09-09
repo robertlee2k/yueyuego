@@ -4,7 +4,7 @@ import weka.classifiers.Classifier;
 import yueyueGo.EnvConstants;
 import yueyueGo.classifier.BaggingM5P;
 import yueyueGo.fullModel.ArffFormatFullModel;
-import yueyueGo.utility.RuntimeParams;
+import yueyueGo.utility.AppContext;
 
 //result changed because of reference data not matched=15096 while good change number=5665
 //good ratio=37.53% average changed shouyilv=4.58% @ winrate thredhold= /50.00% /
@@ -33,7 +33,7 @@ public class BaggingM5PFullModel extends BaggingM5P {
 		
 		classifierName= "BaggingM5PABFullModel";
 		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
-		setWorkPathAndCheck(RuntimeParams.getCONTINOUS_CLASSIFIER_DIR()+getIdentifyName()+"\\");
+		setWorkPathAndCheck(AppContext.getCONTINOUS_CLASSIFIER_DIR()+getIdentifyName()+"\\");
 	
 		m_noCaculationAttrib=false; //添加计算字段
 		EVAL_RECENT_PORTION = 1; // 计算最近数据阀值从历史记录中选取多少比例的最近样本

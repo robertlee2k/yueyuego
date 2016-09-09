@@ -45,7 +45,7 @@ import yueyueGo.utility.DBAccess;
 import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.InstanceUtility;
-import yueyueGo.utility.RuntimeParams;
+import yueyueGo.utility.AppContext;
 
 public class ProcessData {
 
@@ -72,9 +72,10 @@ public class ProcessData {
 	public void init(){
 		
 		STRAGEY_NAME="均线策略";
-		RuntimeParams.createInstance(this.C_ROOT_DIRECTORY);	
-		BACKTEST_RESULT_DIR=RuntimeParams.getBACKTEST_RESULT_DIR();
-		PREDICT_WORK_DIR=RuntimeParams.getPREDICT_WORK_DIR();
+		AppContext.clearContext();
+		AppContext.getInstance(this.C_ROOT_DIRECTORY);	
+		BACKTEST_RESULT_DIR=AppContext.getBACKTEST_RESULT_DIR();
+		PREDICT_WORK_DIR=AppContext.getPREDICT_WORK_DIR();
 
 		RUNNING_THREADS=10;
 
@@ -132,9 +133,6 @@ public class ProcessData {
 		try {
 			ProcessData worker=new ProcessData();
 			worker.init();
-
-			//用模型预测每日增量数据
-//			worker.callDailyPredict();
 
 			//调用回测函数回测
 			worker.callTestBack();
@@ -210,7 +208,7 @@ public class ProcessData {
 	/**
 	 * @throws Exception
 	 */
-	protected  void callDailyPredict() throws Exception {
+	public void callDailyPredict() throws Exception {
 		//预先初始化各种模型文件的位置
 		definePredictModels();
 		

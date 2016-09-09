@@ -6,7 +6,7 @@ import weka.classifiers.Classifier;
 import weka.classifiers.trees.RandomForest;
 import weka.core.Instances;
 import yueyueGo.NominalClassifier;
-import yueyueGo.utility.RuntimeParams;
+import yueyueGo.utility.AppContext;
 import yueyueGo.utility.ThresholdData;
 
 //效果不好
@@ -21,7 +21,7 @@ public class RandomForestClassifier extends NominalClassifier	 {
 	@Override
 	protected void initializeParams() {
 		classifierName="randomForest";
-		setWorkPathAndCheck(RuntimeParams.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
+		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
 		m_skipTrainInBacktest = true;
 		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{"5","10","20","30","60" };

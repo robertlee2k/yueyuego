@@ -2,7 +2,7 @@ package yueyueGo.fullModel.classifier;
 
 import weka.classifiers.Classifier;
 import yueyueGo.classifier.M5PABClassifier;
-import yueyueGo.utility.RuntimeParams;
+import yueyueGo.utility.AppContext;
 
 @Deprecated
 public class M5PABFullModel extends M5PABClassifier {
@@ -16,7 +16,7 @@ public class M5PABFullModel extends M5PABClassifier {
 	protected void initializeParams() {
 	
 		classifierName="m5pABFullModel";
-		setWorkPathAndCheck(RuntimeParams.getCONTINOUS_CLASSIFIER_DIR()+getIdentifyName()+"\\");
+		setWorkPathAndCheck(AppContext.getCONTINOUS_CLASSIFIER_DIR()+getIdentifyName()+"\\");
 
 		m_skipTrainInBacktest = true;
 		m_skipEvalInBacktest = true;

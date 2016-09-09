@@ -2,8 +2,8 @@ package yueyueGo.utility;
 
 
 //singleton 
-public class RuntimeParams {
-	private static RuntimeParams singleton = null;
+public class AppContext {
+	private static AppContext singleton = null;
 	
 	//在子类中可以另外定义根目录
 	protected String C_ROOT_DIRECTORY =null;
@@ -12,7 +12,7 @@ public class RuntimeParams {
 	protected String BACKTEST_RESULT_DIR=null;
 	protected String PREDICT_WORK_DIR=null;
 
-    private RuntimeParams(String rootPath) {
+    private AppContext(String rootPath) {
     	C_ROOT_DIRECTORY=rootPath;
 		NOMINAL_CLASSIFIER_DIR = rootPath+"models\\01-二分类器\\";
 		CONTINOUS_CLASSIFIER_DIR = rootPath+"models\\02-连续分类器\\";
@@ -20,16 +20,21 @@ public class RuntimeParams {
 		PREDICT_WORK_DIR=rootPath+"03-预测模型\\";	
     }
 
-    public static RuntimeParams createInstance(String rootPath) {
+    public static AppContext getInstance(String rootPath) {
        if(singleton == null) {
     	   Object obj=new Object();
     	   synchronized (obj) {
     		   if(singleton == null){
-    			   singleton = new RuntimeParams(rootPath);
+    			   singleton = new AppContext(rootPath);
     		   }
     	   }
 		}
        return singleton;
+    }
+    
+    //清除环境变量，重设context时调用
+    public static void clearContext() {
+    	singleton=null;
     }
 
 	public static String getC_ROOT_DIRECTORY() {

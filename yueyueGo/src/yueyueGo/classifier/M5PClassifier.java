@@ -5,7 +5,7 @@ import weka.classifiers.trees.M5P;
 import weka.core.Instances;
 import yueyueGo.ContinousClassifier;
 import yueyueGo.utility.ClassifyUtility;
-import yueyueGo.utility.RuntimeParams;
+import yueyueGo.utility.AppContext;
 
 
 //结论1： 5单元格的不可靠，偶然性因素太大， 应该在10-30单元格中间选择
@@ -131,7 +131,7 @@ public class M5PClassifier extends ContinousClassifier {
 		m_skipEvalInBacktest = false;
 		
 		classifierName="m5p";
-		setWorkPathAndCheck(RuntimeParams.getCONTINOUS_CLASSIFIER_DIR()+classifierName+"\\");
+		setWorkPathAndCheck(AppContext.getCONTINOUS_CLASSIFIER_DIR()+classifierName+"\\");
 		m_noCaculationAttrib=false; //添加计算
 
 		leafMinObjNum=300; //叶子节点最小的

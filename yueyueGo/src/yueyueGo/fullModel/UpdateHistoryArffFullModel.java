@@ -9,20 +9,20 @@ import yueyueGo.ArffFormat;
 import yueyueGo.UpdateHistoryArffFile;
 import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.InstanceUtility;
-import yueyueGo.utility.RuntimeParams;
+import yueyueGo.utility.AppContext;
 
 public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 	
 	protected static void createFullModelInstances() throws Exception {
 
-		String arffFileName=RuntimeParams.getC_ROOT_DIRECTORY()+ArffFormatFullModel.FULL_MODEL_ARFF_PREFIX;
+		String arffFileName=AppContext.getC_ROOT_DIRECTORY()+ArffFormatFullModel.FULL_MODEL_ARFF_PREFIX;
 		Instances rawData = mergeSrcFullModelFiles();
 		
 		//处理所有的日期字段，并插入yearmonth
 		processDateColumns(rawData);
 
 		//处理各种nominal字段
-		Instances fullData=FileUtility.loadDataFromFile(RuntimeParams.getC_ROOT_DIRECTORY()+"fullModelFormat.arff");
+		Instances fullData=FileUtility.loadDataFromFile(AppContext.getC_ROOT_DIRECTORY()+"fullModelFormat.arff");
 		InstanceUtility.calibrateAttributes(rawData, fullData);
 		rawData=null; //试图释放内存
 		
@@ -46,7 +46,7 @@ public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 	}
 	
 	private static Instances mergeSrcFullModelFiles() throws Exception,	IllegalStateException {
-		String sourceFilePrefix=RuntimeParams.getC_ROOT_DIRECTORY()+"sourceData\\自选股\\第四组自选股5天后卖出策略数据\\test_onceyield_group4allhis_optional";
+		String sourceFilePrefix=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\自选股\\第四组自选股5天后卖出策略数据\\test_onceyield_group4allhis_optional";
 		Instances fullData = FileUtilityFullModel.loadDataFromFullModelCSVFile(sourceFilePrefix+"2005-2006.txt");
 		Instances addData = null;
 		int startYear=2007;

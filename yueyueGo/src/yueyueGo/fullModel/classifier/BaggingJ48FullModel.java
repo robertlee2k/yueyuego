@@ -4,7 +4,7 @@ import weka.classifiers.Classifier;
 import yueyueGo.EnvConstants;
 import yueyueGo.classifier.BaggingJ48;
 import yueyueGo.fullModel.ArffFormatFullModel;
-import yueyueGo.utility.RuntimeParams;
+import yueyueGo.utility.AppContext;
 //result changed because of reference data not matched=81892 while good change number=49134
 //good ratio=60.00% average changed shouyilv=0.94% @ shouyilv thredhold= /3.00% /
 //number of records for full market=4225771
@@ -31,7 +31,7 @@ public class BaggingJ48FullModel extends BaggingJ48 {
 		
 		classifierName= "BaggingJ48ABFullModel";
 		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
-		setWorkPathAndCheck(RuntimeParams.getNOMINAL_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
+		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
 		
 		m_noCaculationAttrib=false; //使用计算字段
 		EVAL_RECENT_PORTION = 1; // 计算最近数据阀值从历史记录中选取多少比例的最近样本		

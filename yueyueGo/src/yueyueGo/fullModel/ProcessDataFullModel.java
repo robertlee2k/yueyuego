@@ -14,18 +14,19 @@ import yueyueGo.fullModel.classifier.BaggingM5PFullModel;
 import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.InstanceUtility;
-import yueyueGo.utility.RuntimeParams;
+import yueyueGo.utility.AppContext;
 
 public class ProcessDataFullModel extends ProcessData {
-	private boolean applyToMaModel=false; //default is false
+	private boolean applyToMaModelInTestBack=false; //default is false
 	
 	//覆盖父类
 	public void init() {
 		STRAGEY_NAME="短线策略";
 		C_ROOT_DIRECTORY = EnvConstants.FULL_MODEL_ROOT_DIR;
-		RuntimeParams.createInstance(C_ROOT_DIRECTORY);	
-		BACKTEST_RESULT_DIR=RuntimeParams.getBACKTEST_RESULT_DIR();
-		PREDICT_WORK_DIR=RuntimeParams.getPREDICT_WORK_DIR();	
+		AppContext.clearContext();
+		AppContext.getInstance(C_ROOT_DIRECTORY);	
+		BACKTEST_RESULT_DIR=AppContext.getBACKTEST_RESULT_DIR();
+		PREDICT_WORK_DIR=AppContext.getPREDICT_WORK_DIR();	
 		
 		RUNNING_THREADS=5;
 		
@@ -49,10 +50,8 @@ public class ProcessDataFullModel extends ProcessData {
 //			UpdateHistoryArffFullModel.createFullModelInstances();
 			
 			//短线模型的历史回测
-//			fullModelWorker.callFullModelTestBack();
-			
-			//短线模型的每日预测
-			fullModelWorker.callFullModelPredict();
+			fullModelWorker.callFullModelTestBack();
+
 
 		} catch (Exception e) {
 			
@@ -70,7 +69,7 @@ public class ProcessDataFullModel extends ProcessData {
 		BaggingJ48FullModel nModel=new BaggingJ48FullModel();
 //		AdaboostFullModel nModel=new AdaboostFullModel();
 		
-		if (applyToMaModel==true){//用fullModel模型来测试均线模型时不用重新build和评估
+		if (applyToMaModelInTestBack==true){//用fullModel模型来测试均线模型时不用重新build和评估
 			nModel.m_skipTrainInBacktest=true;
 			nModel.m_skipEvalInBacktest=true;
 		}	
@@ -81,7 +80,7 @@ public class ProcessDataFullModel extends ProcessData {
 
 		//按连续分类器回测历史数据
 		BaggingM5PFullModel cModel=new BaggingM5PFullModel();
-		if (applyToMaModel==true){//用fullModel模型来测试均线模型时不用重新build和评估
+		if (applyToMaModelInTestBack==true){//用fullModel模型来测试均线模型时不用重新build和评估
 			cModel.m_skipTrainInBacktest=true;
 			cModel.m_skipEvalInBacktest=true;
 		}
@@ -141,7 +140,7 @@ public class ProcessDataFullModel extends ProcessData {
 	/**
 	 * @throws Exception
 	 */
-	protected void callFullModelPredict() throws Exception {
+	public void callFullModelPredict() throws Exception {
 		definePredictModels();
 		
 		//BaggingM5P
@@ -233,7 +232,7 @@ public class ProcessDataFullModel extends ProcessData {
 			throws Exception {
 
 		String arffFullFileName = null;
-		if (applyToMaModel==true){//用fullModel模型来测试均线模型时加载均线模型的arff
+		if (applyToMaModelInTestBack==true){//用fullModel模型来测试均线模型时加载均线模型的arff
 			arffFullFileName=getMaArffFileName(clModel);
 		}else{
 			arffFullFileName=getFullModelArffFileName(clModel);
@@ -241,7 +240,7 @@ public class ProcessDataFullModel extends ProcessData {
 		Instances fullSetData;
 		System.out.println("start to load File for fullset from File: "+ arffFullFileName  );
 		fullSetData = FileUtility.loadDataFromFile( arffFullFileName);
-		if (applyToMaModel==true){//用fullModel模型来测试均线模型时加载均线模型的arff
+		if (applyToMaModelInTestBack==true){//用fullModel模型来测试均线模型时加载均线模型的arff
 			int pos = InstanceUtility.findATTPosition(fullSetData,ArffFormat.SELECTED_AVG_LINE);
 			fullSetData = InstanceUtility.removeAttribs(fullSetData,""+pos );
 		}
@@ -315,7 +314,7 @@ public class ProcessDataFullModel extends ProcessData {
 	protected Instances mergeResultWithData(Instances resultData,Instances referenceData,String dataToAdd,int format) throws Exception{
 		Instances left=null;		
 		//读取磁盘上预先保存的左侧数据
-		if (applyToMaModel==true){
+		if (applyToMaModelInTestBack==true){
 			left=FileUtility.loadDataFromFile(EnvConstants.AVG_LINE_ROOT_DIR+ArffFormat.TRANSACTION_ARFF_PREFIX+"-left.arff");
 		}else{
 			left=FileUtility.loadDataFromFile(C_ROOT_DIRECTORY+ArffFormatFullModel.FULL_MODEL_ARFF_PREFIX+"-left.arff");
@@ -328,7 +327,7 @@ public class ProcessDataFullModel extends ProcessData {
 		String[] attributeToRemove=new String[]{ArffFormat.YEAR_MONTH,ArffFormat.DATA_DATE,ArffFormat.IS_POSITIVE,ArffFormat.BIAS5};
 		mergedResult=InstanceUtility.removeAttribs(mergedResult, attributeToRemove);
 		
-		if (applyToMaModel==false){
+		if (applyToMaModelInTestBack==false){
 			//插入一列“均线策略”为计算程序使用
 			mergedResult=InstanceUtility.AddAttributeWithValue(mergedResult, ArffFormat.SELECTED_AVG_LINE,"numeric","0");
 		}

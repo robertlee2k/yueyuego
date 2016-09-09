@@ -4,7 +4,7 @@ import weka.classifiers.functions.MultilayerPerceptron;
 import weka.core.Instances;
 import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.NominalClassifier;
-import yueyueGo.utility.RuntimeParams;
+import yueyueGo.utility.AppContext;
 
 
 // NO.1 选股太多全市场收益率只有7%-8%
@@ -138,7 +138,7 @@ public class MLPABClassifier extends NominalClassifier {
 		m_skipEvalInBacktest = true;
 		
 		classifierName="mlpAB";
-		setWorkPathAndCheck(RuntimeParams.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
+		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
 		
 		m_noCaculationAttrib=false; //使用计算字段
 		EVAL_RECENT_PORTION = 1; // 计算最近数据阀值从历史记录中选取多少比例的最近样本		

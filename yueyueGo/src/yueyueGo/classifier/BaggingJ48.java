@@ -5,7 +5,7 @@ import weka.classifiers.trees.J48;
 import weka.core.Instances;
 import yueyueGo.NominalClassifier;
 import yueyueGo.utility.ClassifyUtility;
-import yueyueGo.utility.RuntimeParams;
+import yueyueGo.utility.AppContext;
 
 // 按月分析（全年使用同一模型和评估值）
 //number of results merged and processed: 1412480
@@ -35,7 +35,7 @@ public class BaggingJ48 extends NominalClassifier {
 
 		classifierName="baggingJ48";
 		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
-		setWorkPathAndCheck(RuntimeParams.getNOMINAL_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
+		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
 		
 		m_noCaculationAttrib=false; //使用计算字段
 		bagging_iteration=10;	//bagging特有参数
