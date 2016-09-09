@@ -9,7 +9,6 @@ import yueyueGo.BaseClassifier;
 import yueyueGo.EnvConstants;
 import yueyueGo.NominalClassifier;
 import yueyueGo.ProcessData;
-import yueyueGo.fullModel.classifier.AdaboostFullModel;
 import yueyueGo.fullModel.classifier.BaggingJ48FullModel;
 import yueyueGo.fullModel.classifier.BaggingM5PFullModel;
 import yueyueGo.utility.FileUtility;
@@ -50,10 +49,10 @@ public class ProcessDataFullModel extends ProcessData {
 //			UpdateHistoryArffFullModel.createFullModelInstances();
 			
 			//短线模型的历史回测
-			fullModelWorker.callFullModelTestBack();
+//			fullModelWorker.callFullModelTestBack();
 			
 			//短线模型的每日预测
-//			fullModelWorker.callFullModelPredict();
+			fullModelWorker.callFullModelPredict();
 
 		} catch (Exception e) {
 			
