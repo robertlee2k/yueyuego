@@ -20,7 +20,8 @@ public abstract class NominalClassifier extends BaseClassifier{
 	 */
 	private static final long serialVersionUID = 5570283670170193026L;
 	protected double DEFAULT_THRESHOLD=0.7; // 找不出threshold时缺省值。
-	protected Instances cachedOldClassInstances=null;
+	protected Instances m_cachedOldClassInstances=null;
+	protected double m_positiveLine=0; // 用来定义收益率大于多少时算positive，缺省为0
 
 
 	
@@ -31,7 +32,7 @@ public abstract class NominalClassifier extends BaseClassifier{
 			double sample_limit, double sample_upper, double tp_fp_ratio)
 			throws Exception {
 		
-		cachedOldClassInstances=null; 
+		m_cachedOldClassInstances=null; 
 		
 		System.out.println(" -----------evaluating for FULL Market....");
 		Vector<Double> v = doModelEvaluation(train, model, sample_limit,sample_upper, tp_fp_ratio);
@@ -181,14 +182,14 @@ public abstract class NominalClassifier extends BaseClassifier{
 		double shouyilv=0;
 		
 		if (cacheOldClassValue==true){
-			cachedOldClassInstances=CreateCachedOldClassInstances();
+			m_cachedOldClassInstances=CreateCachedOldClassInstances();
 		}else{
-			cachedOldClassInstances=null;
+			m_cachedOldClassInstances=null;
 		}
 		
 		for (int i=0;i<inData.numInstances();i++){
 			shouyilv=inData.instance(i).classValue();
-			if (shouyilv>0){
+			if (shouyilv>m_positiveLine){
 				inData.instance(i).setValue(newClassIndex, ArffFormat.VALUE_YES);
 			}else {
 				inData.instance(i).setValue(newClassIndex, ArffFormat.VALUE_NO);
@@ -197,18 +198,18 @@ public abstract class NominalClassifier extends BaseClassifier{
 			//暂存收益率
 			if (cacheOldClassValue==true){
 				double id=inData.instance(i).value(0);
-				Instance cacheRow=new DenseInstance(cachedOldClassInstances.numAttributes());
-				cacheRow.setDataset(cachedOldClassInstances);
+				Instance cacheRow=new DenseInstance(m_cachedOldClassInstances.numAttributes());
+				cacheRow.setDataset(m_cachedOldClassInstances);
 				cacheRow.setValue(0, id);
 				cacheRow.setValue(1, shouyilv);
-				cachedOldClassInstances.add(cacheRow);
+				m_cachedOldClassInstances.add(cacheRow);
 			}
 		}
 		//删除shouyilv
 		inData=InstanceUtility.removeAttribs(inData, ""+inData.numAttributes());
 		//设置新属性的位置
 		inData.setClassIndex(inData.numAttributes()-1);
-		System.out.println("class value replaced for nominal classifier");
+		System.out.println("class value replaced for nominal classifier. where m_positiveLine= "+m_positiveLine);
 		return inData;
 	}
 	
@@ -227,21 +228,30 @@ public abstract class NominalClassifier extends BaseClassifier{
 	
 	@Override
 	protected double getShouyilv(int index,double id, double newClassValue) throws Exception{
-		if (cachedOldClassInstances==null) {
+		if (m_cachedOldClassInstances==null) {
 			return Double.NaN;
 		}
-		if ( index>=cachedOldClassInstances.numInstances()){
+		if ( index>=m_cachedOldClassInstances.numInstances()){
 			throw new Exception("Old Class Value has not been cached for index: "+ index );
 		}
-		double cachedID=cachedOldClassInstances.instance(index).value(0);
+		double cachedID=m_cachedOldClassInstances.instance(index).value(0);
 		if(cachedID!=id){
 			throw new Exception("Data inconsistent error! Cached old class value id = "+cachedID+" while incoming id ="+id+" for index: "+ index );
 		}
-		double shouyilv=cachedOldClassInstances.instance(index).classValue();
+		double shouyilv=m_cachedOldClassInstances.instance(index).classValue();
 		if (newClassValue==0 && shouyilv>0 || newClassValue==1 && shouyilv<=0){ 
 			throw new Exception("Data inconsistent error! Cached old class value id = "+shouyilv+" while incoming newClassValue ="+newClassValue+" for index: "+ index );
 		}
 		return shouyilv;
 	}
+	
 
+	@Override
+	public String getIdentifyName(){
+		if (m_positiveLine==0){ //如果是正常的正负分类时就不用特别标记
+			return classifierName;
+		}else { //如果用自定义的标尺线区分Class的正负，则特别标记
+			return (classifierName+"("+FormatUtility.formatDouble(m_positiveLine)+")");
+		}
+	}
 }

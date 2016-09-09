@@ -6,6 +6,7 @@ import weka.core.Instances;
 import yueyueGo.NominalClassifier;
 import yueyueGo.utility.ClassifyUtility;
 import yueyueGo.utility.AppContext;
+import yueyueGo.utility.FormatUtility;
 
 // 按月分析（全年使用同一模型和评估值）
 //number of results merged and processed: 1412480
@@ -53,7 +54,7 @@ public class BaggingJ48 extends NominalClassifier {
 	
 	@Override
 	protected Classifier buildModel(Instances train) throws Exception {
-		cachedOldClassInstances=null; 
+		m_cachedOldClassInstances=null; 
 		
 		//设置基础的m5p classifier参数
 		J48 model=ClassifyUtility.prepareJ48(train.numInstances(),leafMinObjNum,divided);
@@ -94,11 +95,16 @@ public class BaggingJ48 extends NominalClassifier {
 	
 	@Override
 	public String getIdentifyName(){
-		String idenString;
+		String idenString=classifierName;
+		
+		if (m_positiveLine!=0){ //如果用自定义的标尺线区分Class的正负，则特别标记
+			idenString+="("+FormatUtility.formatDouble(m_positiveLine)+")";
+		}
+		
 		if (useMultiPCA==true){
-			idenString =classifierName+"-multiPCA";
+			idenString +="-multiPCA";
 		}else{
-			idenString =classifierName+"-singlePCA";
+			idenString +="-singlePCA";
 		}
 
 		return idenString;

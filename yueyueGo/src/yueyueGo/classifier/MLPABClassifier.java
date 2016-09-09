@@ -154,7 +154,7 @@ public class MLPABClassifier extends NominalClassifier {
 
 		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();
 
-		cachedOldClassInstances=null; 
+		m_cachedOldClassInstances=null; 
 		int minNumObj=train.numInstances()/300;
 		String batchSize=Integer.toString(minNumObj);
 		MultilayerPerceptron model=new MultilayerPerceptron();

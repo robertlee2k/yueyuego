@@ -93,7 +93,7 @@ public class MLPClassifier extends NominalClassifier {
 
 	@Override
 	protected Classifier buildModel(Instances train) throws Exception {
-		cachedOldClassInstances=null; 
+		m_cachedOldClassInstances=null; 
 		 
 		int minNumObj=train.numInstances()/300;
 		String batchSize=Integer.toString(minNumObj);

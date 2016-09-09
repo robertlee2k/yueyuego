@@ -79,7 +79,7 @@ public class RandomForestClassifier extends NominalClassifier	 {
 			double sample_limit, double sample_upper, double tp_fp_ratio)
 			throws Exception {
 		
-		cachedOldClassInstances=null; 
+		m_cachedOldClassInstances=null; 
 		RandomForest rModel=(RandomForest)model;
 		double outofBagError=rModel.measureOutOfBagError();
 		System.out.println(" -----------random Forest evaluation for FULL Market.... , out of bag error="+outofBagError);
