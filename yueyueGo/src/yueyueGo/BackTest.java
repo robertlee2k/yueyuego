@@ -69,8 +69,8 @@ public class BackTest {
 
 		RUNNING_THREADS=10;
 
-		shouyilv_thresholds=new double[] {0.01,0.02,0.03,0.03,0.04};
-		winrate_thresholds=new double[] {0.3,0.3,0.3,0.3,0.3};
+		shouyilv_thresholds=new double[] {-100,-100,-100,-100,-100};//{0.01,0.02,0.03,0.03,0.04};
+		winrate_thresholds=new double[] {0,0,0,0,0};//{0.3,0.3,0.3,0.3,0.3};
 		
 		splitYear=new String[] {
 //			  "2008","2009","2010","2011","2012","2013","2014","2015","2016"
@@ -111,14 +111,6 @@ public class BackTest {
 	 */
 	protected void callTestBack() throws Exception, IOException {
 		//按二分类器回测历史数据
-		//	投票感知器
-//		VotedPerceptionClassifier nModel = new VotedPerceptionClassifier();
-//		Instances nominalResult=testBackward(nModel);
-
-		//REP树（C45树的变种，规则过于简单）
-//		REPTreeClassifier nModel = new REPTreeClassifier();
-//		Instances nominalResult=testBackward(nModel);
-
 		
 		//神经网络
 //		MLPClassifier nModel = new MLPClassifier();
@@ -127,18 +119,18 @@ public class BackTest {
 		AdaboostClassifier nModel=new AdaboostClassifier();
 //		BaggingJ48 nModel=new BaggingJ48();
 
-		Instances nominalResult=testBackward(nModel);
+//		Instances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
-//		Instances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
+		Instances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 
 		//按连续分类器回测历史数据
 //		M5PClassifier cModel=new M5PClassifier();
 //		M5PABClassifier cModel=new M5PABClassifier();
 		BaggingM5P cModel=new BaggingM5P();
 		
-		Instances continuousResult=testBackward(cModel);
+//		Instances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
-//		Instances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
+		Instances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 		
 		//统一输出统计结果
 		nModel.outputClassifySummary();

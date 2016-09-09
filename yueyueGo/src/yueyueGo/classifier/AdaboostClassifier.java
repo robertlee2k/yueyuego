@@ -61,6 +61,14 @@ import yueyueGo.utility.AppContext;
 //selected shouyilv average for full market =2.24% count=19364
 //selected shouyilv average for hs300 =1.44% count=2231
 //selected shouyilv average for zz500 =1.58% count=4345
+
+//20160909 model 暂存结果
+//@ shouyilv thredhold= /-000.00% /-000.00% /-000.00% /-000.00% /-000.00% /
+//number of records for full market=1412480
+//shouyilv average for full market=0.80%
+//selected shouyilv average for full market =1.93% count=45794
+//selected shouyilv average for hs300 =0.71% count=5574
+//selected shouyilv average for zz500 =1.32% count=11057
 public class AdaboostClassifier extends NominalClassifier {
 
 	/**

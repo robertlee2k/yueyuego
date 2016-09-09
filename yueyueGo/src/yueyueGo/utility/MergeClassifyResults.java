@@ -218,21 +218,22 @@ public class MergeClassifyResults {
 				double goodRatio=new Double(goodChangeNum).doubleValue()/resultChanged;
 				System.out.print(" good ratio="+FormatUtility.formatPercent(goodRatio));
 				System.out.print(" average changed shouyilv="+FormatUtility.formatPercent(changedShouyilv/resultChanged));
-				if (dataToAdd.equals(ArffFormat.RESULT_PREDICTED_WIN_RATE)){
-					System.out.print(" @ winrate thredhold=");
-					for (int i = 0; i < winrate_thresholds.length; i++) {
-						System.out.print(" /"+FormatUtility.formatPercent(winrate_thresholds[i]));
-					}
-					System.out.println(" /");
+			}	
+			if (dataToAdd.equals(ArffFormat.RESULT_PREDICTED_WIN_RATE)){
+				System.out.print(" @ winrate thredhold=");
+				for (int i = 0; i < winrate_thresholds.length; i++) {
+					System.out.print(" /"+FormatUtility.formatPercent(winrate_thresholds[i]));
 				}
-				else{
-					System.out.print(" @ shouyilv thredhold=");
-					for (int i = 0; i < shouyilv_thresholds.length; i++) {
-						System.out.print(" /"+FormatUtility.formatPercent(shouyilv_thresholds[i]));
-					}
-					System.out.println(" /");
-				}
+				System.out.println(" /");
 			}
+			else{
+				System.out.print(" @ shouyilv thredhold=");
+				for (int i = 0; i < shouyilv_thresholds.length; i++) {
+					System.out.print(" /"+FormatUtility.formatPercent(shouyilv_thresholds[i]));
+				}
+				System.out.println(" /");
+			}
+
 			return mergedResult;
 		}
 
