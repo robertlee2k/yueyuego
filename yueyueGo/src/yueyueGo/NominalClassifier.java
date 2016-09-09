@@ -239,10 +239,16 @@ public abstract class NominalClassifier extends BaseClassifier{
 			throw new Exception("Data inconsistent error! Cached old class value id = "+cachedID+" while incoming id ="+id+" for index: "+ index );
 		}
 		double shouyilv=m_cachedOldClassInstances.instance(index).classValue();
-		if (newClassValue==0 && shouyilv>0 || newClassValue==1 && shouyilv<=0){ 
-			throw new Exception("Data inconsistent error! Cached old class value id = "+shouyilv+" while incoming newClassValue ="+newClassValue+" for index: "+ index );
+		if (newClassValue== 0 && shouyilv>m_positiveLine || newClassValue==1 && shouyilv<=m_positiveLine){ 
+			throw new Exception("Data inconsistent error! Cached old class value id = "+shouyilv+" while incoming newClassValue ="+newClassValue+" for index: "+ index +" @m_positiveLine="+m_positiveLine);
 		}
 		return shouyilv;
+	}
+	
+	@Override
+	 //这里覆盖父类方法，为二分类器classify后统计正负收益个数时提供分界值
+	protected double getPositiveLine(){
+	 return m_positiveLine;	
 	}
 	
 

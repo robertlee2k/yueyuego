@@ -227,7 +227,7 @@ public abstract class BaseClassifier implements Serializable{
 			
 			double shouyilv=getShouyilv(i,ids[i],curr.classValue());
 			
-			if (shouyilv>0){
+			if (shouyilv>getPositiveLine()){ //这里的positive是个相对于positiveLine的相对概念
 				totalPositiveShouyilv.addValue(shouyilv);
 			}else {
 				totalNegativeShouyilv.addValue(shouyilv);
@@ -241,7 +241,7 @@ public abstract class BaseClassifier implements Serializable{
 			if (pred >=t_min  && pred <= t_max) {
 				selected = 1.0;
 
-				if (shouyilv>0){
+				if (shouyilv>getPositiveLine()){ //这里的positive是个相对于positiveLine的相对概念
 					selectedPositiveShouyilv.addValue(shouyilv);
 				}else {
 					selectedNegativeShouyilv.addValue(shouyilv);
@@ -268,6 +268,11 @@ public abstract class BaseClassifier implements Serializable{
 	// 对于连续分类器， 收益率就是classvalue，缺省直接返回， 对于nominal分类器，调用子类的方法获取暂存的收益率
 	protected double getShouyilv(int index,double id, double newClassValue) throws Exception{
 		return newClassValue;
+	}
+	
+	// 对于连续分类器，positiveLine就是0， 缺省直接返回0， 对于nominal分类器，调用子类的方法获取m_positiveLine
+	protected double getPositiveLine(){
+		return 0;
 	}
 
 	@SuppressWarnings("deprecation")

@@ -30,11 +30,14 @@ public class BaggingJ48 extends NominalClassifier {
 	
 	@Override
 	protected void initializeParams() {
-		m_skipTrainInBacktest = true;
+		m_skipTrainInBacktest = false;
 		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
-
+				
 		classifierName="baggingJ48";
+		
+		m_positiveLine=0.03; //二分类class的分界值，这个需要在workpath之前设
+
 		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
 		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
 		
@@ -49,6 +52,8 @@ public class BaggingJ48 extends NominalClassifier {
 		TP_FP_RATIO_LIMIT=new double[] { 1.8, 1.7, 1.3, 1.1, 0.9};//选择样本阀值时TP FP RATIO从何开始
 		TP_FP_BOTTOM_LINE=0.8; //TP/FP的下限
 		DEFAULT_THRESHOLD=0.6; // 找不出threshold时缺省值。
+		
+		
 	}
 
 	
