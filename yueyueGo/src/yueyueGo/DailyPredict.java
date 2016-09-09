@@ -132,21 +132,21 @@ public class DailyPredict {
 
 		//MLP主成分分析预测
 		MLPABClassifier nABModel=new MLPABClassifier();
-		predictWithDB(nABModel,PREDICT_WORK_DIR);
+		predictWithDB(nABModel);
 
 		//M5P主成分分析预测
 		M5PABClassifier cABModel=new M5PABClassifier();
-		predictWithDB(cABModel,PREDICT_WORK_DIR);		
+		predictWithDB(cABModel);		
 
 		//BaggingM5P
 		BaggingM5P cBagModel=new BaggingM5P();
-		Instances baggingInstances=predictWithDB(cBagModel,PREDICT_WORK_DIR);
+		Instances baggingInstances=predictWithDB(cBagModel);
 		//保留一下结果
 		FileUtility.saveCSVFile(baggingInstances, PREDICT_RESULT_DIR+cBagModel.getIdentifyName()+"Selected Result"+FormatUtility.getDateStringFor(1)+".csv");	
 
 		//Adaboost
 		AdaboostClassifier adaModel=new AdaboostClassifier();
-		Instances adaboostInstances=predictWithDB(adaModel,PREDICT_WORK_DIR);		
+		Instances adaboostInstances=predictWithDB(adaModel);		
 		//保留一下结果
 		FileUtility.saveCSVFile(adaboostInstances, PREDICT_RESULT_DIR+adaModel.getIdentifyName()+"Selected Result"+FormatUtility.getDateStringFor(1)+".csv");	
 
@@ -158,7 +158,7 @@ public class DailyPredict {
 
 		//以adaboost为主，合并bagging
 		System.out.println("-----now output combined predictions----------"+adaModel.getIdentifyName());
-		Instances left=FileUtility.loadDataFromFile(PREDICT_RESULT_DIR+ "LEFT "+FormatUtility.getDateStringFor(1)+".arff"); //获取刚生成的左侧文件（主要存了CODE）
+		Instances left=FileUtility.loadDataFromFile(getLeftArffFileName(adaModel)); //获取刚生成的左侧文件（主要存了CODE）
 		MergeClassifyResults merge=new MergeClassifyResults(shouyilv_thresholds, winrate_thresholds);
 		Instances mergedOutput=merge.mergeResults(adaboostInstances,baggingInstances,ArffFormat.RESULT_PREDICTED_PROFIT,left);
 		mergedOutput=InstanceUtility.removeAttribs(mergedOutput, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
@@ -181,19 +181,19 @@ public class DailyPredict {
 
 		//BaggingM5P
 		BaggingM5PFullModel cBagModel=new BaggingM5PFullModel();
-		Instances cBagInstances=predictFullModelWithDB(cBagModel,PREDICT_WORK_DIR);		
+		Instances cBagInstances=predictWithDB(cBagModel);		
 
 		//BaggingJ48
 		BaggingJ48FullModel nBagModel=new BaggingJ48FullModel();
-		Instances nBagInstances=predictFullModelWithDB(nBagModel,PREDICT_WORK_DIR);		
+		Instances nBagInstances=predictWithDB(nBagModel);		
 
 		cBagModel.outputClassifySummary();
 		nBagModel.outputClassifySummary();
 
 		//合并baggingJ48和baggingM5P
 		System.out.println("-----now output combined predictions----------"+cBagModel.getIdentifyName());
-		Instances left=FileUtility.loadDataFromFile(PREDICT_RESULT_DIR+ "LEFT "+FormatUtility.getDateStringFor(1)+".arff"); //获取刚生成的左侧文件（主要存了CODE）
-		//				InstanceUtility.keepAttributes(cBagInstances, ArffFormat.DAILY_PREDICT_RESULT_LEFT) ; //为了使用下面的合并文件方法造出一个LEFT来
+		Instances left=FileUtility.loadDataFromFile(getLeftArffFileName(cBagModel)); //获取刚生成的左侧文件（主要存了CODE）
+
 		MergeClassifyResults merge=new MergeClassifyResults(shouyilv_thresholds, winrate_thresholds);
 		Instances mergedOutput=merge.mergeResults(cBagInstances,nBagInstances,ArffFormat.RESULT_PREDICTED_WIN_RATE,left);
 		mergedOutput=InstanceUtility.removeAttribs(mergedOutput, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
@@ -202,25 +202,11 @@ public class DailyPredict {
 	}
 
 
-	//直接访问数据库预测每天的自选股数据，不单独保存每个模型的选股
-	private static Instances predictFullModelWithDB(BaseClassifier clModel, String pathName) throws Exception {
-		System.out.println("predict using classifier : "+clModel.getIdentifyName()+" @ prediction work path :"+pathName);
-		System.out.println("-----------------------------");
-		Instances fullData = DBAccessFullModel.LoadFullModelDataFromDB();//"2016-08-26");
-		//保留DAILY RESULT的LEFT部分在磁盘上
-		Instances left = new Instances(fullData);
-		left=InstanceUtility.keepAttributes(fullData, ArffFormat.DAILY_PREDICT_RESULT_LEFT);
-		FileUtility.SaveDataIntoFile(left, pathName + "LEFT ("+clModel.getModelArffFormat()+") "+FormatUtility.getDateStringFor(1)+".arff");
 
-		//去掉多读入的CODE部分
-		fullData=InstanceUtility.removeAttribs(fullData, new String[]{ArffFormat.CODE});
 
-		Instances result=predict(clModel, pathName, fullData);
-
-		return result;
+	private static String getLeftArffFileName(BaseClassifier clModel){
+		return PREDICT_RESULT_DIR+"LEFT ("+clModel.getModelArffFormat()+") "+FormatUtility.getDateStringFor(1)+".arff";
 	}
-
-
 
 	//	//使用文件预测每天的增量数据
 	//	private void predictWithFile(BaseClassifier clModel, String pathName,
@@ -235,20 +221,35 @@ public class DailyPredict {
 	//	}
 
 
-	//直接访问数据库预测每天的增量数据
-	private static Instances predictWithDB(BaseClassifier clModel, String pathName) throws Exception {
-		System.out.println("predict using classifier : "+clModel.getIdentifyName()+" @ prediction work path :"+pathName);
+	//直接访问数据库预测每天的自选股数据，不单独保存每个模型的选股
+	private static Instances predictWithDB(BaseClassifier clModel) throws Exception {
+		System.out.println("predict using classifier : "+clModel.getIdentifyName()+" @ prediction work path :"+PREDICT_WORK_DIR);
 		System.out.println("-----------------------------");
-		Instances fullData = DBAccess.LoadDataFromDB(clModel.getModelArffFormat());
+		Instances fullData = null;
+		
+		int dataFormat=clModel.getModelArffFormat();
+		switch (dataFormat){
+		case ArffFormat.LEGACY_FORMAT:
+			fullData=DBAccess.LoadDataFromDB(dataFormat);
+			break;
+		case ArffFormat.EXT_FORMAT:
+			fullData=DBAccess.LoadDataFromDB(dataFormat);
+			break;
+		case ArffFormatFullModel.FULLMODEL_FORMAT:
+			fullData = DBAccessFullModel.LoadFullModelDataFromDB();//"2016-08-26");
+			break;			
+		default:
+			throw new Exception("invalid arffFormat type");
+		}
 		//保留DAILY RESULT的LEFT部分在磁盘上
 		Instances left = new Instances(fullData);
 		left=InstanceUtility.keepAttributes(fullData, ArffFormat.DAILY_PREDICT_RESULT_LEFT);
-		FileUtility.SaveDataIntoFile(left, pathName + "LEFT ("+clModel.getModelArffFormat()+") "+FormatUtility.getDateStringFor(1)+".arff");
+		FileUtility.SaveDataIntoFile(left,  getLeftArffFileName(clModel));
 
 		//去掉多读入的CODE部分
 		fullData=InstanceUtility.removeAttribs(fullData, new String[]{ArffFormat.CODE});
 
-		Instances result=predict(clModel, pathName, fullData);
+		Instances result=predict(clModel,  fullData);
 
 		return result;
 	}
@@ -256,7 +257,7 @@ public class DailyPredict {
 
 	//用模型预测数据
 
-	private static Instances predict(BaseClassifier clModel, String pathName, Instances inData) throws Exception {
+	private static Instances predict(BaseClassifier clModel, Instances inData) throws Exception {
 		Instances newData = null;
 		Instances result = null;
 
@@ -296,9 +297,9 @@ public class DailyPredict {
 			String evalFileName;
 			modelFileName=PREDICT_MODELS.get(clModel.classifierName);
 			evalFileName=PREDICT_MODELS.get(clModel.classifierName+EVAL_FILE);
-			modelFileName = pathName+"\\"+clModel.getIdentifyName()+ modelFileName
+			modelFileName = PREDICT_WORK_DIR+"\\"+clModel.getIdentifyName()+ modelFileName
 					+ clModel.m_policySubGroup[j]	;				
-			evalFileName = pathName+"\\"+clModel.getIdentifyName()+evalFileName
+			evalFileName = PREDICT_WORK_DIR+"\\"+clModel.getIdentifyName()+evalFileName
 					+ clModel.m_policySubGroup[j]+BaseClassifier.THRESHOLD_EXTENSION	;				
 
 			clModel.setModelFileName(modelFileName);

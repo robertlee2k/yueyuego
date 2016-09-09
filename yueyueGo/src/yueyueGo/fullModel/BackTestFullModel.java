@@ -7,7 +7,7 @@ import yueyueGo.ArffFormat;
 import yueyueGo.BaseClassifier;
 import yueyueGo.EnvConstants;
 import yueyueGo.NominalClassifier;
-import yueyueGo.ProcessData;
+import yueyueGo.BackTest;
 import yueyueGo.fullModel.classifier.BaggingJ48FullModel;
 import yueyueGo.fullModel.classifier.BaggingM5PFullModel;
 import yueyueGo.utility.FileUtility;
@@ -15,7 +15,7 @@ import yueyueGo.utility.InstanceUtility;
 import yueyueGo.utility.AppContext;
 import yueyueGo.utility.MergeClassifyResults;
 
-public class ProcessDataFullModel extends ProcessData {
+public class BackTestFullModel extends BackTest {
 	private boolean applyToMaModelInTestBack=false; //default is false
 	
 	//覆盖父类
@@ -41,7 +41,7 @@ public class ProcessDataFullModel extends ProcessData {
 
 	public static void main(String[] args) {
 		try {
-			ProcessDataFullModel fullModelWorker=new ProcessDataFullModel();
+			BackTestFullModel fullModelWorker=new BackTestFullModel();
 			fullModelWorker.init();
 			
 			

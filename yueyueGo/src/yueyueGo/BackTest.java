@@ -40,7 +40,7 @@ import yueyueGo.utility.InstanceUtility;
 import yueyueGo.utility.AppContext;
 import yueyueGo.utility.MergeClassifyResults;
 
-public class ProcessData {
+public class BackTest {
 
 	protected String C_ROOT_DIRECTORY =EnvConstants.AVG_LINE_ROOT_DIR;
 	protected String BACKTEST_RESULT_DIR=null;
@@ -82,7 +82,7 @@ public class ProcessData {
 	
 	public static void main(String[] args) {
 		try {
-			ProcessData worker=new ProcessData();
+			BackTest worker=new BackTest();
 			worker.init();
 
 			//调用回测函数回测
