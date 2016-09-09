@@ -13,6 +13,7 @@ import yueyueGo.fullModel.classifier.BaggingM5PFullModel;
 import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.InstanceUtility;
 import yueyueGo.utility.AppContext;
+import yueyueGo.utility.MergeClassifyResults;
 
 public class ProcessDataFullModel extends ProcessData {
 	private boolean applyToMaModelInTestBack=false; //default is false
@@ -27,8 +28,8 @@ public class ProcessDataFullModel extends ProcessData {
 		
 		RUNNING_THREADS=5;
 		
-		SHOUYILV_THREDHOLD=new double[] {0.03};
-		WINRATE_THREDHOLD=new double[] {0.5};
+		shouyilv_thresholds=new double[] {0.03};
+		winrate_thresholds=new double[] {0.5};
 		
 		splitYear=new String[] {
 			"2008","2009","2010","2011","2012","2013","2014","2015","2016"
@@ -235,7 +236,10 @@ public class ProcessDataFullModel extends ProcessData {
 		}else{
 			left=FileUtility.loadDataFromFile(C_ROOT_DIRECTORY+ArffFormatFullModel.FULL_MODEL_ARFF_PREFIX+"-left.arff");
 		}
-		Instances mergedResult = mergeResults(resultData, referenceData,dataToAdd, left);
+		
+		MergeClassifyResults merge=new MergeClassifyResults(shouyilv_thresholds, winrate_thresholds);
+		Instances mergedResult = merge.mergeResults(resultData, referenceData,dataToAdd, left);
+		
 		//返回结果之前需要按TradeDate重新排序
 		int tradeDateIndex=InstanceUtility.findATTPosition(mergedResult, ArffFormat.TRADE_DATE);
 		mergedResult.sort(tradeDateIndex-1);
