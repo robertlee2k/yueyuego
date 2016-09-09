@@ -165,7 +165,7 @@ public class ClassifySummaries {
 
 		long selectedCount=selectedNegativeShouyilv.getN();;
 		long totalCount=totalNegativeShouyilv.getN();
-		System.out.println("*** prediction selected count= " + selectedCount+ "*** while  total count= "+ totalCount); 
+		System.out.println("****** prediction selected count= " + selectedCount+ " while  total count= "+ totalCount); 
 		this.summary_selected_count.addValue(selectedCount);
 
 		
