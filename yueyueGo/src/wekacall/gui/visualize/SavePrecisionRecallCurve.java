@@ -21,23 +21,21 @@
 
 package wekacall.gui.visualize;
 
+import java.io.File;
+import java.util.Random;
+
+import javax.swing.JFrame;
+
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.classifiers.bayes.NaiveBayes;
 import weka.classifiers.evaluation.ThresholdCurve;
 import weka.core.Instances;
-import weka.core.Utils;
 import weka.core.converters.ConverterUtils.DataSource;
-import weka.gui.visualize.PlotData2D;
-import weka.gui.visualize.ThresholdVisualizePanel;
 import weka.gui.visualize.JComponentWriter;
 import weka.gui.visualize.JPEGWriter;
-
-import java.io.File;
-
-import java.util.Random;
-
-import javax.swing.JFrame;
+import weka.gui.visualize.PlotData2D;
+import weka.gui.visualize.ThresholdVisualizePanel;
  
 /**
  * Generates and saves a precision-recall curve. Uses a cross-validation

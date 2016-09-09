@@ -148,7 +148,8 @@ public class ExperimentPanel extends JPanel implements
   protected JSpinner m_RunsSpinner = new JSpinner();
 
   /** The type of evaluation: cross-validation or random split. */
-  protected JComboBox m_EvalCombo = new JComboBox(new String[] {
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+protected JComboBox m_EvalCombo = new JComboBox(new String[] {
     "Cross-validation", "Random split" });
 
   /**
@@ -161,7 +162,8 @@ public class ExperimentPanel extends JPanel implements
   protected JTextField m_FoldsPercText = new JTextField("10", 10);
 
   /** Lets the user select the class column. */
-  protected JComboBox m_ClassCombo = new JComboBox();
+  @SuppressWarnings("rawtypes")
+protected JComboBox m_ClassCombo = new JComboBox();
 
   /** Click to start running the experiment. */
   protected JButton m_StartBut = new JButton("Start");
@@ -459,7 +461,8 @@ public class ExperimentPanel extends JPanel implements
    * 
    * @param inst a set of Instances
    */
-  @Override
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+@Override
   public void setInstances(Instances inst) {
     m_Instances = inst;
 
@@ -587,7 +590,8 @@ public class ExperimentPanel extends JPanel implements
       }
 
       m_RunThread = new Thread() {
-        @Override
+        @SuppressWarnings({ "rawtypes", "unchecked" })
+		@Override
         public void run() {
           // set up everything:
           m_Log.statusMessage("Setting up...");

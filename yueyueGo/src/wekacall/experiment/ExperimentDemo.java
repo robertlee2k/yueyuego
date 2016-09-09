@@ -72,7 +72,8 @@ public class ExperimentDemo {
    * @param args	the commandline arguments
    * @throws Exception	if something goes wrong
    */
-  public static void main(String[] args) throws Exception {
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+public static void main(String[] args) throws Exception {
     // parameters provided?
     if (args.length == 0) {
       System.out.println(
