@@ -20,6 +20,8 @@ public class ClassifySummaries {
 	
 	protected String identityName;
 	
+	protected boolean isPredictionSummary=false; // 区分这是回测的summary还是预测的summary（输出格式不一样）
+	
 	public String getEvaluationSummary() {
 		return evaluationSummary;
 	}
@@ -32,7 +34,11 @@ public class ClassifySummaries {
 		this.evaluationSummary = evaluationSummary+stringToAppend;
 	}
 	
-	public ClassifySummaries(String classifyIdentity) {
+	public boolean isForPrediction(){
+		return isPredictionSummary;
+	}
+	
+	public ClassifySummaries(String classifyIdentity, boolean forPrediction) {
 		identityName=classifyIdentity;
 		summary_selected_TPR= new SynchronizedDescriptiveStatistics();
 		summary_selected_positive= new SynchronizedDescriptiveStatistics();
@@ -43,13 +49,14 @@ public class ClassifySummaries {
 		summary_selectedShouyilv= new SynchronizedDescriptiveStatistics();
 		summary_totalShouyilv= new SynchronizedDescriptiveStatistics();
 		evaluationSummary="";
+		isPredictionSummary=forPrediction;
 	}	
 	//用于评估单次分类的效果。 对于回测来说，评估的规则有以下几条：
 	//1. 市场牛市时（量化定义为total_TPR>0.5)， 应保持绝对胜率（selected_TPR>0.5）且选择足够多的机会， 以20单元格5均线为例。单月机会(selectedCount）应该大于2*20/5
 	//2. 市场小牛市时（量化定义为total_TPR介于0.33与0.5之间)， 应提升胜率（final_lift>1），且保持机会， 以20单元格5均线为例。单月机会(selectedCount）应该大于20/5
 	//3. 市场小熊市时（量化定义为total_TPR介于0.2到0.33之间)，  应提升绝对胜率（selected_TPR>0.33）或 选择少于半仓 selectedCount小于20/4/2
 	//3. 市场小熊市时（量化定义为total_TPR<0.2)，  应提升绝对胜率（selected_TPR>0.33）或 选择少于2成仓 selectedCount小于20/4/5
-	public void computeClassifySummaries(DescriptiveStatistics totalPositiveShouyilv,DescriptiveStatistics totalNegativeShouyilv,DescriptiveStatistics selectedPositiveShouyilv,DescriptiveStatistics selectedNegativeShouyilv) {
+	public void computeClassifySummaries(String yearSplit, String policySplit,DescriptiveStatistics totalPositiveShouyilv,DescriptiveStatistics totalNegativeShouyilv,DescriptiveStatistics selectedPositiveShouyilv,DescriptiveStatistics selectedNegativeShouyilv) {
 		
 		double selected_TPR=0;
 		double total_TPR=0;
@@ -121,6 +128,11 @@ public class ClassifySummaries {
 		//输出评估结果字符串
 		//"整体正收益股数,整体股数,整体TPR,所选正收益股数,所选总股数,所选股TPR,提升率,所选股平均收益率,整体平均收益率,收益率差,是否改善\r\n";
 		StringBuffer evalSummary=new StringBuffer();
+		
+		evalSummary.append(yearSplit);
+		evalSummary.append(",");
+		evalSummary.append(policySplit);
+		evalSummary.append(",");
 		evalSummary.append(positive);
 		evalSummary.append(",");
 		evalSummary.append(totalCount);
@@ -142,11 +154,38 @@ public class ClassifySummaries {
 		evalSummary.append(FormatUtility.formatPercent(shouyilv_lift));
 		evalSummary.append(",");
 		evalSummary.append(resultJudgement);
-		this.evaluationSummary+=evalSummary.toString();
+		
+		appendEvaluationSummary(evalSummary.toString());
+		
 		
 	}
+	
+	//每日预测时，因为没有收益率数据，不做评估，仅作存储
+	public void savePredictSummaries(String policySplit,DescriptiveStatistics totalNegativeShouyilv,DescriptiveStatistics selectedNegativeShouyilv) {
 
+		long selectedCount=selectedNegativeShouyilv.getN();;
+		long totalCount=totalNegativeShouyilv.getN();
+		System.out.println("*** prediction selected count= " + selectedCount+ "*** while  total count= "+ totalCount); 
+		this.summary_selected_count.addValue(selectedCount);
 
+		
+		String evalSummary="For Policy:( "+ policySplit+" ): selectedCount="+selectedCount+" out of totalCount="+totalCount+" using thresholds=";
+		appendEvaluationSummary(evalSummary);
+
+	}
+	
+	public void outputPredictSummary() throws Exception{
+		
+		String selected_count_sum=FormatUtility.formatDouble(summary_selected_count.getSum(),8,0);
+		System.out.println("......................");
+		System.out.println("===============================output summary===================================== for : "+identityName);
+		System.out.println(this.getEvaluationSummary());
+		System.out.println("Total Selected Count: "+selected_count_sum);
+		System.out.println("===============================end of summary=====================================for : "+identityName);
+		System.out.println("......................");
+		
+	}
+	
 	public void outputClassifySummary() throws Exception{
 		String selected_TPR_mean=FormatUtility.formatPercent(summary_selected_TPR.getMean());
 		String selected_TPR_SD=FormatUtility.formatPercent(summary_selected_TPR.getStandardDeviation());

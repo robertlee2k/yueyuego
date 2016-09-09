@@ -121,10 +121,10 @@ public abstract class BaseClassifier implements Serializable{
 		return eval;
 	}	
 
-	//为每日预测用，这时候没有yearSplit，也没有policySplit
+	//为每日预测用，这时候没有yearSplit （policySplit是存在的）
 	// result parameter will be changed in this method!
-	public void predictData(Instances test, Instances result)		throws Exception {
-		predictData(test, result,"","");
+	public void predictData(Instances test, Instances result,String policySplit)		throws Exception {
+		predictData(test, result,"",policySplit);
 	}
 	
 	//为回测历史数据使用
@@ -252,8 +252,14 @@ public abstract class BaseClassifier implements Serializable{
 			result.add(inst);
 		}
 		
-		classifySummaries.appendEvaluationSummary(yearSplit+","+policySplit+",");
-		classifySummaries.computeClassifySummaries(totalPositiveShouyilv,totalNegativeShouyilv,selectedPositiveShouyilv,selectedNegativeShouyilv);
+
+		if ("".equals(yearSplit) ){
+			//这是预测每日数据时，没有实际收益率数据可以做评估 (上述逻辑会让所有的数据都进入negative的分支）
+			classifySummaries.savePredictSummaries(policySplit,totalNegativeShouyilv,selectedNegativeShouyilv);
+		}else{
+			//这是进行历史回测数据时，根据历史收益率数据进行阶段评估
+			classifySummaries.computeClassifySummaries(yearSplit,policySplit,totalPositiveShouyilv,totalNegativeShouyilv,selectedPositiveShouyilv,selectedNegativeShouyilv);
+		}
 		String evalSummary=","+FormatUtility.formatDouble(thresholdMin)+","+FormatUtility.formatDouble(thresholdMax)+"\r\n";  //输出评估结果及所使用阀值上、下限
 		classifySummaries.appendEvaluationSummary(evalSummary);
 		
@@ -396,7 +402,11 @@ public abstract class BaseClassifier implements Serializable{
 	public void outputClassifySummary() throws Exception{
 		ClassifySummaries c=getClassifySummaries();
 		if (c!=null){
-			c.outputClassifySummary();
+			if (c.isForPrediction()){
+				c.outputPredictSummary();
+			}else{
+				c.outputClassifySummary();
+			}
 		}else{
 			System.out.println("ClassifySummaries object for "+getIdentifyName()+ " is null, cannot output summary");
 		}

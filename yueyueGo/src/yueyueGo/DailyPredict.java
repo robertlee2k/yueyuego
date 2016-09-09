@@ -262,7 +262,7 @@ public class DailyPredict {
 		Instances result = null;
 
 		//创建存储评估结果的数据容器
-		ClassifySummaries modelSummaries=new ClassifySummaries(clModel.getIdentifyName());
+		ClassifySummaries modelSummaries=new ClassifySummaries(clModel.getIdentifyName(),true);
 		clModel.setClassifySummaries(modelSummaries);
 
 		Instances fullData=calibrateAttributesForDailyData(inData,clModel.getModelArffFormat());
@@ -323,7 +323,7 @@ public class DailyPredict {
 
 			}
 
-			clModel.predictData(newData, result);
+			clModel.predictData(newData, result,clModel.m_policySubGroup[j]);
 			System.out.println("accumulated predicted rows: "+ result.numInstances());
 			System.out.println("complete for : "+ clModel.m_policySubGroup[j]);
 		}
