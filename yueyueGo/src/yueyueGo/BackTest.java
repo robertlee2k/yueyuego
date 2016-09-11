@@ -67,9 +67,9 @@ public class BackTest {
 		BACKTEST_RESULT_DIR=AppContext.getBACKTEST_RESULT_DIR();
 		
 
-		RUNNING_THREADS=5;
+		RUNNING_THREADS=10;
 
-		shouyilv_thresholds=new double[] {-100,-100,-100,-100,-100};//{0.01,0.02,0.03,0.03,0.04};
+		shouyilv_thresholds=new double[] {0,0,0,0,0};//{-100,-100,-100,-100,-100};//{0.01,0.02,0.03,0.03,0.04};
 		winrate_thresholds=new double[] {0,0,0,0,0};//{0.3,0.3,0.3,0.3,0.3};
 		
 		splitYear=new String[] {
