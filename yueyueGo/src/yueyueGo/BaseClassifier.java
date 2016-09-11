@@ -59,8 +59,11 @@ public abstract class BaseClassifier implements Serializable{
 	public double[] SAMPLE_LOWER_LIMIT; // 各条均线选择样本的下限
 	public double[] SAMPLE_UPPER_LIMIT; // 各条均线选择样本的上限
 	public double[] TP_FP_RATIO_LIMIT; //各条均线TP/FP选择阀值比例上限
-	protected double TP_FP_BOTTOM_LINE=0.5; //TP/FP的缺省下限
+	protected double TP_FP_BOTTOM_LINE; //TP/FP的缺省下限
+	protected double DEFAULT_THRESHOLD; // 二分类器找不出threshold时缺省值。
 	
+	
+	protected double m_positiveLine; // 用来定义收益率大于多少时算positive，缺省为0
 
 	
 	protected String model_filename;
@@ -70,6 +73,9 @@ public abstract class BaseClassifier implements Serializable{
 	protected ClassifySummaries classifySummaries;
 	
 	public BaseClassifier() {
+		m_positiveLine=0;
+		TP_FP_BOTTOM_LINE=0.5; //TP/FP的缺省下限
+		DEFAULT_THRESHOLD=0.7;// 二分类器找不出threshold时缺省值。
 		initializeParams();		
 	}
 	

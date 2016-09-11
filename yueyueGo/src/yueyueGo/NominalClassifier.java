@@ -19,9 +19,9 @@ public abstract class NominalClassifier extends BaseClassifier{
 	 * 
 	 */
 	private static final long serialVersionUID = 5570283670170193026L;
-	protected double DEFAULT_THRESHOLD=0.7; // 找不出threshold时缺省值。
+
 	protected Instances m_cachedOldClassInstances=null;
-	protected double m_positiveLine=0; // 用来定义收益率大于多少时算positive，缺省为0
+	
 
 
 	
