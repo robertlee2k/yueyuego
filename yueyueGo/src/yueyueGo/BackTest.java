@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 import weka.core.Attribute;
 import weka.core.Instances;
-import yueyueGo.classifier.BaggingJ48;
+import yueyueGo.classifier.AdaboostClassifier;
 import yueyueGo.classifier.BaggingM5P;
 import yueyueGo.utility.AppContext;
 import yueyueGo.utility.BlockedThreadPoolExecutor;
@@ -116,8 +116,8 @@ public class BackTest {
 //		MLPClassifier nModel = new MLPClassifier();
 //		MLPABClassifier nModel = new MLPABClassifier();
 //		RandomForestClassifier nModel=new RandomForestClassifier ();
-//		AdaboostClassifier nModel=new AdaboostClassifier();
-		BaggingJ48 nModel=new BaggingJ48();
+		AdaboostClassifier nModel=new AdaboostClassifier();
+//		BaggingJ48 nModel=new BaggingJ48();
 
 		Instances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
@@ -128,9 +128,9 @@ public class BackTest {
 //		M5PABClassifier cModel=new M5PABClassifier();
 		BaggingM5P cModel=new BaggingM5P();
 		
-		Instances continuousResult=testBackward(cModel);
+//		Instances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
-//		Instances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
+		Instances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 		
 		//统一输出统计结果
 		nModel.outputClassifySummary();
