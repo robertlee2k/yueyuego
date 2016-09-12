@@ -4,10 +4,11 @@ import weka.classifiers.Classifier;
 import weka.classifiers.meta.AdaBoostM1;
 import weka.classifiers.trees.J48;
 import weka.core.Instances;
+import yueyueGo.ModelStore;
 import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.NominalClassifier;
-import yueyueGo.utility.ClassifyUtility;
 import yueyueGo.utility.AppContext;
+import yueyueGo.utility.ClassifyUtility;
 
 //1.按年使用模型和评估文件
 //
@@ -87,7 +88,8 @@ public class AdaboostClassifier extends NominalClassifier {
 		
 		classifierName="adaboost";
 		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
-
+		m_modelEvalFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
+		
 		leafMinObjNum=300; 	//j48树最小节点叶子数
 		divided=300; //将trainingData分成多少份
 		boost_iteration=10; 	//boost特有参数
@@ -121,27 +123,5 @@ public class AdaboostClassifier extends NominalClassifier {
 
 		return classifier;
 	}
-	@Override
-	public Classifier loadModel(String yearSplit, String policySplit) throws Exception{
-		//这是为MLP单独准备的模型，模型文件是按年读取，但evaluation文件不变仍按月
-		int inputYear=Integer.parseInt(yearSplit.substring(0,4));
 
-		//为特定年份下半年增加一个模型，提高准确度
-		String halfYearString="";
-		if(yearSplit.length()==6){
-			int inputMonth=Integer.parseInt(yearSplit.substring(4,6));
-			//TODO 
-			if ((inputYear==2016) && inputMonth>=6){
-				halfYearString="06";
-			}
-		}
-		String filename=this.WORK_PATH+this.WORK_FILE_PREFIX +"-"+classifierName+ "-" + inputYear +halfYearString+ MA_PREFIX + policySplit;
-		
-		this.setModelFileName(filename);
-		
-//		// 全年用同一的eval
-//		this.setEvaluationFilename(filename+".eval");
-	
-		return loadModelFromFile();
-	}
 }

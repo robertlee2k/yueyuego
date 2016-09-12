@@ -6,11 +6,11 @@ import java.util.Vector;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import weka.classifiers.Classifier;
+import weka.classifiers.Evaluation;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
-import weka.classifiers.Evaluation;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.InstanceUtility;
 import yueyueGo.utility.ThresholdData;
@@ -47,7 +47,7 @@ public abstract class ContinousClassifier extends BaseClassifier {
 //			v.addAll(v_hs300);
 //			System.out.println(" *********** end of evaluating for HS300 INDEX....");		
 //		}
-		ThresholdData.saveEvaluationToFile(this.getEvaluationFilename(), v);
+		ThresholdData.saveEvaluationToFile(m_modelStore.getEvalFileName(), v);
 		return v;
 		
 	}

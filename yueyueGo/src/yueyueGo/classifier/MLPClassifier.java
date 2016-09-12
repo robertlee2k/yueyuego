@@ -3,6 +3,7 @@ package yueyueGo.classifier;
 import weka.classifiers.Classifier;
 import weka.classifiers.functions.MultilayerPerceptron;
 import weka.core.Instances;
+import yueyueGo.ModelStore;
 import yueyueGo.NominalClassifier;
 import yueyueGo.utility.AppContext;
 
@@ -81,7 +82,8 @@ public class MLPClassifier extends NominalClassifier {
 
 		classifierName="mlp";
 		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
-
+		m_modelEvalFileShareMode=ModelStore.YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
+		
 		m_noCaculationAttrib=true; //这个模型是用短格式的
 		EVAL_RECENT_PORTION = 0.7; // 计算最近数据阀值从历史记录中选取多少比例的最近样本
 		SAMPLE_LOWER_LIMIT =new double[] { 0.01, 0.01, 0.02, 0.02, 0.02 }; // 各条均线选择样本的下限
@@ -106,25 +108,5 @@ public class MLPClassifier extends NominalClassifier {
 
 		return model;
 	}
-	@Override
-	public Classifier loadModel(String yearSplit, String policySplit) throws Exception{
-		//这是为MLP单独准备的模型，模型文件是按年读取，但evaluation文件不变仍按月
-		int inputYear=Integer.parseInt(yearSplit.substring(0,4));
 
-		//		//TODO 为2014和2016年增加一个模型
-		//		int inputMonth=Integer.parseInt(yearSplit.substring(4,6));
-		//		if (inputYear==2014 && inputMonth>6){
-		//			inputYear=201407;
-		//		}else if (inputYear==2016 && inputMonth==5) {
-		//			inputYear=201605;
-		//		}
-		//		if (inputYear>=2014)
-		//			inputYear=2014;
-		String filename=this.WORK_PATH+this.WORK_FILE_PREFIX +"-"+classifierName+ "-" + inputYear + MA_PREFIX + policySplit;//如果使用固定模型
-
-		this.setModelFileName(filename);
-
-
-		return loadModelFromFile();
-	}
 }

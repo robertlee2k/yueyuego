@@ -301,9 +301,10 @@ public class DailyPredict {
 					+ clModel.m_policySubGroup[j]	;				
 			evalFileName = PREDICT_WORK_DIR+"\\"+clModel.getIdentifyName()+evalFileName
 					+ clModel.m_policySubGroup[j]+BaseClassifier.THRESHOLD_EXTENSION	;				
+			ModelStore modelStore=new ModelStore(modelFileName,evalFileName);
+			clModel.setModelStore(modelStore);
 
-			clModel.setModelFileName(modelFileName);
-			clModel.setEvaluationFilename(evalFileName);
+
 
 			System.out.println(" new data size , row : "+ newData.numInstances() + " column: "	+ newData.numAttributes());
 			if (result == null) {// initialize result instances

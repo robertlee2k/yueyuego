@@ -4,6 +4,7 @@ import weka.classifiers.Classifier;
 import weka.classifiers.trees.M5P;
 import weka.core.Instances;
 import yueyueGo.ContinousClassifier;
+import yueyueGo.ModelStore;
 import yueyueGo.utility.ClassifyUtility;
 import yueyueGo.utility.AppContext;
 import yueyueGo.utility.ThresholdData;
@@ -170,6 +171,9 @@ public class BaggingM5P extends ContinousClassifier {
 		classifierName="baggingM5P";	
 		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
 		setWorkPathAndCheck(AppContext.getCONTINOUS_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
+		m_modelEvalFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
+		
+		
 		adjustThresholdBottom=false;//不用MeanABSError调整threshold
 		bagging_iteration=10;	//bagging特有参数
 		leafMinObjNum=300; //叶子节点最小的
@@ -200,27 +204,7 @@ public class BaggingM5P extends ContinousClassifier {
 		}
 	}
 
-	@Override
-	public Classifier loadModel(String yearSplit, String policySplit) throws Exception{
-		//这是单独准备的模型，模型文件是按年读取，但evaluation文件不变仍按月
-		int inputYear=Integer.parseInt(yearSplit.substring(0,4));
-		
-		//为特定年份下半年增加一个模型，提高准确度
-		String halfYearString="";
-		if(yearSplit.length()==6){
-			int inputMonth=Integer.parseInt(yearSplit.substring(4,6));
-			//TODO 
-			if ((inputYear==2016) && inputMonth>=6){
-				halfYearString="06";
-			}
-		}
-		String filename=this.WORK_PATH+this.WORK_FILE_PREFIX +"-"+classifierName+ "-" + inputYear +halfYearString+ MA_PREFIX + policySplit;//如果使用固定模型
-		
-		this.setModelFileName(filename);
 
-	
-		return loadModelFromFile();
-	}	
 	
 	@Override
 	protected ThresholdData processThresholdData(ThresholdData eval){

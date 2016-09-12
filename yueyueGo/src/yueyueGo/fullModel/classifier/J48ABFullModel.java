@@ -3,6 +3,7 @@ package yueyueGo.fullModel.classifier;
 import weka.classifiers.Classifier;
 import weka.classifiers.trees.J48;
 import weka.core.Instances;
+import yueyueGo.ModelStore;
 import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.NominalClassifier;
 import yueyueGo.utility.ClassifyUtility;
@@ -25,7 +26,7 @@ public class J48ABFullModel extends NominalClassifier {
 		
 		classifierName= "J48ABFullModel";
 		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
-
+		m_modelEvalFileShareMode=ModelStore.YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 
 		leafMinObjNum=1000; 	//j48树最小节点叶子数
 		divided=800; //将trainingData分成多少份
@@ -54,22 +55,5 @@ public class J48ABFullModel extends NominalClassifier {
 	    classifier.buildClassifier(train);
 	    return classifier;
 	}
-	
-	@Override
-	public Classifier loadModel(String yearSplit, String policySplit) throws Exception{
 
-		int inputYear=Integer.parseInt(yearSplit.substring(0,4));
-//		//这是为Fullmodel单独准备的模型，模型文件是按年分阶段读取
-//		if (inputYear>2015){
-//			inputYear=2015;
-//		}else if (inputYear>2009){
-//			inputYear=2009;
-//		}
-		String filename=this.WORK_PATH+this.WORK_FILE_PREFIX +"-"+this.classifierName+ "-" + inputYear + MA_PREFIX + policySplit;//如果使用固定模型
-		
-		this.setModelFileName(filename);
-
-	
-		return loadModelFromFile();
-	}	
 }

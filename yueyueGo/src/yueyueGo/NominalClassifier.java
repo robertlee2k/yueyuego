@@ -46,7 +46,7 @@ public abstract class NominalClassifier extends BaseClassifier{
 //			System.out.println(" *********** end of evaluating for HS300 INDEX....");		
 //		}
 
-		ThresholdData.saveEvaluationToFile(this.getEvaluationFilename(), v);
+		ThresholdData.saveEvaluationToFile(m_modelStore.getEvalFileName(), v);
 		return v;
 		
 	}

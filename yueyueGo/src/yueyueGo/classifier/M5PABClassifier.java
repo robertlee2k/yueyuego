@@ -6,6 +6,7 @@ import weka.classifiers.Classifier;
 import weka.classifiers.trees.M5P;
 import weka.core.Instances;
 import yueyueGo.ContinousClassifier;
+import yueyueGo.ModelStore;
 import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.utility.ClassifyUtility;
 import yueyueGo.utility.AppContext;
@@ -94,6 +95,7 @@ public class M5PABClassifier extends ContinousClassifier {
 		
 		classifierName="m5pAB";
 		setWorkPathAndCheck(AppContext.getCONTINOUS_CLASSIFIER_DIR()+getIdentifyName()+"\\");
+		m_modelEvalFileShareMode=ModelStore.YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 
 		leafMinObjNum=300; //叶子节点最小的
 		divided=300; //将trainingData分成多少份
@@ -123,16 +125,5 @@ public class M5PABClassifier extends ContinousClassifier {
 		return classifier;
 	}
 	
-	@Override
-	public Classifier loadModel(String yearSplit, String policySplit) throws Exception{
-		//这是为M5PAP单独准备的模型，模型文件是按年读取，但evaluation文件不变仍按月
-		int inputYear=Integer.parseInt(yearSplit.substring(0,4));
 
-		String filename=this.WORK_PATH+this.WORK_FILE_PREFIX +"-"+classifierName+ "-" + inputYear + MA_PREFIX + policySplit;//如果使用固定模型
-		
-		this.setModelFileName(filename);
-
-	
-		return loadModelFromFile();
-	}	
 }

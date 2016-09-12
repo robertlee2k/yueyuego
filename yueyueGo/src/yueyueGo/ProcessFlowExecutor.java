@@ -38,7 +38,7 @@ public class ProcessFlowExecutor implements Callable<String> {
 		
 		System.out.println("-----------------start for " + yearSplit + "-----------------policy=" + policySplit);
 		
-		clModel.generateModelAndEvalFileName(yearSplit,policySplit);
+		clModel.locateModelStore(yearSplit,policySplit);
 
 		Classifier model = null;
 
@@ -48,10 +48,10 @@ public class ProcessFlowExecutor implements Callable<String> {
 			model = clModel.trainData(trainingData);
 		} 
 		
-		//TODO 之所以这样load进来又释放，是因为loadModel里面有子类设置不同mdl和eval的方法，以后再改。
-		if (model==null) {//如果model不是刚刚新建的，试着从已存在的文件里加载
-			model = clModel.loadModel(yearSplit,policySplit);
-		}		
+//		//TODO 之所以这样load进来又释放，是因为loadModel里面有子类设置不同mdl和eval的方法，以后再改。
+//		if (model==null) {//如果model不是刚刚新建的，试着从已存在的文件里加载
+//			model = clModel.loadModel(yearSplit,policySplit);
+//		}		
 
 		//是否需要重做评估阶段
 		if (clModel.m_skipEvalInBacktest == false) {

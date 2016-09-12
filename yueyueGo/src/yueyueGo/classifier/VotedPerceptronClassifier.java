@@ -61,17 +61,6 @@ public class VotedPerceptronClassifier extends NominalClassifier {
 
 		return model;
 	}
-	
-	@Override
-	public Classifier loadModel(String yearSplit, String policySplit) throws Exception{
-		//这是单独准备的模型，模型文件和evaluation都是按年读取
-		int inputYear=Integer.parseInt(yearSplit.substring(0,4));
-		String filename=this.WORK_PATH+this.WORK_FILE_PREFIX +"-"+classifierName+ "-" + inputYear + MA_PREFIX + policySplit;
-//		String evalFileName=this.WORK_PATH+this.WORK_FILE_PREFIX +"-"+this.classifierName+ "-" + inputYear + MA_PREFIX + policySplit+THRESHOLD_EXTENSION;
-		
-		this.setModelFileName(filename);
-//		this.setEvaluationFilename(evalFileName);
-	
-		return loadModelFromFile();
-	}
+
+
 }

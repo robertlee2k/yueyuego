@@ -1,6 +1,6 @@
 package yueyueGo.fullModel.classifier;
 
-import weka.classifiers.Classifier;
+import yueyueGo.ModelStore;
 import yueyueGo.classifier.M5PABClassifier;
 import yueyueGo.utility.AppContext;
 
@@ -17,7 +17,8 @@ public class M5PABFullModel extends M5PABClassifier {
 	
 		classifierName="m5pABFullModel";
 		setWorkPathAndCheck(AppContext.getCONTINOUS_CLASSIFIER_DIR()+getIdentifyName()+"\\");
-
+		m_modelEvalFileShareMode=ModelStore.YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
+		
 		m_skipTrainInBacktest = true;
 		m_skipEvalInBacktest = true;
 		m_policySubGroup = new String[]{""};
@@ -32,21 +33,4 @@ public class M5PABFullModel extends M5PABClassifier {
 		TP_FP_BOTTOM_LINE=0.9; //TP/FP的下限
 	}
 	
-	@Override
-	public Classifier loadModel(String yearSplit, String policySplit) throws Exception{
-
-		int inputYear=Integer.parseInt(yearSplit.substring(0,4));
-//		//这是为Fullmodel单独准备的模型，模型文件是按年分阶段读取
-//		if (inputYear>2014){
-//			inputYear=2014;
-//		}else if (inputYear>2009){
-//			inputYear=2009;
-//		}
-		String filename=this.WORK_PATH+this.WORK_FILE_PREFIX +"-"+classifierName+ "-" + inputYear + MA_PREFIX + policySplit;//如果使用固定模型
-		
-		this.setModelFileName(filename);
-
-	
-		return loadModelFromFile();
-	}	
 }

@@ -12,7 +12,6 @@ import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
-import weka.core.SerializationHelper;
 import weka.core.SerializedObject;
 import yueyueGo.utility.ClassifySummaries;
 import yueyueGo.utility.FileUtility;
@@ -29,9 +28,6 @@ public abstract class BaseClassifier implements Serializable{
 	public static final String MA_PREFIX = " MA ";
 	public static final String ARFF_EXTENSION = ".arff";
 	public static final String THRESHOLD_EXTENSION = ".eval";
-	public static final String TXT_EXTENSION = ".txt";
-	public static final String MODEL_FILE_EXTENSION = ".mdl";
-	
 	//名称
 	public String classifierName;
 	
@@ -39,7 +35,9 @@ public abstract class BaseClassifier implements Serializable{
 	protected String WORK_PATH ;
 	protected String WORK_FILE_PREFIX= "extData2005-2016";;
 	
-
+	protected ModelStore m_modelStore; //model 和 eval的持久化封装类类
+	protected int m_modelEvalFileShareMode; //model文件和Eval的共享模式。
+	
 	public boolean m_noCaculationAttrib=true;  //缺省情况下，限制输入文件中的计算字段 （在子类中覆盖）
 	protected int modelArffFormat=ArffFormat.EXT_FORMAT; //缺省使用扩展arff
 
@@ -66,16 +64,13 @@ public abstract class BaseClassifier implements Serializable{
 	protected double m_positiveLine; // 用来定义收益率大于多少时算positive，缺省为0
 
 	
-	protected String model_filename;
-	protected String evaluation_filename;
-
-
 	protected ClassifySummaries classifySummaries;
 	
 	public BaseClassifier() {
 		m_positiveLine=0;
 		TP_FP_BOTTOM_LINE=0.5; //TP/FP的缺省下限
 		DEFAULT_THRESHOLD=0.7;// 二分类器找不出threshold时缺省值。
+		m_modelEvalFileShareMode=ModelStore.SEPERATE_MODEL_AND_EVAL; //model文件和Eval的共享模式,缺省为 回测时按yearsplit和policysplit分割使用model和eval文件
 		initializeParams();		
 	}
 	
@@ -88,10 +83,9 @@ public abstract class BaseClassifier implements Serializable{
 	public Classifier trainData(Instances train) throws Exception {
 		Classifier model=buildModel(train);
 		// save model + header
-		Vector<Object> v = new Vector<Object>();
-		v.add(model);
-		v.add(new Instances(train, 0));
-		saveModelToFiles(model, v);
+		m_modelStore.setModel(model);
+		m_modelStore.setModelFormat(new Instances(train, 0));
+		m_modelStore.saveModelToFiles();
 		System.out.println("Training finished!");
 		return model;
 	}
@@ -140,7 +134,7 @@ public abstract class BaseClassifier implements Serializable{
 
 		
 		ThresholdData evalData=new ThresholdData();
-		evalData.loadDataFromFile(this.getEvaluationFilename());
+		evalData.loadDataFromFile(m_modelStore.getEvalFileName());
 		
 		evalData=processThresholdData(evalData);
 		
@@ -166,14 +160,8 @@ public abstract class BaseClassifier implements Serializable{
 			double thresholdMin, double thresholdMax, String yearSplit,String policySplit)
 			throws Exception, IllegalStateException {
 		// read classify model and header
-		String modelFileName=this.getModelFileName()+MODEL_FILE_EXTENSION;
-		@SuppressWarnings("unchecked")
-		Vector<Object> v = (Vector<Object>) SerializationHelper.read(modelFileName);
-		Classifier model = (Classifier) v.get(0);
-		Instances header = (Instances) v.get(1);
-		System.out.println("Classifier Model Loaded From: "+ modelFileName);
-
-
+		Classifier model =m_modelStore.loadModelFromFile();
+		Instances header =m_modelStore.getModelFormat();
 		// There is additional ID attribute in test instances, so we should save it and remove before doing prediction
 		double[] ids=test.attributeToDoubleArray(ArffFormat.ID_POSITION - 1);  
 		//删除已保存的ID 列，让待分类数据与模型数据一致 （此处的index是从1开始）
@@ -292,56 +280,18 @@ public abstract class BaseClassifier implements Serializable{
 
 
 	
-	public String getModelFileName() {
-		return model_filename;
-	}
-	
-	public void setModelFileName(String modelFileName) {
-		model_filename=modelFileName;
-	}
 	
 	//生成回测时使用的model文件和eval文件名称
-	public void generateModelAndEvalFileName(String yearSplit,String policySplit) {
-		String modelFile=this.WORK_PATH+this.WORK_FILE_PREFIX +"-"+classifierName+ "-" + yearSplit + MA_PREFIX + policySplit;
-		setModelFileName(modelFile);
-		setEvaluationFilename(modelFile+THRESHOLD_EXTENSION);
+	public void locateModelStore(String yearSplit,String policySplit) {
+		ModelStore modelStore=new ModelStore(yearSplit,policySplit,this);
+		m_modelStore=modelStore;
+	}
+	//生成日常预测时使用的model文件和eval文件名称
+	public void setModelStore(ModelStore m){
+		m_modelStore=m;
 	}
 	
 	
-	//缺省读取model_filename的文件模型，但对于某些无法每月甚至每年生成模型的分类算法，在子类里override这个方法
-	public Classifier loadModel(String yearSplit, String policySplit) throws Exception{
-		return loadModelFromFile();
-	}
-
-
-	protected Classifier loadModelFromFile() throws Exception{
-		String modelFileName=this.getModelFileName()+ MODEL_FILE_EXTENSION;
-		try{
-			@SuppressWarnings("unchecked")
-			Vector<Object> v = (Vector<Object>) SerializationHelper.read(modelFileName);
-			Classifier model = (Classifier) v.get(0);
-			System.out.println("Classifier Model Loaded: "+ modelFileName);
-			return model;
-		} catch(IOException e){
-			System.err.println("error when loading: "+modelFileName);
-			throw e;
-		}
-	}	
-
-	protected void saveModelToFiles(Classifier model, Vector<Object> v)
-			throws Exception {
-		String modelFileName=this.getModelFileName();
-
-		try{
-			FileUtility.write(modelFileName+TXT_EXTENSION, model.toString(), "utf-8");
-			SerializationHelper.write(modelFileName+MODEL_FILE_EXTENSION, v);
-			//		SerializationHelper.write(modelFileName+WEKA_MODEL_EXTENSION, model);
-			System.out.println("models saved to :"+ modelFileName);
-		} catch(IOException e){
-			System.err.println("error when saving: "+modelFileName);
-			throw e;
-		}
-	}
 	
 	// arffType="train" or "test" or "eval"
 	public void saveArffFile(Instances trainingData,String arffType,String yearSplit,String policySplit) throws IOException{
@@ -395,13 +345,6 @@ public abstract class BaseClassifier implements Serializable{
 		this.classifySummaries = classifySummaries;
 	}
 
-	public String getEvaluationFilename() {
-		return evaluation_filename;
-	}
-
-	public void setEvaluationFilename(String evaluation_filename) {
-		this.evaluation_filename = evaluation_filename;
-	}
 	
 	public void cleanUpClassifySummaries(){
 		ClassifySummaries c=getClassifySummaries();
