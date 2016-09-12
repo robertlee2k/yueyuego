@@ -32,13 +32,13 @@ public abstract class BaseClassifier implements Serializable{
 	
 	//子类定义的工作路径
 	protected String WORK_PATH ;
-	protected String WORK_FILE_PREFIX= "extData2005-2016";;
-	
-	protected ModelStore m_modelStore; //model 和 eval的持久化封装类类
+	protected String WORK_FILE_PREFIX;
 	protected int m_modelEvalFileShareMode; //model文件和Eval的共享模式。
 	
-	public boolean m_noCaculationAttrib=true;  //缺省情况下，限制输入文件中的计算字段 （在子类中覆盖）
-	protected int modelArffFormat=ArffFormat.EXT_FORMAT; //缺省使用扩展arff
+	protected ModelStore m_modelStore; //model 和 eval的持久化封装类类
+	
+	public boolean m_noCaculationAttrib;  //加入的计算字段与否
+	protected int modelArffFormat; //arff的格式
 
 
 	//用于策略分组
@@ -66,10 +66,13 @@ public abstract class BaseClassifier implements Serializable{
 	protected ClassifySummaries classifySummaries;
 	
 	public BaseClassifier() {
-		m_positiveLine=0;
+		m_positiveLine=0; //缺省的以收益率正负为二分类的正负。
+		m_noCaculationAttrib=false;  //缺省情况下，加入的计算字段 （在子类中覆盖）
+		modelArffFormat=ArffFormat.EXT_FORMAT; //缺省使用扩展arff
 		TP_FP_BOTTOM_LINE=0.5; //TP/FP的缺省下限
 		DEFAULT_THRESHOLD=0.7;// 二分类器找不出threshold时缺省值。
 		m_modelEvalFileShareMode=ModelStore.SEPERATE_MODEL_AND_EVAL; //model文件和Eval的共享模式,缺省为 回测时按yearsplit和policysplit分割使用model和eval文件
+		WORK_FILE_PREFIX= "extData2005-2016";
 		initializeParams();		
 	}
 	
