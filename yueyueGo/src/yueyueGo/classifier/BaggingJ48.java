@@ -21,6 +21,7 @@ import yueyueGo.utility.FormatUtility;
 
 
 //1 20160912 
+//全市场收益率优先的累计净值在1.8-2.2之间
 //===============================output summary===================================== for : baggingJ48(0.03)-multiPCA
 //Monthly selected_TPR mean: 17.40% standard deviation=21.86% Skewness=1.57 Kurtosis=2.21
 //Monthly selected_LIFT mean : 1.11

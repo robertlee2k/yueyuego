@@ -10,66 +10,39 @@ import yueyueGo.NominalClassifier;
 import yueyueGo.utility.AppContext;
 import yueyueGo.utility.ClassifyUtility;
 
-//1.按年使用模型和评估文件
+//1.  20160912结果
+//  全市场10-50单元格 ，收益率优先年平均（非年化）21%/20%/18%/17%：累计净值 3.75、3.37、3.24、3.20
+// 胜率优先的明显弱于收益率优先， 累计净值在2-3之间
+//m_modelEvalFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 //
-////boost特有参数
-//int boost_iteration=10;
-////j48特有参数
-//int leafMinObjNum=300;
+//leafMinObjNum=300; 	//j48树最小节点叶子数
+//divided=300; //将trainingData分成多少份
+//boost_iteration=10; 	//boost特有参数
+//
 //m_noCaculationAttrib=false; //使用计算字段
-//m_policySubGroup = new String[]{"5","10","20","30","60" };
-//m_skipTrainInBacktest = true;
-//m_skipEvalInBacktest = true;
-//m_sepeperate_eval_HS300=false;//不单独评估
-//m_seperate_classify_HS300=false;
-//EVAL_RECENT_PORTION = 0.9; // 计算最近数据阀值从历史记录中选取多少比例的最近样本		
+//EVAL_RECENT_PORTION = 1; // 计算最近数据阀值从历史记录中选取多少比例的最近样本		
 //SAMPLE_LOWER_LIMIT =new double[] { 0.04, 0.05, 0.06, 0.07, 0.08 }; // 各条均线选择样本的下限
 //SAMPLE_UPPER_LIMIT =new double[] { 0.07, 0.08, 0.11, 0.12, 0.13 }; // 各条均线选择样本的上限
 //TP_FP_RATIO_LIMIT=new double[] { 1.8, 1.7, 1.3, 1.1, 0.9};//选择样本阀值时TP FP RATIO从何开始
 //TP_FP_BOTTOM_LINE=0.8; //TP/FP的下限
 //DEFAULT_THRESHOLD=0.6; // 找不出threshold时缺省值。
 //===============================output summary===================================== for : adaboost
-//Monthly selected_TPR mean: 32.88% standard deviation=22.01% Skewness=0.47 Kurtosis=-0.64
+//Monthly selected_TPR mean: 32.73% standard deviation=21.54% Skewness=0.49 Kurtosis=-0.6
 //Monthly selected_LIFT mean : 1.1
-//Monthly selected_positive summary: 15,673
-//Monthly selected_count summary: 40,750
-//Monthly selected_shouyilv average: 1.21% standard deviation=6.73% Skewness=2.9 Kurtosis=14.82
+//Monthly selected_positive summary: 17,505
+//Monthly selected_count summary: 45,794
+//Monthly selected_shouyilv average: 1.21% standard deviation=6.70% Skewness=2.88 Kurtosis=14.29
 //Monthly total_shouyilv average: 0.98% standard deviation=6.13% Skewness=3.04 Kurtosis=15.43
-//mixed selected positive rate: 38.46%
-//Monthly summary_judge_result summary: good number= 296 bad number=219
+//mixed selected positive rate: 38.23%
+//Monthly summary_judge_result summary: good number= 289 bad number=226
 //===============================end of summary=====================================for : adaboost
-//thredhold----------0%
-//result changed because of reference data not matched=5123 while good change number=3562
-//good ratio=69.53% average changed shouyilv=0.89% @ thredhold=0.00%
+//result changed because of reference data not matched=5955 while good change number=4131
+//good ratio=69.37% average changed shouyilv=1.11% @ shouyilv thredhold= /0.00% /0.00% /0.00% /0.00% /0.00% /
 //number of records for full market=1412480
 //shouyilv average for full market=0.80%
-//selected shouyilv average for full market =2.15% count=35740
-//selected shouyilv average for hs300 =0.80% count=4230
-//selected shouyilv average for zz500 =1.41% count=8276
-//thredhold----------1%
-//result changed because of reference data not matched=12659 while good change number=8750
-//good ratio=69.12% average changed shouyilv=1.38% @ thredhold=1.00%
-//number of records for full market=1412480
-//shouyilv average for full market=0.80%
-//selected shouyilv average for full market =2.26% count=28204
-//selected shouyilv average for hs300 =1.14% count=3281
-//selected shouyilv average for zz500 =1.54% count=6515
-//thredhold----------2%
-//result changed because of reference data not matched=21499 while good change number=15253
-//good ratio=70.95% average changed shouyilv=1.76% @ thredhold=2.00%
-//number of records for full market=1412480
-//shouyilv average for full market=0.80%
-//selected shouyilv average for full market =2.24% count=19364
-//selected shouyilv average for hs300 =1.44% count=2231
-//selected shouyilv average for zz500 =1.58% count=4345
-
-//20160909 model 暂存结果
-//@ shouyilv thredhold= /-000.00% /-000.00% /-000.00% /-000.00% /-000.00% /
-//number of records for full market=1412480
-//shouyilv average for full market=0.80%
-//selected shouyilv average for full market =1.93% count=45794
-//selected shouyilv average for hs300 =0.71% count=5574
-//selected shouyilv average for zz500 =1.32% count=11057
+//selected shouyilv average for full market =2.06% count=39839
+//selected shouyilv average for hs300 =0.75% count=4815
+//selected shouyilv average for zz500 =1.35% count=9360
 public class AdaboostClassifier extends NominalClassifier {
 
 	/**
