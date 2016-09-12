@@ -38,21 +38,20 @@ public class ProcessFlowExecutor implements Callable<String> {
 		
 		System.out.println("-----------------start for " + yearSplit + "-----------------policy=" + policySplit);
 		
-		clModel.locateModelStore(yearSplit,policySplit);
+		
 
 		Classifier model = null;
 
 		//是否需要重做训练阶段
-		if (clModel.m_skipTrainInBacktest == false) { 
+		if (clModel.m_skipTrainInBacktest == false) {
 			System.out.println("start to build model");
+			//初始化回测创建模型时使用的modelStore对象（这里严格按yearsplit和policysplit分割处理）
+			clModel.initModelStore(yearSplit,policySplit);
 			model = clModel.trainData(trainingData);
 		} 
 		
-//		//TODO 之所以这样load进来又释放，是因为loadModel里面有子类设置不同mdl和eval的方法，以后再改。
-//		if (model==null) {//如果model不是刚刚新建的，试着从已存在的文件里加载
-//			model = clModel.loadModel(yearSplit,policySplit);
-//		}		
-
+		//找到回测评估、预测时应该使用modelStore对象（主要为获取model文件和eval文件名称）
+		clModel.locateModelStore(yearSplit,policySplit);
 		//是否需要重做评估阶段
 		if (clModel.m_skipEvalInBacktest == false) {
 			clModel.evaluateModel(trainingData, model, lower_limit,

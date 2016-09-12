@@ -27,7 +27,6 @@ public abstract class BaseClassifier implements Serializable{
 	//统一常量
 	public static final String MA_PREFIX = " MA ";
 	public static final String ARFF_EXTENSION = ".arff";
-	public static final String THRESHOLD_EXTENSION = ".eval";
 	//名称
 	public String classifierName;
 	
@@ -278,10 +277,15 @@ public abstract class BaseClassifier implements Serializable{
 		return InstanceUtility.compareInstancesFormat(test, header);
 	}
 
-
+	//初始化回测创建模型时使用的modelStore对象（这里严格按yearsplit和policysplit分割处理）
+	public void initModelStore(String yearSplit,String policySplit) {
+		String modelFileName=ModelStore.concatModeFilenameString(yearSplit, policySplit, this);
+		ModelStore modelStore=new ModelStore(modelFileName,modelFileName+ModelStore.THRESHOLD_EXTENSION);
+		m_modelStore=modelStore;
+	}
 	
-	
-	//生成回测时使用的model文件和eval文件名称
+	//找到回测评估、预测时应该使用modelStore对象（主要为获取model文件和eval文件名称）
+	//此类可以在子类中被覆盖（通过把yearsplit的值做处理，实现临时多年使用一个模型）
 	public void locateModelStore(String yearSplit,String policySplit) {
 		ModelStore modelStore=new ModelStore(yearSplit,policySplit,this);
 		m_modelStore=modelStore;
@@ -290,8 +294,6 @@ public abstract class BaseClassifier implements Serializable{
 	public void setModelStore(ModelStore m){
 		m_modelStore=m;
 	}
-	
-	
 	
 	// arffType="train" or "test" or "eval"
 	public void saveArffFile(Instances trainingData,String arffType,String yearSplit,String policySplit) throws IOException{
