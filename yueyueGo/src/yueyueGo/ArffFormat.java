@@ -224,7 +224,7 @@ public class ArffFormat {
 	}
 	
 	// 为原始的Arff文件加上计算属性
-	public static Instances addCalculateAttribute(Instances data) {
+	public static Instances addCalculateAttribute(Instances data) throws Exception {
 		Instances result = new Instances(data, 0);
 
 		int row = data.numInstances();
@@ -262,22 +262,25 @@ public class ArffFormat {
 			newRow.setDataset(result);
 
 			// copy same values
+
 			for (int n = 0; n < data.numAttributes() - 1; n++) {
-				Attribute att = data.attribute(newRow.attribute(n).name());
-				if (att != null) {
-					if (att.isNominal()) {
-						String label = oneRow.stringValue(att);
-						int index = att.indexOfValue(label);
-						if (index != -1) {
-							newRow.setValue(n, index);
-						}
-					} else if (att.isNumeric()) {
-						newRow.setValue(n, oneRow.value(att));
-					} else {
-						throw new IllegalStateException(
-								"Unhandled attribute type!");
-					}
-				}
+				Attribute att = data.attribute(n);
+				Attribute newRowAtt=result.attribute(n);
+				InstanceUtility.fullCopyAttribute(oneRow, newRow, att, newRowAtt);
+//				if (att != null) {
+//					if (att.isNominal()) {
+//						String label = oneRow.stringValue(att);
+//						int index = att.indexOfValue(label);
+//						if (index != -1) {
+//							newRow.setValue(n, index);
+//						}
+//					} else if (att.isNumeric()) {
+//						newRow.setValue(n, oneRow.value(att));
+//					} else {
+//						throw new IllegalStateException(
+//								"Unhandled attribute type!");
+//					}
+//				}
 			}
 			// 添加bias相减的部分
 			int addColumn = 0;

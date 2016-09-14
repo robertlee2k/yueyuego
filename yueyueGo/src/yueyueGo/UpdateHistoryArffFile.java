@@ -48,7 +48,7 @@ public class UpdateHistoryArffFile {
 		//			fullData.renameAttribute(ArffFormat.ID_POSITION-1, ArffFormat.ID);
 		//		}
 		//将股票代码，交易日期之类的字段变换为String格式
-		String[] attsConvertToString=new String[]{ArffFormat.TRADE_DATE,ArffFormat.CODE,ArffFormat.SELL_DATE,ArffFormat.DATA_DATE, ArffFormat.SELECTED_AVG_LINE};
+		String[] attsConvertToString=new String[]{ArffFormat.TRADE_DATE,ArffFormat.CODE,ArffFormat.SELL_DATE,ArffFormat.DATA_DATE};
 		String posString=InstanceUtility.returnAttribsPosition(fullData,attsConvertToString);
 		fullData=InstanceUtility.NominalToString(fullData, posString);//"3-6,8");
 

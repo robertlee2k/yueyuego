@@ -176,41 +176,52 @@ public class InstanceUtility {
 		System.out.println("start to calibrate Attributes");	
 		
 		for (int m=0; m<input.numInstances();m++){
-			Instance inst=new DenseInstance(output.numAttributes());
-			inst.setDataset(output);
-			for (int n = 0; n < input.numAttributes() ; n++) { 
-				Attribute incomingAtt = input.attribute(n);
-				Attribute formatAtt=output.attribute(n);
-				
-				String formatAttName=formatAtt.name();
-				String incomingAttName=incomingAtt.name();
-				Instance curr=input.instance(m);
-				if (formatAttName.equals(incomingAttName)){
-					if (formatAtt.isNominal()) {
-						String label = curr.stringValue(incomingAtt);
-						if ("?".equals(label)){
-							System.out.println("Attribute value is empty. value= "+ label+" @ "+ incomingAttName + " current ID ="+curr.value(0));
-						}else {
-							int index = formatAtt.indexOfValue(label);
-							if (index != -1) {
-								inst.setValue(n, index);
-							}else{
-								throw new Exception("Attribute value is invalid. value= "+ label+" @ "+ incomingAttName + " & "+ formatAttName+ " current ID ="+curr.value(0));
-							}
-						}
-					} else if (formatAtt.isString()) {
-						String label = curr.stringValue(incomingAtt);
-						inst.setValue(n, label);
-					} else if (formatAtt.isNumeric()) {
-						inst.setValue(n, input.instance(m).value(incomingAtt));
-					} else {
-						throw new IllegalStateException("Unhandled attribute type!");
-					}
+			Instance copyTo=new DenseInstance(output.numAttributes());
+			copyTo.setDataset(output);
+			Instance copyFrom=input.instance(m);
+			fullCopyInstance(copyFrom,copyTo);
+			output.add(copyTo);
+		}
+	}
+
+	//perform full copy(with String and nominal attributes) from copyFrom to CopyTo
+	public static void fullCopyInstance(Instance copyFrom,Instance copyTo)	throws Exception {
+		for (int n = 0; n < copyFrom.numAttributes() ; n++) { 
+			Attribute copyFromAtt = copyFrom.attribute(n);
+			Attribute copyToAtt=copyTo.attribute(n);
+			fullCopyAttribute(copyFrom, copyTo, copyFromAtt, copyToAtt);
+		}
+	}
+
+	//perform full copy for one Attribute.
+	public static void fullCopyAttribute(Instance copyFrom, Instance copyTo,
+			Attribute copyFromAtt, Attribute copyToAtt) throws Exception {
+		String copyFromAttName=copyFromAtt.name();
+		String copyToAttName=copyToAtt.name();
+
+		if (copyToAttName.equals(copyFromAttName)){
+			if (copyToAtt.isNominal()) {
+				String label = copyFrom.stringValue(copyFromAtt);
+				if ("?".equals(label)){
+					System.out.println("Attribute value is empty. value= "+ label+" @ "+ copyFromAttName + " current ID ="+copyFrom.value(0));
 				}else {
-					throw new Exception("Attribute order error! "+ incomingAttName + " vs. "+ formatAttName);
+					int index = copyToAtt.indexOfValue(label);
+					if (index != -1) {
+						copyTo.setValue(copyToAtt, index);
+					}else{
+						throw new Exception("Attribute value is invalid. value= "+ label+" @ "+ copyFromAttName + " & "+ copyToAttName+ " current ID ="+copyFrom.value(0));
+					}
 				}
+			} else if (copyToAtt.isString()) {
+				String label = copyFrom.stringValue(copyFromAtt);
+				copyTo.setValue(copyToAtt, label);
+			} else if (copyToAtt.isNumeric()) {
+				copyTo.setValue(copyToAtt, copyFrom.value(copyFromAtt));
+			} else {
+				throw new IllegalStateException("Unhandled attribute type!");
 			}
-			output.add(inst);
+		}else {
+			throw new Exception("Attribute order error! "+ copyFromAttName + " vs. "+ copyToAttName);
 		}
 	}
 
