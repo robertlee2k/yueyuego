@@ -12,7 +12,6 @@ import weka.core.Instance;
 import weka.core.Instances;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.InstanceUtility;
-import yueyueGo.utility.ThresholdData;
 
 public abstract class NominalClassifier extends BaseClassifier{
 	/**
@@ -23,36 +22,12 @@ public abstract class NominalClassifier extends BaseClassifier{
 	protected Instances m_cachedOldClassInstances=null;
 	
 
-
-	
-
-	//对模型进行评估
 	@Override
-	public Vector<Double> evaluateModel(Instances train, Classifier model,
-			double sample_limit, double sample_upper, double tp_fp_ratio)
-			throws Exception {
-		
-		m_cachedOldClassInstances=null; 
-		
-		System.out.println(" -----------evaluating for FULL Market....");
-		Vector<Double> v = doModelEvaluation(train, model, sample_limit,sample_upper, tp_fp_ratio);
-		System.out.println(" *********** end of evaluating for FULL Market....");		
-//		// add HS300
-//		if (m_sepeperate_eval_HS300==true){
-//			System.out.println(" -----------evaluating for HS300 INDEX....");
-//			Instances hs300=InstanceUtility.filterDataForIndex(train, ArffFormat.IS_HS300);
-//			Vector<Double> v_hs300 = doModelEvaluation(hs300, model, sample_limit,sample_upper, tp_fp_ratio*0.9); //对沪深300的TPFP降低要求
-//			v.addAll(v_hs300);
-//			System.out.println(" *********** end of evaluating for HS300 INDEX....");		
-//		}
-
-		ThresholdData.saveEvaluationToFile(m_modelStore.getEvalFileName(), v);
-		return v;
-		
-	}
+	//具体的模型评估方法
 
 	protected Vector<Double> doModelEvaluation(Instances train,Classifier model,double sample_limit, double sample_upper,double tp_fp_ratio)
 			throws Exception {
+		m_cachedOldClassInstances=null; 
 		//评估模型
 		Evaluation eval = getEvaluation(train, model,1-EVAL_RECENT_PORTION);
 

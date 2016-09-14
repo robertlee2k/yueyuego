@@ -79,7 +79,7 @@ public abstract class BaseClassifier implements Serializable{
 	//一系列需要子类实现的抽象方法
 	protected abstract void initializeParams();
 	protected abstract Classifier buildModel(Instances trainData) throws Exception;
-	protected abstract Vector<Double> evaluateModel(Instances train,Classifier model,double sample_limit, double sample_upper,double tp_fp_ratio) throws Exception;
+	protected abstract Vector<Double> doModelEvaluation(Instances train,Classifier model, double sample_limit, double sample_upper,	double tp_fp_ratio) throws Exception;
 	protected abstract double classify(Classifier model,Instance curr) throws Exception ;
 	
 	public Classifier trainData(Instances train) throws Exception {
@@ -92,9 +92,10 @@ public abstract class BaseClassifier implements Serializable{
 		return model;
 	}
 	
+
 	
 	//评估模型
-	public Vector<Double> getBestThresholds(Instances train,Classifier model,double sample_limit, double sample_upper,double tp_fp_ratio) throws Exception{
+	public void evaluateModel(Instances train,Classifier model,double sample_limit, double sample_upper,double tp_fp_ratio) throws Exception{
 		if (model==null){ // 跳过建模直接做评估时，重新加载文件
 			model =m_modelStore.loadModelFromFile();
 			Instances header =m_modelStore.getModelFormat();
@@ -105,7 +106,12 @@ public abstract class BaseClassifier implements Serializable{
 				throw new Exception("attention! model and training data structure is not the same. Here is the difference: "+verify);
 			}
 		}
-		return evaluateModel(train,model,sample_limit,sample_upper,tp_fp_ratio);	
+		System.out.println(" -----------evaluating for FULL Market....");
+		Vector<Double> v = doModelEvaluation(train, model, sample_limit,sample_upper, tp_fp_ratio);
+		System.out.println(" *********** end of evaluating for FULL Market....");		
+
+		ThresholdData.saveEvaluationToFile(m_modelStore.getEvalFileName(), v);
+
 	}
 
 	

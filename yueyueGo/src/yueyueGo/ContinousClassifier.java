@@ -13,7 +13,6 @@ import weka.core.Instance;
 import weka.core.Instances;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.InstanceUtility;
-import yueyueGo.utility.ThresholdData;
 
 public abstract class ContinousClassifier extends BaseClassifier {
 	
@@ -25,37 +24,20 @@ public abstract class ContinousClassifier extends BaseClassifier {
 	 */
 	private static final long serialVersionUID = 6815050020696161183L;
 
-	//对模型进行评估
-	public Vector<Double> evaluateModel(Instances train, Classifier model,
-			double sample_limit, double sample_upper, double tp_fp_ratio)
-			throws Exception {
-		//printing out evaluation for full model.
-		Evaluation eval=getEvaluation(train, model,1-EVAL_RECENT_PORTION);
-		
-		double meanABError=eval.meanAbsoluteError();
-		
-		System.out.println(" -----------evaluating for FULL Market....");
-		Vector<Double> v = doModelEvaluation(train, model, sample_limit,sample_upper, tp_fp_ratio);
-		System.out.println("----meanAbsoluteError is="+meanABError);
-		v.add(new Double(meanABError));
-		System.out.println(" *********** end of evaluating for FULL Market....");		
-//		// add HS300
-//		if (m_sepeperate_eval_HS300==true){
-//			System.out.println(" -----------evaluating for HS300 INDEX....");
-//			Instances hs300=InstanceUtility.filterDataForIndex(train, ArffFormat.IS_HS300);
-//			Vector<Double> v_hs300 = doModelEvaluation(hs300, model, sample_limit,sample_upper, tp_fp_ratio*0.9); //对沪深300的TPFP降低要求
-//			v.addAll(v_hs300);
-//			System.out.println(" *********** end of evaluating for HS300 INDEX....");		
-//		}
-		ThresholdData.saveEvaluationToFile(m_modelStore.getEvalFileName(), v);
-		return v;
-		
-	}
 
+
+
+	@Override
 	//具体的模型评估方法
 	protected Vector<Double> doModelEvaluation(Instances train,
 			Classifier model, double sample_limit, double sample_upper,
 			double tp_fp_ratio) throws Exception {
+
+		//printing out evaluation for full model.
+		Evaluation eval=getEvaluation(train, model,1-EVAL_RECENT_PORTION);
+		
+		double meanABError=eval.meanAbsoluteError();
+
 		DescriptiveStatistics stat_pred = new DescriptiveStatistics();
 		double pred = 0.0;
 		//新创建的Instances对象，用于存放预测值和实际值
@@ -82,6 +64,9 @@ public abstract class ContinousClassifier extends BaseClassifier {
 		}
 
 		Vector<Double> v = computeThresholds(sample_limit, sample_upper,tp_fp_ratio, stat_pred, predictions);
+		System.out.println("----meanAbsoluteError is="+meanABError);
+		v.add(new Double(meanABError));
+
 		return v;
 	}
 

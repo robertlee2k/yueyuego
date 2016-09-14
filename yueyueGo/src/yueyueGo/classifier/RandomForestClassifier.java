@@ -63,7 +63,7 @@ public class RandomForestClassifier extends NominalClassifier	 {
 	
 	//对模型进行评估
 	@Override
-	public Vector<Double> evaluateModel(Instances train, Classifier model,
+	protected Vector<Double> doModelEvaluation(Instances train, Classifier model,
 			double sample_limit, double sample_upper, double tp_fp_ratio)
 			throws Exception {
 		

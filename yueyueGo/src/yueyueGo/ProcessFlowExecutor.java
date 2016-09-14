@@ -55,7 +55,7 @@ public class ProcessFlowExecutor implements Callable<String> {
 		//是否需要重做评估阶段
 		if (clModel.m_skipEvalInBacktest == false) {
 			
-			clModel.getBestThresholds(trainingData, model, lower_limit,
+			clModel.evaluateModel(trainingData, model, lower_limit,
 					upper_limit,tp_fp_ratio);
 		}
 		
