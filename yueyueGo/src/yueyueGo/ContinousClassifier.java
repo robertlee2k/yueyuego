@@ -218,7 +218,7 @@ public abstract class ContinousClassifier extends BaseClassifier {
 
 	//对于连续变量，返回预测值
 	protected  double classify(Classifier model,Instance curr) throws Exception {
-		double pred =  model.classifyInstance(curr);;
+		double pred =  model.classifyInstance(curr);
 		return pred;
 	}
 

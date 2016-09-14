@@ -28,7 +28,7 @@ public class BackTestFullModel extends BackTest {
 		
 		RUNNING_THREADS=12;
 		
-		shouyilv_thresholds=new double[] {0.03};
+		shouyilv_thresholds=new double[] {0.02};
 		winrate_thresholds=new double[] {0.5};
 		
 		splitYear=new String[] {

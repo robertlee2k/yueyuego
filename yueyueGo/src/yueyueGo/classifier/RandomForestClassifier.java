@@ -52,7 +52,7 @@ public class RandomForestClassifier extends NominalClassifier	 {
 		model.setNumExecutionSlots(4);
 		double numFeatures=Math.sqrt(new Integer(train.numAttributes()).doubleValue());
 		model.setNumFeatures(new Double(numFeatures).intValue());
-		model.setNumTrees(100);
+
 
 		model.buildClassifier(train);
 		System.out.println("finish buiding"+classifierName+" model.");

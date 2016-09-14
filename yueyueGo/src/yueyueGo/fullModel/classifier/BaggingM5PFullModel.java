@@ -22,7 +22,7 @@ public class BaggingM5PFullModel extends BaggingM5P {
 	@Override
 	protected void initializeParams() {
 		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = true;
+		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{""};
 		modelArffFormat=ArffFormatFullModel.FULLMODEL_FORMAT; //这个模型缺省是为FULLMODEL用的格式
 		
@@ -38,8 +38,8 @@ public class BaggingM5PFullModel extends BaggingM5P {
 		
 		m_noCaculationAttrib=false; //添加计算字段
 		EVAL_RECENT_PORTION = 1; // 计算最近数据阀值从历史记录中选取多少比例的最近样本
-		SAMPLE_LOWER_LIMIT = new double[] {0.03}; // 各条均线选择样本的下限 
-		SAMPLE_UPPER_LIMIT = new double[]  {0.05};
+		SAMPLE_LOWER_LIMIT = new double[] {0.02}; // 各条均线选择样本的下限 
+		SAMPLE_UPPER_LIMIT = new double[]  {0.04};
 		TP_FP_RATIO_LIMIT = new double[] { 1.8}; //选择样本阀值时TP FP RATIO到了何种值就可以提前停止了。
 		TP_FP_BOTTOM_LINE=0.9; //TP/FP的下限
 	}
