@@ -79,7 +79,7 @@ public abstract class BaseClassifier implements Serializable{
 	//一系列需要子类实现的抽象方法
 	protected abstract void initializeParams();
 	protected abstract Classifier buildModel(Instances trainData) throws Exception;
-	public abstract Vector<Double> evaluateModel(Instances train,Classifier model,double sample_limit, double sample_upper,double tp_fp_ratio) throws Exception;
+	protected abstract Vector<Double> evaluateModel(Instances train,Classifier model,double sample_limit, double sample_upper,double tp_fp_ratio) throws Exception;
 	protected abstract double classify(Classifier model,Instance curr) throws Exception ;
 	
 	public Classifier trainData(Instances train) throws Exception {
@@ -90,6 +90,23 @@ public abstract class BaseClassifier implements Serializable{
 		m_modelStore.saveModelToFiles();
 		System.out.println("Training finished!");
 		return model;
+	}
+	
+	
+	//评估模型
+	public Vector<Double> getBestThresholds(Instances train,Classifier model,double sample_limit, double sample_upper,double tp_fp_ratio) throws Exception{
+		if (model==null){ // 跳过建模直接做评估时，重新加载文件
+			model =m_modelStore.loadModelFromFile();
+			Instances header =m_modelStore.getModelFormat();
+			Instances format=new Instances(train,0);
+			format=InstanceUtility.removeAttribs(format,Integer.toString(ArffFormat.ID_POSITION));
+			//验证数据格式是否一致
+			String verify=verifyDataFormat(format, header);
+			if (verify!=null){
+				throw new Exception("attention! model and training data structure is not the same. Here is the difference: "+verify);
+			}
+		}
+		return evaluateModel(train,model,sample_limit,sample_upper,tp_fp_ratio);	
 	}
 
 	

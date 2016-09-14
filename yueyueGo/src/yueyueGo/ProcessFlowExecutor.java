@@ -54,7 +54,8 @@ public class ProcessFlowExecutor implements Callable<String> {
 		clModel.locateModelStore(yearSplit,policySplit);
 		//是否需要重做评估阶段
 		if (clModel.m_skipEvalInBacktest == false) {
-			clModel.evaluateModel(trainingData, model, lower_limit,
+			
+			clModel.getBestThresholds(trainingData, model, lower_limit,
 					upper_limit,tp_fp_ratio);
 		}
 		
