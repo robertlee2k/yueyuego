@@ -63,8 +63,8 @@ public class ModelStore {
 				//为特定年份下半年增加一个模型，提高准确度
 				int inputYear=Integer.parseInt(convertedYear);
 				int inputMonth=Integer.parseInt(yearMonthSplit.substring(4,6));
-				if ((inputYear==2016) && inputMonth>=6){
-					halfYearString="06";
+				if ((inputYear==2016) && inputMonth>=7){
+					halfYearString="07";
 				}
 			}else{
 				convertedYear=yearMonthSplit;
