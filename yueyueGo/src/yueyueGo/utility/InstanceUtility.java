@@ -259,6 +259,11 @@ public class InstanceUtility {
 	//如果输入instances中的包含有string[]所定义的attributes，将其删除，将其他的属性保留。
 	public static Instances removeAttribs(Instances incomingData, String[] attributeToRemove) throws Exception{
 		String removeString=ArffFormat.returnAttribsPosition(incomingData,attributeToRemove);
-		return removeAttribs(incomingData,removeString,false);
+		if (removeString==null){
+			System.out.println("Warning! found nothing to remove from the attributesToRemove, returning the original dataset");
+			return incomingData;
+		}else{
+			return removeAttribs(incomingData,removeString,false);
+		}
 	}
 }
