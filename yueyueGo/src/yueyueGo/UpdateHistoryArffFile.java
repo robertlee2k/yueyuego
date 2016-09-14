@@ -4,16 +4,15 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.List;
 
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
+import yueyueGo.utility.AppContext;
 import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.InstanceUtility;
-import yueyueGo.utility.AppContext;
 
 public class UpdateHistoryArffFile {
 
@@ -274,10 +273,10 @@ public class UpdateHistoryArffFile {
 		String originFileName=AppContext.getC_ROOT_DIRECTORY()+ArffFormat.TRANSACTION_ARFF_PREFIX;
 		Instances fullData = FileUtility.loadDataFromFile(originFileName+"-origin.arff");
 		
-		//做这个处理是因为不知为何有时id之前会出现全角空格
-		if (ArffFormat.ID.equals(fullData.attribute(ArffFormat.ID_POSITION-1).name())==false){
-			fullData.renameAttribute(ArffFormat.ID_POSITION-1, ArffFormat.ID);
-		}
+//		//做这个处理是因为不知为何有时id之前会出现全角空格
+//		if (ArffFormat.ID.equals(fullData.attribute(ArffFormat.ID_POSITION-1).name())==false){
+//			fullData.renameAttribute(ArffFormat.ID_POSITION-1, ArffFormat.ID);
+//		}
 		//将股票代码，交易日期之类的字段变换为String格式
 		fullData=InstanceUtility.NominalToString(fullData, "3-6,8");
 	
@@ -330,10 +329,10 @@ public class UpdateHistoryArffFile {
 		
 		
 		//将单次收益率增量数据修正成为原始文件数据格式,插入一列空的股票代码和year（这两列暂时用不上），改名“均线策略”）
-		int stockNameIndex=InstanceUtility.findATTPosition(newData, ArffFormat.SELL_DATE); //在MC_DATA之后插入
-		List<String> attLabels=null;
-		newData.insertAttributeAt(new Attribute("股票名称",attLabels),stockNameIndex);
-		newData.insertAttributeAt(new Attribute("year"),stockNameIndex+1);//加1的原因是上面已经插入了两个属性 
+//		int stockNameIndex=InstanceUtility.findATTPosition(newData, ArffFormat.SELL_DATE); //在MC_DATA之后插入
+//		List<String> attLabels=null;
+//		newData.insertAttributeAt(new Attribute("股票名称",attLabels),stockNameIndex);
+//		newData.insertAttributeAt(new Attribute("year"),stockNameIndex);//+1);//加1的原因是上面已经插入了两个属性 
 	     
     
 	    processDateColumns(newData);
