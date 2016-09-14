@@ -91,8 +91,7 @@ public class BackTest {
 			//用最新的单次交易数据，更新原始的交易数据文件
 //			UpdateHistoryArffFile.callRefreshInstances();
 
-			//为原始的历史文件Arff添加计算变量，并分拆，因为其数据量太大，所以提前处理，不必每次分割消耗内存
-//			UpdateHistoryArffFile.processHistoryFile();
+
 			
 			//合并历史扩展数据
 //			UpdateHistoryArffFile.mergeExtData();

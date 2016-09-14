@@ -24,81 +24,142 @@ public class UpdateHistoryArffFile {
 	protected static void callRefreshInstances() throws Exception {
 		int startYear=2016;
 		int endYear=2016;
+		
+		//刷新当年的Arff文件
 		refreshArffFile(startYear,endYear);
-//		compareRefreshedInstancesForYear(2015,100);
-//		compareRefreshedInstancesForYear(2016,5);
+		//为原始的历史文件Arff添加计算变量，并分拆。
+		processHistoryFile();
+
+		//以百分之一抽检率检查未被刷新数据
+		compareRefreshedInstancesForYear(startYear-1,100);
+		//以五分之一抽检率抽样检测当年刷新数据
+		compareRefreshedInstancesForYear(endYear,5);
 	}
 	
 	
-	protected static void createTransInstances() throws Exception {
-		
+	//这里是用最近一年的数据刷新最原始的文件，调整完再用processHistoryData生成有计算字段之后的数据
+	protected static void refreshArffFile(int startYear,int endYear) throws Exception {
+		System.out.println("loading original history file into memory "  );
+		String originFileName=AppContext.getC_ROOT_DIRECTORY()+ArffFormat.TRANSACTION_ARFF_PREFIX;
+		Instances fullData = FileUtility.loadDataFromFile(originFileName+"-origin.arff");
 
-		String arffFileName=AppContext.getC_ROOT_DIRECTORY()+ArffFormat.TRANSACTION_ARFF_PREFIX;
-		Instances rawData = mergeSrcTransFiles();
-		
-		//处理所有的日期字段，并插入yearmonth
-		processDateColumns(rawData);
+		//		//做这个处理是因为不知为何有时id之前会出现全角空格
+		//		if (ArffFormat.ID.equals(fullData.attribute(ArffFormat.ID_POSITION-1).name())==false){
+		//			fullData.renameAttribute(ArffFormat.ID_POSITION-1, ArffFormat.ID);
+		//		}
+		//将股票代码，交易日期之类的字段变换为String格式
+		String[] attsConvertToString=new String[]{ArffFormat.TRADE_DATE,ArffFormat.CODE,ArffFormat.SELL_DATE,ArffFormat.DATA_DATE, ArffFormat.SELECTED_AVG_LINE};
+		String posString=InstanceUtility.returnAttribsPosition(fullData,attsConvertToString);
+		fullData=InstanceUtility.NominalToString(fullData, posString);//"3-6,8");
 
-		//处理各种nominal字段
-		Instances fullData=FileUtility.loadDataFromFile(AppContext.getC_ROOT_DIRECTORY()+"fullTranFormat.arff");
-		InstanceUtility.calibrateAttributes(rawData, fullData);
-		rawData=null; //试图释放内存
-		
-		//获取tradeDateIndex （从1开始）， 并按其排序
-		int tradeDateIndex=InstanceUtility.findATTPosition(fullData, ArffFormat.TRADE_DATE);
-		fullData.sort(tradeDateIndex-1);
 
-		System.out.println("trans arff file sorted, start to save.... number of rows="+fullData.numInstances());
-		FileUtility.SaveDataIntoFile(fullData, arffFileName+".arff");
-		System.out.println("trans arff file saved. ");
-		
+		System.out.println("finish  loading original File row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
+
+
+		for (int i=startYear;i<=endYear;i++){
+			fullData = refreshArffForOneYear(i,AppContext.getC_ROOT_DIRECTORY()+"sourceData\\full4group\\test_onceyield_group4allhis"+i+".txt",fullData);
+		}
+
+		//保险起见把新数据按日期重新排序，虽然这样比较花时间，但可以确保日后处理时按tradeDate升序。
+		fullData.sort(2);
+		System.out.println("refreshed arff file sorted, start to save.... number of rows="+fullData.numInstances());
+		FileUtility.SaveDataIntoFile(fullData, originFileName+".arff");
+		System.out.println("refreshed arff file saved. ");
+
 		//取出前半年的旧数据和当年的新数据作为验证的sample数据
-		String splitSampleClause = "( ATT" + ArffFormat.YEAR_MONTH_INDEX + " >= 201506) and ( ATT" + ArffFormat.YEAR_MONTH_INDEX+ " <= 201612) ";
+		String splitSampleClause = "( ATT" + ArffFormat.YEAR_MONTH_INDEX + " >= " + (endYear-1) + "06) and ( ATT" + ArffFormat.YEAR_MONTH_INDEX+ " <= "	+ endYear + "12) ";
 		Instances sampleData=InstanceUtility.getInstancesSubset(fullData, splitSampleClause);
-		FileUtility.SaveDataIntoFile(sampleData, arffFileName+"-sample.arff");
-		System.out.println("sample arff file saved. ");
-		sampleData=null;//试图释放内存
-		
-		//生成模型全套文件
-		generateArffFileSet(arffFileName,fullData);
+		FileUtility.SaveDataIntoFile(sampleData, originFileName+"-sample.arff");
 	}
 
 
 	/**
+	 * @param year
+	 * @param newDataFile
+	 * @param originData
 	 * @return
 	 * @throws Exception
+	 * @throws ParseException
 	 * @throws IllegalStateException
 	 */
-	private static Instances mergeSrcTransFiles() throws Exception,
-			IllegalStateException {
-		String sourceFilePrefix=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\full4group\\test_onceyield_group4allhis";
-		Instances fullData = FileUtility.loadDataFromIncrementalCSVFile(sourceFilePrefix+"2005-2006.txt");
-		Instances addData = FileUtility.loadDataFromIncrementalCSVFile(sourceFilePrefix+"2007-2008.txt");
-		fullData=InstanceUtility.mergeTwoInstances(fullData, addData);
-		System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
-		addData = FileUtility.loadDataFromIncrementalCSVFile(sourceFilePrefix+"2009-2010.txt");
-		fullData=InstanceUtility.mergeTwoInstances(fullData, addData);
-		System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
-		
-		int startYear=2011;
-		int endYear=2016;
-		for (int i=startYear;i<=endYear;i++){
-			addData = FileUtility.loadDataFromIncrementalCSVFile(sourceFilePrefix+i+".txt");
-			fullData=InstanceUtility.mergeTwoInstances(fullData, addData);
-			System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
-		}
+	private static Instances refreshArffForOneYear(int year,
+			String newDataFile, Instances fullData)
+					throws Exception, ParseException, IllegalStateException {
+		int originInstancesNum=fullData.numInstances();
+		System.out.println ("refreshing year: "+ year + "while fullsize ="+ originInstancesNum);
+
+		//将原始文件里的原有的该年数据删除
+		String splitCurrentYearClause = "( ATT" + ArffFormat.YEAR_MONTH_INDEX + " < " + year + "01) or ( ATT" + ArffFormat.YEAR_MONTH_INDEX+ " > "	+ year + "12) ";
+		fullData=InstanceUtility.getInstancesSubset(fullData, splitCurrentYearClause);
+
+		int filteredNumber=fullData.numInstances() ;
+		System.out.println("number of rows removed = "+ (originInstancesNum-filteredNumber));
+
+
+		Instances newData = FileUtility.loadDataFromIncrementalCSVFile(newDataFile);
+
+
+
+
+		//将单次收益率增量数据修正成为原始文件数据格式,插入一列空的股票代码和year（这两列暂时用不上），改名“均线策略”）
+		//		int stockNameIndex=InstanceUtility.findATTPosition(newData, ArffFormat.SELL_DATE); //在MC_DATA之后插入
+		//		List<String> attLabels=null;
+		//		newData.insertAttributeAt(new Attribute("股票名称",attLabels),stockNameIndex);
+		//		newData.insertAttributeAt(new Attribute("year"),stockNameIndex);//+1);//加1的原因是上面已经插入了两个属性 
+
+
+		processDateColumns(newData);
+
+		System.out.println("!!!!!verifying new data format , you should read this .... "+ fullData.equalHeadersMsg(newData));
+		System.out.println("number of new rows added or updated= "+ newData.numInstances());
+
+		InstanceUtility.calibrateAttributes(newData,fullData);
+
+		System.out.println("number of refreshed dataset = "+fullData.numInstances());
 		return fullData;
 	}
 
-	@Deprecated
-	//用于将以前的Arff文件变量改名另存为CSV文件 （临时给SPSS使用 20160812）
-	protected static void renameOldArffFile() throws Exception{
-		Instances oldInstances=FileUtility.loadDataFromFile(AppContext.getC_ROOT_DIRECTORY()+"AllTransaction20052016-ext-origin-backup.arff");
-		oldInstances=ArffFormat.renameOldArffName(oldInstances);
-		FileUtility.saveCSVFile(oldInstances, AppContext.getC_ROOT_DIRECTORY()+"AllTransaction20052016-used201607.csv");
+
+	/**
+	 * @param newData
+	 * @throws ParseException
+	 */
+	protected static void processDateColumns(Instances newData)
+			throws ParseException {
+		int yearMonthIndex=InstanceUtility.findATTPosition(newData, ArffFormat.ID); //在ID之后插入
+		newData.insertAttributeAt(new Attribute("yearmonth"), yearMonthIndex);
+		//重新计算yearmonth
+	    Attribute tradeDateAtt=newData.attribute(ArffFormat.TRADE_DATE);
+	    Attribute mcDateAtt=newData.attribute(ArffFormat.SELL_DATE);
+	    Attribute dataDateAtt=newData.attribute(ArffFormat.DATA_DATE);
+	    Attribute yearMonthAtt=newData.attribute("yearmonth");
+	    Instance curr;
+	    String tradeDate;
+	    double ym;
+	    for (int i=0;i<newData.numInstances();i++){
+	    	curr=newData.instance(i);
+	    	tradeDate=curr.stringValue(tradeDateAtt);
+	    	//设置yearmonth
+	    	ym=FormatUtility.parseYearMonth(tradeDate);
+		    curr.setValue(yearMonthAtt, ym);
+		    //修改日期格式
+		    curr.setValue(tradeDateAtt, FormatUtility.convertDate(tradeDate));
+		    curr.setValue(mcDateAtt, FormatUtility.convertDate(curr.stringValue(mcDateAtt)));
+		    curr.setValue(dataDateAtt, FormatUtility.convertDate(curr.stringValue(dataDateAtt)));
+	    }
 	}
-	
-	
+
+
+	//这是处理历史全量数据，重新切割生成各种长、短以及格式文件的方法
+	protected static void processHistoryFile() throws Exception {
+		System.out.println("loading history file into memory "  );
+		String originFileName=AppContext.getC_ROOT_DIRECTORY()+ArffFormat.TRANSACTION_ARFF_PREFIX;
+		Instances fullSetData = FileUtility.loadDataFromFile(originFileName+".arff");
+		System.out.println("finish  loading fullset File  row : "+ fullSetData.numInstances() + " column:"+ fullSetData.numAttributes());
+		generateArffFileSet(originFileName, fullSetData);
+	}
+
+
 	// replaced by compareRefreshedInstances which is more effecient 
 	//此方法用于比较原始文件和refreshed文件之间的差异
 	// 根据原始文件的格式ORIGINAL_TRANSACTION_ARFF_FORMAT
@@ -126,7 +187,7 @@ public class UpdateHistoryArffFile {
 	
 		System.out.println("data sorted on tradeDate");
 		
-		int codeIndex=InstanceUtility.findATTPosition(originData, "code");
+		int codeIndex=InstanceUtility.findATTPosition(originData,ArffFormat.CODE);
 		int maIndex=InstanceUtility.findATTPosition(originData, ArffFormat.SELECTED_AVG_LINE);
 		
 		Instances originDailyData=null;
@@ -174,7 +235,7 @@ public class UpdateHistoryArffFile {
 					if (originDailyDataSize>0){ //新旧数据同时存在，比较新旧数据
 						originRow=originDailyData.instance(i);
 						refreshedRow=refreshedDailyData.instance(i);
-						if (UpdateHistoryArffFile.compareRefreshedRow(maIndex, originRow,refreshedRow, tradeDate, code)==false){
+						if (compareRefreshedRow(maIndex, originRow,refreshedRow, tradeDate, code)==false){
 							rowDiffer++;
 						}
 						rowCompare++;
@@ -226,7 +287,9 @@ public class UpdateHistoryArffFile {
 				System.out.println(refreshedRow.toString());
 				rowSame=false;
 			}else{
-				for (int n = 10; n < originRow.numAttributes() ; n++) { //跳过左边的值 
+				//从Bias5开始比较
+				int startingPoint=InstanceUtility.findATTPosition(originRow.dataset(), ArffFormat.BIAS5);
+				for (int n = startingPoint; n < originRow.numAttributes() ; n++) { //跳过左边的值 
 	
 					Attribute originAtt = originRow.attribute(n);
 					Attribute refresedAtt=refreshedRow.attribute(n);
@@ -266,124 +329,6 @@ public class UpdateHistoryArffFile {
 			}//end else
 			return rowSame;
 		}
-
-	//这里是用最近一年的数据刷新最原始的文件，调整完再用processHistoryData生成有计算字段之后的数据
-	protected static void refreshArffFile(int startYear,int endYear) throws Exception {
-		System.out.println("loading original history file into memory "  );
-		String originFileName=AppContext.getC_ROOT_DIRECTORY()+ArffFormat.TRANSACTION_ARFF_PREFIX;
-		Instances fullData = FileUtility.loadDataFromFile(originFileName+"-origin.arff");
-		
-//		//做这个处理是因为不知为何有时id之前会出现全角空格
-//		if (ArffFormat.ID.equals(fullData.attribute(ArffFormat.ID_POSITION-1).name())==false){
-//			fullData.renameAttribute(ArffFormat.ID_POSITION-1, ArffFormat.ID);
-//		}
-		//将股票代码，交易日期之类的字段变换为String格式
-		fullData=InstanceUtility.NominalToString(fullData, "3-6,8");
-	
-	
-		System.out.println("finish  loading original File row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
-		
-	
-		for (int i=startYear;i<=endYear;i++){
-			fullData = refreshArffForOneYear(i,AppContext.getC_ROOT_DIRECTORY()+"sourceData\\full4group\\test_onceyield_group4allhis"+i+".txt",fullData);
-		}
-	
-		//保险起见把新数据按日期重新排序，虽然这样比较花时间，但可以确保日后处理时按tradeDate升序。
-		fullData.sort(2);
-		System.out.println("refreshed arff file sorted, start to save.... number of rows="+fullData.numInstances());
-		FileUtility.SaveDataIntoFile(fullData, originFileName+".arff");
-		System.out.println("refreshed arff file saved. ");
-	
-		//取出前半年的旧数据和当年的新数据作为验证的sample数据
-		String splitSampleClause = "( ATT" + ArffFormat.YEAR_MONTH_INDEX + " >= " + (endYear-1) + "06) and ( ATT" + ArffFormat.YEAR_MONTH_INDEX+ " <= "	+ endYear + "12) ";
-		Instances sampleData=InstanceUtility.getInstancesSubset(fullData, splitSampleClause);
-		FileUtility.SaveDataIntoFile(sampleData, originFileName+"-sample.arff");
-	}
-
-	/**
-	 * @param year
-	 * @param newDataFile
-	 * @param originData
-	 * @return
-	 * @throws Exception
-	 * @throws ParseException
-	 * @throws IllegalStateException
-	 */
-	private static Instances refreshArffForOneYear(int year,
-			String newDataFile, Instances fullData)
-			throws Exception, ParseException, IllegalStateException {
-		int originInstancesNum=fullData.numInstances();
-		System.out.println ("refreshing year: "+ year + "while fullsize ="+ originInstancesNum);
-		
-		//将原始文件里的原有的该年数据删除
-		String splitCurrentYearClause = "( ATT" + ArffFormat.YEAR_MONTH_INDEX + " < " + year + "01) or ( ATT" + ArffFormat.YEAR_MONTH_INDEX+ " > "	+ year + "12) ";
-		fullData=InstanceUtility.getInstancesSubset(fullData, splitCurrentYearClause);
-		
-		int filteredNumber=fullData.numInstances() ;
-		System.out.println("number of rows removed = "+ (originInstancesNum-filteredNumber));
-	
-		
-		Instances newData = FileUtility.loadDataFromIncrementalCSVFile(newDataFile);
-		
-				
-		
-		
-		//将单次收益率增量数据修正成为原始文件数据格式,插入一列空的股票代码和year（这两列暂时用不上），改名“均线策略”）
-//		int stockNameIndex=InstanceUtility.findATTPosition(newData, ArffFormat.SELL_DATE); //在MC_DATA之后插入
-//		List<String> attLabels=null;
-//		newData.insertAttributeAt(new Attribute("股票名称",attLabels),stockNameIndex);
-//		newData.insertAttributeAt(new Attribute("year"),stockNameIndex);//+1);//加1的原因是上面已经插入了两个属性 
-	     
-    
-	    processDateColumns(newData);
-
-	    System.out.println("!!!!!verifying new data format , you should read this .... "+ fullData.equalHeadersMsg(newData));
-		System.out.println("number of new rows added or updated= "+ newData.numInstances());
-
-		InstanceUtility.calibrateAttributes(newData,fullData);
-	
-		System.out.println("number of refreshed dataset = "+fullData.numInstances());
-		return fullData;
-	}
-
-
-	/**
-	 * @param newData
-	 * @throws ParseException
-	 */
-	protected static void processDateColumns(Instances newData)
-			throws ParseException {
-		int yearMonthIndex=InstanceUtility.findATTPosition(newData, ArffFormat.ID); //在ID之后插入
-		newData.insertAttributeAt(new Attribute("yearmonth"), yearMonthIndex);
-		//重新计算yearmonth
-	    Attribute tradeDateAtt=newData.attribute(ArffFormat.TRADE_DATE);
-	    Attribute mcDateAtt=newData.attribute(ArffFormat.SELL_DATE);
-	    Attribute dataDateAtt=newData.attribute(ArffFormat.DATA_DATE);
-	    Attribute yearMonthAtt=newData.attribute("yearmonth");
-	    Instance curr;
-	    String tradeDate;
-	    double ym;
-	    for (int i=0;i<newData.numInstances();i++){
-	    	curr=newData.instance(i);
-	    	tradeDate=curr.stringValue(tradeDateAtt);
-	    	//设置yearmonth
-	    	ym=FormatUtility.parseYearMonth(tradeDate);
-		    curr.setValue(yearMonthAtt, ym);
-		    //修改日期格式
-		    curr.setValue(tradeDateAtt, FormatUtility.convertDate(tradeDate));
-		    curr.setValue(mcDateAtt, FormatUtility.convertDate(curr.stringValue(mcDateAtt)));
-		    curr.setValue(dataDateAtt, FormatUtility.convertDate(curr.stringValue(dataDateAtt)));
-	    }
-	}
-
-	//这是处理历史全量数据，重新切割生成各种长、短以及格式文件的方法
-	protected static void processHistoryFile() throws Exception {
-		System.out.println("loading history file into memory "  );
-		String originFileName=AppContext.getC_ROOT_DIRECTORY()+ArffFormat.TRANSACTION_ARFF_PREFIX;
-		Instances fullSetData = FileUtility.loadDataFromFile(originFileName+".arff");
-		System.out.println("finish  loading fullset File  row : "+ fullSetData.numInstances() + " column:"+ fullSetData.numAttributes());
-		generateArffFileSet(originFileName, fullSetData);
-	}
 
 	/**
 	 * @param originFileName
@@ -653,6 +598,76 @@ public class UpdateHistoryArffFile {
 		
 			
 			return InstanceUtility.mergeTwoInstances(extData, extDataSecond);
+		}
+
+
+		protected static void createTransInstances() throws Exception {
+			
+		
+			String arffFileName=AppContext.getC_ROOT_DIRECTORY()+ArffFormat.TRANSACTION_ARFF_PREFIX;
+			Instances rawData = mergeSrcTransFiles();
+			
+			//处理所有的日期字段，并插入yearmonth
+			processDateColumns(rawData);
+		
+			//处理各种nominal字段
+			Instances fullData=FileUtility.loadDataFromFile(AppContext.getC_ROOT_DIRECTORY()+"fullTranFormat.arff");
+			InstanceUtility.calibrateAttributes(rawData, fullData);
+			rawData=null; //试图释放内存
+			
+			//获取tradeDateIndex （从1开始）， 并按其排序
+			int tradeDateIndex=InstanceUtility.findATTPosition(fullData, ArffFormat.TRADE_DATE);
+			fullData.sort(tradeDateIndex-1);
+		
+			System.out.println("trans arff file sorted, start to save.... number of rows="+fullData.numInstances());
+			FileUtility.SaveDataIntoFile(fullData, arffFileName+".arff");
+			System.out.println("trans arff file saved. ");
+			
+			//取出前半年的旧数据和当年的新数据作为验证的sample数据
+			String splitSampleClause = "( ATT" + ArffFormat.YEAR_MONTH_INDEX + " >= 201506) and ( ATT" + ArffFormat.YEAR_MONTH_INDEX+ " <= 201612) ";
+			Instances sampleData=InstanceUtility.getInstancesSubset(fullData, splitSampleClause);
+			FileUtility.SaveDataIntoFile(sampleData, arffFileName+"-sample.arff");
+			System.out.println("sample arff file saved. ");
+			sampleData=null;//试图释放内存
+			
+			//生成模型全套文件
+			generateArffFileSet(arffFileName,fullData);
+		}
+
+
+		/**
+		 * @return
+		 * @throws Exception
+		 * @throws IllegalStateException
+		 */
+		private static Instances mergeSrcTransFiles() throws Exception,
+				IllegalStateException {
+			String sourceFilePrefix=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\full4group\\test_onceyield_group4allhis";
+			Instances fullData = FileUtility.loadDataFromIncrementalCSVFile(sourceFilePrefix+"2005-2006.txt");
+			Instances addData = FileUtility.loadDataFromIncrementalCSVFile(sourceFilePrefix+"2007-2008.txt");
+			fullData=InstanceUtility.mergeTwoInstances(fullData, addData);
+			System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
+			addData = FileUtility.loadDataFromIncrementalCSVFile(sourceFilePrefix+"2009-2010.txt");
+			fullData=InstanceUtility.mergeTwoInstances(fullData, addData);
+			System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
+			
+			int startYear=2011;
+			int endYear=2016;
+			for (int i=startYear;i<=endYear;i++){
+				addData = FileUtility.loadDataFromIncrementalCSVFile(sourceFilePrefix+i+".txt");
+				fullData=InstanceUtility.mergeTwoInstances(fullData, addData);
+				System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
+			}
+			return fullData;
+		}
+
+
+		@Deprecated
+		//用于将以前的Arff文件变量改名另存为CSV文件 （临时给SPSS使用 20160812）
+		protected static void renameOldArffFile() throws Exception{
+			Instances oldInstances=FileUtility.loadDataFromFile(AppContext.getC_ROOT_DIRECTORY()+"AllTransaction20052016-ext-origin-backup.arff");
+			oldInstances=ArffFormat.renameOldArffName(oldInstances);
+			FileUtility.saveCSVFile(oldInstances, AppContext.getC_ROOT_DIRECTORY()+"AllTransaction20052016-used201607.csv");
 		}
 
 }

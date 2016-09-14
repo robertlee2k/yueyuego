@@ -76,7 +76,7 @@ public class ArffFormatFullModel extends ArffFormat {
 	// 此方法从All Transaction Data中保留计算收益率的相关字段，以及最后的收益率，删除其他计算字段
 	protected static Instances getTransLeftPartForFullModel(Instances allData)
 			throws Exception {
-		String saveString=returnAttribsPosition(allData,FULL_MODEL_DATA_LEFT_PART);
+		String saveString=InstanceUtility.returnAttribsPosition(allData,FULL_MODEL_DATA_LEFT_PART);
 		Instances result = InstanceUtility.filterAttribs(allData,saveString);
 		return result;
 	}

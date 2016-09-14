@@ -251,19 +251,37 @@ public class InstanceUtility {
 
 	//如果输入instances中的包含有string[]所定义的attributes，将其保留，将其他的属性删除。
 	public static Instances keepAttributes(Instances incomingData, String[] attributeToKeep) throws Exception{
-		String saveString=ArffFormat.returnAttribsPosition(incomingData,attributeToKeep);
+		String saveString=InstanceUtility.returnAttribsPosition(incomingData,attributeToKeep);
 		Instances result = filterAttribs(incomingData,saveString);
 		return result;
 	}
 
 	//如果输入instances中的包含有string[]所定义的attributes，将其删除，将其他的属性保留。
 	public static Instances removeAttribs(Instances incomingData, String[] attributeToRemove) throws Exception{
-		String removeString=ArffFormat.returnAttribsPosition(incomingData,attributeToRemove);
+		String removeString=InstanceUtility.returnAttribsPosition(incomingData,attributeToRemove);
 		if (removeString==null){
 			System.out.println("Warning! found nothing to remove from the attributesToRemove, returning the original dataset");
 			return incomingData;
 		}else{
 			return removeAttribs(incomingData,removeString,false);
 		}
+	}
+
+	//返回给定数据集里与searchAttribues内同名字段的位置字符串（从1开始），这主要是为filter使用
+	public static String returnAttribsPosition(Instances data, String[] searchAttributes){
+		String nominalAttribPosition=null;
+		Attribute incomingAttribue=null;
+		for (int i = 0; i < searchAttributes.length; i++) {
+			incomingAttribue=data.attribute(searchAttributes[i]);
+			if (incomingAttribue!=null){
+				int pos=incomingAttribue.index()+1;//在内部的attribute index是0开始的
+				if (nominalAttribPosition==null){ //找到的第一个
+					nominalAttribPosition=new Integer(pos).toString(); 
+				}else{
+					nominalAttribPosition+=","+pos;
+				}
+			}
+		}
+		return nominalAttribPosition;
 	}
 }

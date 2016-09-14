@@ -201,25 +201,7 @@ public class ArffFormat {
 	
 	//返回给定数据集里与NOMINAL_ATTRIBS同名字段的位置字符串（从1开始），这主要是为filter使用
 	public static String findNominalAttribs(Instances data){
-		return returnAttribsPosition(data,NOMINAL_ATTRIBS);
-	}
-	
-	//返回给定数据集里与searchAttribues内同名字段的位置字符串（从1开始），这主要是为filter使用
-	public static String returnAttribsPosition(Instances data, String[] searchAttributes){
-		String nominalAttribPosition=null;
-		Attribute incomingAttribue=null;
-		for (int i = 0; i < searchAttributes.length; i++) {
-			incomingAttribue=data.attribute(searchAttributes[i]);
-			if (incomingAttribue!=null){
-				int pos=incomingAttribue.index()+1;//在内部的attribute index是0开始的
-				if (nominalAttribPosition==null){ //找到的第一个
-					nominalAttribPosition=new Integer(pos).toString(); 
-				}else{
-					nominalAttribPosition+=","+pos;
-				}
-			}
-		}
-		return nominalAttribPosition;
+		return InstanceUtility.returnAttribsPosition(data,NOMINAL_ATTRIBS);
 	}
 	
 	// 从All Transaction Data中删除无关字段 (tradeDate到均线策略之前）
