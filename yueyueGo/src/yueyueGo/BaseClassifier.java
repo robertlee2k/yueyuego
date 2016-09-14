@@ -99,7 +99,7 @@ public abstract class BaseClassifier implements Serializable{
 			model =m_modelStore.loadModelFromFile();
 			Instances header =m_modelStore.getModelFormat();
 			Instances format=new Instances(train,0);
-			format=InstanceUtility.removeAttribs(format,Integer.toString(ArffFormat.ID_POSITION));
+			format=InstanceUtility.removeAttribs(format,new String[]{ArffFormat.ID,ArffFormat.SHOUYILV});
 			//验证数据格式是否一致
 			String verify=verifyDataFormat(format, header);
 			if (verify!=null){
