@@ -369,20 +369,28 @@ public class UpdateHistoryArffFile {
 			String file1=null;
 			String file2=null;
 			Instances extData=null;
+			Instances extData2=null;
 			
-			file1=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\第四组数据\\追加的增量\\test_onceyield_add2005_2010(20160809).txt";
-			file2=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\第四组数据\\追加的增量\\test_onceyield_add2011_2016(20160809).txt";
+			file1=AppContext.getC_ROOT_DIRECTORY()+"\\sourceData\\波动率\\onceyield_hv_update_2005_2007.txt";
+			file2=AppContext.getC_ROOT_DIRECTORY()+"\\sourceData\\波动率\\onceyield_hv_update_2008_2012.txt";
 			extData = UpdateHistoryArffFile.mergeExtDataFromTwoFiles(file1, file2);
-
-			System.out.println("NewGroup data loaded. number="+extData.numInstances());
+			System.out.println("NewGroup data 1 loaded. number="+extData.numInstances());
+			
+			String file3=AppContext.getC_ROOT_DIRECTORY()+"\\sourceData\\波动率\\onceyield_hv_update_2013_2015.txt";
+			String file4=AppContext.getC_ROOT_DIRECTORY()+"\\sourceData\\波动率\\onceyield_hv_update_2016.txt";
+			extData2 = UpdateHistoryArffFile.mergeExtDataFromTwoFiles(file3, file4);
+			System.out.println("NewGroup data 2 loaded. number="+extData2.numInstances());
+			
+			extData=InstanceUtility.mergeTwoInstances(extData, extData2);
+			System.out.println("NewGroup data merged and loaded. number="+extData.numInstances());
 			
 			//加载原始arff文件
-			String originFileName=AppContext.getC_ROOT_DIRECTORY()+"AllTransaction20052016";
-			Instances fullData = FileUtility.loadDataFromFile(originFileName+"-ext-origin.arff");
+			String originFileName=AppContext.getC_ROOT_DIRECTORY()+ArffFormat.TRANSACTION_ARFF_PREFIX;
+			Instances fullData = FileUtility.loadDataFromFile(originFileName+"-origin.arff");
 
-			//将文件里201603以后的数据删除（这只是针对特殊文件的临时处理，以后可以不用)
-			String yearClause = " ATT" + ArffFormat.YEAR_MONTH_INDEX + " < 201603 ";
-			fullData=InstanceUtility.getInstancesSubset(fullData, yearClause);
+//			//将文件里201603以后的数据删除（这只是针对特殊文件的临时处理，以后可以不用)
+//			String yearClause = " ATT" + ArffFormat.YEAR_MONTH_INDEX + " < 201603 ";
+//			fullData=InstanceUtility.getInstancesSubset(fullData, yearClause);
 
 			System.out.println("full trans data loaded. number="+fullData.numInstances());
 			
@@ -415,8 +423,8 @@ public class UpdateHistoryArffFile {
 			result.sort(tradeDateIndex-1);
 			
 			//保留原始的ext文件
-			FileUtility.SaveDataIntoFile(result, originFileName+"-ext.arff");
-			System.out.println("history Data File saved: "+originFileName+"-ext.arff");
+			FileUtility.SaveDataIntoFile(result, originFileName+".arff");
+			System.out.println("history Data File saved: "+originFileName+".arff");
 				
 			//生成相应的一套Arff文件
 			generateArffFileSet(originFileName+"-ext",result);
