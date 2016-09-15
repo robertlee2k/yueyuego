@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 import weka.core.Attribute;
 import weka.core.Instances;
-import yueyueGo.classifier.AdaboostClassifier;
+import yueyueGo.classifier.BaggingJ48;
 import yueyueGo.classifier.BaggingM5P;
 import yueyueGo.utility.AppContext;
 import yueyueGo.utility.BlockedThreadPoolExecutor;
@@ -67,7 +67,7 @@ public class BackTest {
 		BACKTEST_RESULT_DIR=AppContext.getBACKTEST_RESULT_DIR();
 		
 
-		RUNNING_THREADS=2;
+		RUNNING_THREADS=10;
 
 		shouyilv_thresholds=new double[] {0,0,0,0,0};//{-100,-100,-100,-100,-100};//{0.01,0.02,0.03,0.03,0.04};
 		winrate_thresholds=new double[] {0,0,0,0,0};//{0.3,0.3,0.3,0.3,0.3};
@@ -114,8 +114,8 @@ public class BackTest {
 //		MLPClassifier nModel = new MLPClassifier();
 //		MLPABClassifier nModel = new MLPABClassifier();
 //		RandomForestClassifier nModel=new RandomForestClassifier ();
-		AdaboostClassifier nModel=new AdaboostClassifier();
-//		BaggingJ48 nModel=new BaggingJ48();
+//		AdaboostClassifier nModel=new AdaboostClassifier();
+		BaggingJ48 nModel=new BaggingJ48();
 
 		Instances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载

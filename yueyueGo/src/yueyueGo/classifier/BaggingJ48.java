@@ -60,13 +60,13 @@ public class BaggingJ48 extends NominalClassifier {
 	
 	@Override
 	protected void initializeParams() {
-		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = true;
+		m_skipTrainInBacktest = false;
+		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 				
 		classifierName="baggingJ48";
 		
-		m_positiveLine=0.03; //二分类class的分界值，这个需要在workpath之前设
+		m_positiveLine=0;//0.03; //二分类class的分界值，这个需要在workpath之前设
 
 		
 		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
