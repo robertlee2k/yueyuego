@@ -35,6 +35,8 @@ public class UpdateHistoryArffFile {
 		//以五分之一抽检率抽样检测当年刷新数据
 		compareRefreshedInstancesForYear(endYear,5);
 	}
+
+	
 	
 	
 	//这里是用最近一年的数据刷新最原始的文件，调整完再用processHistoryData生成有计算字段之后的数据
@@ -427,7 +429,7 @@ public class UpdateHistoryArffFile {
 			System.out.println("history Data File saved: "+originFileName+".arff");
 				
 			//生成相应的一套Arff文件
-			generateArffFileSet(originFileName+"-ext",result);
+			generateArffFileSet(originFileName,result);
 		}
 
 		//数据必须是以ID排序的。
