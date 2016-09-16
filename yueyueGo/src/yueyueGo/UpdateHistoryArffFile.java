@@ -22,8 +22,8 @@ public class UpdateHistoryArffFile {
 	 * @throws Exception
 	 */
 	protected static void callRefreshInstances() throws Exception {
-		int startYear=2016;
-		int endYear=2016;
+		int startYear=2015;
+		int endYear=2015;
 		
 		//刷新当年的Arff文件
 		refreshArffFile(startYear,endYear);
@@ -59,7 +59,7 @@ public class UpdateHistoryArffFile {
 
 
 		for (int i=startYear;i<=endYear;i++){
-			fullData = refreshArffForOneYear(i,AppContext.getC_ROOT_DIRECTORY()+"sourceData\\full4group\\test_onceyield_group4allhis"+i+".txt",fullData);
+			fullData = refreshArffForOneYear(i,AppContext.getC_ROOT_DIRECTORY()+"sourceData\\full4group\\onceyield_group4_"+i+".txt",fullData);
 		}
 
 		//保险起见把新数据按日期重新排序，虽然这样比较花时间，但可以确保日后处理时按tradeDate升序。
