@@ -88,10 +88,10 @@ public class BackTest {
 			worker.init();
 
 			//调用回测函数回测
-//			worker.callTestBack();
+			worker.callTestBack();
 			
 			//用最新的单次交易数据，更新原始的交易数据文件
-			UpdateHistoryArffFile.callRefreshInstances();
+//			UpdateHistoryArffFile.callRefreshInstances();
 
 			//合并历史扩展数据
 //			UpdateHistoryArffFile.mergeExtData();
