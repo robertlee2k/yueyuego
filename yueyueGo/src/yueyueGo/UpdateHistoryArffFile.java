@@ -493,7 +493,7 @@ public class UpdateHistoryArffFile {
 						} else if (att.isNumeric()) {
 							double leftValue=leftCurr.value(att);
 							double rightValue=rightCurr.value(j);
-							if ( (leftValue==rightValue) || Double.isNaN(leftValue) && Double.isNaN(rightValue)){
+							if ( FormatUtility.compareDouble(leftValue,rightValue)==0 || Double.isNaN(leftValue) && Double.isNaN(rightValue)){
 								// do nothing
 							}else {
 								System.out.println("current left====="+ leftCurr.toString());
