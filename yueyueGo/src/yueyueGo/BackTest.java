@@ -67,7 +67,7 @@ public class BackTest {
 		BACKTEST_RESULT_DIR=AppContext.getBACKTEST_RESULT_DIR();
 		
 
-		RUNNING_THREADS=10;
+		RUNNING_THREADS=5;
 
 		shouyilv_thresholds=new double[] {0,0,0,0,0};//{-100,-100,-100,-100,-100};//{0.01,0.02,0.03,0.03,0.04};
 		winrate_thresholds=new double[] {0,0,0,0,0};//{0.3,0.3,0.3,0.3,0.3};
@@ -117,9 +117,9 @@ public class BackTest {
 		AdaboostClassifier nModel=new AdaboostClassifier();
 //		BaggingJ48 nModel=new BaggingJ48();
 
-		Instances nominalResult=testBackward(nModel);
+//		Instances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
-//		Instances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
+		Instances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 
 		//按连续分类器回测历史数据
 //		M5PClassifier cModel=new M5PClassifier();

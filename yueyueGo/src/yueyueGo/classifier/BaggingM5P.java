@@ -44,6 +44,17 @@ import yueyueGo.utility.ThresholdData;
 //selected shouyilv average for hs300 =0.17% count=1889
 //selected shouyilv average for zz500 =1.82% count=3383
 
+// 20160917新模型（加入波动率）结果
+//===============================output summary===================================== for : baggingM5P-multiPCA
+//Monthly selected_TPR mean: 31.85% standard deviation=15.41% Skewness=0.56 Kurtosis=1.99
+//Monthly selected_LIFT mean : 1.03
+//Monthly selected_positive summary: 11,353
+//Monthly selected_count summary: 27,969
+//Monthly selected_shouyilv average: 1.42% standard deviation=3.66% Skewness=1.21 Kurtosis=2.52
+//Monthly total_shouyilv average: 1.22% standard deviation=2.59% Skewness=1.41 Kurtosis=1.27
+//mixed selected positive rate: 40.59%
+//Monthly summary_judge_result summary: good number= 23 bad number=21
+//===============================end of summary=====================================for : baggingM5P-multiPCA
 public class BaggingM5P extends ContinousClassifier {
 	
 	/**
