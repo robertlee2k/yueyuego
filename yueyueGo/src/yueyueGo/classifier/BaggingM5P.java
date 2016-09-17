@@ -76,7 +76,7 @@ public class BaggingM5P extends ContinousClassifier {
 		classifierName="baggingM5P";	
 		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
 		setWorkPathAndCheck(AppContext.getCONTINOUS_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
-		m_modelEvalFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
+		m_modelEvalFileShareMode=ModelStore.YEAR_SHARED_MODEL_AND_EVAL;//.HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 		
 		
 		adjustThresholdBottom=false;//不用MeanABSError调整threshold

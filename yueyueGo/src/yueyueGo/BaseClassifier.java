@@ -304,7 +304,7 @@ public abstract class BaseClassifier implements Serializable{
 
 	//初始化回测创建模型时使用的modelStore对象（这里严格按yearsplit和policysplit分割处理）
 	public void initModelStore(String yearSplit,String policySplit) {
-		String modelFileName=ModelStore.concatModeFilenameString(yearSplit, policySplit, this);
+		String modelFileName=ModelStore.concatModeFilenameString(yearSplit, policySplit, this.WORK_PATH+this.WORK_FILE_PREFIX, this.classifierName);
 		ModelStore modelStore=new ModelStore(modelFileName,modelFileName+ModelStore.THRESHOLD_EXTENSION);
 		m_modelStore=modelStore;
 	}
@@ -312,7 +312,7 @@ public abstract class BaseClassifier implements Serializable{
 	//找到回测评估、预测时应该使用modelStore对象（主要为获取model文件和eval文件名称）
 	//此类可以在子类中被覆盖（通过把yearsplit的值做处理，实现临时多年使用一个模型）
 	public void locateModelStore(String yearSplit,String policySplit) {
-		ModelStore modelStore=new ModelStore(yearSplit,policySplit,this);
+		ModelStore modelStore=new ModelStore(yearSplit,policySplit,this.WORK_PATH+this.WORK_FILE_PREFIX, this.classifierName,this.m_modelEvalFileShareMode);
 		m_modelStore=modelStore;
 	}
 	//生成日常预测时使用的model文件和eval文件名称
