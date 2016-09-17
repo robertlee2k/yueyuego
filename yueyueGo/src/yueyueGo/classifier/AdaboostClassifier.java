@@ -57,11 +57,11 @@ public class AdaboostClassifier extends NominalClassifier {
 	protected void initializeParams() {
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = true;
+		m_skipEvalInBacktest = false;
 		
 		classifierName="adaboost";
 		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
-		m_modelEvalFileShareMode=ModelStore.YEAR_SHARED_MODEL_AND_EVAL;// .HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
+		m_modelEvalFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 		
 		leafMinObjNum=300; 	//j48树最小节点叶子数
 		divided=300; //将trainingData分成多少份
