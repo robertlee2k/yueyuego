@@ -467,7 +467,13 @@ public class UpdateHistoryArffFile {
 							//do nothing
 						}else{
 							//可能是因为输入文件的date格式不一样，尝试转换一下
-							rightLabel=FormatUtility.convertDate(rightLabel);
+							try {
+								rightLabel=FormatUtility.convertDate(rightLabel);			
+							} catch (ParseException pe) {
+								System.err.println("leftLabel doesn't equal to right label,tried to convert date but failed,seems it is not a date string. at attribute:"+extArffCRC[j]+ " left= "+leftLabel+" while right= "+rightLabel +" @id="+leftID);
+								throw new Exception(pe);
+							}
+					
 							if (leftLabel.equals(rightLabel)==false){
 								System.out.println("current left====="+ leftCurr.toString());
 								System.out.println("current right===="+ rightCurr.toString());		
