@@ -70,7 +70,7 @@ public class ArffFormatFullModel extends ArffFormat {
 			IS_ZZ500,SHOUYILV };
 	
 	// 每日预测扩展格式数据（数据库和数据文件都是如此)的格式
-	public static String[] DAILY_DATA_TO_PREDICT_FULL_MODEL = FormatUtility.concatStrings(FormatUtility.concatStrings(new String[]{ID},FULL_MODEL_ATTRIB_FORMAT_NEW),new String[]{CODE});
+	public static String[] DAILY_DATA_TO_PREDICT_FULL_MODEL = FormatUtility.concatStrings(new String[]{ID},FULL_MODEL_ATTRIB_FORMAT_NEW,new String[]{CODE});
 		
 
 	// 此方法从All Transaction Data中保留计算收益率的相关字段，以及最后的收益率，删除其他计算字段

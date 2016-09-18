@@ -672,12 +672,12 @@ public class UpdateHistoryArffFile {
 		}
 
 
-		@Deprecated
-		//用于将以前的Arff文件变量改名另存为CSV文件 （临时给SPSS使用 20160812）
-		protected static void renameOldArffFile() throws Exception{
-			Instances oldInstances=FileUtility.loadDataFromFile(AppContext.getC_ROOT_DIRECTORY()+"AllTransaction20052016-ext-origin-backup.arff");
-			oldInstances=ArffFormat.renameOldArffName(oldInstances);
-			FileUtility.saveCSVFile(oldInstances, AppContext.getC_ROOT_DIRECTORY()+"AllTransaction20052016-used201607.csv");
-		}
+//		@Deprecated
+//		//用于将以前的Arff文件变量改名另存为CSV文件 （临时给SPSS使用 20160812）
+//		protected static void renameOldArffFile() throws Exception{
+//			Instances oldInstances=FileUtility.loadDataFromFile(AppContext.getC_ROOT_DIRECTORY()+"AllTransaction20052016-ext-origin-backup.arff");
+//			oldInstances=ArffFormat.renameOldArffName(oldInstances);
+//			FileUtility.saveCSVFile(oldInstances, AppContext.getC_ROOT_DIRECTORY()+"AllTransaction20052016-used201607.csv");
+//		}
 
 }

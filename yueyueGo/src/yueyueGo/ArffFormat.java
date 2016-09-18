@@ -45,80 +45,78 @@ public class ArffFormat {
 	public static final String ARFF_DATE_FORMAT = "M/d/yyyy";
 	
 	
-	// 用于training的数据顺序（最短格式，无计算字段的），这个是要过期的
-	@Deprecated
-	private static final String[] OLD_TRAINING_ARFF_SHORT_FORMAT = { "均线策略", BIAS5,
-			"bias10", "bias20", "bias30", "bias60", "bias5前日差", "bias10前日差",
-			"bias20前日差", "bias30前日差", "bias60前日差", "bias5二日差", "bias10二日差",
-			"bias20二日差", "bias30二日差", "bias60二日差", "ma5前日比", "ma10前日比",
-			"ma20前日比", "ma30前日比", "ma60前日比", "ma5二日比", "ma10二日比", "ma20二日比",
-			"ma30二日比", "ma60二日比", "ma5三日比", "ma10三日比", "ma20三日比", "ma30三日比",
-			"ma60三日比", "ma5四日比", "ma10四日比", "ma20四日比", "ma30四日比", "ma60四日比",
-			"ma5五日比", "ma10五日比", "ma20五日比", "ma30五日比", "ma60五日比", "涨跌幅", "换手率",
-			"换手前日比", "换手二日比", "换手三日比", "指数code", "申万行业指数code", "属上证50指数",
-			"属沪深300指数", "属中证100指数", "属中证500指数", "属深证100指数", "属沪股通标的", "属融资标的",
-			"sw行业bias5", "sw行业bias10", "sw行业bias20", "sw行业bias30",
-			"sw行业bias60", "swbias5前日差", "swbias10前日差", "swbias20前日差",
-			"swbias30前日差", "swbias60前日差", "swbias5二日差", "swbias10二日差",
-			"swbias20二日差", "swbias30二日差", "swbias60二日差", "指数bias5", "指数bias10",
-			"指数bias20", "指数bias30", "指数bias60", "指数bias5前日差", "指数bias10前日差",
-			"指数bias20前日差", "指数bias30前日差", "指数bias60前日差", "指数bias5二日差",
-			"指数bias10二日差", "指数bias20二日差", "指数bias30二日差", "指数bias60二日差"
-	};
+//	// 用于training的数据顺序（最短格式，无计算字段的），这个是要过期的
+//	@Deprecated
+//	private static final String[] OLD_TRAINING_ARFF_SHORT_FORMAT = { "均线策略", BIAS5,
+//			"bias10", "bias20", "bias30", "bias60", "bias5前日差", "bias10前日差",
+//			"bias20前日差", "bias30前日差", "bias60前日差", "bias5二日差", "bias10二日差",
+//			"bias20二日差", "bias30二日差", "bias60二日差", "ma5前日比", "ma10前日比",
+//			"ma20前日比", "ma30前日比", "ma60前日比", "ma5二日比", "ma10二日比", "ma20二日比",
+//			"ma30二日比", "ma60二日比", "ma5三日比", "ma10三日比", "ma20三日比", "ma30三日比",
+//			"ma60三日比", "ma5四日比", "ma10四日比", "ma20四日比", "ma30四日比", "ma60四日比",
+//			"ma5五日比", "ma10五日比", "ma20五日比", "ma30五日比", "ma60五日比", "涨跌幅", "换手率",
+//			"换手前日比", "换手二日比", "换手三日比", "指数code", "申万行业指数code", "属上证50指数",
+//			"属沪深300指数", "属中证100指数", "属中证500指数", "属深证100指数", "属沪股通标的", "属融资标的",
+//			"sw行业bias5", "sw行业bias10", "sw行业bias20", "sw行业bias30",
+//			"sw行业bias60", "swbias5前日差", "swbias10前日差", "swbias20前日差",
+//			"swbias30前日差", "swbias60前日差", "swbias5二日差", "swbias10二日差",
+//			"swbias20二日差", "swbias30二日差", "swbias60二日差", "指数bias5", "指数bias10",
+//			"指数bias20", "指数bias30", "指数bias60", "指数bias5前日差", "指数bias10前日差",
+//			"指数bias20前日差", "指数bias30前日差", "指数bias60前日差", "指数bias5二日差",
+//			"指数bias10二日差", "指数bias20二日差", "指数bias30二日差", "指数bias60二日差"
+//	};
+//	
+//	@Deprecated
+//	private static final String[] OLD_TRAINING_ATTRIB_MAPPER = {
+//		SELECTED_AVG_LINE, BIAS5, "bias10", "bias20", "bias30",
+//		"bias60", "bias5_preday_dif", "bias10_preday_dif",
+//		"bias20_preday_dif", "bias30_preday_dif", "bias60_preday_dif",
+//		"bias5_pre2day_dif", "bias10_pre2day_dif", "bias20_pre2day_dif",
+//		"bias30_pre2day_dif", "bias60_pre2day_dif", "ma5_preday_perc",
+//		"ma10_preday_perc", "ma20_preday_perc", "ma30_preday_perc",
+//		"ma60_preday_perc", "ma5_pre2day_perc", "ma10_pre2day_perc",
+//		"ma20_pre2day_perc", "ma30_pre2day_perc", "ma60_pre2day_perc",
+//		"ma5_pre3day_perc", "ma10_pre3day_perc", "ma20_pre3day_perc",
+//		"ma30_pre3day_perc", "ma60_pre3day_perc", "ma5_pre4day_perc",
+//		"ma10_pre4day_perc", "ma20_pre4day_perc", "ma30_pre4day_perc",
+//		"ma60_pre4day_perc", "ma5_pre5day_perc", "ma10_pre5day_perc",
+//		"ma20_pre5day_perc", "ma30_pre5day_perc", "ma60_pre5day_perc",
+//		"zhangdiefu", "huanshoulv", "huanshoulv_preday_perc",
+//		"huanshoulv_pre2day_perc", "huanshoulv_pre3day_perc",
+//		"zhishu_code", "sw_zhishu_code",IS_SZ50 ,IS_HS300 , "iszz100",
+//		IS_ZZ500, "issz100",
+//		"ishgtb",
+//		"isrzbd", "sw_bias5", "sw_bias10",
+//		"sw_bias20", "sw_bias30", "sw_bias60", "sw_bias5_preday_dif",
+//		"sw_bias10_preday_dif", "sw_bias20_preday_dif",
+//		"sw_bias30_preday_dif", "sw_bias60_preday_dif",
+//		"sw_bias5_pre2day_dif", "sw_bias10_pre2day_dif",
+//		"sw_bias20_pre2day_dif", "sw_bias30_pre2day_dif",
+//		"sw_bias60_pre2day_dif", "zhishu_bias5", "zhishu_bias10",
+//		"zhishu_bias20", "zhishu_bias30", "zhishu_bias60",
+//		"zhishu_bias5_preday_dif", "zhishu_bias10_preday_dif",
+//		"zhishu_bias20_preday_dif", "zhishu_bias30_preday_dif",
+//		"zhishu_bias60_preday_dif", "zhishu_bias5_pre2day_dif",
+//		"zhishu_bias10_pre2day_dif", "zhishu_bias20_pre2day_dif",
+//		"zhishu_bias30_pre2day_dif", "zhishu_bias60_pre2day_dif"
+//	};
 	
-	@Deprecated
-	private static final String[] OLD_TRAINING_ATTRIB_MAPPER = {
-		SELECTED_AVG_LINE, BIAS5, "bias10", "bias20", "bias30",
-		"bias60", "bias5_preday_dif", "bias10_preday_dif",
-		"bias20_preday_dif", "bias30_preday_dif", "bias60_preday_dif",
-		"bias5_pre2day_dif", "bias10_pre2day_dif", "bias20_pre2day_dif",
-		"bias30_pre2day_dif", "bias60_pre2day_dif", "ma5_preday_perc",
-		"ma10_preday_perc", "ma20_preday_perc", "ma30_preday_perc",
-		"ma60_preday_perc", "ma5_pre2day_perc", "ma10_pre2day_perc",
-		"ma20_pre2day_perc", "ma30_pre2day_perc", "ma60_pre2day_perc",
-		"ma5_pre3day_perc", "ma10_pre3day_perc", "ma20_pre3day_perc",
-		"ma30_pre3day_perc", "ma60_pre3day_perc", "ma5_pre4day_perc",
-		"ma10_pre4day_perc", "ma20_pre4day_perc", "ma30_pre4day_perc",
-		"ma60_pre4day_perc", "ma5_pre5day_perc", "ma10_pre5day_perc",
-		"ma20_pre5day_perc", "ma30_pre5day_perc", "ma60_pre5day_perc",
-		"zhangdiefu", "huanshoulv", "huanshoulv_preday_perc",
-		"huanshoulv_pre2day_perc", "huanshoulv_pre3day_perc",
-		"zhishu_code", "sw_zhishu_code",IS_SZ50 ,IS_HS300 , "iszz100",
-		IS_ZZ500, "issz100",
-		"ishgtb",
-		"isrzbd", "sw_bias5", "sw_bias10",
-		"sw_bias20", "sw_bias30", "sw_bias60", "sw_bias5_preday_dif",
-		"sw_bias10_preday_dif", "sw_bias20_preday_dif",
-		"sw_bias30_preday_dif", "sw_bias60_preday_dif",
-		"sw_bias5_pre2day_dif", "sw_bias10_pre2day_dif",
-		"sw_bias20_pre2day_dif", "sw_bias30_pre2day_dif",
-		"sw_bias60_pre2day_dif", "zhishu_bias5", "zhishu_bias10",
-		"zhishu_bias20", "zhishu_bias30", "zhishu_bias60",
-		"zhishu_bias5_preday_dif", "zhishu_bias10_preday_dif",
-		"zhishu_bias20_preday_dif", "zhishu_bias30_preday_dif",
-		"zhishu_bias60_preday_dif", "zhishu_bias5_pre2day_dif",
-		"zhishu_bias10_pre2day_dif", "zhishu_bias20_pre2day_dif",
-		"zhishu_bias30_pre2day_dif", "zhishu_bias60_pre2day_dif"
-	};
-	// 每日预测数据（数据库和数据文件都是如此)的旧格式
-	public static final String[] DAILY_DATA_TO_PREDICT_FORMAT_LEGACY = FormatUtility.concatStrings(new String[]{ID},OLD_TRAINING_ATTRIB_MAPPER);
-	
-	@Deprecated
-	public static Instances renameOldArffName(Instances oldInstances){
-		Attribute oldAttribute=null;
-		for (int i=0;i<OLD_TRAINING_ARFF_SHORT_FORMAT.length;i++){
-			oldAttribute=oldInstances.attribute(OLD_TRAINING_ARFF_SHORT_FORMAT[i]);
-			if (oldAttribute!=null && (oldAttribute.name().equals(OLD_TRAINING_ATTRIB_MAPPER[i])==false)){
-				oldInstances.renameAttribute(oldAttribute, OLD_TRAINING_ATTRIB_MAPPER[i]);
-				System.out.println("attribute renamed. from "+oldAttribute.name()+" ----->" + OLD_TRAINING_ATTRIB_MAPPER[i]);
-			}
-		}
-		return oldInstances;
-	}
+//	@Deprecated
+//	public static Instances renameOldArffName(Instances oldInstances){
+//		Attribute oldAttribute=null;
+//		for (int i=0;i<OLD_TRAINING_ARFF_SHORT_FORMAT.length;i++){
+//			oldAttribute=oldInstances.attribute(OLD_TRAINING_ARFF_SHORT_FORMAT[i]);
+//			if (oldAttribute!=null && (oldAttribute.name().equals(OLD_TRAINING_ATTRIB_MAPPER[i])==false)){
+//				oldInstances.renameAttribute(oldAttribute, OLD_TRAINING_ATTRIB_MAPPER[i]);
+//				System.out.println("attribute renamed. from "+oldAttribute.name()+" ----->" + OLD_TRAINING_ATTRIB_MAPPER[i]);
+//			}
+//		}
+//		return oldInstances;
+//	}
 
 	
 	
-	//模型用的训练字段 （最基础部分）
+	//模型用的训练字段 （当前使用模型的基础部分）
 	public static final String[] MODEL_ATTRIB_FORMAT_BASE={
 		SELECTED_AVG_LINE, BIAS5, "bias10", "bias20", "bias30",
 		"bias60", "bias5_preday_dif", "bias10_preday_dif",
@@ -151,25 +149,11 @@ public class ArffFormat {
 		"zhishu_bias60_preday_dif", "zhishu_bias5_pre2day_dif",
 		"zhishu_bias10_pre2day_dif", "zhishu_bias20_pre2day_dif",
 		"zhishu_bias30_pre2day_dif", "zhishu_bias60_pre2day_dif"
-	};
-	//模型扩展ARFF格式之第二、三批数据
-	private static final String[] MODEL_ATTRIB_EXT= {
-		"zhishu_quantity_preday_perc","zhishu_quantity_pre2day_perc","zhishu_quantity_pre3day_perc","zhishu_ma5_indicator","zhishu_ma10_indicator","zhishu_ma20_indicator","zhishu_ma30_indicator","zhishu_ma60_indicator","sw_ma5_indicator","sw_ma10_indicator","sw_ma20_indicator","sw_ma30_indicator","sw_ma60_indicator","ma5_signal_scale","ma10_signal_scale","ma20_signal_scale","ma30_signal_scale","ma60_signal_scale"
+		,"zhishu_quantity_preday_perc","zhishu_quantity_pre2day_perc","zhishu_quantity_pre3day_perc","zhishu_ma5_indicator","zhishu_ma10_indicator","zhishu_ma20_indicator","zhishu_ma30_indicator","zhishu_ma60_indicator","sw_ma5_indicator","sw_ma10_indicator","sw_ma20_indicator","sw_ma30_indicator","sw_ma60_indicator","ma5_signal_scale","ma10_signal_scale","ma20_signal_scale","ma30_signal_scale","ma60_signal_scale"
 		,"zhangdieting","shangying","xiaying","index_shangying","index_xiaying","yearhighbias","yearlowbias","monthhighbias","monthlowbias","index_yearhighbias","index_yearlowbias","index_monthhighbias","index_monthlowbias"
-		,"circulation_marketVal_gears","PE_TTM","PE_TTM_gears","PE_LYR","PE_LYR_gears","listed_days_gears","is_st",
-		"skewness5_gupiao","skewness10_gupiao","skewness20_gupiao","skewness30_gupiao","skewness60_gupiao",
-		"skewness5_zhishu","skewness10_zhishu","skewness20_zhishu","skewness30_zhishu","skewness60_zhishu",
-		"skewness5_shenwan","skewness10_shenwan","skewness20_shenwan","skewness30_shenwan","skewness60_shenwan",
-		"kurtosis5_gupiao","kurtosis10_gupiao","kurtosis20_gupiao","kurtosis30_gupiao","kurtosis60_gupiao",
-		"kurtosis5_zhishu","kurtosis10_zhishu","kurtosis20_zhishu","kurtosis30_zhishu","kurtosis60_zhishu",
-		"kurtosis5_shenwan","kurtosis10_shenwan","kurtosis20_shenwan","kurtosis30_shenwan","kurtosis60_shenwan",
-		"HV5_gupiao","HV10_gupiao","HV20_gupiao","HV30_gupiao","HV60_gupiao",
-		"HV5_zhishu","HV10_zhishu","HV20_zhishu","HV30_zhishu","HV60_zhishu",
-		"HV5_shenwan","HV10_shenwan","HV20_shenwan","HV30_shenwan","HV60_shenwan"
+		,"circulation_marketVal_gears","PE_TTM","PE_TTM_gears","PE_LYR","PE_LYR_gears","listed_days_gears","is_st"
+
 	};
-	//模型用的训练字段 （基础+扩展部分）
-	public static final String[] MODEL_ATTRIB_FORMAT_NEW=FormatUtility.concatStrings(MODEL_ATTRIB_FORMAT_BASE,MODEL_ATTRIB_EXT);
-	
 	
 	//每次新扩展ARFF格式的校验位
 	public static final String[] EXT_ARFF_CRC= {
@@ -187,13 +171,19 @@ public class ArffFormat {
 		"HV5_zhishu","HV10_zhishu","HV20_zhishu","HV30_zhishu","HV60_zhishu",
 		"HV5_shenwan","HV10_shenwan","HV20_shenwan","HV30_shenwan","HV60_shenwan"
 	};
-	//每次新扩展ARFF文件整体格式
+
+	//模型用的训练字段 （基础+扩展部分）
+	public static final String[] MODEL_ATTRIB_FORMAT_NEW=FormatUtility.concatStrings(MODEL_ATTRIB_FORMAT_BASE,EXT_ARFF_COLUMNS);
+	
+	//每次新的扩展ARFF文件整体格式
 	public static final String[] EXT_ARFF_FILE_FORMAT= FormatUtility.concatStrings(EXT_ARFF_CRC,EXT_ARFF_COLUMNS);
 	
 	
+	// 每日预测（旧模型数据格式）数据（数据库和数据文件都是如此)的旧格式
+	public static final String[] DAILY_DATA_TO_PREDICT_FORMAT_LEGACY = FormatUtility.concatStrings(new String[]{ID},MODEL_ATTRIB_FORMAT_BASE,new String[]{CODE});
 	
 	// 每日预测扩展格式数据（数据库和数据文件都是如此)的格式
-	public static String[] DAILY_DATA_TO_PREDICT_FORMAT_NEW = FormatUtility.concatStrings(FormatUtility.concatStrings(new String[]{ID},MODEL_ATTRIB_FORMAT_NEW),new String[]{CODE});
+	public static String[] DAILY_DATA_TO_PREDICT_FORMAT_NEW = FormatUtility.concatStrings(new String[]{ID},MODEL_ATTRIB_FORMAT_NEW,new String[]{CODE});
 	
 	//每日预测数据中的左侧字段，此处顺序无关（positive和收益率其实是二选一的）
 	public static String[] DAILY_PREDICT_RESULT_LEFT={ID,SELECTED_AVG_LINE,BIAS5,CODE,IS_POSITIVE,SHOUYILV};

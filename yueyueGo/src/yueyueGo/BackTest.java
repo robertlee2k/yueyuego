@@ -423,15 +423,16 @@ public class BackTest {
 		//读取磁盘上预先保存的左侧数据
 		Instances left=null;
 		
-		if (format==ArffFormat.LEGACY_FORMAT){ //LEGACY 有少量模型尚使用原有格式
-			left=FileUtility.loadDataFromFile(C_ROOT_DIRECTORY+"AllTransaction20052016-left.arff");
-		}else if (format==ArffFormat.EXT_FORMAT){  
-			left=FileUtility.loadDataFromFile(C_ROOT_DIRECTORY+ArffFormat.TRANSACTION_ARFF_PREFIX+"-left.arff");
-		}
+//		if (format==ArffFormat.LEGACY_FORMAT){ //LEGACY 有少量模型尚使用原有格式作为结果对比
+//			left=FileUtility.loadDataFromFile(C_ROOT_DIRECTORY+"AllTransaction20052016-left.arff");
+//		}else if (format==ArffFormat.EXT_FORMAT){  
+//			left=FileUtility.loadDataFromFile(C_ROOT_DIRECTORY+ArffFormat.TRANSACTION_ARFF_PREFIX+"-left.arff");
+//		}
 
-		 MergeClassifyResults merge=new MergeClassifyResults(shouyilv_thresholds, winrate_thresholds);
-		 Instances mergedResult =merge.mergeResults(resultData, referenceData,dataToAdd, left);
-		
+		left=FileUtility.loadDataFromFile(C_ROOT_DIRECTORY+ArffFormat.TRANSACTION_ARFF_PREFIX+"-left.arff");
+		MergeClassifyResults merge=new MergeClassifyResults(shouyilv_thresholds, winrate_thresholds);
+		Instances mergedResult =merge.mergeResults(resultData, referenceData,dataToAdd, left);
+
 		//返回结果之前需要按TradeDate重新排序
 		int tradeDateIndex=InstanceUtility.findATTPosition(mergedResult, ArffFormat.TRADE_DATE);
 		mergedResult.sort(tradeDateIndex-1);
