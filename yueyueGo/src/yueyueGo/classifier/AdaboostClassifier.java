@@ -43,6 +43,31 @@ import yueyueGo.utility.ClassifyUtility;
 //selected shouyilv average for full market =2.06% count=39839
 //selected shouyilv average for hs300 =0.75% count=4815
 //selected shouyilv average for zz500 =1.35% count=9360
+
+//2. 20160918 使用波动率后的新模型
+//m_modelEvalFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
+//
+//leafMinObjNum=300; 	//j48树最小节点叶子数
+//divided=300; //将trainingData分成多少份
+//boost_iteration=10; 	//boost特有参数
+//
+//m_noCaculationAttrib=false; //使用计算字段
+//EVAL_RECENT_PORTION = 1; // 计算最近数据阀值从历史记录中选取多少比例的最近样本		
+//SAMPLE_LOWER_LIMIT =new double[] { 0.04, 0.05, 0.06, 0.07, 0.08 }; // 各条均线选择样本的下限
+//SAMPLE_UPPER_LIMIT =new double[] { 0.07, 0.08, 0.11, 0.12, 0.13 }; // 各条均线选择样本的上限
+//TP_FP_RATIO_LIMIT=new double[] { 1.8, 1.7, 1.3, 1.1, 0.9};//选择样本阀值时TP FP RATIO从何开始
+//TP_FP_BOTTOM_LINE=0.8; //TP/FP的下限
+//DEFAULT_THRESHOLD=0.6; // 找不出threshold时缺省值。
+//===============================output summary===================================== for : adaboost
+//Monthly selected_TPR mean: 32.43% standard deviation=21.39% Skewness=0.62 Kurtosis=-0.22
+//Monthly selected_LIFT mean : 1.07
+//Monthly selected_positive summary: 17,050
+//Monthly selected_count summary: 46,651
+//Monthly selected_shouyilv average: 1.42% standard deviation=7.49% Skewness=4.39 Kurtosis=36.33
+//Monthly total_shouyilv average: 0.98% standard deviation=6.09% Skewness=3.06 Kurtosis=15.62
+//mixed selected positive rate: 36.55%
+//Monthly summary_judge_result summary: good number= 285 bad number=235
+//===============================end of summary=====================================for : adaboost
 public class AdaboostClassifier extends NominalClassifier {
 
 	/**

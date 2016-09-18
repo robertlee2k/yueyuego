@@ -44,19 +44,32 @@ import yueyueGo.utility.ThresholdData;
 //selected shouyilv average for hs300 =0.17% count=1889
 //selected shouyilv average for zz500 =1.82% count=3383
 
-// 20160917新模型（加入波动率）结果
+// 20160918新模型（加入波动率）结果
+//useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
+//m_modelEvalFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
+//adjustThresholdBottom=false;//不用MeanABSError调整threshold
+//bagging_iteration=10;	//bagging特有参数
+//leafMinObjNum=300; //叶子节点最小的
+//divided=300; //将trainingData分成多少份
+//
+//m_noCaculationAttrib=false; //添加计算字段!
+//EVAL_RECENT_PORTION = 1; // 计算最近数据阀值从历史记录中选取多少比例的最近样本
+//SAMPLE_LOWER_LIMIT = new double[]{ 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限 
+//SAMPLE_UPPER_LIMIT = new double[]  { 0.06, 0.07, 0.1, 0.11, 0.12 };
+//TP_FP_RATIO_LIMIT = new double[] { 1.8, 1.7, 1.5, 1.2, 1}; //选择样本阀值时TP FP RATIO到了何种值就可以提前停止了。
+//TP_FP_BOTTOM_LINE=0.9; //TP/FP的下限
 //===============================output summary===================================== for : baggingM5P-multiPCA
-//Monthly selected_TPR mean: 31.85% standard deviation=15.41% Skewness=0.56 Kurtosis=1.99
-//Monthly selected_LIFT mean : 1.03
-//Monthly selected_positive summary: 11,353
-//Monthly selected_count summary: 27,969
-//Monthly selected_shouyilv average: 1.42% standard deviation=3.66% Skewness=1.21 Kurtosis=2.52
-//Monthly total_shouyilv average: 1.22% standard deviation=2.59% Skewness=1.41 Kurtosis=1.27
-//mixed selected positive rate: 40.59%
-//Monthly summary_judge_result summary: good number= 23 bad number=21
+//Monthly selected_TPR mean: 24.87% standard deviation=26.70% Skewness=1.01 Kurtosis=0.34
+//Monthly selected_LIFT mean : 0.82
+//Monthly selected_positive summary: 11,350
+//Monthly selected_count summary: 27,992
+//Monthly selected_shouyilv average: 1.03% standard deviation=8.97% Skewness=6.15 Kurtosis=63.98
+//Monthly total_shouyilv average: 0.98% standard deviation=6.09% Skewness=3.06 Kurtosis=15.62
+//mixed selected positive rate: 40.55%
+//Monthly summary_judge_result summary: good number= 281 bad number=239
 //===============================end of summary=====================================for : baggingM5P-multiPCA
+
 public class BaggingM5P extends ContinousClassifier {
-	
 	/**
 	 * 
 	 */
@@ -76,9 +89,8 @@ public class BaggingM5P extends ContinousClassifier {
 		classifierName="baggingM5P";	
 		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
 		setWorkPathAndCheck(AppContext.getCONTINOUS_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
+
 		m_modelEvalFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
-		
-		
 		adjustThresholdBottom=false;//不用MeanABSError调整threshold
 		bagging_iteration=10;	//bagging特有参数
 		leafMinObjNum=300; //叶子节点最小的
