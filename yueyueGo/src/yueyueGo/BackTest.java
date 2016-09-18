@@ -93,7 +93,7 @@ public class BackTest {
 //			UpdateHistoryArffFile.callRefreshInstances();
 
 			//合并历史扩展数据
-//			UpdateHistoryArffFile.mergeExtData();
+//			UpdateHistoryArffFile.callMergeExtData();
 			
 //			UpdateHistoryArffFile.createTransInstances();
 			

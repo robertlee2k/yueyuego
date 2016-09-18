@@ -61,7 +61,7 @@ public class DailyPredict {
 			format=ArffFormat.EXT_FORMAT;			
 			//MLPAB当前使用的预测模型
 			classifierName=new MLPABClassifier().classifierName;
-			addModelData(classifierName,format,"\\extData2005-2016-mlpAB-2016 MA ","\\extData2005-2016-mlpAB-2016 MA ");
+			addModelData(classifierName,format,"\\extData2005-2016-mlpAB-2016 MA ","\\extData2005-2016-mlpAB-201608 MA ");
 
 			//BaggingM5P当前使用的预测模型
 			classifierName=new BaggingM5P().classifierName;
@@ -83,22 +83,6 @@ public class DailyPredict {
 			classifierName=new BaggingJ48FullModel().classifierName;
 			addModelData(classifierName,format,"\\extData2005-2016-BaggingJ48ABFullModel-201606 MA ", "\\extData2005-2016-BaggingJ48ABFullModel-201607 MA ");
 		}
-	}
-
-
-	/**
-	 * @param format
-	 */
-	private static void addModelData(String classifier,int format,String modelFilePrefix,String evalFilePrefix) {
-		String id;
-		PredictModelData modelData;
-		id=classifier+format;
-		modelData=new PredictModelData();
-		modelData.setIdentify(id);
-		modelData.setModelFileName(modelFilePrefix); 
-		modelData.setEvalFileName(evalFilePrefix);
-		modelData.setModelFormatType(format);
-		PREDICT_MODELS.put(id, modelData);
 	}
 
 
@@ -127,7 +111,7 @@ public class DailyPredict {
 			//预先初始化各种模型文件的位置
 			definePredictModels(EnvConstants.AVG_LINE_ROOT_DIR);
 			shouyilv_thresholds=new double[] {0.01,0.02,0.03,0.03,0.04};
-			winrate_thresholds=new double[] {0.3,0.3,0.3,0.3,0.3};
+			winrate_thresholds=new double[] {0.3,0.3,0.3,0.25,0.25};
 			callDailyPredict();
 
 		} catch (Exception e) {
@@ -407,6 +391,22 @@ public class DailyPredict {
 
 		InstanceUtility.calibrateAttributes(incomingData, outputData);
 		return outputData;
+	}
+
+
+	/**
+	 * @param format
+	 */
+	private static void addModelData(String classifier,int format,String modelFilePrefix,String evalFilePrefix) {
+		String id;
+		PredictModelData modelData;
+		id=classifier+format;
+		modelData=new PredictModelData();
+		modelData.setIdentify(id);
+		modelData.setModelFileName(modelFilePrefix); 
+		modelData.setEvalFileName(evalFilePrefix);
+		modelData.setModelFormatType(format);
+		PREDICT_MODELS.put(id, modelData);
 	}
 
 

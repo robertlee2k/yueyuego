@@ -117,7 +117,7 @@ public class ArffFormat {
 	
 	
 	//模型用的训练字段 （当前使用模型的基础部分）
-	public static final String[] MODEL_ATTRIB_FORMAT_BASE={
+	protected static final String[] MODEL_ATTRIB_FORMAT_BASE={
 		SELECTED_AVG_LINE, BIAS5, "bias10", "bias20", "bias30",
 		"bias60", "bias5_preday_dif", "bias10_preday_dif",
 		"bias20_preday_dif", "bias30_preday_dif", "bias60_preday_dif",
@@ -156,11 +156,11 @@ public class ArffFormat {
 	};
 	
 	//每次新扩展ARFF格式的校验位
-	public static final String[] EXT_ARFF_CRC= {
-		ID,TRADE_DATE,CODE,SELL_DATE,DATA_DATE,SELECTED_AVG_LINE,"bias5_preday_dif","zhishu_code",
+	protected static final String[] EXT_ARFF_CRC= {
+		ID,TRADE_DATE,CODE,SELL_DATE,DATA_DATE,SELECTED_AVG_LINE,"bias5_preday_dif","zhishu_code"
 	};
 	//每次新扩展ARFF格式增加的数据
-	public static final String[] EXT_ARFF_COLUMNS= {
+	protected static final String[] EXT_ARFF_COLUMNS= {
 		"skewness5_gupiao","skewness10_gupiao","skewness20_gupiao","skewness30_gupiao","skewness60_gupiao",
 		"skewness5_zhishu","skewness10_zhishu","skewness20_zhishu","skewness30_zhishu","skewness60_zhishu",
 		"skewness5_shenwan","skewness10_shenwan","skewness20_shenwan","skewness30_shenwan","skewness60_shenwan",
@@ -173,10 +173,10 @@ public class ArffFormat {
 	};
 
 	//模型用的训练字段 （基础+扩展部分）
-	public static final String[] MODEL_ATTRIB_FORMAT_NEW=FormatUtility.concatStrings(MODEL_ATTRIB_FORMAT_BASE,EXT_ARFF_COLUMNS);
+	protected static final String[] MODEL_ATTRIB_FORMAT_NEW=FormatUtility.concatStrings(MODEL_ATTRIB_FORMAT_BASE,EXT_ARFF_COLUMNS);
 	
 	//每次新的扩展ARFF文件整体格式
-	public static final String[] EXT_ARFF_FILE_FORMAT= FormatUtility.concatStrings(EXT_ARFF_CRC,EXT_ARFF_COLUMNS);
+	protected static final String[] EXT_ARFF_FILE_FORMAT= FormatUtility.concatStrings(EXT_ARFF_CRC,EXT_ARFF_COLUMNS);
 	
 	
 	// 每日预测（旧模型数据格式）数据（数据库和数据文件都是如此)的旧格式

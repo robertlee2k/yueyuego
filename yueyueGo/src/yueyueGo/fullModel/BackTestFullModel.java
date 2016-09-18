@@ -45,12 +45,14 @@ public class BackTestFullModel extends BackTest {
 			BackTestFullModel fullModelWorker=new BackTestFullModel();
 			fullModelWorker.init();
 			
-			
+			//短线模型的历史回测
+//			fullModelWorker.callFullModelTestBack();
+
+			//短线模型生成初始全量数据
 //			UpdateHistoryArffFullModel.createFullModelInstances();
 			
-			//短线模型的历史回测
-			fullModelWorker.callFullModelTestBack();
-
+			//短线模型合并新的属性
+			UpdateHistoryArffFullModel.callMergeExtDataForFullModel();			
 
 		} catch (Exception e) {
 			

@@ -83,7 +83,7 @@ public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 		left=null; //试图释放内存
 		
 		// 去除与训练无关的字段
-		Instances result=ArffFormatFullModel.prepareTransData(fullSetData);
+		Instances result=ArffFormatFullModel.prepareTransDataForFullModel(fullSetData);
 		
 		//保存训练用的format，用于做日后的校验 
 		Instances format=new Instances(result,0);
@@ -96,5 +96,55 @@ public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 		FileUtility.SaveDataIntoFile(result, originFileName+"-new.arff");
 		System.out.println("FULLMODEL...full Set Data File saved "  );
 
+	}
+	
+	//这个函数是将原有的历史arff文件数据（比如说只有第一二三组）合并上新的数据列
+	protected static void callMergeExtDataForFullModel() throws Exception{
+		String file1=null;
+		String file2=null;
+		Instances extData=null;
+		Instances extData2=null;
+
+		file1=AppContext.getC_ROOT_DIRECTORY()+"\\sourceData\\自选股第五组增量\\onceyield_optional_hv_update_2005_2008.txt";
+		file2=AppContext.getC_ROOT_DIRECTORY()+"\\sourceData\\自选股第五组增量\\onceyield_optional_hv_update_2009_2012.txt";
+		extData = UpdateHistoryArffFile.mergeExtDataFromTwoFiles(file1, file2,ArffFormatFullModel.FULL_MODEL_EXT_ARFF_FILE_FORMAT);
+		System.out.println("NewGroup data 1 loaded. number="+extData.numInstances());
+
+		String file3=AppContext.getC_ROOT_DIRECTORY()+"\\sourceData\\自选股第五组增量\\onceyield_optional_hv_update_2013_2015";
+		String file4=AppContext.getC_ROOT_DIRECTORY()+"\\sourceData\\自选股第五组增量\\onceyield_optional_hv_update_2016.txt";
+		extData2 = UpdateHistoryArffFile.mergeExtDataFromTwoFiles(file3, file4,ArffFormatFullModel.FULL_MODEL_EXT_ARFF_FILE_FORMAT);
+		System.out.println("NewGroup data 2 loaded. number="+extData2.numInstances());
+
+		extData=InstanceUtility.mergeTwoInstances(extData, extData2);
+		System.out.println("NewGroup data merged and loaded. number="+extData.numInstances());
+
+		//加载原始arff文件
+		String originFileName=AppContext.getC_ROOT_DIRECTORY()+ArffFormat.TRANSACTION_ARFF_PREFIX;
+		Instances fullData = FileUtility.loadDataFromFile(originFileName+"-origin.arff");
+
+
+		System.out.println("full trans data loaded. number="+fullData.numInstances());
+
+		//将两边数据以ID排序
+		fullData.sort(ArffFormat.ID_POSITION-1);
+		extData.sort(ArffFormat.ID_POSITION-1);
+		System.out.println("all data sorted by id");
+
+
+		Instances result=mergeTransactionWithExtension(fullData,extData,ArffFormatFullModel.FULL_MODEL_EXT_ARFF_COLUMNS,ArffFormatFullModel.FULL_MODEL_EXT_ARFF_CRC);
+		System.out.println("NewGroup data processed. number="+result.numInstances()+" columns="+result.numAttributes());
+		extData=null;
+		fullData=null;
+
+		//返回结果之前需要按TradeDate重新排序
+		int tradeDateIndex=InstanceUtility.findATTPosition(result, ArffFormat.TRADE_DATE);
+		result.sort(tradeDateIndex-1);
+
+		//保留原始的ext文件
+		FileUtility.SaveDataIntoFile(result, originFileName+".arff");
+		System.out.println("history Data File saved: "+originFileName+".arff");
+
+		//生成相应的一套Arff文件
+		generateArffFileSetFullModel(originFileName,result);
 	}
 }

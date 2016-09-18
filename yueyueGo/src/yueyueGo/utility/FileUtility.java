@@ -96,13 +96,13 @@ public class FileUtility {
 		}
 	
 	// 从扩展ARFF的CSV文件中加载数据，根据后续处理需要这里不设classIndex
-	public static Instances loadDataFromExtCSVFile(String fileName)		throws Exception {
+	public static Instances loadDataFromExtCSVFile(String fileName,String[] verifyFormat)		throws Exception {
 			CSVLoader loader = new CSVLoader();
 			loader.setSource(new File(fileName));
 			Instances datasrc = loader.getDataSet();
 
 			// 对读入的数据字段名称校验 确保其顺序完全和内部训练的arff格式一致
-			datasrc=ArffFormat.validateAttributeNames(datasrc,ArffFormat.EXT_ARFF_FILE_FORMAT);
+			datasrc=ArffFormat.validateAttributeNames(datasrc,verifyFormat);
 
 			
 			//数据先作为String全部读进来之后再看怎么转nominal，否则直接加载， nominal的值的顺序会和文件顺序有关，造成数据不对

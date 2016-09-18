@@ -54,6 +54,27 @@ public class ArffFormatFullModel extends ArffFormat {
 		,"circulation_marketVal_gears","PE_TTM","PE_TTM_gears","PE_LYR","PE_LYR_gears","listed_days_gears","is_st"
 	};
 	
+	//每次新扩展ARFF格式的校验位
+	protected static final String[] FULL_MODEL_EXT_ARFF_CRC= {
+		ID,TRADE_DATE,CODE,SELL_DATE,DATA_DATE,"bias5_preday_dif","zhishu_code"
+	};
+	//每次新扩展ARFF格式增加的数据
+	protected static final String[] FULL_MODEL_EXT_ARFF_COLUMNS= {
+		"skewness5_gupiao","skewness10_gupiao","skewness20_gupiao","skewness30_gupiao","skewness60_gupiao",
+		"skewness5_zhishu","skewness10_zhishu","skewness20_zhishu","skewness30_zhishu","skewness60_zhishu",
+		"skewness5_shenwan","skewness10_shenwan","skewness20_shenwan","skewness30_shenwan","skewness60_shenwan",
+		"kurtosis5_gupiao","kurtosis10_gupiao","kurtosis20_gupiao","kurtosis30_gupiao","kurtosis60_gupiao",
+		"kurtosis5_zhishu","kurtosis10_zhishu","kurtosis20_zhishu","kurtosis30_zhishu","kurtosis60_zhishu",
+		"kurtosis5_shenwan","kurtosis10_shenwan","kurtosis20_shenwan","kurtosis30_shenwan","kurtosis60_shenwan",
+		"HV5_gupiao","HV10_gupiao","HV20_gupiao","HV30_gupiao","HV60_gupiao",
+		"HV5_zhishu","HV10_zhishu","HV20_zhishu","HV30_zhishu","HV60_zhishu",
+		"HV5_shenwan","HV10_shenwan","HV20_shenwan","HV30_shenwan","HV60_shenwan"
+	};
+	
+	//每次新的扩展ARFF文件整体格式
+	protected static final String[] FULL_MODEL_EXT_ARFF_FILE_FORMAT= FormatUtility.concatStrings(FULL_MODEL_EXT_ARFF_CRC,FULL_MODEL_EXT_ARFF_COLUMNS);
+		
+	
 	//全模型单次收益率数据中不用保存在ARFF文件中的字段
 	private static final String[] FULL_MODEL_DATA_NOT_SAVED_IN_ARFF={ 
 		TRADE_DATE,CODE, SELL_DATE, DATA_DATE, "chicang_days", IS_POSITIVE
@@ -82,7 +103,7 @@ public class ArffFormatFullModel extends ArffFormat {
 	}
 	
 	// 从All Transaction Data中删除无关字段 (tradeDate到均线策略之前）
-	protected static Instances prepareTransData(Instances allData)
+	protected static Instances prepareTransDataForFullModel(Instances allData)
 			throws Exception {
 		Instances result = InstanceUtility.removeAttribs(allData,FULL_MODEL_DATA_NOT_SAVED_IN_ARFF);
 		return result;

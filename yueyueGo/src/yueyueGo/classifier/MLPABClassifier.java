@@ -126,6 +126,33 @@ import yueyueGo.utility.AppContext;
 //Monthly summary_judge_result summary: good number= 277 bad number=238
 //===============================end of summary=====================================for : mlpAB
 
+//8. 20160918 加入波动率后的新模型
+//m_modelEvalFileShareMode=ModelStore.YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
+//m_noCaculationAttrib=false; //使用计算字段
+//EVAL_RECENT_PORTION = 1; // 计算最近数据阀值从历史记录中选取多少比例的最近样本		
+//SAMPLE_LOWER_LIMIT =new double[] { 0.03, 0.04, 0.05, 0.06, 0.07 }; // 各条均线选择样本的下限
+//SAMPLE_UPPER_LIMIT =new double[] { 0.06, 0.07, 0.1, 0.11, 0.12 }; // 各条均线选择样本的上限
+//TP_FP_RATIO_LIMIT=new double[] { 1.8, 1.7, 1.3, 1.1, 0.9};//选择样本阀值时TP FP RATIO从何开始
+//TP_FP_BOTTOM_LINE=0.8; //TP/FP的下限
+//DEFAULT_THRESHOLD=0.6; // 找不出threshold时缺省值。
+//===============================output summary===================================== for : mlpAB
+//Monthly selected_TPR mean: 28.67% standard deviation=29.50% Skewness=0.86 Kurtosis=-0.3
+//Monthly selected_LIFT mean : 0.94
+//Monthly selected_positive summary: 18,528
+//Monthly selected_count summary: 48,304
+//Monthly selected_shouyilv average: 1.10% standard deviation=7.36% Skewness=2.74 Kurtosis=12.58
+//Monthly total_shouyilv average: 0.98% standard deviation=6.09% Skewness=3.06 Kurtosis=15.62
+//mixed selected positive rate: 38.36%
+//Monthly summary_judge_result summary: good number= 281 bad number=239
+//===============================end of summary=====================================for : mlpAB
+//result changed because of reference data not matched=5906 while good change number=3981
+//good ratio=67.41% average changed shouyilv=-1.84% @ shouyilv thredhold= /0.00% /0.00% /0.00% /0.00% /0.00% /
+//number of records for full market=1436457
+//shouyilv average for full market=0.79%
+//selected shouyilv average for full market =1.88% count=42398
+//selected shouyilv average for hs300 =-0.31% count=5774
+//selected shouyilv average for zz500 =0.55% count=11039
+
 public class MLPABClassifier extends NominalClassifier {
 	
 	/**
@@ -136,13 +163,13 @@ public class MLPABClassifier extends NominalClassifier {
 	protected void initializeParams() {
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = false;
+		m_skipEvalInBacktest = true;
 		
 		classifierName="mlpAB";
 		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
 		m_modelEvalFileShareMode=ModelStore.YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 		
-		m_noCaculationAttrib=false; //不使用计算字段
+		m_noCaculationAttrib=false; //使用计算字段
 		EVAL_RECENT_PORTION = 1; // 计算最近数据阀值从历史记录中选取多少比例的最近样本		
 		SAMPLE_LOWER_LIMIT =new double[] { 0.03, 0.04, 0.05, 0.06, 0.07 }; // 各条均线选择样本的下限
 		SAMPLE_UPPER_LIMIT =new double[] { 0.06, 0.07, 0.1, 0.11, 0.12 }; // 各条均线选择样本的上限
