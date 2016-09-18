@@ -110,7 +110,7 @@ public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 		extData = UpdateHistoryArffFile.mergeExtDataFromTwoFiles(file1, file2,ArffFormatFullModel.FULL_MODEL_EXT_ARFF_FILE_FORMAT);
 		System.out.println("NewGroup data 1 loaded. number="+extData.numInstances());
 
-		String file3=AppContext.getC_ROOT_DIRECTORY()+"\\sourceData\\自选股第五组增量\\onceyield_optional_hv_update_2013_2015";
+		String file3=AppContext.getC_ROOT_DIRECTORY()+"\\sourceData\\自选股第五组增量\\onceyield_optional_hv_update_2013_2015.txt";
 		String file4=AppContext.getC_ROOT_DIRECTORY()+"\\sourceData\\自选股第五组增量\\onceyield_optional_hv_update_2016.txt";
 		extData2 = UpdateHistoryArffFile.mergeExtDataFromTwoFiles(file3, file4,ArffFormatFullModel.FULL_MODEL_EXT_ARFF_FILE_FORMAT);
 		System.out.println("NewGroup data 2 loaded. number="+extData2.numInstances());
@@ -119,7 +119,7 @@ public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 		System.out.println("NewGroup data merged and loaded. number="+extData.numInstances());
 
 		//加载原始arff文件
-		String originFileName=AppContext.getC_ROOT_DIRECTORY()+ArffFormat.TRANSACTION_ARFF_PREFIX;
+		String originFileName=AppContext.getC_ROOT_DIRECTORY()+ArffFormatFullModel.FULL_MODEL_ARFF_PREFIX;
 		Instances fullData = FileUtility.loadDataFromFile(originFileName+"-origin.arff");
 
 
