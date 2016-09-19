@@ -159,6 +159,9 @@ public class MLPABClassifier extends NominalClassifier {
 	 * 
 	 */
 	private static final long serialVersionUID = -2078976101080790784L;
+	
+	protected String m_hiddenLayer; //MLP的固有参数
+	
 	@Override
 	protected void initializeParams() {
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
@@ -168,6 +171,8 @@ public class MLPABClassifier extends NominalClassifier {
 		classifierName="mlpAB";
 		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
 		m_modelEvalFileShareMode=ModelStore.YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
+		
+		m_hiddenLayer="a"; //MLP的固有参数
 		
 		m_noCaculationAttrib=false; //使用计算字段
 		EVAL_RECENT_PORTION = 1; // 计算最近数据阀值从历史记录中选取多少比例的最近样本		
@@ -189,7 +194,7 @@ public class MLPABClassifier extends NominalClassifier {
 		MultilayerPerceptron model=new MultilayerPerceptron();
 		model.setBatchSize(batchSize);
 		model.setNumDecimalPlaces(6);
-		model.setHiddenLayers("a");
+		model.setHiddenLayers(m_hiddenLayer);
 		model.setDebug(true);
 		classifier.setClassifier(model);
 		classifier.setDebug(true);

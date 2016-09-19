@@ -71,14 +71,20 @@ public class InstanceUtility {
 	public static Instances getInstancesSubset(Instances data, String expression)
 			throws Exception {
 		//System.out.println(" get Instances subset using expression: "+expression);
-		SubsetByExpression subset = new SubsetByExpression();
-		String[] options = new String[2];
-		options[0] = "-E"; // "range"
-		options[1] = expression; // attribute position
-		subset.setOptions(options);
-		subset.setInputFormat(data);
-		Instances output = Filter.useFilter(data, subset);
-		return output;
+		try {
+			SubsetByExpression subset = new SubsetByExpression();
+			String[] options = new String[2];
+			options[0] = "-E"; // "range"
+			options[1] = expression; // attribute position
+			subset.setOptions(options);
+			subset.setInputFormat(data);
+			Instances output = Filter.useFilter(data, subset);
+			return output;
+		}catch(Exception e){
+			System.err.println("error when getting subset using expression :"+expression);
+			throw e;
+		}
+
 	}
 
 	

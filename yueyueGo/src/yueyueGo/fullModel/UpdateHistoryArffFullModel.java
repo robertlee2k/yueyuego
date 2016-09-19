@@ -17,14 +17,15 @@ public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 		String startYearMonth="201608";
 		String endYearMonth="201608";
 		
-		String newDataFileName=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\更新\\onceyield_group4allhis_optional_20160801_20160831.txt";
-		String originFilePrefix=AppContext.getC_ROOT_DIRECTORY()+ArffFormatFullModel.FULL_MODEL_ARFF_PREFIX;
-		Instances newData = loadDataFromFullModelCSVFile(newDataFileName);
 
-		//刷新的Arff文件
-		refreshArffFile(startYearMonth,endYearMonth,originFilePrefix,newData);
-		//为原始的历史文件Arff添加计算变量，并分拆。
-		processHistoryFileFullModel();
+		String originFilePrefix=AppContext.getC_ROOT_DIRECTORY()+ArffFormatFullModel.FULL_MODEL_ARFF_PREFIX;
+		
+//		String newDataFileName=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\更新\\onceyield_group4allhis_optional_20160801_20160831.txt";		
+//		Instances newData = loadDataFromFullModelCSVFile(newDataFileName);
+//		//刷新的Arff文件
+//		refreshArffFile(startYearMonth,endYearMonth,originFilePrefix,newData);
+//		//为原始的历史文件Arff添加计算变量，并分拆。
+//		processHistoryFileFullModel();
 
 		//以百分之一抽检率检查未被刷新数据（抽样部分）
 		int lastYear=Integer.valueOf(startYearMonth.substring(0, 4))-1; 
