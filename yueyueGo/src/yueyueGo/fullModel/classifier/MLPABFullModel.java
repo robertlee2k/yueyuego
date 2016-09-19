@@ -35,4 +35,18 @@ public class MLPABFullModel extends MLPABClassifier {
 		TP_FP_BOTTOM_LINE=0.9; //TP/FP的下限
 		DEFAULT_THRESHOLD=0.6; // 找不出threshold时缺省值。
 	}
+	
+	@Override
+	//覆盖父类，恢复baseClassifier的调用
+	public void locateModelStore(String yearSplit,String policySplit) {
+
+		int modelShareMode=this.m_modelEvalFileShareMode;
+		
+//		//TODO 临时增加一个8月的模型
+//		if ("201608".equals(yearSplit)){
+//			modelShareMode=ModelStore.SEPERATE_MODEL_AND_EVAL;
+//		}
+		ModelStore modelStore=new ModelStore(yearSplit,policySplit,this.WORK_PATH+this.WORK_FILE_PREFIX, this.classifierName,modelShareMode);
+		m_modelStore=modelStore;
+	}
 }

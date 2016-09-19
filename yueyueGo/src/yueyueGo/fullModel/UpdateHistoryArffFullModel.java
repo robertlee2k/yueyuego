@@ -20,16 +20,16 @@ public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 
 		String originFilePrefix=AppContext.getC_ROOT_DIRECTORY()+ArffFormatFullModel.FULL_MODEL_ARFF_PREFIX;
 		
-//		String newDataFileName=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\更新\\onceyield_group4allhis_optional_20160801_20160831.txt";		
-//		Instances newData = loadDataFromFullModelCSVFile(newDataFileName);
-//		//刷新的Arff文件
-//		refreshArffFile(startYearMonth,endYearMonth,originFilePrefix,newData);
-//		//为原始的历史文件Arff添加计算变量，并分拆。
-//		processHistoryFileFullModel();
+		String newDataFileName=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\更新\\onceyield_group4allhis_optional_20160801_20160831.txt";		
+		Instances newData = loadDataFromFullModelCSVFile(newDataFileName);
+		//刷新的Arff文件
+		refreshArffFile(startYearMonth,endYearMonth,originFilePrefix,newData);
+		//为原始的历史文件Arff添加计算变量，并分拆。
+		processHistoryFileFullModel();
 
 		//以百分之一抽检率检查未被刷新数据（抽样部分）
 		int lastYear=Integer.valueOf(startYearMonth.substring(0, 4))-1; 
-		compareRefreshedInstancesForPeriod(String.valueOf(lastYear)+"06",String.valueOf(lastYear)+"12",originFilePrefix,100);
+		compareRefreshedInstancesForPeriod(String.valueOf(lastYear)+"11",String.valueOf(lastYear)+"12",originFilePrefix,100);
 		//以五分之一抽检率抽样检测刷新过的数据
 		compareRefreshedInstancesForPeriod(startYearMonth,endYearMonth,originFilePrefix,5);
 	}
