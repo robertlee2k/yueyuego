@@ -46,7 +46,7 @@ public class BackTestFullModel extends BackTest {
 			fullModelWorker.init();
 			
 			//短线模型的历史回测
-//			fullModelWorker.callFullModelTestBack();
+			fullModelWorker.callFullModelTestBack();
 
 			//短线模型生成初始全量数据
 //			UpdateHistoryArffFullModel.createFullModelInstances();
@@ -55,7 +55,7 @@ public class BackTestFullModel extends BackTest {
 //			UpdateHistoryArffFullModel.callRefreshInstancesFullModel();
 			
 			//短线模型合并新的属性
-			UpdateHistoryArffFullModel.callMergeExtDataForFullModel();			
+//			UpdateHistoryArffFullModel.callMergeExtDataForFullModel();			
 
 		} catch (Exception e) {
 			
