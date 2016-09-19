@@ -42,61 +42,42 @@ public class FileUtility {
 		return datasrc;
 	}
 
-	// 从文件中加载每天的预测数据（该方法不常用，仅限于数据库加载失败时使用）
-	public static Instances loadDailyNewDataFromCSVFile(String fileName)
-			throws Exception {
-		CSVLoader loader = new CSVLoader();
-		loader.setSource(new File(fileName));
-
-		
-//		 永远别把数据文件里的ID变成Nominal的，否则读出来的ID就变成相对偏移量了
-		Instances datasrc = loader.getDataSet();
-
-		//读入数据后最后一行加上为空的收益率
-		datasrc = InstanceUtility.AddAttribute(datasrc, ArffFormat.SHOUYILV,datasrc.numAttributes());
-		// 对读入的数据校验以适应内部训练的arff格式
-		datasrc=ArffFormat.validateAttributeNames(datasrc,ArffFormat.DAILY_DATA_TO_PREDICT_FORMAT_NEW);
-
-		//全部读进来之后再转nominal，这里读入的数据可能只是子集，所以nominal的index值会不对，所以后续会用calibrateAttributes处理
-		String nominalAttribString=ArffFormat.findNominalAttribs(datasrc);
-		datasrc=InstanceUtility.numToNominal(datasrc, nominalAttribString);// "2,48-56";
-		
-		if (datasrc.classIndex() == -1)
-			  datasrc.setClassIndex(datasrc.numAttributes() - 1);
-		return datasrc;
-	}
+//	// 从文件中加载每天的预测数据（该方法不常用，仅限于数据库加载失败时使用）
+//	public static Instances loadDailyNewDataFromCSVFile(String fileName)
+//			throws Exception {
+//		CSVLoader loader = new CSVLoader();
+//		loader.setSource(new File(fileName));
+//
+//		
+////		 永远别把数据文件里的ID变成Nominal的，否则读出来的ID就变成相对偏移量了
+//		Instances datasrc = loader.getDataSet();
+//
+//		//读入数据后最后一行加上为空的收益率
+//		datasrc = InstanceUtility.AddAttribute(datasrc, ArffFormat.SHOUYILV,datasrc.numAttributes());
+//		// 对读入的数据校验以适应内部训练的arff格式
+//		datasrc=ArffFormat.validateAttributeNames(datasrc,ArffFormat.DAILY_DATA_TO_PREDICT_FORMAT_NEW);
+//
+//		//全部读进来之后再转nominal，这里读入的数据可能只是子集，所以nominal的index值会不对，所以后续会用calibrateAttributes处理
+//		String nominalAttribString=ArffFormat.findNominalAttribs(datasrc);
+//		datasrc=InstanceUtility.numToNominal(datasrc, nominalAttribString);// "2,48-56";
+//		
+//		if (datasrc.classIndex() == -1)
+//			  datasrc.setClassIndex(datasrc.numAttributes() - 1);
+//		return datasrc;
+//	}
 	
 	
-	// 从增量的交易CSV文件中加载数据
-	public static Instances loadDataFromIncrementalCSVFile(String fileName) throws Exception{ 
-		return loadDataWithFormatFromCSVFile(fileName,ArffFormat.TRANS_DATA_FORMAT_NEW);
-	}
-	
-	// 从增量的交易CSV文件中加载数据
-	protected static Instances loadDataWithFormatFromCSVFile(String fileName, String[] format)
+	// 从CSV文件中加载数据，用给定格式校验，并设置classIndex
+	public static Instances loadDataWithFormatFromCSVFile(String fileName, String[] format)
 				throws Exception {
-			CSVLoader loader = new CSVLoader();
-			loader.setSource(new File(fileName));
-
-			Instances datasrc = loader.getDataSet();
-			// 对读入的数据字段名称校验 确保其顺序完全和内部训练的arff格式一致
-			datasrc=ArffFormat.validateAttributeNames(datasrc,format);
-			
-			//数据先作为String全部读进来之后再看怎么转nominal，否则直接加载， nominal的值的顺序会和文件顺序有关，造成数据不对
-			String nominalAttribString=ArffFormat.findNominalAttribs(datasrc);
-			datasrc=InstanceUtility.numToNominal(datasrc, nominalAttribString);
-			// I do the following according to a saying from the weka forum:
-			//"You can't add a value to a nominal attribute once it has been created. 
-			//If you want to do this, you need to use a string attribute instead." 
-			datasrc=InstanceUtility.NominalToString(datasrc, nominalAttribString);
-			
+			Instances datasrc=loadDataFromExtCSVFile(fileName, format); 
 			if (datasrc.classIndex() == -1)
 				  datasrc.setClassIndex(datasrc.numAttributes() - 1);
 			return datasrc;
 		}
 	
-	// 从扩展ARFF的CSV文件中加载数据，根据后续处理需要这里不设classIndex
-	public static Instances loadDataFromExtCSVFile(String fileName,String[] verifyFormat)		throws Exception {
+	// 从CSV文件中加载数据，用给定格式校验，但设置classIndex
+	public static Instances loadDataFromExtCSVFile(String fileName,String[] verifyFormat)	throws Exception {
 			CSVLoader loader = new CSVLoader();
 			loader.setSource(new File(fileName));
 			Instances datasrc = loader.getDataSet();
@@ -108,6 +89,9 @@ public class FileUtility {
 			//数据先作为String全部读进来之后再看怎么转nominal，否则直接加载， nominal的值的顺序会和文件顺序有关，造成数据不对
 			String nominalAttribString=ArffFormat.findNominalAttribs(datasrc);
 			datasrc=InstanceUtility.numToNominal(datasrc, nominalAttribString);
+			// I do the following according to a saying from the weka forum:
+			//"You can't add a value to a nominal attribute once it has been created. 
+			//If you want to do this, you need to use a string attribute instead."
 			datasrc=InstanceUtility.NominalToString(datasrc, nominalAttribString);
 			
 			return datasrc;

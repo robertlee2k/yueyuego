@@ -51,6 +51,9 @@ public class BackTestFullModel extends BackTest {
 			//短线模型生成初始全量数据
 //			UpdateHistoryArffFullModel.createFullModelInstances();
 			
+			//刷新增量数据
+			UpdateHistoryArffFullModel.callRefreshInstancesFullModel();
+			
 			//短线模型合并新的属性
 			UpdateHistoryArffFullModel.callMergeExtDataForFullModel();			
 
