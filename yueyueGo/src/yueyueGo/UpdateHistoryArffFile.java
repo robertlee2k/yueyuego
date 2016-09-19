@@ -647,8 +647,8 @@ public class UpdateHistoryArffFile {
 
 
 
-	// 从增量的交易CSV文件中加载数据
-	private static Instances loadDataFromIncrementalCSVFile(String fileName) throws Exception{ 
+	// 从增量的交易CSV文件中加载数据 ,这个需要被子类覆盖
+	protected static Instances loadDataFromIncrementalCSVFile(String fileName) throws Exception{ 
 		return FileUtility.loadDataWithFormatFromCSVFile(fileName,ArffFormat.TRANS_DATA_FORMAT_NEW);
 	}
 

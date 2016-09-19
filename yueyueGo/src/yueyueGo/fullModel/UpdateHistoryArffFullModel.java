@@ -117,12 +117,12 @@ public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 
 	private static Instances mergeSrcFullModelFiles() throws Exception,	IllegalStateException {
 		String sourceFilePrefix=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\自选股\\第四组自选股5天后卖出策略数据\\test_onceyield_group4allhis_optional";
-		Instances fullData = loadDataFromFullModelCSVFile(sourceFilePrefix+"2005-2006.txt");
+		Instances fullData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2005-2006.txt");
 		Instances addData = null;
 		int startYear=2007;
 		int endYear=2016;
 		for (int i=startYear;i<=endYear;i++){
-			addData = loadDataFromFullModelCSVFile(sourceFilePrefix+i+".txt");
+			addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+i+".txt");
 			fullData=InstanceUtility.mergeTwoInstances(fullData, addData);
 			System.out.println("FULLMODEL...merged "+i +" File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
 		}
@@ -169,10 +169,12 @@ public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 	}
 	
 	// 从增量的fullmodel交易CSV文件中加载数据
-	private static Instances loadDataFromFullModelCSVFile(String fileName) throws Exception{ 
+	protected static Instances loadDataFromIncrementalCSVFile(String fileName) throws Exception{ 
 		return FileUtility.loadDataWithFormatFromCSVFile(fileName,ArffFormatFullModel.FULL_MODEL_DATA_FORMAT_NEW);
 	}
 	
+	
+
 	//这是处理历史全量数据，重新切割生成各种长、短以及格式文件的方法
 	private static void processHistoryFileFullModel() throws Exception {
 		System.out.println("loading history file into memory "  );
