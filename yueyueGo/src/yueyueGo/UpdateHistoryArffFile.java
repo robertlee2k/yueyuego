@@ -221,6 +221,7 @@ public class UpdateHistoryArffFile {
 	//TRADE_DATE （2）,"code"（3） 和 SELECTED_MA（9） 是唯一性键值
 	// checkSample 是指抽样率，如果是1表示每行都要比较，如果是100，则为每100类记录中抽取一条比较 
 	final protected static void compareRefreshedInstancesForPeriod(String startYearMonth, String endYearMonth,String filePrefix,int checkSample) throws Exception {
+		System.out.println("start to compare refreshed data");
 
 		String splitSampleClause = "( ATT" + ArffFormat.YEAR_MONTH_INDEX + " >= " + startYearMonth + " and ( ATT" + ArffFormat.YEAR_MONTH_INDEX+ " <= "	+ endYearMonth + ") ";
 
