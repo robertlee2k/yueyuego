@@ -310,7 +310,7 @@ public abstract class BaseClassifier implements Serializable{
 	}
 	
 	//找到回测评估、预测时应该使用modelStore对象（主要为获取model文件和eval文件名称）
-	//此类可以在子类中被覆盖（通过把yearsplit的值做处理，实现临时多年使用一个模型）
+	//此类可以在子类中被覆盖（通过把yearsplit的值做处理，实现临时指定使用某个模型，可以多年使用一个模型，也可以特殊指定某年月使用某模型）
 	public void locateModelStore(String yearSplit,String policySplit) {
 		ModelStore modelStore=new ModelStore(yearSplit,policySplit,this.WORK_PATH+this.WORK_FILE_PREFIX, this.classifierName,this.m_modelEvalFileShareMode);
 		m_modelStore=modelStore;

@@ -22,13 +22,15 @@ public class UpdateHistoryArffFile {
 	protected static void callRefreshInstances() throws Exception {
 		String startYearMonth="201601";
 		String endYearMonth="201612";
+
+		String originFilePrefix=AppContext.getC_ROOT_DIRECTORY()+ArffFormat.TRANSACTION_ARFF_PREFIX;
 		
 		String newDataFileName=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\full4group\\onceyield_group4_2016.txt";
-		String originFilePrefix=AppContext.getC_ROOT_DIRECTORY()+ArffFormat.TRANSACTION_ARFF_PREFIX;
+		Instances newData = loadDataFromIncrementalCSVFile(newDataFileName);
 		
 
 		//刷新的Arff文件
-		refreshArffFile(startYearMonth,endYearMonth,originFilePrefix,newDataFileName);
+		refreshArffFile(startYearMonth,endYearMonth,originFilePrefix,newData);
 		//为原始的历史文件Arff添加计算变量，并分拆。
 		processHistoryFile();
 
@@ -132,7 +134,7 @@ public class UpdateHistoryArffFile {
 
 
 	//从文件中读取指定区间的数据，刷新原有数据，再用processHistoryData生成有计算字段之后的数据
-	final protected static void refreshArffFile(String startYearMonth, String endYearMonth,String originFilePrefix,String newDataFileName) throws Exception {
+	final protected static void refreshArffFile(String startYearMonth, String endYearMonth,String originFilePrefix,Instances newData) throws Exception {
 		System.out.println("loading original history file into memory "  );
 		Instances fullData = FileUtility.loadDataFromFile(originFilePrefix+"-origin.arff");
 
@@ -155,14 +157,13 @@ public class UpdateHistoryArffFile {
 		int filteredNumber=fullData.numInstances() ;
 		System.out.println("number of rows removed = "+ (originInstancesNum-filteredNumber));
 
-		Instances newData = loadDataFromIncrementalCSVFile(newDataFileName);
 		
 		processDateColumns(newData);
 
 		System.out.println("verifying new data format , you should read this .... "+ fullData.equalHeadersMsg(newData));
 		System.out.println("number of new rows added or updated= "+ newData.numInstances());
 		if (newData.numInstances()==0){
-			System.err.println("attention!!  No records have been retrieved from the new file: "+newDataFileName);
+			System.err.println("attention!!  No records have been retrieved from the new file. ");
 		}
 
 		InstanceUtility.calibrateAttributes(newData,fullData);
@@ -647,8 +648,8 @@ public class UpdateHistoryArffFile {
 
 
 
-	// 从增量的交易CSV文件中加载数据 ,这个需要被子类覆盖
-	protected static Instances loadDataFromIncrementalCSVFile(String fileName) throws Exception{ 
+	// 从增量的交易CSV文件中加载数据
+	private static Instances loadDataFromIncrementalCSVFile(String fileName) throws Exception{ 
 		return FileUtility.loadDataWithFormatFromCSVFile(fileName,ArffFormat.TRANS_DATA_FORMAT_NEW);
 	}
 
