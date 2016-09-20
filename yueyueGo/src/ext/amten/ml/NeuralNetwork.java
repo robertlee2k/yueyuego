@@ -133,7 +133,7 @@ public class NeuralNetwork implements Serializable{
         myParams.numThreads = myParams.numThreads > 0 ? myParams.numThreads : Runtime.getRuntime().availableProcessors();
         myExecutorService = Executors.newFixedThreadPool(myParams.numThreads);
 
-//        Reader keyboardReader = System.console() != null ? System.console().reader() : null;
+   //     Reader keyboardReader = System.console() != null ? System.console().reader() : null;
         boolean halted = false;
 
         List<Matrix> batchesX = new ArrayList<>();

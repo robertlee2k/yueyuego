@@ -8,8 +8,8 @@ import yueyueGo.BackTest;
 import yueyueGo.BaseClassifier;
 import yueyueGo.EnvConstants;
 import yueyueGo.NominalClassifier;
+import yueyueGo.classifier.MyNNClassifier;
 import yueyueGo.fullModel.classifier.BaggingM5PFullModel;
-import yueyueGo.fullModel.classifier.MLPABFullModel;
 import yueyueGo.utility.AppContext;
 import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.InstanceUtility;
@@ -26,7 +26,7 @@ public class BackTestFullModel extends BackTest {
 		AppContext.createContext(C_ROOT_DIRECTORY);	
 		BACKTEST_RESULT_DIR=AppContext.getBACKTEST_RESULT_DIR();
 		
-		RUNNING_THREADS=5;
+		RUNNING_THREADS=1;
 		
 		shouyilv_thresholds=new double[] {0.02};
 		winrate_thresholds=new double[] {0.5};
@@ -72,8 +72,8 @@ public class BackTestFullModel extends BackTest {
 		//按二分类器回测历史数据
 //		BaggingJ48FullModel nModel=new BaggingJ48FullModel();
 //		AdaboostFullModel nModel=new AdaboostFullModel();
-		MLPABFullModel nModel=new MLPABFullModel(); 
-		
+//		MLPABFullModel nModel=new MLPABFullModel(); 
+		MyNNClassifier nModel=new MyNNClassifier();
 		if (applyToMaModelInTestBack==true){//用fullModel模型来测试均线模型时不用重新build和评估
 			nModel.m_skipTrainInBacktest=true;
 			nModel.m_skipEvalInBacktest=true;
