@@ -22,6 +22,12 @@ public class ClassifySummaries {
 	
 	protected boolean isPredictionSummary=false; // 区分这是回测的summary还是预测的summary（输出格式不一样）
 	
+	//重置evaluationSummary CSV为Header信息
+	private void setEvaluationSummaryHeader(){
+		String sHeader="时间段,均线策略,整体正收益股数,整体股数,整体TPR,所选正收益股数,所选总股数,所选股TPR,提升率,所选股平均收益率,整体平均收益率,收益率差,是否改善,阀值下限,阀值上限\r\n";
+		this.evaluationSummary = sHeader;
+	}
+	
 	public String getEvaluationSummary() {
 		return evaluationSummary;
 	}
@@ -48,8 +54,13 @@ public class ClassifySummaries {
 		
 		summary_selectedShouyilv= new SynchronizedDescriptiveStatistics();
 		summary_totalShouyilv= new SynchronizedDescriptiveStatistics();
-		evaluationSummary="";
+		
 		isPredictionSummary=forPrediction;
+		if (forPrediction==true){
+			evaluationSummary="";	
+		}else{
+			setEvaluationSummaryHeader();
+		}
 	}	
 	//用于评估单次分类的效果。 对于回测来说，评估的规则有以下几条：
 	//1. 市场牛市时（量化定义为total_TPR>0.5)， 应保持绝对胜率（selected_TPR>0.5）且选择足够多的机会， 以20单元格5均线为例。单月机会(selectedCount）应该大于2*20/5

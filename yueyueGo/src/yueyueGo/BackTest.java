@@ -159,8 +159,6 @@ public class BackTest {
 		
 		//创建存储评估结果的数据容器
 		ClassifySummaries modelSummaries=new ClassifySummaries(clModel.getIdentifyName(),false);
-		String sHeader="时间段,均线策略,整体正收益股数,整体股数,整体TPR,所选正收益股数,所选总股数,所选股TPR,提升率,所选股平均收益率,整体平均收益率,收益率差,是否改善,阀值下限,阀值上限\r\n";
-		modelSummaries.appendEvaluationSummary(sHeader);
 		clModel.setClassifySummaries(modelSummaries);
 
 		System.out.println("test backward using classifier : "+clModel.getIdentifyName()+" @ model work path :"+clModel.WORK_PATH);
