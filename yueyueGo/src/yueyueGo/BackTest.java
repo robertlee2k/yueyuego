@@ -249,7 +249,10 @@ public class BackTest {
 					String[] splitRawTrainClauses = splitTrainAndEvalClause(splitMark);
 					String splitTrainClause=splitRawTrainClauses[0];
 					String splitEvalClause=splitRawTrainClauses[1];
+					
+					System.out.println("start to split training set from training and eval data: "+ splitTrainClause);
 					trainingData=InstanceUtility.getInstancesSubset(trainAndEvalData,splitTrainClause);
+					System.out.println("start to split evaluation set from training and eval data: "+ splitEvalClause);
 					evaluationData=InstanceUtility.getInstancesSubset(trainAndEvalData,splitEvalClause);
 					trainAndEvalData=null;
 					
