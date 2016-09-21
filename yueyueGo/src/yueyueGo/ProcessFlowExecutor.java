@@ -4,6 +4,7 @@ import java.util.concurrent.Callable;
 
 import weka.classifiers.Classifier;
 import weka.core.Instances;
+import yueyueGo.utility.ClassifyUtility;
 import yueyueGo.utility.InstanceUtility;
 
 public class ProcessFlowExecutor implements Callable<String> {
@@ -15,12 +16,13 @@ public class ProcessFlowExecutor implements Callable<String> {
 	private double upper_limit;
 	private double tp_fp_ratio;
 	private Instances trainingData;
+	private Instances evalData;
 	private Instances testingData;
 	
 	public ProcessFlowExecutor(BaseClassifier a_clModel,
 			 Instances a_result, String a_yearSplit,
 			String a_policySplit, double a_lower_limit, double a_upper_limit, double a_tp_fp_ratio,
-			Instances a_trainingData, Instances a_testingData){
+			Instances a_trainingData,Instances a_evalData, Instances a_testingData){
 		clModel=a_clModel;
 		result=a_result;
 		yearSplit=a_yearSplit;
@@ -30,9 +32,10 @@ public class ProcessFlowExecutor implements Callable<String> {
 		tp_fp_ratio=a_tp_fp_ratio;
 		trainingData=a_trainingData;
 		testingData=a_testingData;
+		evalData=a_evalData;
 	}
 	
-	// paremeter result will be changed in the method! 
+
 	public void doPredictProcess() throws Exception {
 
 		
@@ -41,25 +44,25 @@ public class ProcessFlowExecutor implements Callable<String> {
 		
 
 		Classifier model = null;
-
-		//是否需要重做训练阶段
+		//找到回测创建评估预测时应该使用modelStore对象（主要为获取model文件和eval文件名称）-- 评估时创建的mdl并不是当前年份的，而是前推一年的
+		String actualYearSplit=ClassifyUtility.getLastYearSplit(yearSplit);
+		//是否build model （注意，这里build model的数据已变为当前周期前推一年的数据 如果是2010XX.mdl 则取2009年XX月之前的数据build， 剩下的一年数据做评估用）
 		if (clModel.m_skipTrainInBacktest == false) {
 			System.out.println("start to build model");
 			//初始化回测创建模型时使用的modelStore对象（这里严格按yearsplit和policysplit分割处理）
-			clModel.initModelStore(yearSplit,policySplit);
+			clModel.initModelStore(actualYearSplit,policySplit);
 			model = clModel.trainData(trainingData);
 		} 
+		trainingData=null;//释放内存 （不管是不是用到了）
 		
-		//找到回测评估、预测时应该使用modelStore对象（主要为获取model文件和eval文件名称）
-		clModel.locateModelStore(yearSplit,policySplit);
+		
+		clModel.locateModelStore(actualYearSplit,policySplit);
 		//是否需要重做评估阶段
 		if (clModel.m_skipEvalInBacktest == false) {
-			
-			clModel.evaluateModel(trainingData, model, lower_limit,
+			clModel.evaluateModel(evalData, model, lower_limit,
 					upper_limit,tp_fp_ratio);
 		}
-		
-		trainingData=null;//释放内存
+		evalData=null;//释放内存 （不管是不是用到了）
 		model=null;//释放model，后面预测时会方法内是会重新加载的。
 
 		//处理testingData

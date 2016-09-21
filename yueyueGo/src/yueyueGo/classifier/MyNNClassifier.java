@@ -17,7 +17,7 @@ public class MyNNClassifier extends NominalClassifier implements ParrallelizedRu
 	 */
 	private static final long serialVersionUID = -4545814686082746827L;
 
-	protected String m_hiddenLayer; //NN的隐藏层参数
+//	protected String m_hiddenLayer; //NN的隐藏层参数
 	protected int m_thread; //NN的并发线程数参数
 //	protected double m_dropOutRate; // NN的dropoutrate参数
 	
@@ -31,7 +31,7 @@ public class MyNNClassifier extends NominalClassifier implements ParrallelizedRu
 		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
 		m_modelEvalFileShareMode=ModelStore.YEAR_SHARED_MODEL_AND_EVAL; //覆盖父类，设定模型和评估文件的共用模式
 		
-		m_hiddenLayer="150,150"; //MLP的固有参数
+		
 		m_thread=EnvConstants.CPU_CORE_NUMBER;
 //		m_dropOutRate=0;
 		
@@ -52,7 +52,7 @@ public class MyNNClassifier extends NominalClassifier implements ParrallelizedRu
 		m_cachedOldClassInstances=null; 
 		WekaNeuralNetwork model=new WekaNeuralNetwork();
 		model.setNumDecimalPlaces(6);
-		model.setHiddenLayers(m_hiddenLayer);
+		model.setHiddenLayers(estimateHiddenLayer(train));
 		model.setThreads(m_thread);
 		model.setDebug(true);
 		
@@ -66,8 +66,8 @@ public class MyNNClassifier extends NominalClassifier implements ParrallelizedRu
 //		return classifier;
 	}
 	
-	protected int setHiddenLayer(Instances trainingData){
-		return 1;
+	protected String estimateHiddenLayer(Instances trainingData){
+		return ClassifyUtility.estimateHiddenLayerNodes(trainingData, false);
 	}
 	
 }

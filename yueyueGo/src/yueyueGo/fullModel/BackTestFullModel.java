@@ -212,28 +212,7 @@ public class BackTestFullModel extends BackTest {
 		return arffFullFileName;
 	}
 
-	/**
-	 * 	获取分割年的clause，该方法提供子类覆盖的灵活性
-	 * @param splitMark
-	 * @return
-	 */
-	protected String[] splitYearClause(String splitMark) {
-		String[] splitYearClauses=new String[2];
-		String attribuateYear = "ATT" + ArffFormat.YEAR_MONTH_INDEX;
-		if (splitMark.length() == 6) { // 按月分割时
-			splitYearClauses[0] = "(" + attribuateYear + " < "
-					+ splitMark + ") ";
-			splitYearClauses[1] = "(" + attribuateYear + " = "
-					+ splitMark + ") ";
-		} else if (splitMark.length() == 4) {// 按年分割
-			splitYearClauses[0] = "(" + attribuateYear + " < "
-					+ splitMark + "01) ";
-			splitYearClauses[1] = "(" + attribuateYear + " >= "
-					+ splitMark + "01) and (" + attribuateYear + " <= "
-					+ splitMark + "12) ";
-		}
-		return splitYearClauses;
-	}
+
 	
 	protected Instances mergeResultWithData(Instances resultData,Instances referenceData,String dataToAdd,int format) throws Exception{
 		Instances left=null;		

@@ -14,7 +14,6 @@ public class MyNNFullModel extends MyNNClassifier {
 	 * 
 	 */
 	private static final long serialVersionUID = 3529781788896434664L;
-	protected String m_hiddenLayer; //NN的固有参数
 	protected int m_thread; //NN的固有参数
 	
 	@Override
@@ -29,7 +28,7 @@ public class MyNNFullModel extends MyNNClassifier {
 		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
 		m_modelEvalFileShareMode=ModelStore.YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 		
-		m_hiddenLayer="150,150"; //MLP的固有参数
+//		m_hiddenLayer="150,150"; //MLP的固有参数
 		m_thread=EnvConstants.CPU_CORE_NUMBER;
 		
 		m_noCaculationAttrib=true; //不使用计算字段，注意这里尝试短格式了。
@@ -49,7 +48,7 @@ public class MyNNFullModel extends MyNNClassifier {
 		m_cachedOldClassInstances=null; 
 		WekaNeuralNetwork model=new WekaNeuralNetwork();
 		model.setNumDecimalPlaces(6);
-		model.setHiddenLayers(m_hiddenLayer);
+		model.setHiddenLayers(estimateHiddenLayer(train));
 		model.setThreads(m_thread);
 		model.setDebug(true);
 		
