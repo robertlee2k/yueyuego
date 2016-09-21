@@ -28,7 +28,7 @@ public class MyNNFullModel extends MyNNClassifier {
 		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
 		m_modelEvalFileShareMode=ModelStore.YEAR_SHARED_MODEL_AND_EVAL; //覆盖父类，设定模型和评估文件的共用模式
 		
-		m_thread=EnvConstants.CPU_CORE_NUMBER-5;
+		m_thread=EnvConstants.CPU_CORE_NUMBER-4;
 		m_learningRate=0.2; //缺省用
 		
 		m_noCaculationAttrib=true; //不使用计算字段，注意这里尝试短格式了。
