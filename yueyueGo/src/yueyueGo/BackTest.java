@@ -405,7 +405,7 @@ public class BackTest {
 			splitYearClauses[0] = "(" + attPos + " < "
 					+ lastYearSplit + ") ";
 			splitYearClauses[1] = "(" + attPos + " >= "
-					+ lastYearSplit + ") and " + attPos + " < "	+ a_yearSplit + ") ";
+					+ lastYearSplit + ") and (" + attPos + " < "	+ a_yearSplit + ") ";
 			splitYearClauses[2] = "(" + attPos + " = "
 					+ lastYearSplit + ") ";
 		} else if (lastYearSplit.length() == 4) {// 按年分割
