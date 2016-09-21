@@ -28,8 +28,8 @@ public class MyNNFullModel extends MyNNClassifier {
 		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
 		m_modelEvalFileShareMode=ModelStore.YEAR_SHARED_MODEL_AND_EVAL; //覆盖父类，设定模型和评估文件的共用模式
 		
-		m_thread=EnvConstants.CPU_CORE_NUMBER-1;
-		m_learningRate=0.3; //缺省用
+		m_thread=EnvConstants.CPU_CORE_NUMBER-5;
+		m_learningRate=0.2; //缺省用
 		
 		m_noCaculationAttrib=true; //不使用计算字段，注意这里尝试短格式了。
 		EVAL_RECENT_PORTION = 1; // 计算最近数据阀值从历史记录中选取多少比例的最近样本		
