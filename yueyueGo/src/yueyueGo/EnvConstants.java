@@ -12,7 +12,7 @@ public class EnvConstants {
 	public final static int HEAP_SIZE=6; //java可用heap，单位是G
 	//百度云
 //	public final static String ROOT_DIR="d:\\trend\\"; //应用系统的根目录
-//	public final static int TRAINING_DATA_LIMIT=2000000; //用于训练单个模型的数据条数上限（这个和机器的内存有关）
+//	public final static int TRAINING_DATA_LIMIT=5000000; //用于训练单个模型的数据条数上限（这个和机器的内存有关）
 //	public final static int CPU_CORE_NUMBER=16;//cpu个数，用于计算线程数
 //	public final static int HEAP_SIZE=56; //java可用heap，单位是G
 

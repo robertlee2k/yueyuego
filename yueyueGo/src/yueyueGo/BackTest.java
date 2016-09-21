@@ -191,7 +191,8 @@ public class BackTest {
 			//获取分割年的clause
 			String[] splitYearClauses = splitYearClause(splitMark);
 			String splitTrainYearClause=splitYearClauses[0];
-			String splitTestYearClause=splitYearClauses[1];
+			String splitEvalYearClause=splitYearClauses[1];
+			String splitTestYearClause=splitYearClauses[2];
 
 			String policy = null;
 			double lower_limit = 0;
@@ -200,11 +201,6 @@ public class BackTest {
 
 
 			for (int j = BEGIN_FROM_POLICY; j < clModel.m_policySubGroup.length; j++) {
-				String splitTrainAndEvalClause = "";
-				String splitTestClause = "";
-				Instances trainAndEvalData = null;
-				Instances testingRawData = null;
-
 				
 				policy = clModel.m_policySubGroup[j];
 				lower_limit = clModel.SAMPLE_LOWER_LIMIT[j];
@@ -213,58 +209,52 @@ public class BackTest {
 				
 				// 加载原始arff文件
 				if (fullSetData == null) {
-
 					fullSetData = getBacktestInstances(clModel,splitMark,policy);
 				}
 
 				// 准备输出数据格式
 				if (result == null) {// initialize result instances
 					result = prepareResultInstances(clModel, fullSetData);
-
 				}
-
-
-				
-				splitTrainAndEvalClause = getSplitClause(splitTrainYearClause,	policy);
-				splitTestClause = getSplitClause(splitTestYearClause, policy);
+			
+				String splitTrainClause = getSplitClause(splitTrainYearClause,policy);
+				String splitEvalClause =  getSplitClause(splitEvalYearClause,policy);;
+				String splitTestClause =  getSplitClause(splitTestYearClause, policy);
 				
 				Instances trainingData = null;
 				Instances evaluationData = null;
-				if (clModel.m_skipTrainInBacktest == false || clModel.m_skipEvalInBacktest==false ) { //如果不需要培训和评估，则无需训练样本
-					System.out.println("start to split training and eval set: "+splitTrainAndEvalClause);
-					trainAndEvalData = InstanceUtility.getInstancesSubset(fullSetData,splitTrainAndEvalClause);
+				Instances testingRawData = null;
+				if (clModel.m_skipTrainInBacktest == false){ //如果需要训练模型，则取训练数据 
+					System.out.println("start to split training set from data: "+ splitTrainClause);
+					trainingData=InstanceUtility.getInstancesSubset(fullSetData,splitTrainClause);
+					int trainingDataSize=trainingData.numInstances();
+					if (trainingDataSize>EnvConstants.TRAINING_DATA_LIMIT){
+						trainingData=new Instances(trainingData,trainingDataSize-EnvConstants.TRAINING_DATA_LIMIT,EnvConstants.TRAINING_DATA_LIMIT);
+					}
 					//对于二分类器，这里要把输入的收益率转换为分类变量
 					if (clModel instanceof NominalClassifier ){
-						trainAndEvalData=((NominalClassifier)clModel).processDataForNominalClassifier(trainAndEvalData,false);
+						trainingData=((NominalClassifier)clModel).processDataForNominalClassifier(trainingData,false);
 					}
+					trainingData = InstanceUtility.removeAttribs(trainingData,  Integer.toString(ArffFormat.ID_POSITION)+","+ArffFormat.YEAR_MONTH_INDEX);
 
-					//将trainingRawData分拆成真正的TrainingData和evalData
-					//获取分割年的clause
-					String[] splitRawTrainClauses = splitTrainAndEvalClause(splitMark);
-					String splitTrainClause=splitRawTrainClauses[0];
-					String splitEvalClause=splitRawTrainClauses[1];
-					if (clModel.m_skipTrainInBacktest == false){ //如果需要训练模型，则取训练数据 
-						System.out.println("start to split training set from training and eval data: "+ splitTrainClause);
-						trainingData=InstanceUtility.getInstancesSubset(trainAndEvalData,splitTrainClause);
-						int trainingDataSize=trainingData.numInstances();
-						if (trainingDataSize>EnvConstants.TRAINING_DATA_LIMIT){
-							trainingData=new Instances(trainingData,trainingDataSize-EnvConstants.TRAINING_DATA_LIMIT,EnvConstants.TRAINING_DATA_LIMIT);
-						}
-						trainingData = InstanceUtility.removeAttribs(trainingData,  Integer.toString(ArffFormat.ID_POSITION)+","+ArffFormat.YEAR_MONTH_INDEX);
-						System.out.println(" training data size , row : "
-								+ trainingData.numInstances() + " column: "
-								+ trainingData.numAttributes());					
-					}
-					if (clModel.m_skipEvalInBacktest==false ){//如果需要评估模型，则取评估数据
-						System.out.println("start to split evaluation set from training and eval data: "+ splitEvalClause);
-						evaluationData=InstanceUtility.getInstancesSubset(trainAndEvalData,splitEvalClause);
-						evaluationData = InstanceUtility.removeAttribs(evaluationData,  Integer.toString(ArffFormat.ID_POSITION)+","+ArffFormat.YEAR_MONTH_INDEX);
-						System.out.println(" evaluation data size , row : "
-								+ evaluationData.numInstances() + " column: "
-								+ evaluationData.numAttributes());
-					}
-					trainAndEvalData=null;
+					System.out.println(" training data size , row : "
+							+ trainingData.numInstances() + " column: "
+							+ trainingData.numAttributes());					
 				}
+				if (clModel.m_skipEvalInBacktest==false ){//如果需要评估模型，则取评估数据
+					System.out.println("start to split evaluation set from  data: "+ splitEvalClause);
+					evaluationData=InstanceUtility.getInstancesSubset(fullSetData,splitEvalClause);
+					//对于二分类器，这里要把输入的收益率转换为分类变量
+					if (clModel instanceof NominalClassifier ){
+						evaluationData=((NominalClassifier)clModel).processDataForNominalClassifier(evaluationData,false);
+					}
+					evaluationData = InstanceUtility.removeAttribs(evaluationData,  Integer.toString(ArffFormat.ID_POSITION)+","+ArffFormat.YEAR_MONTH_INDEX);
+					System.out.println(" evaluation data size , row : "
+							+ evaluationData.numInstances() + " column: "
+							+ evaluationData.numAttributes());
+				}
+	
+				
 				
 				// prepare testing data
 				System.out.println("start to split testing set: "+ splitTestClause);
@@ -400,55 +390,37 @@ public class BackTest {
 	}
 
 	/**
-	 * 	从全量数据中获取分割年的clause
-	 * @param splitMark
-	 * @return
-	 */
-	protected final String[] splitYearClause(String splitMark) {
-		String[] splitYearClauses=new String[2];
-		String attribuateYear = "ATT" + ArffFormat.YEAR_MONTH_INDEX;
-		if (splitMark.length() == 6) { // 按月分割时
-			splitYearClauses[0] = "(" + attribuateYear + " < "
-					+ splitMark + ") ";
-			splitYearClauses[1] = "(" + attribuateYear + " = "
-					+ splitMark + ") ";
-		} else if (splitMark.length() == 4) {// 按年分割
-			splitYearClauses[0] = "(" + attribuateYear + " < "
-					+ splitMark + "01) ";
-			splitYearClauses[1] = "(" + attribuateYear + " >= "
-					+ splitMark + "01) and (" + attribuateYear + " <= "
-					+ splitMark + "12) ";
-		}
-		return splitYearClauses;
-	}
-
-	
-	/**
-	 * 	从trainingRaw数据中获取分割training和eval的clause
+	 * 	从全量数据中获取分割training和eval以及test的clause， test数据比较简单，就是当月的。train和eval的逻辑见下
 	 * 这里build model的数据已变为当前周期前推一年的数据 如果是2010XX.mdl 则取2009年XX月之前的数据build，
 	 * 剩下的一年数据（2009XX到2010XX，后者不包含）做评估用
 	 * 如果是2010.mdl，则取2009年01月之前的数据build，2009当年数据做评估用
 	 * @param splitMark
 	 * @return
 	 */
-	protected final String[] splitTrainAndEvalClause(String yearSplit) {
-		String splitMark=ClassifyUtility.getLastYearSplit(yearSplit);
-		String[] splitYearClauses=new String[2];
-		String attribuateYear = "ATT" + ArffFormat.YEAR_MONTH_INDEX;
-		if (splitMark.length() == 6) { // 按月分割时
-			splitYearClauses[0] = "(" + attribuateYear + " < "
-					+ splitMark + ") ";
-			splitYearClauses[1] = "(" + attribuateYear + " >= "
-					+ splitMark + ") and " + attribuateYear + " < "	+ yearSplit + ") ";
-		} else if (splitMark.length() == 4) {// 按年分割
-			splitYearClauses[0] = "(" + attribuateYear + " < "
-					+ splitMark + "01) ";
-			splitYearClauses[1] = "(" + attribuateYear + " >= "
-					+ splitMark + "01) and (" + attribuateYear + " <= "
-					+ splitMark + "12) ";
+	protected final String[] splitYearClause(String a_yearSplit) {
+		String lastYearSplit=ClassifyUtility.getLastYearSplit(a_yearSplit);
+		String[] splitYearClauses=new String[3];
+		String attPos = "ATT" + ArffFormat.YEAR_MONTH_INDEX;
+		if (lastYearSplit.length() == 6) { // 按月分割时
+			splitYearClauses[0] = "(" + attPos + " < "
+					+ lastYearSplit + ") ";
+			splitYearClauses[1] = "(" + attPos + " >= "
+					+ lastYearSplit + ") and " + attPos + " < "	+ a_yearSplit + ") ";
+			splitYearClauses[2] = "(" + attPos + " = "
+					+ lastYearSplit + ") ";
+		} else if (lastYearSplit.length() == 4) {// 按年分割
+			splitYearClauses[0] = "(" + attPos + " < "
+					+ lastYearSplit + "01) ";
+			splitYearClauses[1] = "(" + attPos + " >= "
+					+ lastYearSplit + "01) and (" + attPos + " <= "
+					+ lastYearSplit + "12) ";
+			splitYearClauses[2] = "(" + attPos + " >= "
+					+ a_yearSplit + "01) and (" + attPos + " <= "
+					+ a_yearSplit + "12) ";
 		}
 		return splitYearClauses;
 	}
+
 	
 	
 	/**
