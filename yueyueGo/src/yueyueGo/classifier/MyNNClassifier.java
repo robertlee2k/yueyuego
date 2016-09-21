@@ -19,12 +19,13 @@ public class MyNNClassifier extends NominalClassifier implements ParrallelizedRu
 
 //	protected String m_hiddenLayer; //NN的隐藏层参数
 	protected int m_thread; //NN的并发线程数参数
+	protected double m_learningRate; //NN的learningRate
 //	protected double m_dropOutRate; // NN的dropoutrate参数
 	
 	@Override
 	protected void initializeParams()  {
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
-		m_skipTrainInBacktest = false;
+		m_skipTrainInBacktest = true;
 		m_skipEvalInBacktest = false;
 		
 		classifierName="myNNAB";
@@ -33,6 +34,7 @@ public class MyNNClassifier extends NominalClassifier implements ParrallelizedRu
 		
 		
 		m_thread=EnvConstants.CPU_CORE_NUMBER;
+		m_learningRate=0.1; //缺省用
 //		m_dropOutRate=0;
 		
 		m_noCaculationAttrib=true; //不使用计算字段
@@ -41,7 +43,7 @@ public class MyNNClassifier extends NominalClassifier implements ParrallelizedRu
 		SAMPLE_UPPER_LIMIT =new double[] { 0.06, 0.07, 0.1, 0.11, 0.12 }; // 各条均线选择样本的上限
 		TP_FP_RATIO_LIMIT=new double[] { 1.8, 1.7, 1.3, 1.1, 0.9};//选择样本阀值时TP FP RATIO从何开始
 		TP_FP_BOTTOM_LINE=0.8; //TP/FP的下限
-		DEFAULT_THRESHOLD=0.6; // 找不出threshold时缺省值。
+		DEFAULT_THRESHOLD=0.5; // 找不出threshold时缺省值。
 	}
 		
 	@Override
@@ -52,6 +54,10 @@ public class MyNNClassifier extends NominalClassifier implements ParrallelizedRu
 		m_cachedOldClassInstances=null; 
 		WekaNeuralNetwork model=new WekaNeuralNetwork();
 		model.setNumDecimalPlaces(6);
+		int minNumObj=train.numInstances()/500;
+		String batchSize=Integer.toString(minNumObj);
+		model.setBatchSize(batchSize);
+		model.setLearningRate(m_learningRate); 
 		model.setHiddenLayers(estimateHiddenLayer(train));
 		model.setThreads(m_thread);
 		model.setDebug(true);

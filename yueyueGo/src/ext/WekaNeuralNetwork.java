@@ -260,8 +260,8 @@ public class WekaNeuralNetwork extends AbstractClassifier implements Serializabl
     public String getBatchSize() {
         return String.valueOf(myParams.batchSize);
     }
-    public void setBatchSize(int batchSize) {
-        myParams.batchSize = batchSize;
+    public void setBatchSize(String batchSize) {
+        myParams.batchSize = Integer.valueOf(batchSize).intValue();
     }
     public String batchSizeTipText() {
         return "Number of training examples in each mini-batch (0=Auto-choose) .";

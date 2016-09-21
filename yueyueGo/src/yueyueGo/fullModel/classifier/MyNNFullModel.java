@@ -28,8 +28,8 @@ public class MyNNFullModel extends MyNNClassifier {
 		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
 		m_modelEvalFileShareMode=ModelStore.YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 		
-//		m_hiddenLayer="150,150"; //MLP的固有参数
 		m_thread=EnvConstants.CPU_CORE_NUMBER;
+		m_learningRate=0.1; //缺省用
 		
 		m_noCaculationAttrib=true; //不使用计算字段，注意这里尝试短格式了。
 		EVAL_RECENT_PORTION = 1; // 计算最近数据阀值从历史记录中选取多少比例的最近样本		
@@ -48,6 +48,10 @@ public class MyNNFullModel extends MyNNClassifier {
 		m_cachedOldClassInstances=null; 
 		WekaNeuralNetwork model=new WekaNeuralNetwork();
 		model.setNumDecimalPlaces(6);
+		int minNumObj=train.numInstances()/1000;
+		String batchSize=Integer.toString(minNumObj);
+		model.setBatchSize(batchSize);
+		model.setLearningRate(m_learningRate); 
 		model.setHiddenLayers(estimateHiddenLayer(train));
 		model.setThreads(m_thread);
 		model.setDebug(true);
