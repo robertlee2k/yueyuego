@@ -233,36 +233,36 @@ public class BackTest {
 				if (clModel.m_skipTrainInBacktest == false || clModel.m_skipEvalInBacktest==false ) { //如果不需要培训和评估，则无需训练样本
 					System.out.println("start to split training and eval set: "+splitTrainAndEvalClause);
 					trainAndEvalData = InstanceUtility.getInstancesSubset(fullSetData,splitTrainAndEvalClause);
-					int trainingDataSize=trainAndEvalData.numInstances();
-					if (trainingDataSize>EnvConstants.TRAINING_DATA_LIMIT){
-						trainAndEvalData=new Instances(trainAndEvalData,trainingDataSize-EnvConstants.TRAINING_DATA_LIMIT,EnvConstants.TRAINING_DATA_LIMIT);
-					}
 					//对于二分类器，这里要把输入的收益率转换为分类变量
 					if (clModel instanceof NominalClassifier ){
 						trainAndEvalData=((NominalClassifier)clModel).processDataForNominalClassifier(trainAndEvalData,false);
 					}
-					
-					System.out.println(" trainAndEval data size , row : "	+ trainingDataSize);
+
 					//将trainingRawData分拆成真正的TrainingData和evalData
 					//获取分割年的clause
 					String[] splitRawTrainClauses = splitTrainAndEvalClause(splitMark);
 					String splitTrainClause=splitRawTrainClauses[0];
 					String splitEvalClause=splitRawTrainClauses[1];
-						
-					System.out.println("start to split training set from training and eval data: "+ splitTrainClause);
-					trainingData=InstanceUtility.getInstancesSubset(trainAndEvalData,splitTrainClause);
-					trainingData = InstanceUtility.removeAttribs(trainingData,  Integer.toString(ArffFormat.ID_POSITION)+","+ArffFormat.YEAR_MONTH_INDEX);
-
-					System.out.println("start to split evaluation set from training and eval data: "+ splitEvalClause);
-					evaluationData=InstanceUtility.getInstancesSubset(trainAndEvalData,splitEvalClause);
-					evaluationData = InstanceUtility.removeAttribs(evaluationData,  Integer.toString(ArffFormat.ID_POSITION)+","+ArffFormat.YEAR_MONTH_INDEX);
-				
-					System.out.println(" training data size , row : "
-							+ trainingData.numInstances() + " column: "
-							+ trainingData.numAttributes());
-					System.out.println(" evaluation data size , row : "
-							+ evaluationData.numInstances() + " column: "
-							+ evaluationData.numAttributes());
+					if (clModel.m_skipTrainInBacktest == false){ //如果需要训练模型，则取训练数据 
+						System.out.println("start to split training set from training and eval data: "+ splitTrainClause);
+						trainingData=InstanceUtility.getInstancesSubset(trainAndEvalData,splitTrainClause);
+						int trainingDataSize=trainingData.numInstances();
+						if (trainingDataSize>EnvConstants.TRAINING_DATA_LIMIT){
+							trainingData=new Instances(trainingData,trainingDataSize-EnvConstants.TRAINING_DATA_LIMIT,EnvConstants.TRAINING_DATA_LIMIT);
+						}
+						trainingData = InstanceUtility.removeAttribs(trainingData,  Integer.toString(ArffFormat.ID_POSITION)+","+ArffFormat.YEAR_MONTH_INDEX);
+						System.out.println(" training data size , row : "
+								+ trainingData.numInstances() + " column: "
+								+ trainingData.numAttributes());					
+					}
+					if (clModel.m_skipEvalInBacktest==false ){//如果需要评估模型，则取评估数据
+						System.out.println("start to split evaluation set from training and eval data: "+ splitEvalClause);
+						evaluationData=InstanceUtility.getInstancesSubset(trainAndEvalData,splitEvalClause);
+						evaluationData = InstanceUtility.removeAttribs(evaluationData,  Integer.toString(ArffFormat.ID_POSITION)+","+ArffFormat.YEAR_MONTH_INDEX);
+						System.out.println(" evaluation data size , row : "
+								+ evaluationData.numInstances() + " column: "
+								+ evaluationData.numAttributes());
+					}
 					trainAndEvalData=null;
 				}
 				

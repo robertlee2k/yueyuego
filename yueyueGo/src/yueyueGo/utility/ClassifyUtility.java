@@ -162,7 +162,7 @@ public class ClassifyUtility {
 				second=(int)temp;
 				result=String.valueOf(first)+","+String.valueOf(second);
 				parameterNum=inputNodeNum*first+first*second+second*outputNodeNum;
-				factor*=1.2; //将第一层递增20%试验
+				factor*=1.05; //将第一层递增20%试验
 			} while (second>first); //如果second>first，持续迭代计算
 		}
 		
