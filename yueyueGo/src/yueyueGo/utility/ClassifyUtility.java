@@ -1,5 +1,7 @@
 package yueyueGo.utility;
 
+import org.netlib.util.intW;
+
 import weka.classifiers.Classifier;
 import weka.classifiers.meta.Bagging;
 import weka.classifiers.trees.J48;
@@ -121,4 +123,53 @@ public class ClassifyUtility {
 	}
 	
 
+
+	/**
+	 * @param train
+	 * @param layerNum
+	 * 	计算多层神经网络隐藏层节点个数。
+	 *  神经网络参数=输入层节点数*第一层节点数+第一层节点数*第二层节点数+第二层节点数*输出层节点数
+	 *   （为了计算简便， 因为输出层节点数少，暂时可以忽略）
+	 *  计算原则如下：
+	 *   	1. 实例数目必须大于参数总和，一般应该十倍以上
+	 *   	2. 参数的平方一般应该远小于实例数目 （十分之一）。
+	 *      3. 同等情况下，我希望尝试多一层（node数大于输入层数量2倍时多分一层）
+	 * @return
+	 */
+	public static String estimateHiddenLayerNodes(Instances train, boolean usePCA){
+		int instanceNum=train.numInstances();
+		double upperLimit=(double)instanceNum/10;
+		int inputNodeNum=train.numAttributes();
+		if (usePCA){
+			inputNodeNum=inputNodeNum/2; // 假设PCA消除了一半的Attributes
+		}
+		
+		int outputNodeNum=train.numClasses();
+		
+		int first;		
+		int second=0;
+		double temp;
+		double parameterNum=0;
+		String result=null;
+		temp=upperLimit/inputNodeNum;
+		if (temp<=inputNodeNum*2){
+			first=(int)temp;
+			result=String.valueOf(first);
+			parameterNum=inputNodeNum*first+first*outputNodeNum;
+		}else{ //当节点数超过一定量时，考虑多分一层，为计算简便起见第一层起始时就保持inputNodeNum这样多，迭代计算
+			double factor=1;
+			do{
+				first=(int)(inputNodeNum*factor);
+				temp= (upperLimit- inputNodeNum*first)/first;  
+				second=(int)temp;
+				result=String.valueOf(first)+","+String.valueOf(second);
+				parameterNum=inputNodeNum*first+first*second+second*outputNodeNum;
+				factor*=1.2; //将第一层递增20%试验
+			} while (second>first); //如果second>first，持续迭代计算
+		}
+		
+		System.out.println("estimated hidden layer parameters=  "+result + " while parameterNum= "+parameterNum +" instance/paramNum= "+FormatUtility.formatDouble(instanceNum/parameterNum));
+		return result;
+		
+	}
 }

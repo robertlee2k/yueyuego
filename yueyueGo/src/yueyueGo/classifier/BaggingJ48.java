@@ -5,6 +5,7 @@ import weka.classifiers.trees.J48;
 import weka.core.Instances;
 import yueyueGo.ModelStore;
 import yueyueGo.NominalClassifier;
+import yueyueGo.ParrallelizedRunning;
 import yueyueGo.utility.ClassifyUtility;
 import yueyueGo.utility.AppContext;
 import yueyueGo.utility.FormatUtility;
@@ -47,7 +48,7 @@ import yueyueGo.utility.FormatUtility;
 //selected shouyilv average for hs300 =-0.60% count=4504
 //selected shouyilv average for zz500 =0.12% count=7940
 
-public class BaggingJ48 extends NominalClassifier {
+public class BaggingJ48 extends NominalClassifier implements ParrallelizedRunning{
 	
 	/**
 	 * 

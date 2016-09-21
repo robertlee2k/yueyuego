@@ -35,6 +35,7 @@ import yueyueGo.classifier.MyNNClassifier;
 import yueyueGo.utility.AppContext;
 import yueyueGo.utility.BlockedThreadPoolExecutor;
 import yueyueGo.utility.ClassifySummaries;
+import yueyueGo.utility.ClassifyUtility;
 import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.InstanceUtility;
@@ -67,15 +68,15 @@ public class BackTest {
 		BACKTEST_RESULT_DIR=AppContext.getBACKTEST_RESULT_DIR();
 		
 
-		RUNNING_THREADS=5;
+		RUNNING_THREADS=1;
 
 		shouyilv_thresholds=new double[] {0,0,0,0,0};//{-100,-100,-100,-100,-100};//{0.01,0.02,0.03,0.03,0.04};
 		winrate_thresholds=new double[] {0.5,0.5,0.5,0.5,0.5};//{0,0,0,0,0};//{0.3,0.3,0.3,0.3,0.3};
 		
 		splitYear=new String[] {
-//		  "2008","2009","2010","2011","2012","2013","2014","2015","2016"
+		  "2008","2009","2010","2011","2012","2013","2014","2015","2016"
 //			"201607","201608"
-			"200801","200802","200803","200804","200805","200806","200807","200808","200809","200810","200811","200812","200901","200902","200903","200904","200905","200906","200907","200908","200909","200910","200911","200912","201001","201002","201003","201004","201005","201006","201007","201008","201009","201010","201011","201012","201101","201102","201103","201104","201105","201106","201107","201108","201109","201110","201111","201112","201201","201202","201203","201204","201205","201206","201207","201208","201209","201210","201211","201212","201301","201302","201303","201304","201305","201306","201307","201308","201309","201310","201311","201312","201401","201402","201403","201404","201405","201406","201407","201408","201409","201410","201411","201412","201501","201502","201503","201504","201505","201506","201507","201508","201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607","201608"
+//			"200801","200802","200803","200804","200805","200806","200807","200808","200809","200810","200811","200812","200901","200902","200903","200904","200905","200906","200907","200908","200909","200910","200911","200912","201001","201002","201003","201004","201005","201006","201007","201008","201009","201010","201011","201012","201101","201102","201103","201104","201105","201106","201107","201108","201109","201110","201111","201112","201201","201202","201203","201204","201205","201206","201207","201208","201209","201210","201211","201212","201301","201302","201303","201304","201305","201306","201307","201308","201309","201310","201311","201312","201401","201402","201403","201404","201405","201406","201407","201408","201409","201410","201411","201412","201501","201502","201503","201504","201505","201506","201507","201508","201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607","201608"
 
 			};		
 		
@@ -96,6 +97,8 @@ public class BackTest {
 //			UpdateHistoryArffFile.callMergeExtData();
 			
 //			UpdateHistoryArffFile.createTransInstances();
+			
+
 			
 		} catch (Exception e) {
 			
@@ -158,20 +161,24 @@ public class BackTest {
 		Instances fullSetData = null;
 		Instances result = null;
 		
+		
 		//创建存储评估结果的数据容器
 		ClassifySummaries modelSummaries=new ClassifySummaries(clModel.getIdentifyName(),false);
 		clModel.setClassifySummaries(modelSummaries);
 
 		System.out.println("test backward using classifier : "+clModel.getIdentifyName()+" @ model work path :"+clModel.WORK_PATH);
 		
+		
 		 //创建一个可重用固定线程数的线程池
 		ThreadPoolExecutor threadPool = null;
         Vector<Instances> threadResult=null;
-//        Vector<Future<String>> methodReturn=null;
-        if (RUNNING_THREADS>1){ //需要多线程并发
+
+		// 对于自带多线程实现的model，不再另外多线程。 如果定义的线程数小于1 ，也不要多线程
+		if (clModel instanceof ParrallelizedRunning || RUNNING_THREADS<=1 ){
+			//do nothing 不初始化
+		}else { //需要多线程并发
         	threadPool=BlockedThreadPoolExecutor.newFixedThreadPool(this.RUNNING_THREADS);
         	threadResult=new Vector<Instances>();
-//        	methodReturn=new Vector<Future<String>>();
         }
 
 		
@@ -247,10 +254,10 @@ public class BackTest {
 						+ testingRawData.numInstances() + " column: "
 						+ testingRawData.numAttributes());
 				
-				//在不够强的机器上做模型训练时释放内存，改为每次从硬盘加载的方式
-				if (clModel.m_skipTrainInBacktest == false){
-					fullSetData=null; //释放内存
-				}				
+//				//在不够强的机器上做模型训练时释放内存，改为每次从硬盘加载的方式
+//				if (clModel.m_skipTrainInBacktest == false){
+//					fullSetData=null; //释放内存
+//				}				
 
 				if (threadPool!=null){ //需要多线程并发
 					//如果线程池已满，等待一下
@@ -280,14 +287,16 @@ public class BackTest {
 							splitMark, policy, lower_limit, upper_limit,tp_fp_ratio,trainingData,testingRawData);
 					//将线程放入池中进行执行
 					threadPool.submit(t);
-//					Future<String> f=
-//					methodReturn.add(f);
 					
 				}else{
-					//不需要多线程并发的时候，还是按传统方式处理 
-					ProcessFlowExecutor worker=new ProcessFlowExecutor(clModel, result,splitMark, policy, lower_limit, upper_limit,tp_fp_ratio,trainingData,testingRawData);
-					worker.doPredictProcess();
-					System.out.println("accumulated predicted rows: "+ result.numInstances());
+					System.out.println("for yearsplit "+ splitMark+" policy "+policy);
+					ClassifyUtility.estimateHiddenLayerNodes(trainingData, false);
+					ClassifyUtility.estimateHiddenLayerNodes(trainingData, true);
+
+					//不需要多线程并发的时候，还是按传统方式处理
+//					ProcessFlowExecutor worker=new ProcessFlowExecutor(clModel, result,splitMark, policy, lower_limit, upper_limit,tp_fp_ratio,trainingData,testingRawData);
+//					worker.doPredictProcess();
+//					System.out.println("accumulated predicted rows: "+ result.numInstances());
 				}
 			} //end for (int j = BEGIN_FROM_POLICY
 
@@ -313,14 +322,7 @@ public class BackTest {
 			  result=InstanceUtility.mergeTwoInstances(result, temp);
 			}
 			
-			
-//			//将所有线程的返回值String合并
-//			for (Future<String> f : methodReturn) { 
-//				// 从Future对象上获取任务的返回值 ，并合并
-//				evalResultSummary.append(f.get().toString()); 
-//			} 
 			threadResult.removeAllElements(); //释放内存
-//			methodReturn.removeAllElements(); //释放内存
 		}
         
 		FileUtility.write(BACKTEST_RESULT_DIR+clModel.getIdentifyName()+"-monthlySummary.csv",  modelSummaries.getEvaluationSummary(), "GBK");

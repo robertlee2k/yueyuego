@@ -5,10 +5,12 @@ import weka.core.Instances;
 import yueyueGo.EnvConstants;
 import yueyueGo.ModelStore;
 import yueyueGo.NominalClassifier;
+import yueyueGo.ParrallelizedRunning;
 import yueyueGo.utility.AppContext;
+import yueyueGo.utility.ClassifyUtility;
 import ext.WekaNeuralNetwork;
 
-public class MyNNClassifier extends NominalClassifier {
+public class MyNNClassifier extends NominalClassifier implements ParrallelizedRunning {
 
 	/**
 	 * 
@@ -20,10 +22,10 @@ public class MyNNClassifier extends NominalClassifier {
 //	protected double m_dropOutRate; // NN的dropoutrate参数
 	
 	@Override
-	protected void initializeParams() {
+	protected void initializeParams()  {
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
-		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = true;
+		m_skipTrainInBacktest = false;
+		m_skipEvalInBacktest = false;
 		
 		classifierName="myNNAB";
 		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
@@ -63,4 +65,9 @@ public class MyNNClassifier extends NominalClassifier {
 //
 //		return classifier;
 	}
+	
+	protected int setHiddenLayer(Instances trainingData){
+		return 1;
+	}
+	
 }

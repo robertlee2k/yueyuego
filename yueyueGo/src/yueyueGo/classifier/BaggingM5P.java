@@ -5,6 +5,7 @@ import weka.classifiers.trees.M5P;
 import weka.core.Instances;
 import yueyueGo.ContinousClassifier;
 import yueyueGo.ModelStore;
+import yueyueGo.ParrallelizedRunning;
 import yueyueGo.utility.ClassifyUtility;
 import yueyueGo.utility.AppContext;
 import yueyueGo.utility.ThresholdData;
@@ -69,7 +70,7 @@ import yueyueGo.utility.ThresholdData;
 //Monthly summary_judge_result summary: good number= 281 bad number=239
 //===============================end of summary=====================================for : baggingM5P-multiPCA
 
-public class BaggingM5P extends ContinousClassifier {
+public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunning{
 	/**
 	 * 
 	 */
