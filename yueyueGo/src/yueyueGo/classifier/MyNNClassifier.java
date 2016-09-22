@@ -26,7 +26,7 @@ public class MyNNClassifier extends NominalClassifier implements ParrallelizedRu
 	protected void initializeParams()  {
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = true;
+		m_skipEvalInBacktest = false;
 		
 		classifierName="myNNAB";
 		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
