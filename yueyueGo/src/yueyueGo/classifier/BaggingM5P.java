@@ -81,6 +81,7 @@ public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunn
 	protected int leafMinObjNum;
 	protected int divided;
 	
+
 	@Override
 	protected void initializeParams() {
 		m_skipTrainInBacktest = true;
