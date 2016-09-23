@@ -1,11 +1,18 @@
 package yueyueGo.utility;
 
+import java.io.Serializable;
+
 /**
  * @author robert
  *  用于评估模型的各种参数
  */
-public class EvaluationConfDefinition {
+public class EvaluationConfDefinition implements Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4464388266024527544L;
+	
 	protected double EVAL_RECENT_PORTION;// 计算最近数据阀值从历史记录中选取多少比例的最近样本
 	protected double[] SAMPLE_LOWER_LIMIT; // 各条均线选择样本的下限
 	protected double[] SAMPLE_UPPER_LIMIT; // 各条均线选择样本的上限
