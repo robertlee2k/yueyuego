@@ -5,6 +5,7 @@ import yueyueGo.ModelStore;
 import yueyueGo.classifier.BaggingM5P;
 import yueyueGo.fullModel.ArffFormatFullModel;
 import yueyueGo.utility.AppContext;
+import yueyueGo.utility.ClassifyUtility;
 
 //result changed because of reference data not matched=15096 while good change number=5665
 //good ratio=37.53% average changed shouyilv=4.58% @ winrate thredhold= /50.00% /
@@ -31,16 +32,12 @@ public class BaggingM5PFullModel extends BaggingM5P {
 		adjustThresholdBottom=false; //不用MeanABSError调整threshold
 		bagging_iteration=10;	//bagging特有参数
 		
-		classifierName= "BaggingM5PABFullModel";
+		classifierName= ClassifyUtility.BAGGING_M5P_FULLMODEL;
 		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
 		setWorkPathAndCheck(AppContext.getCONTINOUS_CLASSIFIER_DIR()+getIdentifyName()+"\\");
 		m_modelEvalFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 		
 		m_noCaculationAttrib=false; //添加计算字段
-		EVAL_RECENT_PORTION = 1; // 计算最近数据阀值从历史记录中选取多少比例的最近样本
-		SAMPLE_LOWER_LIMIT = new double[] {0.02}; // 各条均线选择样本的下限 
-		SAMPLE_UPPER_LIMIT = new double[]  {0.04};
-		TP_FP_RATIO_LIMIT = new double[] { 1.8}; //选择样本阀值时TP FP RATIO到了何种值就可以提前停止了。
-		TP_FP_BOTTOM_LINE=0.9; //TP/FP的下限
+
 	}
 }

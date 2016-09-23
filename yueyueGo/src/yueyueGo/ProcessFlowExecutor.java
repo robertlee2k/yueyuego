@@ -70,9 +70,7 @@ public class ProcessFlowExecutor implements Callable<String> {
 		System.out.println("testing data size, row: "
 				+ testingData.numInstances() + " column: "
 				+ testingData.numAttributes());
-		if (clModel.m_saveArffInBacktest) {
-			clModel.saveArffFile(testingData,"test", yearSplit,policySplit);
-		}
+
 		
 		clModel.predictData(testingData, result,yearSplit,policySplit);
 		testingData=null;//释放内存

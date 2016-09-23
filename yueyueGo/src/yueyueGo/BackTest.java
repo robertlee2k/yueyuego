@@ -36,7 +36,6 @@ import yueyueGo.utility.AppContext;
 import yueyueGo.utility.BlockedThreadPoolExecutor;
 import yueyueGo.utility.ClassifySummaries;
 import yueyueGo.utility.ClassifyUtility;
-import yueyueGo.utility.EvaluationParams;
 import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.InstanceUtility;
@@ -197,14 +196,9 @@ public class BackTest {
 
 			String policy = null;
 
-
-
 			for (int j = BEGIN_FROM_POLICY; j < clModel.m_policySubGroup.length; j++) {
 				
 				policy = clModel.m_policySubGroup[j];
-//				lower_limit = clModel.SAMPLE_LOWER_LIMIT[j];
-//				upper_limit = clModel.SAMPLE_UPPER_LIMIT[j];
-//				tp_fp_ratio= clModel.TP_FP_RATIO_LIMIT[j];
 				// 加载原始arff文件
 				if (fullSetData == null) {
 					fullSetData = getBacktestInstances(clModel,splitMark,policy);

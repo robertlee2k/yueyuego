@@ -51,8 +51,7 @@ public abstract class BaseClassifier implements Serializable{
     //用于回测中使用
 	public boolean m_skipTrainInBacktest = true; //在子类构造函数中赋值覆盖
 	public boolean m_skipEvalInBacktest = true;  //在子类构造函数中赋值覆盖
-	public boolean m_saveArffInBacktest = false; //缺省为false
-
+	
 	
 	protected double m_positiveLine; // 用来定义收益率大于多少时算positive，缺省为0
 
@@ -75,8 +74,9 @@ public abstract class BaseClassifier implements Serializable{
 	protected abstract Vector<Double> doModelEvaluation(Instances train,Classifier model, EvaluationParams evalParams) throws Exception;
 	protected abstract double classify(Classifier model,Instance curr) throws Exception ;
 	
+	//可以在子类中被覆盖
 	protected void initEvaluationConfDefinition(){
-		EvaluationConfDefinition evalConf=new EvaluationConfDefinition();
+		EvaluationConfDefinition evalConf=new EvaluationConfDefinition(this.classifierName);
 		this.m_evalConf=evalConf;
 	}
 	

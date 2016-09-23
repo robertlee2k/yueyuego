@@ -10,8 +10,17 @@ import yueyueGo.MyAttributionSelectorWithPCA;
 
 // 设置一些基础分类器属性的方法组
 public class ClassifyUtility {
+	
+	public static final String MULTI_PCA_SURFIX="-multiPCA";
+	
+	
+	public static final String BAGGING_M5P="baggingM5P";
+	public static final String ADABOOST="adaboost";
+	public static final String MYNN_MLP="myNNAB"; //名字有AB但实际上没有做PCA
+	public static final String MYNN_MLP_FULLMODEL="myNNFullModel";
+	public static final String BAGGING_M5P_FULLMODEL="BaggingM5PABFullModel";
 
-	//设置M5P的相关参数
+		//设置M5P的相关参数
 	public static M5P prepareM5P(int trainDataCount,int minNumObj,int divide){
 		M5P model = new M5P();
 		int count=trainDataCount/divide;
