@@ -11,6 +11,7 @@ import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
+import yueyueGo.utility.EvaluationParams;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.InstanceUtility;
 
@@ -30,11 +31,10 @@ public abstract class ContinousClassifier extends BaseClassifier {
 	@Override
 	//具体的模型评估方法
 	protected Vector<Double> doModelEvaluation(Instances train,
-			Classifier model, double sample_limit, double sample_upper,
-			double tp_fp_ratio) throws Exception {
+			Classifier model, EvaluationParams evalParams) throws Exception {
 
 		//printing out evaluation for full model.
-		Evaluation eval=getEvaluation(train, model,1-EVAL_RECENT_PORTION);
+		Evaluation eval=getEvaluation(train, model,1-evalParams.getEval_recent_portion());
 		
 		double meanABError=eval.meanAbsoluteError();
 
@@ -45,8 +45,8 @@ public abstract class ContinousClassifier extends BaseClassifier {
 
 		System.out.println(" model evaluation classifying using training data.....");
 		
-		//从历史记录中选取多少比例的最近样本（缺省为30%）
-		int startNum=new Double(train.numInstances()*(1-EVAL_RECENT_PORTION)).intValue();
+		//从历史记录中选取多少比例的最近样本
+		int startNum=new Double(train.numInstances()*(1-evalParams.getEval_recent_portion())).intValue();
 		// Add the data from the evaluation result
 		for (int i = startNum; i < train.numInstances(); i++) {
 			Instance curr = train.instance(i);
@@ -63,7 +63,7 @@ public abstract class ContinousClassifier extends BaseClassifier {
 
 		}
 
-		Vector<Double> v = computeThresholds(sample_limit, sample_upper,tp_fp_ratio, stat_pred, predictions);
+		Vector<Double> v = computeThresholds( evalParams, stat_pred, predictions);
 		System.out.println("----meanAbsoluteError is="+meanABError);
 		v.add(new Double(meanABError));
 
@@ -71,12 +71,13 @@ public abstract class ContinousClassifier extends BaseClassifier {
 	}
 
 	//计算给定预测结果集的最佳的阀值选择区间
-	protected Vector<Double> computeThresholds(double sample_limit,
-			double sample_upper, double tp_fp_ratio,
+	protected Vector<Double> computeThresholds( EvaluationParams evalParams,
 			DescriptiveStatistics stat_pred, Instances predictions)
 			throws Exception {
 		//获取预测值的对应百分位数值
-		double currentPercent =(1-sample_upper) * 100;
+		double tp_fp_ratio=evalParams.getTp_fp_ratio();
+		double currentPercent =(1-evalParams.getUpper_limit()) * 100;
+		
 		double currentThreshold=0.15; 
 		double thresholdBottom=0;
 		double startPercent=0;
@@ -87,6 +88,7 @@ public abstract class ContinousClassifier extends BaseClassifier {
 		double currentTPFP=0;
 		double maxTPFP=-99999;
 		boolean startFound=false;
+		
 		Instances currentInstances=predictions;
 		while (currentPercent<100){ // 从指定位置开始找收益率最大的位置，选择样本最大往最小的的方式找。
 			System.out.println("-trying current percent : "+FormatUtility.formatDouble(currentPercent));
@@ -96,7 +98,7 @@ public abstract class ContinousClassifier extends BaseClassifier {
 			
 
 			//在达到最大值之前持续寻找起点
-			if(currentPercent<=100-sample_limit*100){
+			if(currentPercent<=100-evalParams.getLower_limit()*100){
 				if (startFound==false){// 如果还没找到起点
 					//如果已经达到了lift的要求，起点threshold就不用再找了，区间终点要一直找下去
 					if (currentTPFP >=tp_fp_ratio){

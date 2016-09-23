@@ -14,6 +14,8 @@ import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.SerializedObject;
 import yueyueGo.utility.ClassifySummaries;
+import yueyueGo.utility.EvaluationConfDefinition;
+import yueyueGo.utility.EvaluationParams;
 import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.InstanceUtility;
@@ -43,6 +45,7 @@ public abstract class BaseClassifier implements Serializable{
 
 	//用于策略分组
     public String[] m_policySubGroup;//在子类构造函数中赋值覆盖 = {"5","10","20","30","60" }或{""};
+    public EvaluationConfDefinition m_evalConf; //用于评估的对象
 
     
     //用于回测中使用
@@ -50,15 +53,6 @@ public abstract class BaseClassifier implements Serializable{
 	public boolean m_skipEvalInBacktest = true;  //在子类构造函数中赋值覆盖
 	public boolean m_saveArffInBacktest = false; //缺省为false
 
-	
-	//无须由外界函数设置的，在各子类中近乎常量的值
-	protected double EVAL_RECENT_PORTION;// 计算最近数据阀值从历史记录中选取多少比例的最近样本
-	public double[] SAMPLE_LOWER_LIMIT; // 各条均线选择样本的下限
-	public double[] SAMPLE_UPPER_LIMIT; // 各条均线选择样本的上限
-	public double[] TP_FP_RATIO_LIMIT; //各条均线TP/FP选择阀值比例上限
-	protected double TP_FP_BOTTOM_LINE; //TP/FP的缺省下限
-	protected double DEFAULT_THRESHOLD; // 二分类器找不出threshold时缺省值。
-	
 	
 	protected double m_positiveLine; // 用来定义收益率大于多少时算positive，缺省为0
 
@@ -69,18 +63,36 @@ public abstract class BaseClassifier implements Serializable{
 		m_positiveLine=0; //缺省的以收益率正负为二分类的正负。
 		m_noCaculationAttrib=false;  //缺省情况下，加入的计算字段 （在子类中覆盖）
 		modelArffFormat=ArffFormat.EXT_FORMAT; //缺省使用扩展arff
-		TP_FP_BOTTOM_LINE=0.5; //TP/FP的缺省下限
-		DEFAULT_THRESHOLD=0.7;// 二分类器找不出threshold时缺省值。
 		m_modelEvalFileShareMode=ModelStore.SEPERATE_MODEL_AND_EVAL; //model文件和Eval的共享模式,缺省为 回测时按yearsplit和policysplit分割使用model和eval文件
 		WORK_FILE_PREFIX= "extData2005-2016";
 		initializeParams();		
+		initEvaluationConfDefinition();
 	}
 	
 	//一系列需要子类实现的抽象方法
 	protected abstract void initializeParams();
 	protected abstract Classifier buildModel(Instances trainData) throws Exception;
-	protected abstract Vector<Double> doModelEvaluation(Instances train,Classifier model, double sample_limit, double sample_upper,	double tp_fp_ratio) throws Exception;
+	protected abstract Vector<Double> doModelEvaluation(Instances train,Classifier model, EvaluationParams evalParams) throws Exception;
 	protected abstract double classify(Classifier model,Instance curr) throws Exception ;
+	
+	protected void initEvaluationConfDefinition(){
+		EvaluationConfDefinition evalConf=new EvaluationConfDefinition();
+		this.m_evalConf=evalConf;
+	}
+	
+	protected EvaluationParams getEvaluationInstance(String policy){
+		int pos=-1;
+		for (int i=0;i<m_policySubGroup.length;i++){
+			if (m_policySubGroup[i].equals(policy)){
+				pos=i;
+				break;
+			}
+		}
+		if (pos==-1) {
+			throw new RuntimeException("cannot find policy ["+policy+"]in m_policySubGroup");
+		}
+		return this.m_evalConf.getEvaluationInstance(pos);
+	}
 	
 	public Classifier trainData(Instances train) throws Exception {
 		Classifier model=buildModel(train);
@@ -95,7 +107,7 @@ public abstract class BaseClassifier implements Serializable{
 
 	
 	//评估模型
-	public void evaluateModel(Instances train,Classifier model,double sample_limit, double sample_upper,double tp_fp_ratio) throws Exception{
+	public void evaluateModel(Instances train,Classifier model,EvaluationParams evalParams) throws Exception{
 		if (model==null){ // 跳过建模直接做评估时，重新加载文件
 			model =m_modelStore.loadModelFromFile();
 			Instances header =m_modelStore.getModelFormat();
@@ -107,7 +119,7 @@ public abstract class BaseClassifier implements Serializable{
 			}
 		}
 		System.out.println(" -----------evaluating for FULL Market....");
-		Vector<Double> v = doModelEvaluation(train, model, sample_limit,sample_upper, tp_fp_ratio);
+		Vector<Double> v = doModelEvaluation(train, model, evalParams);
 		System.out.println(" *********** end of evaluating for FULL Market....");		
 
 		ThresholdData.saveEvaluationToFile(m_modelStore.getEvalFileName(), v);

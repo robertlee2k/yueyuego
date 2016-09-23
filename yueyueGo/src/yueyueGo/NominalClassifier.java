@@ -10,6 +10,7 @@ import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
+import yueyueGo.utility.EvaluationParams;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.InstanceUtility;
 
@@ -25,11 +26,13 @@ public abstract class NominalClassifier extends BaseClassifier{
 	@Override
 	//具体的模型评估方法
 
-	protected Vector<Double> doModelEvaluation(Instances train,Classifier model,double sample_limit, double sample_upper,double tp_fp_ratio)
+	protected Vector<Double> doModelEvaluation(Instances train,Classifier model,EvaluationParams evalParams)
 			throws Exception {
 		m_cachedOldClassInstances=null; 
+		
+		
 		//评估模型
-		Evaluation eval = getEvaluation(train, model,1-EVAL_RECENT_PORTION);
+		Evaluation eval = getEvaluation(train, model,1-evalParams.getEval_recent_portion());
 
 		
 		System.out.println("finish evaluating model, try to get best threshold for model...");
@@ -43,20 +46,22 @@ public abstract class NominalClassifier extends BaseClassifier{
 		double thresholdBottom = 0;
 		double startPercent=100;
 		int round=1;
-		while (thresholdBottom == 0 && tp_fp_ratio > TP_FP_BOTTOM_LINE){
+		double tp_fp_bottom_line=evalParams.getTp_fp_bottom_line();
+		double trying_tp_fp=evalParams.getTp_fp_ratio();
+		while (thresholdBottom == 0 && trying_tp_fp > tp_fp_bottom_line){
 			System.out.println("try number: "+round);
-			Vector<Double> v_threshold = computeThresholds(sample_limit, sample_upper,tp_fp_ratio, result);
+			Vector<Double> v_threshold = computeThresholds(trying_tp_fp,evalParams, result);
 			thresholdBottom=v_threshold.get(0).doubleValue();
 			startPercent=100*(1-v_threshold.get(1).doubleValue()); //第二行存的是sampleSize
 			if (thresholdBottom>0)
 				break;
 			else {
-				tp_fp_ratio=tp_fp_ratio*0.95;
+				trying_tp_fp=trying_tp_fp*0.95;
 				round++;
 			}
-		}
+		}// end while;
 		if (thresholdBottom==0)  //如果无法找到合适的阀值
-			thresholdBottom=DEFAULT_THRESHOLD; //设置下限
+			thresholdBottom=evalParams.getDefault_threshold(); //设置下限
 		else if (thresholdBottom >0.99) { //计算出阀值过于乐观时
 			thresholdBottom =thresholdBottom*0.95;//设置上限
 		}
@@ -77,8 +82,11 @@ public abstract class NominalClassifier extends BaseClassifier{
 
 
 	//具体的模型阀值计算方法
-	protected Vector<Double> computeThresholds(double sample_limit, double sample_upper,
-			double tp_fp_ratio, Instances result) {
+	protected Vector<Double> computeThresholds(double tp_fp_ratio,EvaluationParams evalParams, Instances result) {
+		
+		double sample_limit=evalParams.getLower_limit(); 
+		double sample_upper=evalParams.getUpper_limit();
+
 		double thresholdBottom = 0.0;
 		double lift_max = 0.0;
 		double finalSampleSize = 0.0;

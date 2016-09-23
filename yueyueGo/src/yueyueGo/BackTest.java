@@ -36,6 +36,7 @@ import yueyueGo.utility.AppContext;
 import yueyueGo.utility.BlockedThreadPoolExecutor;
 import yueyueGo.utility.ClassifySummaries;
 import yueyueGo.utility.ClassifyUtility;
+import yueyueGo.utility.EvaluationParams;
 import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.InstanceUtility;
@@ -195,18 +196,15 @@ public class BackTest {
 			String splitTestYearClause=splitYearClauses[2];
 
 			String policy = null;
-			double lower_limit = 0;
-			double upper_limit = 0;
-			double tp_fp_ratio=0;
+
 
 
 			for (int j = BEGIN_FROM_POLICY; j < clModel.m_policySubGroup.length; j++) {
 				
 				policy = clModel.m_policySubGroup[j];
-				lower_limit = clModel.SAMPLE_LOWER_LIMIT[j];
-				upper_limit = clModel.SAMPLE_UPPER_LIMIT[j];
-				tp_fp_ratio= clModel.TP_FP_RATIO_LIMIT[j];
-				
+//				lower_limit = clModel.SAMPLE_LOWER_LIMIT[j];
+//				upper_limit = clModel.SAMPLE_UPPER_LIMIT[j];
+//				tp_fp_ratio= clModel.TP_FP_RATIO_LIMIT[j];
 				// 加载原始arff文件
 				if (fullSetData == null) {
 					fullSetData = getBacktestInstances(clModel,splitMark,policy);
@@ -293,14 +291,14 @@ public class BackTest {
 					Instances resultClone=new Instances(result);
 					threadResult.add(resultClone);
 					//创建实现了Runnable接口对象
-					ProcessFlowExecutor t = new ProcessFlowExecutor(clModelClone, resultClone,splitMark, policy, lower_limit, upper_limit,tp_fp_ratio,trainingData,evaluationData,testingRawData);
+					ProcessFlowExecutor t = new ProcessFlowExecutor(clModelClone, resultClone,splitMark, policy,trainingData,evaluationData,testingRawData);
 					//将线程放入池中进行执行
 					threadPool.submit(t);
 					
 				}else{
 
 					//不需要多线程并发的时候，还是按传统方式处理
-					ProcessFlowExecutor worker=new ProcessFlowExecutor(clModel, result,splitMark, policy, lower_limit, upper_limit,tp_fp_ratio,trainingData,evaluationData,testingRawData);
+					ProcessFlowExecutor worker=new ProcessFlowExecutor(clModel, result,splitMark, policy,trainingData,evaluationData,testingRawData);
 					worker.doPredictProcess();
 					System.out.println("accumulated predicted rows: "+ result.numInstances());
 				}
