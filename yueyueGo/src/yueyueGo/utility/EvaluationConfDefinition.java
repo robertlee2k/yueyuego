@@ -55,7 +55,7 @@ public class EvaluationConfDefinition implements Serializable{
 			SAMPLE_UPPER_LIMIT = new double[]  {0.04};
 			TP_FP_RATIO_LIMIT = new double[] { 1.8}; //选择样本阀值时TP FP RATIO到了何种值就可以提前停止了。
 			TP_FP_BOTTOM_LINE=new double[] {0.9}; //TP/FP的下限
-			DEFAULT_THRESHOLD=new double[] {Double.NaN,Double.NaN,Double.NaN,Double.NaN,Double.NaN}; // 找不出threshold时缺省值。
+			DEFAULT_THRESHOLD=new double[] {Double.NaN}; // 找不出threshold时缺省值。
 		}
 	}
 
