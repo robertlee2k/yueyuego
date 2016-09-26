@@ -13,6 +13,7 @@ import yueyueGo.fullModel.classifier.BaggingJ48FullModel;
 import yueyueGo.fullModel.classifier.BaggingM5PFullModel;
 import yueyueGo.utility.AppContext;
 import yueyueGo.utility.ClassifySummaries;
+import yueyueGo.utility.ClassifyUtility;
 import yueyueGo.utility.DBAccess;
 import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.FormatUtility;
@@ -42,33 +43,33 @@ public class DailyPredict {
 
 			//经过主成分分析后的数据模型---
 			//M5PAB旧格式预测模型
-			classifierName=new M5PABClassifier().classifierName;
+			classifierName=ClassifyUtility.M5PAB;
 			addModelData(classifierName,format,"\\extData2005-2016-m5pAB-201607 MA ","\\extData2005-2016-m5pAB-201607 MA ");
 
 			//MLPAB旧格式预测模型
-			classifierName=new MLPABClassifier().classifierName;
+			classifierName=ClassifyUtility.MLPAB;
 			addModelData(classifierName,format,"\\extData2005-2016-mlpAB-2016 MA ","\\extData2005-2016-mlpAB-2016 MA ");
 
 			//BaggingM5P旧格式预测模型
-			classifierName=new BaggingM5P().classifierName;
+			classifierName=ClassifyUtility.BAGGING_M5P;
 			addModelData(classifierName,format,"\\extData2005-2016-baggingM5P-201606 MA ","\\extData2005-2016-baggingM5P-201607 MA ");
 
 			//adaboost旧格式预测模型
-			classifierName=new AdaboostClassifier().classifierName;
+			classifierName=ClassifyUtility.ADABOOST;
 			addModelData(classifierName,format,"\\extData2005-2016-adaboost-201606 MA ","\\extData2005-2016-adaboost-201606 MA ");
 			
 			//=========================EXT FORMAT 部分========================
 			format=ArffFormat.EXT_FORMAT;			
 			//MLPAB当前使用的预测模型
-			classifierName=new MLPABClassifier().classifierName;
+			classifierName=ClassifyUtility.MLPAB;
 			addModelData(classifierName,format,"\\extData2005-2016-mlpAB-2016 MA ","\\extData2005-2016-mlpAB-201608 MA ");
 
 			//BaggingM5P当前使用的预测模型
-			classifierName=new BaggingM5P().classifierName;
+			classifierName=ClassifyUtility.BAGGING_M5P;
 			addModelData(classifierName,format,"\\extData2005-2016-baggingM5P-201607 MA ","\\extData2005-2016-baggingM5P-201608 MA ");
 
 			//adaboost当前使用的预测模型
-			classifierName=new AdaboostClassifier().classifierName;
+			classifierName=ClassifyUtility.ADABOOST;
 			addModelData(classifierName,format,"\\extData2005-2016-adaboost-201607 MA ","\\extData2005-2016-adaboost-201608 MA ");
 			
 			
@@ -76,11 +77,11 @@ public class DailyPredict {
 			// fullmodel不保留legacy
 			format=ArffFormatFullModel.FULLMODEL_FORMAT;
 			//BaggingM5PFullModel当前使用的预测模型---------FullMODEL
-			classifierName=new BaggingM5PFullModel().classifierName;
+			classifierName=ClassifyUtility.BAGGING_M5P_FULLMODEL;
 			addModelData(classifierName,format,"\\extData2005-2016-BaggingM5PABFullModel-201606 MA ", "\\extData2005-2016-BaggingM5PABFullModel-201607 MA ");
 
 			//BaggingJ48FullModel当前使用的预测模型---------FullMODEL
-			classifierName=new BaggingJ48FullModel().classifierName;
+			classifierName=ClassifyUtility.BAGGING_J48_FULLMODEL;
 			addModelData(classifierName,format,"\\extData2005-2016-BaggingJ48ABFullModel-201606 MA ", "\\extData2005-2016-BaggingJ48ABFullModel-201607 MA ");
 		}
 	}

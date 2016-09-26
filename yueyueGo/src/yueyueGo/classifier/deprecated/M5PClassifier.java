@@ -1,16 +1,15 @@
-package yueyueGo.classifier;
+package yueyueGo.classifier.deprecated;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.trees.M5P;
 import weka.core.Instances;
 import yueyueGo.ContinousClassifier;
 import yueyueGo.utility.ClassifyUtility;
-import yueyueGo.utility.AppContext;
 
 
 //结论1： 5单元格的不可靠，偶然性因素太大， 应该在10-30单元格中间选择
 //结论2： 这个分类器适用于中证500及全市场， 沪深300上大不合适（选股少）。
-
+@Deprecated
 public class M5PClassifier extends ContinousClassifier {
 	//方案1适合中证500
 	// 1. 全市场 2008-2016最优10单元格年均14% （20单元格11%），中证500 10-20都是14%，30-50都是12%（均为不单独评估），hs300 10格有13% （20格9%） 29941/82650
@@ -131,16 +130,16 @@ public class M5PClassifier extends ContinousClassifier {
 		m_skipEvalInBacktest = false;
 		
 		classifierName="m5p";
-		setWorkPathAndCheck(AppContext.getCONTINOUS_CLASSIFIER_DIR()+classifierName+"\\");
+//		setWorkPathAndCheck(AppContext.getCONTINOUS_CLASSIFIER_DIR()+classifierName+"\\");
 		m_noCaculationAttrib=false; //添加计算
 
 		leafMinObjNum=300; //叶子节点最小的
 		divided=300; //将trainingData分成多少份
-		EVAL_RECENT_PORTION = 0.9; // 计算最近数据阀值从历史记录中选取多少比例的最近样本
-		SAMPLE_LOWER_LIMIT = new double[]{ 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限 
-		SAMPLE_UPPER_LIMIT = new double[]  { 0.06, 0.07, 0.1, 0.11, 0.12 };
-		TP_FP_RATIO_LIMIT = new double[] { 1.8, 1.7, 1.5, 1.2, 1}; //{ 1.8, 1.7, 1.7, 1.0, 0.7 };//选择样本阀值时TP FP RATIO到了何种值就可以停止了。
-		TP_FP_BOTTOM_LINE=0.9; //TP/FP的下限
+//		EVAL_RECENT_PORTION = 0.9; // 计算最近数据阀值从历史记录中选取多少比例的最近样本
+//		SAMPLE_LOWER_LIMIT = new double[]{ 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限 
+//		SAMPLE_UPPER_LIMIT = new double[]  { 0.06, 0.07, 0.1, 0.11, 0.12 };
+//		TP_FP_RATIO_LIMIT = new double[] { 1.8, 1.7, 1.5, 1.2, 1}; //{ 1.8, 1.7, 1.7, 1.0, 0.7 };//选择样本阀值时TP FP RATIO到了何种值就可以停止了。
+//		TP_FP_BOTTOM_LINE=0.9; //TP/FP的下限
 	}
 
 
