@@ -26,18 +26,12 @@ public abstract class NominalClassifier extends BaseClassifier{
 	@Override
 	//具体的模型评估方法
 
-	protected Vector<Double> doModelEvaluation(Instances train,Classifier model,EvaluationParams evalParams)
+	protected Vector<Double> doModelEvaluation(Evaluation eval,Instances train,Classifier model,EvaluationParams evalParams)
 			throws Exception {
 		m_cachedOldClassInstances=null; 
 		
 		
-		//评估模型
-		Evaluation eval = getEvaluation(train, model,1-evalParams.getEval_recent_portion());
 
-		
-		System.out.println("finish evaluating model, try to get best threshold for model...");
-
-		
 		// generate curve
 		ThresholdCurve tc = new ThresholdCurve();
 		int classIndex = 1;

@@ -30,11 +30,10 @@ public abstract class ContinousClassifier extends BaseClassifier {
 
 	@Override
 	//具体的模型评估方法
-	protected Vector<Double> doModelEvaluation(Instances train,
+	protected Vector<Double> doModelEvaluation(Evaluation eval,Instances train,
 			Classifier model, EvaluationParams evalParams) throws Exception {
 
-		//printing out evaluation for full model.
-		Evaluation eval=getEvaluation(train, model,1-evalParams.getEval_recent_portion());
+		
 		
 		double meanABError=eval.meanAbsoluteError();
 

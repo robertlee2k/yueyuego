@@ -74,7 +74,7 @@ public abstract class BaseClassifier implements Serializable{
 	//一系列需要子类实现的抽象方法
 	protected abstract void initializeParams();
 	protected abstract Classifier buildModel(Instances trainData) throws Exception;
-	protected abstract Vector<Double> doModelEvaluation(Instances train,Classifier model, EvaluationParams evalParams) throws Exception;
+	protected abstract Vector<Double> doModelEvaluation(Evaluation evalModel,Instances evalData,Classifier model, EvaluationParams evalParams) throws Exception;
 	protected abstract double classify(Classifier model,Instance curr) throws Exception ;
 	
 	//可以在子类中被覆盖
@@ -110,19 +110,23 @@ public abstract class BaseClassifier implements Serializable{
 
 	
 	//评估模型
-	public void evaluateModel(Instances train,Classifier model,EvaluationParams evalParams) throws Exception{
+	public void evaluateModel(Instances trainData,Instances evalData,Classifier model,EvaluationParams evalParams) throws Exception{
 		if (model==null){ // 跳过建模直接做评估时，重新加载文件
 			model =m_modelStore.loadModelFromFile();
 			Instances header =m_modelStore.getModelFormat();
-			Instances format=new Instances(train,0);
+			Instances format=new Instances(evalData,0);
 			//验证数据格式是否一致
 			String verify=verifyDataFormat(format, header);
 			if (verify!=null){
-				throw new Exception("attention! model and training data structure is not the same. Here is the difference: "+verify);
+				throw new Exception("attention! model and evaluation data structure is not the same. Here is the difference: "+verify);
 			}
 		}
 		System.out.println(" -----------evaluating for FULL Market....");
-		Vector<Double> v = doModelEvaluation(train, model, evalParams);
+		//评估模型
+		Evaluation eval = getEvaluation(trainData,evalData, model,1-evalParams.getEval_recent_portion());
+
+		System.out.println("finish evaluating model, try to get best threshold for model...");
+		Vector<Double> v = doModelEvaluation(eval,evalData, model, evalParams);
 		System.out.println(" *********** end of evaluating for FULL Market....");		
 
 		ThresholdData.saveEvaluationToFile(m_modelStore.getEvalFileName(), v);
@@ -131,22 +135,22 @@ public abstract class BaseClassifier implements Serializable{
 
 	
 	//评估模型，eval_start_portion为0到1的值， 为0时表示利用全部Instances做评估，否则取其相应比例评估
-	protected Evaluation getEvaluation(Instances train, Classifier model, double eval_start_portion)
+	protected Evaluation getEvaluation(Instances trainData,Instances evalData, Classifier model, double eval_start_portion)
 			throws Exception {
 		Instances evalTrain;
 		Instances evalSamples;
 
-		if (eval_start_portion==0){ //全样本评估
-			System.out.println("evluation with full dataset, size: "+train.numInstances());
-			evalTrain=train;
-			evalSamples=train;
-		}else{
-			int evaluateFrom=new Double(train.numInstances()*eval_start_portion).intValue(); //选取开始评估的点。
-			int evaluateCount=train.numInstances()-evaluateFrom;
-			System.out.println("evluation Sample starts From : " + evaluateFrom+" evaluation sample size: "+evaluateCount);
-			evalTrain=new Instances(train,0,evaluateFrom);  //前部分作为训练样本
-			evalSamples=new Instances(train,evaluateFrom,evaluateCount);  //后部分作为评估样本
-		}
+//		if (eval_start_portion==0){ //全样本评估
+		System.out.println("evluation with full incoming dataset, size: "+evalData.numInstances());
+		evalTrain=trainData;
+		evalSamples=evalData;
+//		}else{
+//			int evaluateFrom=new Double(evalData.numInstances()*eval_start_portion).intValue(); //选取开始评估的点。
+//			int evaluateCount=evalData.numInstances()-evaluateFrom;
+//			System.out.println("evluation Sample starts From : " + evaluateFrom+" evaluation sample size: "+evaluateCount);
+//			evalTrain=new Instances(evalData,0,evaluateFrom);  //前部分作为训练样本
+//			evalSamples=new Instances(evalData,evaluateFrom,evaluateCount);  //后部分作为评估样本
+//		}
 			
 		Evaluation eval = new Evaluation(evalTrain);
 		
@@ -157,6 +161,7 @@ public abstract class BaseClassifier implements Serializable{
 			System.out.println(eval.toMatrixString ("\nEvaluate Confusion Matrix\n\n"));
 			System.out.println(eval.toClassDetailsString("\nEvaluate Class Details\n\n"));
 		}
+
 		return eval;
 	}	
 

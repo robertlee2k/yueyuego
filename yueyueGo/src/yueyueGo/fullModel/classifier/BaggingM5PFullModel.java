@@ -4,7 +4,6 @@ import yueyueGo.EnvConstants;
 import yueyueGo.ModelStore;
 import yueyueGo.classifier.BaggingM5P;
 import yueyueGo.fullModel.ArffFormatFullModel;
-import yueyueGo.utility.AppContext;
 import yueyueGo.utility.ClassifyUtility;
 
 //result changed because of reference data not matched=15096 while good change number=5665
@@ -34,7 +33,7 @@ public class BaggingM5PFullModel extends BaggingM5P {
 		
 		classifierName= ClassifyUtility.BAGGING_M5P_FULLMODEL;
 		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
-		setWorkPathAndCheck(AppContext.getCONTINOUS_CLASSIFIER_DIR()+getIdentifyName()+"\\");
+//		setWorkPathAndCheck(AppContext.getCONTINOUS_CLASSIFIER_DIR()+getIdentifyName()+"\\");
 		m_modelEvalFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 		
 		m_noCaculationAttrib=false; //添加计算字段
