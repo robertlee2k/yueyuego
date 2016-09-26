@@ -216,7 +216,7 @@ public class BackTest {
 				Instances trainingData = null;
 				Instances evaluationData = null;
 				Instances testingRawData = null;
-				if (clModel.m_skipTrainInBacktest == false){ //如果需要训练模型，则取训练数据 
+				if (clModel.m_skipTrainInBacktest == false || clModel.m_skipEvalInBacktest==false){ //如果需要训练或评估模型，则取训练数据 
 					System.out.println("start to split training set from data: "+ splitTrainClause);
 					trainingData=InstanceUtility.getInstancesSubset(fullSetData,splitTrainClause);
 					int trainingDataSize=trainingData.numInstances();
@@ -233,6 +233,7 @@ public class BackTest {
 							+ trainingData.numInstances() + " column: "
 							+ trainingData.numAttributes());					
 				}
+				
 				if (clModel.m_skipEvalInBacktest==false ){//如果需要评估模型，则取评估数据
 					System.out.println("start to split evaluation set from  data: "+ splitEvalClause);
 					evaluationData=InstanceUtility.getInstancesSubset(fullSetData,splitEvalClause);

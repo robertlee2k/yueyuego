@@ -114,9 +114,15 @@ public abstract class BaseClassifier implements Serializable{
 		if (model==null){ // 跳过建模直接做评估时，重新加载文件
 			model =m_modelStore.loadModelFromFile();
 			Instances header =m_modelStore.getModelFormat();
-			Instances format=new Instances(evalData,0);
-			//验证数据格式是否一致
-			String verify=verifyDataFormat(format, header);
+			Instances trainFormat=new Instances(trainData,0);
+			Instances evalFormat=new Instances(evalData,0);
+			//验证原有训练数据格式是否一致
+			String verify=verifyDataFormat(trainFormat, header);
+			if (verify!=null){
+				throw new Exception("attention! model and training data structure is not the same. Here is the difference: "+verify);
+			}			
+			//验证评估数据格式是否一致
+			verify=verifyDataFormat(evalFormat, header);
 			if (verify!=null){
 				throw new Exception("attention! model and evaluation data structure is not the same. Here is the difference: "+verify);
 			}
