@@ -13,6 +13,7 @@ import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.SerializedObject;
+import yueyueGo.utility.AppContext;
 import yueyueGo.utility.ClassifySummaries;
 import yueyueGo.utility.EvaluationConfDefinition;
 import yueyueGo.utility.EvaluationParams;
@@ -64,8 +65,10 @@ public abstract class BaseClassifier implements Serializable{
 		modelArffFormat=ArffFormat.EXT_FORMAT; //缺省使用扩展arff
 		m_modelEvalFileShareMode=ModelStore.SEPERATE_MODEL_AND_EVAL; //model文件和Eval的共享模式,缺省为 回测时按yearsplit和policysplit分割使用model和eval文件
 		WORK_FILE_PREFIX= "extData2005-2016";
-		initializeParams();		
-		initEvaluationConfDefinition();
+		initializeParams();		// 留给子类的初始化参数函数
+		setWorkPathThenCheck(); //根据参数设置工作路径
+
+		initEvaluationConfDefinition(); //初始化evaluation的常量定义
 	}
 	
 	//一系列需要子类实现的抽象方法
@@ -349,8 +352,12 @@ public abstract class BaseClassifier implements Serializable{
 		return classifierName;
 	}
 
-	public void setWorkPathAndCheck(String apath){
-		setWorkPath(apath);
+	private void setWorkPathThenCheck(){
+		if (this instanceof ContinousClassifier){
+			setWorkPath(AppContext.getCONTINOUS_CLASSIFIER_DIR()+getIdentifyName()+"\\");
+		}else if (this instanceof NominalClassifier){
+			setWorkPath(AppContext.getNOMINAL_CLASSIFIER_DIR()+getIdentifyName()+"\\");
+		}
 		FileUtility.mkdirIfNotExist(WORK_PATH);
 	}
 	

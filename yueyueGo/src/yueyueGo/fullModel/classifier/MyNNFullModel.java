@@ -1,14 +1,13 @@
 package yueyueGo.fullModel.classifier;
 
-import ext.WekaNeuralNetwork;
 import weka.classifiers.Classifier;
 import weka.core.Instances;
 import yueyueGo.EnvConstants;
 import yueyueGo.ModelStore;
 import yueyueGo.classifier.MyNNClassifier;
 import yueyueGo.fullModel.ArffFormatFullModel;
-import yueyueGo.utility.AppContext;
 import yueyueGo.utility.ClassifyUtility;
+import ext.WekaNeuralNetwork;
 
 public class MyNNFullModel extends MyNNClassifier {
 	/**
@@ -26,7 +25,7 @@ public class MyNNFullModel extends MyNNClassifier {
 		modelArffFormat=ArffFormatFullModel.FULLMODEL_FORMAT; //这个模型缺省是为FULLMODEL用的格式
 		
 		classifierName=ClassifyUtility.MYNN_MLP_FULLMODEL;
-		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
+//		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
 		m_modelEvalFileShareMode=ModelStore.YEAR_SHARED_MODEL_AND_EVAL; //覆盖父类，设定模型和评估文件的共用模式
 		
 		m_thread=EnvConstants.CPU_CORE_NUMBER-8;

@@ -6,7 +6,6 @@ import yueyueGo.EnvConstants;
 import yueyueGo.ModelStore;
 import yueyueGo.NominalClassifier;
 import yueyueGo.ParrallelizedRunning;
-import yueyueGo.utility.AppContext;
 import yueyueGo.utility.ClassifyUtility;
 import ext.WekaNeuralNetwork;
 
@@ -29,7 +28,7 @@ public class MyNNClassifier extends NominalClassifier implements ParrallelizedRu
 		m_skipEvalInBacktest = false;
 		
 		classifierName=ClassifyUtility.MYNN_MLP;
-		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
+//		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
 		m_modelEvalFileShareMode=ModelStore.YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 		
 		

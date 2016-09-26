@@ -7,7 +7,6 @@ import yueyueGo.ContinousClassifier;
 import yueyueGo.ModelStore;
 import yueyueGo.ParrallelizedRunning;
 import yueyueGo.utility.ClassifyUtility;
-import yueyueGo.utility.AppContext;
 import yueyueGo.utility.ThresholdData;
 
 
@@ -85,12 +84,12 @@ public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunn
 	@Override
 	protected void initializeParams() {
 		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = false;
+		m_skipEvalInBacktest = true;
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 
 		classifierName=ClassifyUtility.BAGGING_M5P;	
 		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
-		setWorkPathAndCheck(AppContext.getCONTINOUS_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
+//		setWorkPathAndCheck(AppContext.getCONTINOUS_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
 
 		m_modelEvalFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 		adjustThresholdBottom=false;//不用MeanABSError调整threshold

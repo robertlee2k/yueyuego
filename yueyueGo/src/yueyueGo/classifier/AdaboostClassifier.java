@@ -7,7 +7,6 @@ import weka.core.Instances;
 import yueyueGo.ModelStore;
 import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.NominalClassifier;
-import yueyueGo.utility.AppContext;
 import yueyueGo.utility.ClassifyUtility;
 
 //1.  20160912结果
@@ -85,7 +84,7 @@ public class AdaboostClassifier extends NominalClassifier {
 		m_skipEvalInBacktest = true;
 		
 		classifierName=ClassifyUtility.ADABOOST;
-		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
+//		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
 		m_modelEvalFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 		
 		leafMinObjNum=300; 	//j48树最小节点叶子数
