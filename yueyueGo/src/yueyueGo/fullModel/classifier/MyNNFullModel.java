@@ -21,7 +21,7 @@ public class MyNNFullModel extends MyNNClassifier {
 	protected void initializeParams() {
 
 		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = true;
+		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{"" };
 		modelArffFormat=ArffFormatFullModel.FULLMODEL_FORMAT; //这个模型缺省是为FULLMODEL用的格式
 		
