@@ -41,8 +41,8 @@ public class EvaluationConfDefinition implements Serializable{
 			TP_FP_BOTTOM_LINE=new double[] { 0.8,0.8,0.8,0.8,0.8}; //TP/FP的下限
 			DEFAULT_THRESHOLD=new double[] {0.6,0.6,0.6,0.6,0.6}; // 找不出threshold时缺省值。
 		} else if(classifierName.equals(ClassifyUtility.ADABOOST)){
-			SAMPLE_LOWER_LIMIT =new double[] { 0.04, 0.05, 0.06, 0.07, 0.08 }; // 各条均线选择样本的下限
-			SAMPLE_UPPER_LIMIT =new double[] { 0.07, 0.08, 0.11, 0.12, 0.13 }; // 各条均线选择样本的上限
+			SAMPLE_LOWER_LIMIT =new double[] { 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限
+			SAMPLE_UPPER_LIMIT =new double[] { 0.2, 0.2, 0.2, 0.2, 0.2 }; // 各条均线选择样本的上限
 			TP_FP_RATIO_LIMIT=new double[] { 1.8, 1.7, 1.3, 1.1, 0.9};//选择样本阀值时TP FP RATIO从何开始
 			TP_FP_BOTTOM_LINE=new double[] {0.8,0.7,0.6,0.5,0.4}; //TP/FP的下限
 			DEFAULT_THRESHOLD=new double[] {0.8,0.75,0.7,0.6,0.5}; // 找不出threshold时缺省值。

@@ -41,10 +41,10 @@ public abstract class NominalClassifier extends BaseClassifier{
 		int round=1;
 		
 		
-		double tp_fp_bottom_line=benchmark.getTrain_tp_fp_ratio()*0.9;  //evalParams.getTp_fp_bottom_line();
-		System.out.println("use the tp_fp_bottom_line based on training history data (X0.9)= "+tp_fp_bottom_line);
-		double trying_tp_fp=benchmark.getTrain_tp_fp_ratio()*1.5;//evalParams.getTp_fp_ratio();
-		System.out.println("start from the trying_tp_fp based on training history data (X1.5)= "+trying_tp_fp);
+		double tp_fp_bottom_line=benchmark.getEval_tp_fp_ratio();  //evalParams.getTp_fp_bottom_line();
+		System.out.println("use the tp_fp_bottom_line based on training history data = "+tp_fp_bottom_line);
+		double trying_tp_fp=benchmark.getEval_tp_fp_ratio()*1.8;//evalParams.getTp_fp_ratio();
+		System.out.println("start from the trying_tp_fp based on training history data (X1.8)= "+trying_tp_fp);
 		while (thresholdBottom == 0 && trying_tp_fp > tp_fp_bottom_line){
 			System.out.println("try number: "+round);
 			Vector<Double> v_threshold = computeThresholds(trying_tp_fp,evalParams, result);
@@ -81,8 +81,8 @@ public abstract class NominalClassifier extends BaseClassifier{
 	//具体的模型阀值计算方法
 	protected Vector<Double> computeThresholds(double tp_fp_ratio,EvaluationParams evalParams, Instances result) {
 		
-		double sample_limit=0.03;//evalParams.getLower_limit(); 
-		double sample_upper=0.2;//evalParams.getUpper_limit();
+		double sample_limit=evalParams.getLower_limit(); 
+		double sample_upper=evalParams.getUpper_limit();
 
 		double thresholdBottom = 0.0;
 		double lift_max = 0.0;
