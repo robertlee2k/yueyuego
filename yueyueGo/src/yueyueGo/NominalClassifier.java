@@ -71,7 +71,6 @@ public abstract class NominalClassifier extends BaseClassifier{
 		//先将模型end percent设为100，以后找到合适的算法再计算。
 		v.add(new Double(100));
 		double meanABError=benchmark.getEval_mean_ABS_error();
-		System.out.println("----meanAbsoluteError is ="+meanABError);
 		v.add(new Double(meanABError));
 		return v;
 	}
@@ -96,7 +95,7 @@ public abstract class NominalClassifier extends BaseClassifier{
 			System.err.println("seems error! cannot get threshold at sample_limit="+sample_limit+" default threshold is used");
 //			threshold=evalParams.getDefault_threshold();
 		}else {
-			System.out.println("got threshold "+ threshold+" at sample_limit="+sample_limit);
+			System.err.println("got default threshold "+ threshold+" at sample_limit="+sample_limit);
 		}
 		return threshold;
 		
