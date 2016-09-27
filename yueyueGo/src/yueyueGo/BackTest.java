@@ -131,9 +131,9 @@ public class BackTest {
 //		M5PABClassifier cModel=new M5PABClassifier();
 		BaggingM5P cModel=new BaggingM5P();
 		
-		Instances continuousResult=testBackward(cModel);
+//		Instances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
-//		Instances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
+		Instances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 		
 		//统一输出统计结果
 		nModel.outputClassifySummary();
@@ -214,8 +214,6 @@ public class BackTest {
 				String splitTestClause =  getSplitClause(splitTestYearClause, policy);
 				
 				Instances trainingData = null;
-				Instances evaluationData = null;
-				Instances testingRawData = null;
 				if (clModel.m_skipTrainInBacktest == false || clModel.m_skipEvalInBacktest==false){ //如果需要训练或评估模型，则取训练数据 
 					System.out.println("start to split training set from data: "+ splitTrainClause);
 					trainingData=InstanceUtility.getInstancesSubset(fullSetData,splitTrainClause);
@@ -233,7 +231,8 @@ public class BackTest {
 							+ trainingData.numInstances() + " column: "
 							+ trainingData.numAttributes());					
 				}
-				
+
+				Instances evaluationData = null;
 				if (clModel.m_skipEvalInBacktest==false ){//如果需要评估模型，则取评估数据
 					System.out.println("start to split evaluation set from  data: "+ splitEvalClause);
 					evaluationData=InstanceUtility.getInstancesSubset(fullSetData,splitEvalClause);
@@ -248,14 +247,22 @@ public class BackTest {
 				}
 	
 				
-				
+				Instances testingData = null;				
 				// prepare testing data
 				System.out.println("start to split testing set: "+ splitTestClause);
-				testingRawData = InstanceUtility
+				testingData = InstanceUtility
 						.getInstancesSubset(fullSetData, splitTestClause);
+				//处理testingData
+				testingData = InstanceUtility.removeAttribs(testingData, ArffFormat.YEAR_MONTH_INDEX);
+
+				//对于二分类器，这里要把输入的收益率转换为分类变量
+				if (clModel instanceof NominalClassifier ){
+					testingData=((NominalClassifier)clModel).processDataForNominalClassifier(testingData,true);
+				}
+
 				System.out.println(" testing raw data size , row : "
-						+ testingRawData.numInstances() + " column: "
-						+ testingRawData.numAttributes());
+						+ testingData.numInstances() + " column: "
+						+ testingData.numAttributes());
 				
 				//在不够强的机器上做模型训练时释放内存，改为每次从硬盘加载的方式
 				if (clModel.m_skipTrainInBacktest == false){
@@ -286,14 +293,15 @@ public class BackTest {
 					Instances resultClone=new Instances(result);
 					threadResult.add(resultClone);
 					//创建实现了Runnable接口对象
-					ProcessFlowExecutor t = new ProcessFlowExecutor(clModelClone, resultClone,splitMark, policy,trainingData,evaluationData,testingRawData);
+					ProcessFlowExecutor t = new ProcessFlowExecutor(clModelClone, resultClone,splitMark, policy,trainingData,evaluationData,testingData);
 					//将线程放入池中进行执行
 					threadPool.submit(t);
+
 					
 				}else{
 
 					//不需要多线程并发的时候，还是按传统方式处理
-					ProcessFlowExecutor worker=new ProcessFlowExecutor(clModel, result,splitMark, policy,trainingData,evaluationData,testingRawData);
+					ProcessFlowExecutor worker=new ProcessFlowExecutor(clModel, result,splitMark, policy,trainingData,evaluationData,testingData);
 					worker.doPredictProcess();
 					System.out.println("accumulated predicted rows: "+ result.numInstances());
 				}

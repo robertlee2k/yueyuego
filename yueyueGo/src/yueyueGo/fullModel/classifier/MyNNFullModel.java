@@ -40,7 +40,7 @@ public class MyNNFullModel extends MyNNClassifier {
 
 //		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();
 
-		m_cachedOldClassInstances=null; 
+		 
 		WekaNeuralNetwork model=new WekaNeuralNetwork();
 		model.setNumDecimalPlaces(6);
 		int minNumObj=train.numInstances()/1000;

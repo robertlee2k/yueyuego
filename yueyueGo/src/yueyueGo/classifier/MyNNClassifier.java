@@ -45,7 +45,7 @@ public class MyNNClassifier extends NominalClassifier implements ParrallelizedRu
 
 //		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();
 
-		m_cachedOldClassInstances=null; 
+ 
 		WekaNeuralNetwork model=new WekaNeuralNetwork();
 		model.setNumDecimalPlaces(6);
 		int minNumObj=train.numInstances()/500;

@@ -97,7 +97,7 @@ public class AdaboostClassifier extends NominalClassifier {
 	@Override
 	protected Classifier buildModel(Instances train) throws Exception {
 		
-		m_cachedOldClassInstances=null; 
+ 
 		//设置基础的J48 classifier参数
 		J48 model=ClassifyUtility.prepareJ48(train.numInstances(),leafMinObjNum,divided);
 

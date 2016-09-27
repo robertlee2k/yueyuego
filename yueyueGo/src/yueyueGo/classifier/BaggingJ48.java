@@ -101,7 +101,7 @@ public class BaggingJ48 extends NominalClassifier implements ParrallelizedRunnin
 	
 	@Override
 	protected Classifier buildModel(Instances train) throws Exception {
-		m_cachedOldClassInstances=null; 
+ 
 		
 		//设置基础的m5p classifier参数
 		J48 model=ClassifyUtility.prepareJ48(train.numInstances(),leafMinObjNum,divided);

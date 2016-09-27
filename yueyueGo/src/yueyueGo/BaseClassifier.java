@@ -1,6 +1,5 @@
 package yueyueGo;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.Vector;
 
@@ -15,6 +14,7 @@ import weka.core.Instances;
 import weka.core.SerializedObject;
 import yueyueGo.utility.AppContext;
 import yueyueGo.utility.ClassifySummaries;
+import yueyueGo.utility.EvaluationBenchmark;
 import yueyueGo.utility.EvaluationConfDefinition;
 import yueyueGo.utility.EvaluationParams;
 import yueyueGo.utility.FileUtility;
@@ -22,6 +22,10 @@ import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.InstanceUtility;
 import yueyueGo.utility.ThresholdData;
 
+/**
+ * @author robert
+ * 所有分类器的基类
+ */
 public abstract class BaseClassifier implements Serializable{
 	/**
 	 * 
@@ -57,7 +61,7 @@ public abstract class BaseClassifier implements Serializable{
 	protected double m_positiveLine; // 用来定义收益率大于多少时算positive，缺省为0
 
 	
-	protected ClassifySummaries classifySummaries;
+	protected ClassifySummaries classifySummaries;//分类的统计信息
 	
 	public BaseClassifier() {
 		m_positiveLine=0; //缺省的以收益率正负为二分类的正负。
@@ -74,7 +78,7 @@ public abstract class BaseClassifier implements Serializable{
 	//一系列需要子类实现的抽象方法
 	protected abstract void initializeParams();
 	protected abstract Classifier buildModel(Instances trainData) throws Exception;
-	protected abstract Vector<Double> doModelEvaluation(Evaluation evalModel,Instances evalData,Classifier model, EvaluationParams evalParams) throws Exception;
+	protected abstract Vector<Double> doModelEvaluation(EvaluationBenchmark benchmark ,Instances evalData,Classifier model, EvaluationParams evalParams) throws Exception;
 	protected abstract double classify(Classifier model,Instance curr) throws Exception ;
 	
 	//可以在子类中被覆盖
@@ -129,10 +133,10 @@ public abstract class BaseClassifier implements Serializable{
 		}
 		System.out.println(" -----------evaluating for FULL Market....");
 		//评估模型
-		Evaluation eval = getEvaluation(trainData,evalData, model,1-evalParams.getEval_recent_portion());
+		EvaluationBenchmark benchmark = getEvaluation(trainData,evalData, model,1-evalParams.getEval_recent_portion());
 
 		System.out.println("finish evaluating model, try to get best threshold for model...");
-		Vector<Double> v = doModelEvaluation(eval,evalData, model, evalParams);
+		Vector<Double> v = doModelEvaluation(benchmark,evalData, model, evalParams);
 		System.out.println(" *********** end of evaluating for FULL Market....");		
 
 		ThresholdData.saveEvaluationToFile(m_modelStore.getEvalFileName(), v);
@@ -141,7 +145,7 @@ public abstract class BaseClassifier implements Serializable{
 
 	
 	//评估模型，eval_start_portion为0到1的值， 为0时表示利用全部Instances做评估，否则取其相应比例评估
-	protected Evaluation getEvaluation(Instances trainData,Instances evalData, Classifier model, double eval_start_portion)
+	protected EvaluationBenchmark getEvaluation(Instances trainData,Instances evalData, Classifier model, double eval_start_portion)
 			throws Exception {
 		Instances evalTrain;
 		Instances evalSamples;
@@ -163,12 +167,15 @@ public abstract class BaseClassifier implements Serializable{
 		System.out.println("evaluating.....");
 		eval.evaluateModel(model, evalSamples); // evaluate on the training data to get threshold
 		System.out.println(eval.toSummaryString("\nEvaluate Model Results\n\n", true));
+		boolean isNominal=false;
 		if (this instanceof NominalClassifier){
+			isNominal=true;
 			System.out.println(eval.toMatrixString ("\nEvaluate Confusion Matrix\n\n"));
 			System.out.println(eval.toClassDetailsString("\nEvaluate Class Details\n\n"));
 		}
 
-		return eval;
+		EvaluationBenchmark benchmark=new EvaluationBenchmark(eval, trainData, evalData, isNominal);
+		return benchmark;
 	}	
 
 	//为每日预测用，这时候没有yearSplit （policySplit是存在的）
@@ -346,12 +353,6 @@ public abstract class BaseClassifier implements Serializable{
 		m_modelStore=m;
 	}
 	
-	// arffType="train" or "test" or "eval"
-	public void saveArffFile(Instances trainingData,String arffType,String yearSplit,String policySplit) throws IOException{
-		String trainingFileName = this.WORK_PATH+this.WORK_FILE_PREFIX + " "+arffType+" " + yearSplit + MA_PREFIX+ policySplit + ARFF_EXTENSION;
-		FileUtility.SaveDataIntoFile(trainingData, trainingFileName);
-	}
-	
 
 	//对于父类来说，do nothing
 	protected ThresholdData processThresholdData(ThresholdData eval){
@@ -421,5 +422,11 @@ public abstract class BaseClassifier implements Serializable{
 		}else{
 			System.out.println("ClassifySummaries object for "+getIdentifyName()+ " is null, cannot output summary");
 		}
+	}
+	
+	//用于清除分类器的内部缓存（如nominal 分类器的cache）
+	// 注意这里仅限于清除内部的cache，外部设置的比如ClassifySummary不在此列	
+	public void cleanUp(){
+		
 	}
 }

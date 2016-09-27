@@ -6,11 +6,11 @@ import java.util.Vector;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import weka.classifiers.Classifier;
-import weka.classifiers.Evaluation;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
+import yueyueGo.utility.EvaluationBenchmark;
 import yueyueGo.utility.EvaluationParams;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.InstanceUtility;
@@ -30,12 +30,12 @@ public abstract class ContinousClassifier extends BaseClassifier {
 
 	@Override
 	//具体的模型评估方法
-	protected Vector<Double> doModelEvaluation(Evaluation eval,Instances train,
+	protected Vector<Double> doModelEvaluation(EvaluationBenchmark benchmark ,Instances train,
 			Classifier model, EvaluationParams evalParams) throws Exception {
 
 		
 		
-		double meanABError=eval.meanAbsoluteError();
+		double meanABError=benchmark.getEval_mean_ABS_error();
 
 		DescriptiveStatistics stat_pred = new DescriptiveStatistics();
 		double pred = 0.0;

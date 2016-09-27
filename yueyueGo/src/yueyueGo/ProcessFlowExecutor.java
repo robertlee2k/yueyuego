@@ -6,7 +6,6 @@ import weka.classifiers.Classifier;
 import weka.core.Instances;
 import yueyueGo.utility.ClassifyUtility;
 import yueyueGo.utility.EvaluationParams;
-import yueyueGo.utility.InstanceUtility;
 
 public class ProcessFlowExecutor implements Callable<String> {
 	private BaseClassifier clModel;
@@ -59,22 +58,13 @@ public class ProcessFlowExecutor implements Callable<String> {
 		trainingData=null;//释放内存 （不管是不是用到了）
 		evalData=null;//释放内存 （不管是不是用到了）
 		model=null;//释放model，后面预测时会方法内是会重新加载的。
-
-		//处理testingData
-		//对于二分类器，这里要把输入的收益率转换为分类变量
-		if (clModel instanceof NominalClassifier ){
-			testingData=((NominalClassifier)clModel).processDataForNominalClassifier(testingData,true);
-		}
-		testingData = InstanceUtility.removeAttribs(testingData, ArffFormat.YEAR_MONTH_INDEX);
-
-		System.out.println("testing data size, row: "
-				+ testingData.numInstances() + " column: "
-				+ testingData.numAttributes());
-
 		
 		clModel.predictData(testingData, result,yearSplit,policySplit);
 		testingData=null;//释放内存
 		System.out.println("complete for time " + yearSplit +" policy="+ policySplit);
+		
+		//清除相应的内部内存
+		clModel.cleanUp();
 
 	}
 	

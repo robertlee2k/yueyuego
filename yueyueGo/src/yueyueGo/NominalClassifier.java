@@ -10,6 +10,7 @@ import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
+import yueyueGo.utility.EvaluationBenchmark;
 import yueyueGo.utility.EvaluationParams;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.InstanceUtility;
@@ -20,19 +21,17 @@ public abstract class NominalClassifier extends BaseClassifier{
 	 */
 	private static final long serialVersionUID = 5570283670170193026L;
 
-	protected Instances m_cachedOldClassInstances=null;
+	private Instances m_cachedOldClassInstances=null;
 	
 
 	@Override
 	//具体的模型评估方法
 
-	protected Vector<Double> doModelEvaluation(Evaluation eval,Instances train,Classifier model,EvaluationParams evalParams)
+	protected Vector<Double> doModelEvaluation(EvaluationBenchmark benchmark ,Instances train,Classifier model,EvaluationParams evalParams)
 			throws Exception {
-		m_cachedOldClassInstances=null; 
-		
-		
 
 		// generate curve
+		Evaluation eval=benchmark.getEvalulation();
 		ThresholdCurve tc = new ThresholdCurve();
 		int classIndex = 1;
 		Instances result = tc.getCurve(eval.predictions(), classIndex);
@@ -40,8 +39,12 @@ public abstract class NominalClassifier extends BaseClassifier{
 		double thresholdBottom = 0;
 		double startPercent=100;
 		int round=1;
-		double tp_fp_bottom_line=evalParams.getTp_fp_bottom_line();
-		double trying_tp_fp=evalParams.getTp_fp_ratio();
+		
+		
+		double tp_fp_bottom_line=benchmark.getTrain_tp_fp_ratio()*0.9;  //evalParams.getTp_fp_bottom_line();
+		System.out.println("use the tp_fp_bottom_line based on training history data (X0.9)= "+tp_fp_bottom_line);
+		double trying_tp_fp=benchmark.getTrain_tp_fp_ratio()*1.5;//evalParams.getTp_fp_ratio();
+		System.out.println("start from the trying_tp_fp based on training history data (X1.5)= "+trying_tp_fp);
 		while (thresholdBottom == 0 && trying_tp_fp > tp_fp_bottom_line){
 			System.out.println("try number: "+round);
 			Vector<Double> v_threshold = computeThresholds(trying_tp_fp,evalParams, result);
@@ -68,7 +71,7 @@ public abstract class NominalClassifier extends BaseClassifier{
 		v.add(new Double(startPercent));
 		//先将模型end percent设为100，以后找到合适的算法再计算。
 		v.add(new Double(100));
-		double meanABError=eval.meanAbsoluteError();
+		double meanABError=benchmark.getEval_mean_ABS_error();
 		System.out.println("----meanAbsoluteError is ="+meanABError);
 		v.add(new Double(meanABError));
 		return v;
@@ -236,5 +239,12 @@ public abstract class NominalClassifier extends BaseClassifier{
 		}else { //如果用自定义的标尺线区分Class的正负，则特别标记
 			return (classifierName+"("+FormatUtility.formatDouble(m_positiveLine)+")");
 		}
+	}
+	
+	//用于清除分类器的内部缓存（如nominal 分类器的cache）
+	// 注意这里仅限于清除内部的cache，外部设置的比如ClassifySummary不在此列
+	@Override
+	public void cleanUp(){
+		m_cachedOldClassInstances=null;
 	}
 }
