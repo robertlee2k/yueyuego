@@ -24,7 +24,7 @@ public class MyNNClassifier extends NominalClassifier implements ParrallelizedRu
 	@Override
 	protected void initializeParams()  {
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
-		m_skipTrainInBacktest = true;
+		m_skipTrainInBacktest = false;
 		m_skipEvalInBacktest = false;
 		
 		classifierName=ClassifyUtility.MYNN_MLP;
