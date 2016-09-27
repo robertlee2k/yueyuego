@@ -174,7 +174,7 @@ public class BackTest {
         Vector<Instances> threadResult=null;
 
 		// 对于自带多线程实现的model，不再另外多线程。 如果定义的线程数小于1 ，也不要多线程
-		if (clModel instanceof ParrallelizedRunning || RUNNING_THREADS<=1 ){
+		if ( RUNNING_THREADS<=1 ){ //clModel instanceof ParrallelizedRunning ||
 			//do nothing 不初始化
 		}else { //需要多线程并发
         	threadPool=BlockedThreadPoolExecutor.newFixedThreadPool(this.RUNNING_THREADS);
