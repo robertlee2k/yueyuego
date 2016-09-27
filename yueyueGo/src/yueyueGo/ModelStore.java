@@ -144,10 +144,8 @@ public class ModelStore {
 			@SuppressWarnings("unchecked")
 			Vector<Object> v = (Vector<Object>) SerializationHelper.read(modelFileName);
 			Classifier model = (Classifier) v.get(0);
-			System.out.println("Classifier Model Loaded: "+ modelFileName);
-			
 			Instances header = (Instances) v.get(1);
-			System.out.println("Classifier Model Header Loaded From: "+ modelFileName);
+			System.out.println("Classifier Model and Format Loaded from: "+ modelFileName);
 			m_model=model;
 			m_modelFormat=header;
 			return m_model;

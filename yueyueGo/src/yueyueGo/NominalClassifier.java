@@ -41,18 +41,19 @@ public abstract class NominalClassifier extends BaseClassifier{
 		int round=1;
 		
 		
-		double tp_fp_bottom_line=benchmark.getEval_tp_fp_ratio();  //evalParams.getTp_fp_bottom_line();
+		double tp_fp_bottom_line=benchmark.getEval_tp_fp_ratio();  
 		System.out.println("use the tp_fp_bottom_line based on training history data = "+tp_fp_bottom_line);
-		double trying_tp_fp=benchmark.getEval_tp_fp_ratio()*1.8;//evalParams.getTp_fp_ratio();
-		System.out.println("start from the trying_tp_fp based on training history data (X1.8)= "+trying_tp_fp);
+		double trying_tp_fp=benchmark.getEval_tp_fp_ratio()*evalParams.getLift_up_target();
+		System.out.println("start from the trying_tp_fp based on training history data = "+trying_tp_fp + " / while  lift up target="+evalParams.getLift_up_target());
 		while (thresholdBottom == 0 && trying_tp_fp > tp_fp_bottom_line){
-			System.out.println("try number: "+round);
+			
 			Vector<Double> v_threshold = computeThresholds(trying_tp_fp,evalParams, result);
 			thresholdBottom=v_threshold.get(0).doubleValue();
 			startPercent=100*(1-v_threshold.get(1).doubleValue()); //第二行存的是sampleSize
-			if (thresholdBottom>0)
+			if (thresholdBottom>0){
+				System.out.println(" threshold got at trying round No.: "+round);
 				break;
-			else {
+			}else {
 				trying_tp_fp=trying_tp_fp*0.95;
 				round++;
 			}
@@ -93,7 +94,7 @@ public abstract class NominalClassifier extends BaseClassifier{
 		}
 		if (threshold==-1){
 			System.err.println("seems error! cannot get threshold at sample_limit="+sample_limit+" default threshold is used");
-			threshold=evalParams.getDefault_threshold();
+//			threshold=evalParams.getDefault_threshold();
 		}else {
 			System.out.println("got threshold "+ threshold+" at sample_limit="+sample_limit);
 		}
@@ -148,12 +149,13 @@ public abstract class NominalClassifier extends BaseClassifier{
 				}
 			}
 		}
-		System.out.print("################################################thresholdBottom is : " + FormatUtility.formatDouble(thresholdBottom));
-		System.out.print("/samplesize is : " + FormatUtility.formatPercent(finalSampleSize) );
-		System.out.print("/True Positives is : " + final_tp);
-		System.out.print("/False Positives is : " + final_fp);
-		System.out.println("/lift max is : " + FormatUtility.formatDouble(lift_max));
-		
+		if (thresholdBottom>0){ //找到阀值时输出
+			System.out.print("################################################thresholdBottom is : " + FormatUtility.formatDouble(thresholdBottom));
+			System.out.print("/samplesize is : " + FormatUtility.formatPercent(finalSampleSize) );
+			System.out.print("/True Positives is : " + final_tp);
+			System.out.print("/False Positives is : " + final_fp);
+			System.out.println("/lift max is : " + FormatUtility.formatDouble(lift_max));
+		}
 
 		Vector<Double> v = new Vector<Double>();
 		v.add(new Double(thresholdBottom));

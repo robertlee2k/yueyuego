@@ -42,10 +42,10 @@ public abstract class ContinousClassifier extends BaseClassifier {
 		//新创建的Instances对象，用于存放预测值和实际值
 		Instances predictions = CreateEvalInstances();
 
-		System.out.println(" model evaluation classifying using training data.....");
+		System.out.println(" model evaluation classifying using evaluation data.....");
 		
-		//从历史记录中选取多少比例的最近样本
-		int startNum=new Double(train.numInstances()*(1-evalParams.getEval_recent_portion())).intValue();
+		//全量评估
+		int startNum=0; 
 		// Add the data from the evaluation result
 		for (int i = startNum; i < train.numInstances(); i++) {
 			Instance curr = train.instance(i);
@@ -62,19 +62,19 @@ public abstract class ContinousClassifier extends BaseClassifier {
 
 		}
 
-		Vector<Double> v = computeThresholds( evalParams, stat_pred, predictions);
-		System.out.println("----meanAbsoluteError is="+meanABError);
+		Vector<Double> v = computeThresholds( benchmark ,evalParams, stat_pred, predictions);
 		v.add(new Double(meanABError));
 
 		return v;
 	}
 
 	//计算给定预测结果集的最佳的阀值选择区间
-	protected Vector<Double> computeThresholds( EvaluationParams evalParams,
+	protected Vector<Double> computeThresholds( EvaluationBenchmark benchmark,EvaluationParams evalParams,
 			DescriptiveStatistics stat_pred, Instances predictions)
 			throws Exception {
 		//获取预测值的对应百分位数值
-		double tp_fp_ratio=evalParams.getTp_fp_ratio();
+		double tp_fp_ratio=benchmark.getEval_tp_fp_ratio()*evalParams.getLift_up_target();
+		System.out.println("start from the trying_tp_fp based on training history data = "+tp_fp_ratio + " / while  lift up target="+evalParams.getLift_up_target());
 		double currentPercent =(1-evalParams.getUpper_limit()) * 100;
 		
 		double currentThreshold=0.15; 

@@ -131,13 +131,12 @@ public abstract class BaseClassifier implements Serializable{
 				throw new Exception("attention! model and evaluation data structure is not the same. Here is the difference: "+verify);
 			}
 		}
-		System.out.println(" -----------evaluating for FULL Market....");
+
 		//评估模型
-		EvaluationBenchmark benchmark = getEvaluation(trainData,evalData, model,1-evalParams.getEval_recent_portion());
+		EvaluationBenchmark benchmark = getEvaluation(trainData,evalData, model);
 
 		System.out.println("finish evaluating model, try to get best threshold for model...");
 		Vector<Double> v = doModelEvaluation(benchmark,evalData, model, evalParams);
-		System.out.println(" *********** end of evaluating for FULL Market....");		
 
 		ThresholdData.saveEvaluationToFile(m_modelStore.getEvalFileName(), v);
 
@@ -145,7 +144,7 @@ public abstract class BaseClassifier implements Serializable{
 
 	
 	//评估模型，eval_start_portion为0到1的值， 为0时表示利用全部Instances做评估，否则取其相应比例评估
-	protected EvaluationBenchmark getEvaluation(Instances trainData,Instances evalData, Classifier model, double eval_start_portion)
+	protected EvaluationBenchmark getEvaluation(Instances trainData,Instances evalData, Classifier model)
 			throws Exception {
 		Instances evalTrain;
 		Instances evalSamples;
