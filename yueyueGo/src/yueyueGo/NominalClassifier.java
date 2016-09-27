@@ -86,13 +86,13 @@ public abstract class NominalClassifier extends BaseClassifier{
 		for (int i = 0; i < result.numInstances(); i++) {
 			Instance curr = result.instance(i);
 			sampleSize = curr.value(att_samplesize); // to get sample range
-			if (FormatUtility.compareDouble(sampleSize,sample_limit,-0.001,0.001)==0) {
+			if (FormatUtility.compareDouble(sampleSize,sample_limit)==0) {
 				threshold = curr.value(att_threshold);
 				break;
 			}
 		}
 		if (threshold==-1){
-			System.err.println("warning! cannot get threshold at sample_limit="+sample_limit+" default threshold is used");
+			System.err.println("seems error! cannot get threshold at sample_limit="+sample_limit+" default threshold is used");
 			threshold=evalParams.getDefault_threshold();
 		}else {
 			System.out.println("got threshold "+ threshold+" at sample_limit="+sample_limit);
