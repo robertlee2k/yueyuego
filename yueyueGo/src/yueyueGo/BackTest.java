@@ -68,7 +68,7 @@ public class BackTest {
 		BACKTEST_RESULT_DIR=AppContext.getBACKTEST_RESULT_DIR();
 		
 
-		RUNNING_THREADS=5;
+		RUNNING_THREADS=15;
 
 		shouyilv_thresholds=new double[] {0,0,0,0,0};//{0.01,0.02,0.03,0.03,0.04};//{0,0,0,0,0};//{-100,-100,-100,-100,-100};
 		winrate_thresholds=new double[] {0.3,0.3,0.3,0.3,0.3};//{0.5,0.5,0.5,0.5,0.5};//{0,0,0,0,0};//{0.3,0.3,0.3,0.3,0.3};

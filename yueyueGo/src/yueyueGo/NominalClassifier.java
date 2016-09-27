@@ -81,8 +81,8 @@ public abstract class NominalClassifier extends BaseClassifier{
 	//具体的模型阀值计算方法
 	protected Vector<Double> computeThresholds(double tp_fp_ratio,EvaluationParams evalParams, Instances result) {
 		
-		double sample_limit=evalParams.getLower_limit(); 
-		double sample_upper=evalParams.getUpper_limit();
+		double sample_limit=0.03;//evalParams.getLower_limit(); 
+		double sample_upper=0.2;//evalParams.getUpper_limit();
 
 		double thresholdBottom = 0.0;
 		double lift_max = 0.0;
