@@ -83,7 +83,11 @@ public class FormatUtility {
 	public static final double LOWER_LIMIT=-0.01;
 	public static final double UPPER_LIMIT=0.01;
 	public static double compareDouble(double first,double second) {
-		
+		return compareDouble(first, second,LOWER_LIMIT,UPPER_LIMIT);
+	}
+	
+	//以任意精度比较double
+	public static double compareDouble(double first,double second,double lower_limit,double upper_limit) {
 		double compare=0;
 		//如果first second都是NaN，认为二者相等
 		if((Double.isNaN(first) && Double.isNaN(second))==false){
@@ -92,11 +96,11 @@ public class FormatUtility {
 			}else{//绝对值小于1时按照差值比较
 				compare=first-second;
 			}
-			if (compare>=LOWER_LIMIT && compare<=UPPER_LIMIT){
+			if (compare>=lower_limit && compare<=upper_limit){
 				compare=0;
 			}
 		}
-		return compare;
+		return compare;		
 	}
 
 	public static String[] concatStrings(String[] first,String[] second){

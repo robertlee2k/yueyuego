@@ -57,10 +57,8 @@ public abstract class NominalClassifier extends BaseClassifier{
 				round++;
 			}
 		}// end while;
-		if (thresholdBottom==0)  //如果无法找到合适的阀值
-			thresholdBottom=evalParams.getDefault_threshold(); //设置下限
-		else if (thresholdBottom >0.99) { //计算出阀值过于乐观时
-			thresholdBottom =thresholdBottom*0.95;//设置上限
+		if (thresholdBottom==0){  //如果无法找到合适的阀值
+			thresholdBottom=computeDefaultThresholds(evalParams,result);//设置下限
 		}
 		
 		Vector<Double> v = new Vector<Double>();
@@ -77,6 +75,31 @@ public abstract class NominalClassifier extends BaseClassifier{
 		return v;
 	}
 
+	private double computeDefaultThresholds(EvaluationParams evalParams, Instances result){
+		double sample_limit=evalParams.getLower_limit(); 
+		double sampleSize;
+		double threshold=-1;
+		Attribute att_threshold = result.attribute("Threshold");
+		Attribute att_samplesize = result.attribute("Sample Size");
+
+
+		for (int i = 0; i < result.numInstances(); i++) {
+			Instance curr = result.instance(i);
+			sampleSize = curr.value(att_samplesize); // to get sample range
+			if (FormatUtility.compareDouble(sampleSize,sample_limit,-0.001,0.001)==0) {
+				threshold = curr.value(att_threshold);
+				break;
+			}
+		}
+		if (threshold==-1){
+			System.err.println("warning! cannot get threshold at sample_limit="+sample_limit+" default threshold is used");
+			threshold=evalParams.getDefault_threshold();
+		}else {
+			System.out.println("got threshold "+ threshold+" at sample_limit="+sample_limit);
+		}
+		return threshold;
+		
+	}
 
 	//具体的模型阀值计算方法
 	protected Vector<Double> computeThresholds(double tp_fp_ratio,EvaluationParams evalParams, Instances result) {
