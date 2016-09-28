@@ -60,22 +60,23 @@ public class ProcessFlowExecutor implements Callable<String> {
 			ClassifyUtility.getConfusionMatrix(trainingData,evalData, model,isNominal);
 		} 
 		
-		Evaluation eval = new Evaluation(trainingData);
-		eval.evaluateModel(model, evalData); // evaluate on the sample data to get threshold
-		ThresholdCurve tc = new ThresholdCurve();
-		int classIndex = 1;
-		Instances predictions=tc.getCurve(eval.predictions(), classIndex);
-		FileUtility.SaveDataIntoFile(predictions, clModel.WORK_PATH+"\\ROCresult-withTrain.arff");
 		
 		
-		trainingData=null;//释放内存 （不管是不是用到了）		
 		
 		clModel.locateModelStore(actualYearSplit,policySplit);
 		//是否需要重做评估阶段
 		if (clModel.m_skipEvalInBacktest == false) {
+			Evaluation eval = new Evaluation(trainingData);
+			eval.evaluateModel(model, evalData); // evaluate on the sample data to get threshold
+			ThresholdCurve tc = new ThresholdCurve();
+			int classIndex = 1;
+			Instances predictions=tc.getCurve(eval.predictions(), classIndex);
+			FileUtility.SaveDataIntoFile(predictions, clModel.WORK_PATH+"\\ROCresult-withTrain.arff");
+			
 			EvaluationParams evalParams=clModel.getEvaluationInstance(policySplit);
 			clModel.evaluateModel(evalData, model,evalParams);
 		}
+		trainingData=null;//释放内存 （不管是不是用到了）		
 		evalData=null;//释放内存 （不管是不是用到了）
 		model=null;//释放model，后面预测时会方法内是会重新加载的。
 		
