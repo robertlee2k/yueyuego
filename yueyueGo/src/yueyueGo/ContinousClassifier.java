@@ -65,8 +65,8 @@ public abstract class ContinousClassifier extends BaseClassifier {
 
 		Vector<Double> v = new Vector<Double>();
 		v.add(new Double(thresholdBottom));
-		//TODO 先将模型阀值上限设为1，以后找到合适的算法再计算。
-		double thresholdTop=1; 
+		//TODO 先将模型阀值上限设为100，以后找到合适的算法再计算。
+		double thresholdTop=100; 
 		v.add(new Double(thresholdTop));
 		v.add(new Double(startPercent));
 		//先将模型end percent设为100，以后找到合适的算法再计算。
@@ -79,7 +79,7 @@ public abstract class ContinousClassifier extends BaseClassifier {
 	private double computeDefaultThresholds(EvaluationParams evalParams, Instances result){
 		double sample_limit=evalParams.getLower_limit(); 
 		double sampleSize;
-		double threshold=-1;
+		double threshold=-100;
 		Attribute att_threshold = result.attribute("Threshold");
 		Attribute att_samplesize = result.attribute("Sample Size");
 
