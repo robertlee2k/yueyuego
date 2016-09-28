@@ -165,7 +165,7 @@ public class MLPABClassifier extends NominalClassifier {
 	@Override
 	protected void initializeParams() {
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
-		m_skipTrainInBacktest = false;
+		m_skipTrainInBacktest = true;
 		m_skipEvalInBacktest = false;
 		
 		classifierName=ClassifyUtility.MLPAB;
