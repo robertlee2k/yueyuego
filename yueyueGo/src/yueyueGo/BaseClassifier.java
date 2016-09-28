@@ -223,6 +223,8 @@ public abstract class BaseClassifier implements Serializable{
 		double lift_max = 0.0;
 		double lift_max_tp=0.0;
 		double lift_max_fp=0.0;
+		double lift_max_sample=0.0;
+		
 		double finalSampleSize = 0.0;
 		double sampleSize = 0.0;
 		double tp = 0.0;
@@ -249,6 +251,7 @@ public abstract class BaseClassifier implements Serializable{
 					lift_max=current_lift;
 					lift_max_tp=tp;
 					lift_max_fp=fp;
+					lift_max_sample=sampleSize;
 				}
 				
 				//查找合适的阀值
@@ -283,7 +286,7 @@ public abstract class BaseClassifier implements Serializable{
 			if (lift_max_fp>0){
 				max_tp_fp_ratio=lift_max_tp/lift_max_fp;
 			}
-			System.out.println("######possible lift max in data range is : " + FormatUtility.formatDouble(lift_max) + " where tp="+lift_max_tp+" /fp="+lift_max_fp);
+			System.out.println("######possible lift max in range is : " + FormatUtility.formatDouble(lift_max) + "@ sample="+FormatUtility.formatDouble(lift_max_sample)+" where tp="+lift_max_tp+" /fp="+lift_max_fp);
 			System.out.println("###### max tp fp ratio="+max_tp_fp_ratio+ " while trying threshold="+tp_fp_ratio+ " isNormal="+(max_tp_fp_ratio<tp_fp_ratio));
 		}
 
