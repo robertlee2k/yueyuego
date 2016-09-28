@@ -261,11 +261,6 @@ public abstract class BaseClassifier implements Serializable{
 			}
 		}
 		
-		double max_tp_fp_ratio=Double.NaN;
-		if (lift_max_fp>0){
-			max_tp_fp_ratio=lift_max_tp/lift_max_fp;
-		}
-		System.out.println("possible lift max in data range is : " + FormatUtility.formatDouble(lift_max) + " where tp="+lift_max_tp+" /fp="+lift_max_fp +" max tp fp ratio="+max_tp_fp_ratio);
 		
 		ThresholdData thresholdData=null;
 		if (thresholdBottom>0){ //找到阀值时输出并设置对象的值
@@ -283,6 +278,13 @@ public abstract class BaseClassifier implements Serializable{
 			//先将模型end percent设为100，以后找到合适的算法再计算。
 			thresholdData.setEndPercent(100);
 
+		}else{
+			double max_tp_fp_ratio=Double.NaN;
+			if (lift_max_fp>0){
+				max_tp_fp_ratio=lift_max_tp/lift_max_fp;
+			}
+			System.out.println("######possible lift max in data range is : " + FormatUtility.formatDouble(lift_max) + " where tp="+lift_max_tp+" /fp="+lift_max_fp);
+			System.out.println("###### max tp fp ratio="+max_tp_fp_ratio+ " while trying threshold="+tp_fp_ratio+ " isNormal="+(max_tp_fp_ratio<tp_fp_ratio));
 		}
 
 		return thresholdData;
