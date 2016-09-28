@@ -30,8 +30,8 @@ import java.util.concurrent.TimeUnit;
 
 import weka.core.Attribute;
 import weka.core.Instances;
-import yueyueGo.classifier.AdaboostClassifier;
 import yueyueGo.classifier.BaggingM5P;
+import yueyueGo.classifier.MyNNClassifier;
 import yueyueGo.utility.AppContext;
 import yueyueGo.utility.BlockedThreadPoolExecutor;
 import yueyueGo.utility.ClassifySummaries;
@@ -116,9 +116,9 @@ public class BackTest {
 //		MLPClassifier nModel = new MLPClassifier();
 //		RandomForestClassifier nModel=new RandomForestClassifier ();
 //		BaggingJ48 nModel=new BaggingJ48();
-//		MyNNClassifier nModel=new MyNNClassifier();
+		MyNNClassifier nModel=new MyNNClassifier();
 //		MLPABClassifier nModel = new MLPABClassifier();
-		AdaboostClassifier nModel=new AdaboostClassifier();
+//		AdaboostClassifier nModel=new AdaboostClassifier();
 
 
 		Instances nominalResult=testBackward(nModel);
