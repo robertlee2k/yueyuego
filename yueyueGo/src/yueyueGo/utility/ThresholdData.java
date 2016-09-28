@@ -13,6 +13,7 @@ public class ThresholdData implements Serializable{
 	private double thresholdMax=99999;
 	private double startPercent=99999;
 	private double endPercent=99999;
+	private boolean isGuessed=false; //阀值是使用的缺省值
 	
 	public static ThresholdData loadDataFromFile(String evalFileName) throws Exception{
 		//读取Threshold数据文件
@@ -93,6 +94,14 @@ public class ThresholdData implements Serializable{
 
 	public double getEndPercent() {
 		return endPercent;
+	}
+
+	public boolean isGuessed() {
+		return isGuessed;
+	}
+
+	public void setIsGuessed(boolean isGuessed) {
+		this.isGuessed = isGuessed;
 	}
 
 

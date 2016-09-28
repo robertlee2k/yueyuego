@@ -199,6 +199,9 @@ public abstract class BaseClassifier implements Serializable{
 		thresholdData.setThresholdMax(100);
 		//先将模型end percent设为100，以后找到合适的算法再计算。
 		thresholdData.setEndPercent(100);
+		
+		//使用缺省值时设置此标志位
+		thresholdData.setIsGuessed(true);
 
 		return thresholdData;
 		
@@ -276,11 +279,11 @@ public abstract class BaseClassifier implements Serializable{
 			throws Exception {
 
 		
-		ThresholdData evalData=ThresholdData.loadDataFromFile(m_modelStore.getEvalFileName());
+		ThresholdData thresholdData=ThresholdData.loadDataFromFile(m_modelStore.getEvalFileName());
 		
-		double thresholdMin=evalData.getThresholdMin();
-		double thresholdMax=evalData.getThresholdMax();
-		double startPercent=evalData.getStartPercent();
+		double thresholdMin=thresholdData.getThresholdMin();
+		double thresholdMax=thresholdData.getThresholdMax();
+
 
 		// read classify model and header
 		Classifier model =m_modelStore.loadModelFromFile();
@@ -377,7 +380,13 @@ public abstract class BaseClassifier implements Serializable{
 			//这是进行历史回测数据时，根据历史收益率数据进行阶段评估
 			classifySummaries.computeClassifySummaries(yearSplit,policySplit,totalPositiveShouyilv,totalNegativeShouyilv,selectedPositiveShouyilv,selectedNegativeShouyilv);
 		}
-		String evalSummary=","+FormatUtility.formatDouble(thresholdMin)+","+FormatUtility.formatPercent(startPercent)+"\r\n";  //输出评估结果及所使用阀值及期望样本百分比
+		double startPercent=thresholdData.getStartPercent();
+		boolean isGuessed=thresholdData.isGuessed();
+		String defaultThresholdUsed=" ";
+		if (isGuessed){
+			defaultThresholdUsed="Y";
+		}
+		String evalSummary=","+FormatUtility.formatDouble(thresholdMin)+","+FormatUtility.formatPercent(startPercent)+","+defaultThresholdUsed+"\r\n";  //输出评估结果及所使用阀值及期望样本百分比
 		classifySummaries.appendEvaluationSummary(evalSummary);
 		
 	}
