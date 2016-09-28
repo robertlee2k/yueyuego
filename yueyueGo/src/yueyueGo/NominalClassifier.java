@@ -1,17 +1,15 @@
 package yueyueGo;
 
 import java.util.ArrayList;
-import java.util.Vector;
 
 import weka.classifiers.Classifier;
-import weka.classifiers.Evaluation;
+import weka.classifiers.evaluation.EvaluationUtils;
+import weka.classifiers.evaluation.Prediction;
 import weka.classifiers.evaluation.ThresholdCurve;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
-import yueyueGo.utility.EvaluationBenchmark;
-import yueyueGo.utility.EvaluationParams;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.InstanceUtility;
 
@@ -23,144 +21,159 @@ public abstract class NominalClassifier extends BaseClassifier{
 
 	private Instances m_cachedOldClassInstances=null;
 	
-
-	@Override
-	//具体的模型评估方法
-
-	protected Vector<Double> doModelEvaluation(EvaluationBenchmark benchmark ,Instances train,Classifier model,EvaluationParams evalParams)
+	/**
+	 * @param evalData
+	 * @param model
+	 * @return
+	 * @throws Exception
+	 */
+	protected Instances getROCInstances(Instances evalData, Classifier model)
 			throws Exception {
-
 		// generate curve
-		Evaluation eval=benchmark.getEvalulation();
+//		Evaluation eval=benchmark.getEvalulation();
+		EvaluationUtils eUtils=new EvaluationUtils();
+		ArrayList<Prediction> predictions=eUtils.getTestPredictions(model, evalData);
 		ThresholdCurve tc = new ThresholdCurve();
 		int classIndex = 1;
-		Instances result = tc.getCurve(eval.predictions(), classIndex);
-
-		double thresholdBottom = 0;
-		double startPercent=100;
-		int round=1;
-		
-		
-		double tp_fp_bottom_line=benchmark.getEval_tp_fp_ratio();  
-		System.out.println("use the tp_fp_bottom_line based on training history data = "+tp_fp_bottom_line);
-		double trying_tp_fp=benchmark.getEval_tp_fp_ratio()*evalParams.getLift_up_target();
-		System.out.println("start from the trying_tp_fp based on training history data = "+trying_tp_fp + " / while  lift up target="+evalParams.getLift_up_target());
-		while (thresholdBottom == 0 && trying_tp_fp > tp_fp_bottom_line){
-			
-			Vector<Double> v_threshold = computeThresholds(trying_tp_fp,evalParams, result);
-			thresholdBottom=v_threshold.get(0).doubleValue();
-			startPercent=100*(1-v_threshold.get(1).doubleValue()); //第二行存的是sampleSize
-			if (thresholdBottom>0){
-				System.out.println(" threshold got at trying round No.: "+round);
-				break;
-			}else {
-				trying_tp_fp=trying_tp_fp*0.95;
-				round++;
-			}
-		}// end while;
-		if (thresholdBottom==0){  //如果无法找到合适的阀值
-			thresholdBottom=computeDefaultThresholds(evalParams,result);//设置下限
-		}
-		
-		Vector<Double> v = new Vector<Double>();
-		v.add(new Double(thresholdBottom));
-		//TODO 先将模型阀值上限设为1，以后找到合适的算法再计算。
-		double thresholdTop=1; 
-		v.add(new Double(thresholdTop));
-		v.add(new Double(startPercent));
-		//先将模型end percent设为100，以后找到合适的算法再计算。
-		v.add(new Double(100));
-		double meanABError=benchmark.getEval_mean_ABS_error();
-		v.add(new Double(meanABError));
-		return v;
+		Instances result = tc.getCurve(predictions, classIndex);
+		return result;
 	}
 
-	private double computeDefaultThresholds(EvaluationParams evalParams, Instances result){
-		double sample_limit=evalParams.getLower_limit(); 
-		double sampleSize;
-		double threshold=-1;
-		Attribute att_threshold = result.attribute("Threshold");
-		Attribute att_samplesize = result.attribute("Sample Size");
-
-
-		for (int i = 0; i < result.numInstances(); i++) {
-			Instance curr = result.instance(i);
-			sampleSize = curr.value(att_samplesize); // to get sample range
-			if (FormatUtility.compareDouble(sampleSize,sample_limit)==0) {
-				threshold = curr.value(att_threshold);
-				break;
-			}
-		}
-		if (threshold==-1){
-			System.err.println("seems error! cannot get threshold at sample_limit="+sample_limit+" default threshold is used");
-//			threshold=evalParams.getDefault_threshold();
-		}else {
-			System.err.println("got default threshold "+ threshold+" at sample_limit="+sample_limit);
-		}
-		return threshold;
-		
-	}
-
-	//具体的模型阀值计算方法
-	protected Vector<Double> computeThresholds(double tp_fp_ratio,EvaluationParams evalParams, Instances result) {
-		
-		double sample_limit=evalParams.getLower_limit(); 
-		double sample_upper=evalParams.getUpper_limit();
-
-		double thresholdBottom = 0.0;
-		double lift_max = 0.0;
-		double finalSampleSize = 0.0;
-		double sampleSize = 0.0;
-		double tp = 0.0;
-		double fp = 0.0;
-//		double tpr=0;
-//		double fpr=0;
-		double final_tp=0.0;
-		double final_fp=0.0;
-//		double final_deviation=-999999999.9;
-		Attribute att_tp = result.attribute("True Positives");
-		Attribute att_fp = result.attribute("False Positives");
-//		Attribute att_tpr = result.attribute("True Positive Rate"); 
-//		Attribute att_fpr= result.attribute("False Positive Rate");
-		Attribute att_lift = result.attribute("Lift");
-		Attribute att_threshold = result.attribute("Threshold");
-		Attribute att_samplesize = result.attribute("Sample Size");
-
-
-		for (int i = 0; i < result.numInstances(); i++) {
-			Instance curr = result.instance(i);
-			sampleSize = curr.value(att_samplesize); // to get sample range
-			if (sampleSize >= sample_limit && sampleSize <=sample_upper) {
-				tp = curr.value(att_tp);
-				fp = curr.value(att_fp);
-//				tpr = curr.value(att_tpr);
-//				fpr = curr.value(att_fpr);
-				if (tp>fp*tp_fp_ratio ){
-//					TODO 试了求TPR-FPR的最大值(tpr-fpr)，效果差不多，先恢复原始的
-//					if (tp-fp > final_deviation ) {
-					thresholdBottom = curr.value(att_threshold);
-					finalSampleSize = sampleSize;
-					lift_max=curr.value(att_lift);
-					final_tp=tp;
-					final_fp=fp;
-//						final_deviation=tp-fp;
-//					}
-				}
-			}
-		}
-		if (thresholdBottom>0){ //找到阀值时输出
-			System.out.print("################################################thresholdBottom is : " + FormatUtility.formatDouble(thresholdBottom));
-			System.out.print("/samplesize is : " + FormatUtility.formatPercent(finalSampleSize) );
-			System.out.print("/True Positives is : " + final_tp);
-			System.out.print("/False Positives is : " + final_fp);
-			System.out.println("/lift max is : " + FormatUtility.formatDouble(lift_max));
-		}
-
-		Vector<Double> v = new Vector<Double>();
-		v.add(new Double(thresholdBottom));
-		v.add(new Double(finalSampleSize));
-		return v;
-	}
+//	@Override
+//	//具体的模型评估方法
+//
+//	protected Vector<Double> doModelEvaluation(EvaluationBenchmark benchmark ,Instances evalData,Classifier model,EvaluationParams evalParams)
+//			throws Exception {
+//
+//		Instances result = getROCInstances(evalData, model);
+//
+//		double thresholdBottom = 0;
+//		double startPercent=100;
+//		int round=1;
+//		
+//		
+//		double tp_fp_bottom_line=benchmark.getEval_tp_fp_ratio();  
+//		System.out.println("use the tp_fp_bottom_line based on training history data = "+tp_fp_bottom_line);
+//		double trying_tp_fp=benchmark.getEval_tp_fp_ratio()*evalParams.getLift_up_target();
+//		System.out.println("start from the trying_tp_fp based on training history data = "+trying_tp_fp + " / while  lift up target="+evalParams.getLift_up_target());
+//		while (thresholdBottom == 0 && trying_tp_fp > tp_fp_bottom_line){
+//			
+//			Vector<Double> v_threshold = computeThresholds(trying_tp_fp,evalParams, result);
+//			thresholdBottom=v_threshold.get(0).doubleValue();
+//			startPercent=100*(1-v_threshold.get(1).doubleValue()); //第二行存的是sampleSize
+//			if (thresholdBottom>0){
+//				System.out.println(" threshold got at trying round No.: "+round);
+//				break;
+//			}else {
+//				trying_tp_fp=trying_tp_fp*0.95;
+//				round++;
+//			}
+//		}// end while;
+//		if (thresholdBottom==0){  //如果无法找到合适的阀值
+//			thresholdBottom=computeDefaultThresholds(evalParams,result);//设置下限
+//		}
+//		
+//		Vector<Double> v = new Vector<Double>();
+//		v.add(new Double(thresholdBottom));
+//		//TODO 先将模型阀值上限设为1，以后找到合适的算法再计算。
+//		double thresholdTop=1; 
+//		v.add(new Double(thresholdTop));
+//		v.add(new Double(startPercent));
+//		//先将模型end percent设为100，以后找到合适的算法再计算。
+//		v.add(new Double(100));
+//		double meanABError=benchmark.getEval_mean_ABS_error();
+//		v.add(new Double(meanABError));
+//		return v;
+//	}
+//
+//
+//
+//	private double computeDefaultThresholds(EvaluationParams evalParams, Instances result){
+//		double sample_limit=evalParams.getLower_limit(); 
+//		double sampleSize;
+//		double threshold=-1;
+//		Attribute att_threshold = result.attribute("Threshold");
+//		Attribute att_samplesize = result.attribute("Sample Size");
+//
+//
+//		for (int i = 0; i < result.numInstances(); i++) {
+//			Instance curr = result.instance(i);
+//			sampleSize = curr.value(att_samplesize); // to get sample range
+//			if (FormatUtility.compareDouble(sampleSize,sample_limit)==0) {
+//				threshold = curr.value(att_threshold);
+//				break;
+//			}
+//		}
+//		if (threshold==-1){
+//			System.err.println("seems error! cannot get threshold at sample_limit="+sample_limit+" default threshold is used");
+////			threshold=evalParams.getDefault_threshold();
+//		}else {
+//			System.err.println("got default threshold "+ threshold+" at sample_limit="+sample_limit);
+//		}
+//		return threshold;
+//		
+//	}
+//
+//	//具体的模型阀值计算方法
+//	protected Vector<Double> computeThresholds(double tp_fp_ratio,EvaluationParams evalParams, Instances result) {
+//		
+//		double sample_limit=evalParams.getLower_limit(); 
+//		double sample_upper=evalParams.getUpper_limit();
+//
+//		double thresholdBottom = 0.0;
+//		double lift_max = 0.0;
+//		double finalSampleSize = 0.0;
+//		double sampleSize = 0.0;
+//		double tp = 0.0;
+//		double fp = 0.0;
+////		double tpr=0;
+////		double fpr=0;
+//		double final_tp=0.0;
+//		double final_fp=0.0;
+////		double final_deviation=-999999999.9;
+//		Attribute att_tp = result.attribute("True Positives");
+//		Attribute att_fp = result.attribute("False Positives");
+////		Attribute att_tpr = result.attribute("True Positive Rate"); 
+////		Attribute att_fpr= result.attribute("False Positive Rate");
+//		Attribute att_lift = result.attribute("Lift");
+//		Attribute att_threshold = result.attribute("Threshold");
+//		Attribute att_samplesize = result.attribute("Sample Size");
+//
+//
+//		for (int i = 0; i < result.numInstances(); i++) {
+//			Instance curr = result.instance(i);
+//			sampleSize = curr.value(att_samplesize); // to get sample range
+//			if (sampleSize >= sample_limit && sampleSize <=sample_upper) {
+//				tp = curr.value(att_tp);
+//				fp = curr.value(att_fp);
+////				tpr = curr.value(att_tpr);
+////				fpr = curr.value(att_fpr);
+//				if (tp>fp*tp_fp_ratio ){
+////					TODO 试了求TPR-FPR的最大值(tpr-fpr)，效果差不多，先恢复原始的
+////					if (tp-fp > final_deviation ) {
+//					thresholdBottom = curr.value(att_threshold);
+//					finalSampleSize = sampleSize;
+//					lift_max=curr.value(att_lift);
+//					final_tp=tp;
+//					final_fp=fp;
+////						final_deviation=tp-fp;
+////					}
+//				}
+//			}
+//		}
+//		if (thresholdBottom>0){ //找到阀值时输出
+//			System.out.print("################################################thresholdBottom is : " + FormatUtility.formatDouble(thresholdBottom));
+//			System.out.print("/samplesize is : " + FormatUtility.formatPercent(finalSampleSize) );
+//			System.out.print("/True Positives is : " + final_tp);
+//			System.out.print("/False Positives is : " + final_fp);
+//			System.out.println("/lift max is : " + FormatUtility.formatDouble(lift_max));
+//		}
+//
+//		Vector<Double> v = new Vector<Double>();
+//		v.add(new Double(thresholdBottom));
+//		v.add(new Double(finalSampleSize));
+//		return v;
+//	}
 
 	//对于二分类变量，返回分类1的预测可能性
 	@Override

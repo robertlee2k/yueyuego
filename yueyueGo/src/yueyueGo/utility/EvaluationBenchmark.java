@@ -2,25 +2,18 @@ package yueyueGo.utility;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
-import weka.classifiers.Evaluation;
 import weka.core.Instances;
 import yueyueGo.ArffFormat;
 
 public class EvaluationBenchmark {
 	static public final int POSITIVE=1;
 	static public final int NEGATIVE=0;
-	Evaluation evalulation;
+
 	boolean nominalClass;
 //	double train_tp_fp_ratio=Double.NaN;
 //    double train_avg_shouyilv=Double.NaN;
     double eval_tp_fp_ratio=Double.NaN;
     double eval_avg_shouyilv=Double.NaN;
-    double eval_mean_ABS_error=Double.NaN;
-    
-    
-    public Evaluation getEvalulation() {
-		return evalulation;
-	}
 
 	public boolean isNominalClass() {
 		return nominalClass;
@@ -42,13 +35,9 @@ public class EvaluationBenchmark {
 		return eval_avg_shouyilv;
 	}
 
-	public double getEval_mean_ABS_error() {
-		return eval_mean_ABS_error;
-	}
+	
 
-	public EvaluationBenchmark(Evaluation eval,Instances trainData,Instances evalData, boolean isNominal) {
-		this.evalulation = eval;
-		this.eval_mean_ABS_error=eval.meanAbsoluteError();
+	public EvaluationBenchmark(Instances evalData, boolean isNominal) {
 		this.nominalClass=isNominal;
 		int pos=-1;
 		if (isNominal){

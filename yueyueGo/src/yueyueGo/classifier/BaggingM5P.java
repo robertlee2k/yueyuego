@@ -7,7 +7,6 @@ import yueyueGo.ContinousClassifier;
 import yueyueGo.ModelStore;
 import yueyueGo.ParrallelizedRunning;
 import yueyueGo.utility.ClassifyUtility;
-import yueyueGo.utility.ThresholdData;
 
 
 
@@ -74,7 +73,7 @@ public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunn
 	 * 
 	 */
 	private static final long serialVersionUID = -6252159191030935801L;
-	protected boolean adjustThresholdBottom; 
+ 
 	protected boolean useMultiPCA;
 	protected int bagging_iteration;
 	protected int leafMinObjNum;
@@ -92,7 +91,6 @@ public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunn
 //		setWorkPathAndCheck(AppContext.getCONTINOUS_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
 
 		m_modelEvalFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
-		adjustThresholdBottom=false;//不用MeanABSError调整threshold
 		bagging_iteration=10;	//bagging特有参数
 		leafMinObjNum=300; //叶子节点最小的
 		divided=300; //将trainingData分成多少份
@@ -120,15 +118,7 @@ public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunn
 
 
 	
-	@Override
-	protected ThresholdData processThresholdData(ThresholdData eval){
-		if (adjustThresholdBottom==true){
-			double adjustedBottom=(eval.getThresholdMin()+eval.getMeanABError())/2;
-			System.out.println("----adjusted threshold bottom is :"+Double.toString(adjustedBottom)+ " because meanABError="+Double.toString(eval.getMeanABError()));
-			eval.setThresholdMin(adjustedBottom);
-		}
-		return eval;
-	}
+
 	
 	@Override
 	public String getIdentifyName(){

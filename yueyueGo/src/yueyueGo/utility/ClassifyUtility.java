@@ -1,6 +1,7 @@
 package yueyueGo.utility;
 
 import weka.classifiers.Classifier;
+import weka.classifiers.Evaluation;
 import weka.classifiers.meta.Bagging;
 import weka.classifiers.trees.J48;
 import weka.classifiers.trees.M5P;
@@ -198,5 +199,22 @@ public class ClassifyUtility {
 				lastPeriod=limit*100+1;
 		}
 		return String.valueOf(lastPeriod);
+	}
+
+	//评估时输出confusionMatrix
+	public static Evaluation getConfusionMatrix(Instances trainData,Instances evalData, Classifier model,boolean isNominal)
+			throws Exception {
+	
+		System.out.println("evluation with full incoming dataset, size: "+evalData.numInstances());
+		Evaluation eval = new Evaluation(trainData);
+		eval.evaluateModel(model, evalData); // evaluate on the sample data to get threshold
+		System.out.println(eval.toSummaryString("\nEvaluate Model Results\n\n", true));
+	
+		if (isNominal==true){
+			System.out.println(eval.toMatrixString ("\nEvaluate Confusion Matrix\n\n"));
+			System.out.println(eval.toClassDetailsString("\nEvaluate Class Details\n\n"));
+		}
+	
+		return eval;
 	}
 }

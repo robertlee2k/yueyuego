@@ -24,7 +24,7 @@ public class ClassifySummaries {
 	
 	//重置evaluationSummary CSV为Header信息
 	private void setEvaluationSummaryHeader(){
-		String sHeader="时间段,均线策略,整体正收益股数,整体股数,整体TPR,所选正收益股数,所选总股数,所选股TPR,提升率,所选股平均收益率,整体平均收益率,收益率差,是否改善,阀值下限,阀值上限\r\n";
+		String sHeader="时间段,均线策略,整体正收益股数,整体股数,整体TPR,选股比率,所选正收益股数,所选总股数,所选股TPR,提升率,所选股平均收益率,整体平均收益率,收益率差,是否改善,阀值下限,阀值百分比\r\n";
 		this.evaluationSummary = sHeader;
 	}
 	
@@ -82,6 +82,7 @@ public class ClassifySummaries {
 		long negative=totalNegativeShouyilv.getN();
 		long totalCount=positive+negative;
 
+		double selected_ratio=0.0;
 		
 		if (selectedCount>0) {
 			selected_TPR=(double)selectedPositive/selectedCount;
@@ -90,13 +91,18 @@ public class ClassifySummaries {
 		if (totalCount>0) {
 			total_TPR=(double)positive/totalCount;
 			totalShouyilv=(totalPositiveShouyilv.getSum()+totalNegativeShouyilv.getSum())/totalCount;
+			selected_ratio=(double)selectedCount/totalCount;
 		}
 		if (total_TPR>0) {
 			tpr_lift=selected_TPR/total_TPR;
 		}
+		
+		
+		
 
 		shouyilv_lift=selectedShouyilv-totalShouyilv;
 
+		System.out.println("*** Overall selected ratio="+FormatUtility.formatPercent(selected_ratio));
 		System.out.println("*** selected count= " + selectedCount + " selected positive: " +selectedPositive + "  selected negative: "+selectedNegative); 
 		System.out.println("*** total    count= "	+ totalCount+ " actual positive: "+ positive + " actual negtive: "+ negative);
 		System.out.println("*** selected TPR= " + FormatUtility.formatPercent(selected_TPR) + " total TPR= " +FormatUtility.formatPercent(total_TPR) + "  lift up= "+FormatUtility.formatDouble(tpr_lift));
@@ -137,7 +143,7 @@ public class ClassifySummaries {
 		System.out.println("Predicting finished!");
 		
 		//输出评估结果字符串
-		//"整体正收益股数,整体股数,整体TPR,所选正收益股数,所选总股数,所选股TPR,提升率,所选股平均收益率,整体平均收益率,收益率差,是否改善\r\n";
+		//"整体正收益股数,整体股数,整体TPR,选股比率,所选正收益股数,所选总股数,所选股TPR,提升率,所选股平均收益率,整体平均收益率,收益率差,是否改善\r\n";
 		StringBuffer evalSummary=new StringBuffer();
 		
 		evalSummary.append(yearSplit);
@@ -149,6 +155,8 @@ public class ClassifySummaries {
 		evalSummary.append(totalCount);
 		evalSummary.append(",");
 		evalSummary.append(FormatUtility.formatPercent(total_TPR));
+		evalSummary.append(",");
+		evalSummary.append(FormatUtility.formatPercent(selected_ratio));
 		evalSummary.append(",");
 		evalSummary.append(selectedPositive);
 		evalSummary.append(",");
@@ -176,7 +184,11 @@ public class ClassifySummaries {
 
 		long selectedCount=selectedNegativeShouyilv.getN();;
 		long totalCount=totalNegativeShouyilv.getN();
-		System.out.println("****** prediction selected count= " + selectedCount+ " while  total count= "+ totalCount); 
+		double selected_ratio=0.0;
+		if (totalCount>0) {
+			selected_ratio=(double)selectedCount/totalCount;
+		}
+		System.out.println("****** prediction selected count= " + selectedCount+ " while  total count= "+ totalCount +". selected ratio="+FormatUtility.formatPercent(selected_ratio)); 
 		this.summary_selected_count.addValue(selectedCount);
 
 		

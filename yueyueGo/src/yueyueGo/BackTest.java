@@ -76,7 +76,7 @@ public class BackTest {
 		splitYear=new String[] {
 //		  "2008","2009","2010","2011","2012","2013","2014","2015","2016"
 //			"201607","201608"
-			"200801","200802","200803","200804","200805","200806","200807","200808","200809","200810","200811","200812","200901","200902","200903","200904","200905","200906","200907","200908","200909","200910","200911","200912","201001","201002","201003","201004","201005","201006","201007","201008","201009","201010","201011","201012","201101","201102","201103","201104","201105","201106","201107","201108","201109","201110","201111","201112","201201","201202","201203","201204","201205","201206","201207","201208","201209","201210","201211","201212","201301","201302","201303","201304","201305","201306","201307","201308","201309","201310","201311","201312","201401","201402","201403","201404","201405","201406","201407","201408","201409","201410","201411","201412","201501","201502","201503","201504","201505","201506","201507","201508","201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607","201608"
+		"200801","200802","200803","200804","200805","200806","200807","200808","200809","200810","200811","200812","200901","200902","200903","200904","200905","200906","200907","200908","200909","200910","200911","200912","201001","201002","201003","201004","201005","201006","201007","201008","201009","201010","201011","201012","201101","201102","201103","201104","201105","201106","201107","201108","201109","201110","201111","201112","201201","201202","201203","201204","201205","201206","201207","201208","201209","201210","201211","201212","201301","201302","201303","201304","201305","201306","201307","201308","201309","201310","201311","201312","201401","201402","201403","201404","201405","201406","201407","201408","201409","201410","201411","201412","201501","201502","201503","201504","201505","201506","201507","201508","201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607","201608"
 		};		
 		
 	}
@@ -121,9 +121,9 @@ public class BackTest {
 		AdaboostClassifier nModel=new AdaboostClassifier();
 
 
-//		Instances nominalResult=testBackward(nModel);
+		Instances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
-		Instances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
+//		Instances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 
 		//按连续分类器回测历史数据
 //		M5PClassifier cModel=new M5PClassifier();
@@ -213,7 +213,7 @@ public class BackTest {
 				String splitTestClause =  getSplitClause(splitTestYearClause, policy);
 				
 				Instances trainingData = null;
-				if (clModel.m_skipTrainInBacktest == false || clModel.m_skipEvalInBacktest==false){ //如果需要训练或评估模型，则取训练数据 
+				if (clModel.m_skipTrainInBacktest == false ){ //如果需要训练模型，则取训练数据 
 					System.out.println("start to split training set from data: "+ splitTrainClause);
 					trainingData=InstanceUtility.getInstancesSubset(fullSetData,splitTrainClause);
 					int trainingDataSize=trainingData.numInstances();
@@ -232,7 +232,7 @@ public class BackTest {
 				}
 
 				Instances evaluationData = null;
-				if (clModel.m_skipEvalInBacktest==false ){//如果需要评估模型，则取评估数据
+				if (clModel.m_skipEvalInBacktest==false || clModel.m_skipTrainInBacktest == false  ){//如果需要评估模型，则取评估数据（训练时缺省要做一次评估）
 					System.out.println("start to split evaluation set from  data: "+ splitEvalClause);
 					evaluationData=InstanceUtility.getInstancesSubset(fullSetData,splitEvalClause);
 					//对于二分类器，这里要把输入的收益率转换为分类变量

@@ -46,16 +46,22 @@ public class ProcessFlowExecutor implements Callable<String> {
 			//初始化回测创建模型时使用的modelStore对象（这里严格按yearsplit和policysplit分割处理）
 			clModel.initModelStore(actualYearSplit,policySplit);
 			model = clModel.trainData(trainingData);
+			
+			//输出模型的confusionMatrix
+			boolean isNominal=false;
+			if (clModel instanceof NominalClassifier){
+				isNominal=true;
+			}
+			ClassifyUtility.getConfusionMatrix(trainingData,evalData, model,isNominal);
 		} 
-		
+		trainingData=null;//释放内存 （不管是不是用到了）		
 		
 		clModel.locateModelStore(actualYearSplit,policySplit);
 		//是否需要重做评估阶段
 		if (clModel.m_skipEvalInBacktest == false) {
 			EvaluationParams evalParams=clModel.getEvaluationInstance(policySplit);
-			clModel.evaluateModel(trainingData,evalData, model,evalParams);
+			clModel.evaluateModel(evalData, model,evalParams);
 		}
-		trainingData=null;//释放内存 （不管是不是用到了）
 		evalData=null;//释放内存 （不管是不是用到了）
 		model=null;//释放model，后面预测时会方法内是会重新加载的。
 		

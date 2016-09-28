@@ -28,7 +28,6 @@ public class BaggingM5PFullModel extends BaggingM5P {
 		
 		leafMinObjNum=1000;
 		divided=EnvConstants.TRAINING_DATA_LIMIT/3000;	
-		adjustThresholdBottom=false; //不用MeanABSError调整threshold
 		bagging_iteration=10;	//bagging特有参数
 		
 		classifierName= ClassifyUtility.BAGGING_M5P_FULLMODEL;

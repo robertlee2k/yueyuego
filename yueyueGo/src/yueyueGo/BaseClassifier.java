@@ -1,12 +1,11 @@
 package yueyueGo;
 
 import java.io.Serializable;
-import java.util.Vector;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import weka.classifiers.Classifier;
-import weka.classifiers.Evaluation;
+import weka.classifiers.evaluation.ThresholdCurve;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
@@ -78,7 +77,7 @@ public abstract class BaseClassifier implements Serializable{
 	//一系列需要子类实现的抽象方法
 	protected abstract void initializeParams();
 	protected abstract Classifier buildModel(Instances trainData) throws Exception;
-	protected abstract Vector<Double> doModelEvaluation(EvaluationBenchmark benchmark ,Instances evalData,Classifier model, EvaluationParams evalParams) throws Exception;
+	protected abstract Instances getROCInstances(Instances evalData, Classifier model) throws Exception; 
 	protected abstract double classify(Classifier model,Instance curr) throws Exception ;
 	
 	//可以在子类中被覆盖
@@ -114,72 +113,160 @@ public abstract class BaseClassifier implements Serializable{
 
 	
 	//评估模型
-	public void evaluateModel(Instances trainData,Instances evalData,Classifier model,EvaluationParams evalParams) throws Exception{
+	public void evaluateModel(Instances evalData,Classifier model,EvaluationParams evalParams) throws Exception{
 		if (model==null){ // 跳过建模直接做评估时，重新加载文件
 			model =m_modelStore.loadModelFromFile();
 			Instances header =m_modelStore.getModelFormat();
-			Instances trainFormat=new Instances(trainData,0);
 			Instances evalFormat=new Instances(evalData,0);
-			//验证原有训练数据格式是否一致
-			String verify=verifyDataFormat(trainFormat, header);
-			if (verify!=null){
-				throw new Exception("attention! model and training data structure is not the same. Here is the difference: "+verify);
-			}			
 			//验证评估数据格式是否一致
-			verify=verifyDataFormat(evalFormat, header);
+			String verify=verifyDataFormat(evalFormat, header);
 			if (verify!=null){
 				throw new Exception("attention! model and evaluation data structure is not the same. Here is the difference: "+verify);
 			}
 		}
 
-		//评估模型
-		EvaluationBenchmark benchmark = getEvaluation(trainData,evalData, model);
-
-		System.out.println("finish evaluating model, try to get best threshold for model...");
-		Vector<Double> v = doModelEvaluation(benchmark,evalData, model, evalParams);
-
-		ThresholdData.saveEvaluationToFile(m_modelStore.getEvalFileName(), v);
-
-	}
-
-	
-	//评估模型，eval_start_portion为0到1的值， 为0时表示利用全部Instances做评估，否则取其相应比例评估
-	protected EvaluationBenchmark getEvaluation(Instances trainData,Instances evalData, Classifier model)
-			throws Exception {
-		Instances evalTrain;
-		Instances evalSamples;
-
-//		if (eval_start_portion==0){ //全样本评估
-		System.out.println("evluation with full incoming dataset, size: "+evalData.numInstances());
-		evalTrain=trainData;
-		evalSamples=evalData;
-//		}else{
-//			int evaluateFrom=new Double(evalData.numInstances()*eval_start_portion).intValue(); //选取开始评估的点。
-//			int evaluateCount=evalData.numInstances()-evaluateFrom;
-//			System.out.println("evluation Sample starts From : " + evaluateFrom+" evaluation sample size: "+evaluateCount);
-//			evalTrain=new Instances(evalData,0,evaluateFrom);  //前部分作为训练样本
-//			evalSamples=new Instances(evalData,evaluateFrom,evaluateCount);  //后部分作为评估样本
-//		}
-			
-		Evaluation eval = new Evaluation(evalTrain);
-		
-		System.out.println("evaluating.....");
-		eval.evaluateModel(model, evalSamples); // evaluate on the training data to get threshold
-		System.out.println(eval.toSummaryString("\nEvaluate Model Results\n\n", true));
+		//评估模型，这里因为直接使用的是Test数据不是Train数据，所以所有的eval数据都不存在
 		boolean isNominal=false;
 		if (this instanceof NominalClassifier){
 			isNominal=true;
-			System.out.println(eval.toMatrixString ("\nEvaluate Confusion Matrix\n\n"));
-			System.out.println(eval.toClassDetailsString("\nEvaluate Class Details\n\n"));
+		}
+		EvaluationBenchmark benchmark=new EvaluationBenchmark(evalData, isNominal);
+		
+		System.out.println("finish evaluating model, try to get best threshold for model...");
+		ThresholdData thresholdData = doModelEvaluation(benchmark,evalData, model, evalParams);
+		ThresholdData.saveEvaluationToFile(m_modelStore.getEvalFileName(), thresholdData);
+
+	}
+	
+	//具体的模型评估方法
+	private ThresholdData doModelEvaluation(EvaluationBenchmark benchmark ,Instances evalData,Classifier model,EvaluationParams evalParams)
+			throws Exception {
+
+		Instances result = getROCInstances(evalData, model);
+		
+		int round=1;
+
+		ThresholdData thresholdData=null;
+		
+		double tp_fp_bottom_line=benchmark.getEval_tp_fp_ratio();  
+		System.out.println("use the tp_fp_bottom_line based on training history data = "+tp_fp_bottom_line);
+		double trying_tp_fp=benchmark.getEval_tp_fp_ratio()*evalParams.getLift_up_target();
+		System.out.println("start from the trying_tp_fp based on training history data = "+trying_tp_fp + " / while  lift up target="+evalParams.getLift_up_target());
+		while (thresholdData == null && trying_tp_fp > tp_fp_bottom_line){
+			thresholdData= computeThresholds(trying_tp_fp,evalParams, result);
+			if (thresholdData!=null){
+				System.out.println(" threshold got at trying round No.: "+round);
+				break;
+			}else {
+				trying_tp_fp=trying_tp_fp*0.95;
+				round++;
+			}
+		}// end while;
+		if (thresholdData==null){  //如果已达到TPFP_BOTTOM_LINE但无法找到合适的阀值
+			thresholdData=computeDefaultThresholds(evalParams,result);//设置下限
+			
 		}
 
-		EvaluationBenchmark benchmark=new EvaluationBenchmark(eval, trainData, evalData, isNominal);
-		return benchmark;
-	}	
+		return thresholdData;
+	}
+	
+	//无法根据liftup获取阀值时，缺省用最小的sampleSize处阀值
+	private ThresholdData computeDefaultThresholds(EvaluationParams evalParams, Instances result){
+		double sample_limit=evalParams.getLower_limit(); 
+		double sampleSize;
+		double threshold=-100;
+		Attribute att_threshold = result.attribute(ThresholdCurve.THRESHOLD_NAME);
+		Attribute att_samplesize = result.attribute(ThresholdCurve.SAMPLE_SIZE_NAME);
+
+		for (int i = 0; i < result.numInstances(); i++) {
+			Instance curr = result.instance(i);
+			sampleSize = curr.value(att_samplesize); // to get sample range
+			if (FormatUtility.compareDouble(sampleSize,sample_limit)==0) {
+				threshold = curr.value(att_threshold);
+				break;
+			}
+		}
+		if (threshold==-100){
+			System.err.println("seems error! cannot get threshold at sample_limit="+sample_limit);
+		}else {
+			System.err.println("got default threshold "+ threshold+" at sample_limit="+sample_limit);
+		}
+		ThresholdData thresholdData=new ThresholdData();
+		thresholdData.setThresholdMin(threshold);
+		double startPercent=100*(1-evalParams.getLower_limit()); //将sampleSize转换为percent
+		thresholdData.setStartPercent(startPercent);
+		//先将模型阀值上限设为100，以后找到合适的算法再计算。
+		thresholdData.setThresholdMax(100);
+		//先将模型end percent设为100，以后找到合适的算法再计算。
+		thresholdData.setEndPercent(100);
+
+		return thresholdData;
+		
+	}
+	
+	//具体的模型阀值计算方法，找不到阀值的时候返回null对象
+	private ThresholdData computeThresholds(double tp_fp_ratio,EvaluationParams evalParams, Instances result) {
+
+		double sample_limit=evalParams.getLower_limit(); 
+		double sample_upper=evalParams.getUpper_limit();
+
+		double thresholdBottom = 0.0;
+		double lift_max = 0.0;
+		double finalSampleSize = 0.0;
+		double sampleSize = 0.0;
+		double tp = 0.0;
+		double fp = 0.0;
+		double final_tp=0.0;
+		double final_fp=0.0;
+		Attribute att_tp = result.attribute(ThresholdCurve.TRUE_POS_NAME);
+		Attribute att_fp = result.attribute(ThresholdCurve.FALSE_NEG_NAME);
+		Attribute att_lift = result.attribute(ThresholdCurve.LIFT_NAME);
+		Attribute att_threshold = result.attribute(ThresholdCurve.THRESHOLD_NAME);
+		Attribute att_samplesize = result.attribute(ThresholdCurve.SAMPLE_SIZE_NAME);
+
+
+		for (int i = 0; i < result.numInstances(); i++) {
+			Instance curr = result.instance(i);
+			sampleSize = curr.value(att_samplesize); // to get sample range
+			if (sampleSize >= sample_limit && sampleSize <=sample_upper) {
+				tp = curr.value(att_tp);
+				fp = curr.value(att_fp);
+				if (tp>fp*tp_fp_ratio ){
+					thresholdBottom = curr.value(att_threshold);
+					finalSampleSize = sampleSize;
+					lift_max=curr.value(att_lift);
+					final_tp=tp;
+					final_fp=fp;
+				}
+			}
+		}
+		ThresholdData thresholdData=null;
+		if (thresholdBottom>0){ //找到阀值时输出并设置对象的值
+			System.out.print("################################################thresholdBottom is : " + FormatUtility.formatDouble(thresholdBottom));
+			System.out.print("/samplesize is : " + FormatUtility.formatPercent(finalSampleSize) );
+			System.out.print("/True Positives is : " + final_tp);
+			System.out.print("/False Positives is : " + final_fp);
+			System.out.println("/lift max is : " + FormatUtility.formatDouble(lift_max));
+			
+			thresholdData=new ThresholdData();
+			thresholdData.setThresholdMin(thresholdBottom);
+			double startPercent=100*(1-finalSampleSize); //将sampleSize转换为percent
+			thresholdData.setStartPercent(startPercent);
+			//先将模型阀值上限设为100，以后找到合适的算法再计算。
+			thresholdData.setThresholdMax(100);
+			//先将模型end percent设为100，以后找到合适的算法再计算。
+			thresholdData.setEndPercent(100);
+
+		}
+
+		return thresholdData;
+	}
+	
+
 
 	//为每日预测用，这时候没有yearSplit （policySplit是存在的）
 	// result parameter will be changed in this method!
-	public void predictData(Instances test, Instances result,String policySplit)		throws Exception {
+	public void predictData(Instances test, Instances result,String policySplit) throws Exception {
 		predictData(test, result,"",policySplit);
 	}
 	
@@ -189,32 +276,12 @@ public abstract class BaseClassifier implements Serializable{
 			throws Exception {
 
 		
-		ThresholdData evalData=new ThresholdData();
-		evalData.loadDataFromFile(m_modelStore.getEvalFileName());
-		
-		evalData=processThresholdData(evalData);
+		ThresholdData evalData=ThresholdData.loadDataFromFile(m_modelStore.getEvalFileName());
 		
 		double thresholdMin=evalData.getThresholdMin();
 		double thresholdMax=evalData.getThresholdMax();
+		double startPercent=evalData.getStartPercent();
 
-		predictWithThresHolds(test, result,thresholdMin, thresholdMax,yearSplit,policySplit);
-
-	}
-
-	/**
-	 * @param test
-	 * @param result
-	 * @param thresholdMin
-	 * @param thresholdMax
-	 * @param thresholdMin_hs300
-	 * @param thresholdMax_hs300
-	 * @return
-	 * @throws Exception
-	 * @throws IllegalStateException
-	 */
-	private void predictWithThresHolds(Instances test, Instances result,
-			double thresholdMin, double thresholdMax, String yearSplit,String policySplit)
-			throws Exception, IllegalStateException {
 		// read classify model and header
 		Classifier model =m_modelStore.loadModelFromFile();
 		Instances header =m_modelStore.getModelFormat();
@@ -310,7 +377,7 @@ public abstract class BaseClassifier implements Serializable{
 			//这是进行历史回测数据时，根据历史收益率数据进行阶段评估
 			classifySummaries.computeClassifySummaries(yearSplit,policySplit,totalPositiveShouyilv,totalNegativeShouyilv,selectedPositiveShouyilv,selectedNegativeShouyilv);
 		}
-		String evalSummary=","+FormatUtility.formatDouble(thresholdMin)+","+FormatUtility.formatDouble(thresholdMax)+"\r\n";  //输出评估结果及所使用阀值上、下限
+		String evalSummary=","+FormatUtility.formatDouble(thresholdMin)+","+FormatUtility.formatPercent(startPercent)+"\r\n";  //输出评估结果及所使用阀值及期望样本百分比
 		classifySummaries.appendEvaluationSummary(evalSummary);
 		
 	}
@@ -353,10 +420,7 @@ public abstract class BaseClassifier implements Serializable{
 	}
 	
 
-	//对于父类来说，do nothing
-	protected ThresholdData processThresholdData(ThresholdData eval){
-		return eval;
-	}
+
 	
 	//缺省返回classifierName，某些子类（比如MultiPCA）可能会返回其他名字，这是为了保存文件时区分不同参数用
 	public String getIdentifyName(){
