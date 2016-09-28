@@ -143,7 +143,7 @@ public abstract class BaseClassifier implements Serializable{
 			throws Exception {
 
 		Instances result = getROCInstances(evalData, model);
-		
+		FileUtility.SaveDataIntoFile(result, this.WORK_PATH+"\\ROCresult.arff");
 		int round=1;
 
 		ThresholdData thresholdData=null;
@@ -386,7 +386,7 @@ public abstract class BaseClassifier implements Serializable{
 		if (isGuessed){
 			defaultThresholdUsed="Y";
 		}
-		String evalSummary=","+FormatUtility.formatDouble(thresholdMin)+","+FormatUtility.formatPercent(startPercent)+","+defaultThresholdUsed+"\r\n";  //输出评估结果及所使用阀值及期望样本百分比
+		String evalSummary=","+FormatUtility.formatDouble(thresholdMin)+","+FormatUtility.formatDouble(startPercent)+","+defaultThresholdUsed+"\r\n";  //输出评估结果及所使用阀值及期望样本百分比
 		classifySummaries.appendEvaluationSummary(evalSummary);
 		
 	}

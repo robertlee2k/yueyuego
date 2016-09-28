@@ -36,7 +36,7 @@ public abstract class NominalClassifier extends BaseClassifier{
 		ThresholdCurve tc = new ThresholdCurve();
 		int classIndex = 1;
 		Instances result = tc.getCurve(predictions, classIndex);
-//		FileUtility.SaveDataIntoFile(result, this.WORK_PATH+"\\ROCresult.arff");
+
 
 		
 		return result;

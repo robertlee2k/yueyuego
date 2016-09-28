@@ -3,9 +3,12 @@ package yueyueGo;
 import java.util.concurrent.Callable;
 
 import weka.classifiers.Classifier;
+import weka.classifiers.Evaluation;
+import weka.classifiers.evaluation.ThresholdCurve;
 import weka.core.Instances;
 import yueyueGo.utility.ClassifyUtility;
 import yueyueGo.utility.EvaluationParams;
+import yueyueGo.utility.FileUtility;
 
 public class ProcessFlowExecutor implements Callable<String> {
 	private BaseClassifier clModel;
@@ -42,6 +45,8 @@ public class ProcessFlowExecutor implements Callable<String> {
 		String actualYearSplit=ClassifyUtility.getLastYearSplit(yearSplit);
 		//是否build model （注意，这里build model的数据已变为当前周期前推一年的数据 如果是2010XX.mdl 则取2009年XX月之前的数据build， 剩下的一年数据做评估用）
 		if (clModel.m_skipTrainInBacktest == false) {
+			
+			
 			System.out.println("start to build model");
 			//初始化回测创建模型时使用的modelStore对象（这里严格按yearsplit和policysplit分割处理）
 			clModel.initModelStore(actualYearSplit,policySplit);
@@ -54,6 +59,15 @@ public class ProcessFlowExecutor implements Callable<String> {
 			}
 			ClassifyUtility.getConfusionMatrix(trainingData,evalData, model,isNominal);
 		} 
+		
+		Evaluation eval = new Evaluation(trainingData);
+		eval.evaluateModel(model, evalData); // evaluate on the sample data to get threshold
+		ThresholdCurve tc = new ThresholdCurve();
+		int classIndex = 1;
+		Instances predictions=tc.getCurve(eval.predictions(), classIndex);
+		FileUtility.SaveDataIntoFile(predictions, clModel.WORK_PATH+"\\ROCresult-withTrain.arff");
+		
+		
 		trainingData=null;//释放内存 （不管是不是用到了）		
 		
 		clModel.locateModelStore(actualYearSplit,policySplit);
