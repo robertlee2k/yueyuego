@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import weka.classifiers.evaluation.NumericPrediction;
 import weka.classifiers.evaluation.Prediction;
-import weka.classifiers.evaluation.ThresholdCurve;
 import weka.classifiers.evaluation.TwoClassStats;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
@@ -12,7 +11,36 @@ import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.Utils;
 
-public class NumericThresholdCurve extends ThresholdCurve {
+public class NumericThresholdCurve {
+	  /** The name of the relation used in threshold curve datasets */
+	  public static final String RELATION_NAME = "ThresholdCurve";
+
+	  /** attribute name: True Positives */
+	  public static final String TRUE_POS_NAME = "True Positives";
+	  /** attribute name: False Negatives */
+	  public static final String FALSE_NEG_NAME = "False Negatives";
+	  /** attribute name: False Positives */
+	  public static final String FALSE_POS_NAME = "False Positives";
+	  /** attribute name: True Negatives */
+	  public static final String TRUE_NEG_NAME = "True Negatives";
+	  /** attribute name: False Positive Rate" */
+	  public static final String FP_RATE_NAME = "False Positive Rate";
+	  /** attribute name: True Positive Rate */
+	  public static final String TP_RATE_NAME = "True Positive Rate";
+	  /** attribute name: Precision */
+	  public static final String PRECISION_NAME = "Precision";
+	  /** attribute name: Recall */
+	  public static final String RECALL_NAME = "Recall";
+	  /** attribute name: Fallout */
+	  public static final String FALLOUT_NAME = "Fallout";
+	  /** attribute name: FMeasure */
+	  public static final String FMEASURE_NAME = "FMeasure";
+	  /** attribute name: Sample Size */
+	  public static final String SAMPLE_SIZE_NAME = "Sample Size";
+	  /** attribute name: Lift */
+	  public static final String LIFT_NAME = "Lift";
+	  /** attribute name: Threshold */
+	  public static final String THRESHOLD_NAME = "Threshold";
 	public Instances getCurve(ArrayList<Prediction> predictions) {
 		return getCurve( predictions, 0);
 	}
