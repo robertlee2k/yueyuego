@@ -240,22 +240,30 @@ public abstract class BaseClassifier implements Serializable{
 			if (sampleSize >= sample_limit && sampleSize <=sample_upper) {
 				tp = curr.value(att_tp);
 				fp = curr.value(att_fp);
+				
+				//统计该范围内lift最大的值是多少（仅为输出用）
+				double current_lift=curr.value(att_lift);
+				if (current_lift>lift_max){
+					lift_max=current_lift;
+				}
+				
+				//查找合适的阀值
 				if (tp>fp*tp_fp_ratio ){
 					thresholdBottom = curr.value(att_threshold);
 					finalSampleSize = sampleSize;
-					lift_max=curr.value(att_lift);
 					final_tp=tp;
 					final_fp=fp;
 				}
 			}
 		}
+		System.out.println("possible lift max in data range is : " + FormatUtility.formatDouble(lift_max));
+		
 		ThresholdData thresholdData=null;
 		if (thresholdBottom>0){ //找到阀值时输出并设置对象的值
-			System.out.print("################################################thresholdBottom is : " + FormatUtility.formatDouble(thresholdBottom));
+			System.out.print("#############################thresholdBottom is : " + FormatUtility.formatDouble(thresholdBottom));
 			System.out.print("/samplesize is : " + FormatUtility.formatPercent(finalSampleSize) );
 			System.out.print("/True Positives is : " + final_tp);
-			System.out.print("/False Positives is : " + final_fp);
-			System.out.println("/lift max is : " + FormatUtility.formatDouble(lift_max));
+			System.out.println("/False Positives is : " + final_fp);
 			
 			thresholdData=new ThresholdData();
 			thresholdData.setThresholdMin(thresholdBottom);
