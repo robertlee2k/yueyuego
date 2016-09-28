@@ -125,14 +125,14 @@ public abstract class BaseClassifier implements Serializable{
 			}
 		}
 
-		//评估模型，这里因为直接使用的是Test数据不是Train数据，所以所有的eval数据都不存在
+		//基于evalData 生成评估模型的基准值
 		boolean isNominal=false;
 		if (this instanceof NominalClassifier){
 			isNominal=true;
 		}
 		EvaluationBenchmark benchmark=new EvaluationBenchmark(evalData, isNominal);
 		
-		System.out.println("finish evaluating model, try to get best threshold for model...");
+		System.out.println(" try to get best threshold for model...");
 		ThresholdData thresholdData = doModelEvaluation(benchmark,evalData, model, evalParams);
 		ThresholdData.saveEvaluationToFile(m_modelStore.getEvalFileName(), thresholdData);
 
@@ -148,7 +148,7 @@ public abstract class BaseClassifier implements Serializable{
 
 		ThresholdData thresholdData=null;
 		
-		double tp_fp_bottom_line=benchmark.getEval_tp_fp_ratio();  
+		double tp_fp_bottom_line=benchmark.getEval_tp_fp_ratio()*0.9;  
 		System.out.println("use the tp_fp_bottom_line based on training history data = "+tp_fp_bottom_line);
 		double trying_tp_fp=benchmark.getEval_tp_fp_ratio()*evalParams.getLift_up_target();
 		System.out.println("start from the trying_tp_fp based on training history data = "+trying_tp_fp + " / while  lift up target="+evalParams.getLift_up_target());
