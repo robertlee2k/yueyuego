@@ -3,7 +3,6 @@ package yueyueGo;
 import java.util.concurrent.Callable;
 
 import weka.classifiers.Classifier;
-import weka.classifiers.Evaluation;
 import weka.core.Instances;
 import yueyueGo.utility.ClassifyUtility;
 import yueyueGo.utility.EvaluationParams;
@@ -56,14 +55,14 @@ public class ProcessFlowExecutor implements Callable<String> {
 			}
 			ClassifyUtility.getConfusionMatrix(trainingData,evalData, model,isNominal);
 		} 
-		Evaluation eval = new Evaluation(trainingData);
+//		Evaluation eval = new Evaluation(trainingData);
 		trainingData=null;//释放内存 （不管是不是用到了）		
 		
 		clModel.locateModelStore(actualYearSplit,policySplit);
 		//是否需要重做评估阶段
 		if (clModel.m_skipEvalInBacktest == false) {
 			EvaluationParams evalParams=clModel.getEvaluationInstance(policySplit);
-			clModel.evaluateModel(eval,evalData, model,evalParams);
+			clModel.evaluateModel(evalData, model,evalParams);
 		}
 		
 		evalData=null;//释放内存 （不管是不是用到了）

@@ -5,7 +5,6 @@ import java.io.Serializable;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import weka.classifiers.Classifier;
-import weka.classifiers.Evaluation;
 import weka.classifiers.evaluation.ThresholdCurve;
 import weka.core.Attribute;
 import weka.core.DenseInstance;
@@ -114,7 +113,7 @@ public abstract class BaseClassifier implements Serializable{
 
 	
 	//评估模型
-	public void evaluateModel(Evaluation eval,Instances evalData,Classifier model,EvaluationParams evalParams) throws Exception{
+	public void evaluateModel(Instances evalData,Classifier model,EvaluationParams evalParams) throws Exception{
 		if (model==null){ // 跳过建模直接做评估时，重新加载文件
 			model =m_modelStore.loadModelFromFile();
 			Instances header =m_modelStore.getModelFormat();
@@ -125,12 +124,12 @@ public abstract class BaseClassifier implements Serializable{
 				throw new Exception("attention! model and evaluation data structure is not the same. Here is the difference: "+verify);
 			}
 		}
-		//TODO
-		eval.evaluateModel(model, evalData); // evaluate on the sample data to get threshold
-		ThresholdCurve tc = new ThresholdCurve();
-		int classIndex = 1;
-		Instances predictions=tc.getCurve(eval.predictions(), classIndex);
-		FileUtility.SaveDataIntoFile(predictions, this.WORK_PATH+"\\ROCresult-withTrain.arff");
+
+//		eval.evaluateModel(model, evalData); // evaluate on the sample data to get threshold
+//		ThresholdCurve tc = new ThresholdCurve();
+//		int classIndex = 1;
+//		Instances predictions=tc.getCurve(eval.predictions(), classIndex);
+//		FileUtility.SaveDataIntoFile(predictions, this.WORK_PATH+"\\ROCresult-withTrain.arff");
 		
 		//基于evalData 生成评估模型的基准值
 		boolean isNominal=false;
