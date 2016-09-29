@@ -5,8 +5,6 @@ import java.util.HashMap;
 import weka.core.Instances;
 import yueyueGo.classifier.AdaboostClassifier;
 import yueyueGo.classifier.BaggingM5P;
-import yueyueGo.classifier.M5PABClassifier;
-import yueyueGo.classifier.MLPABClassifier;
 import yueyueGo.fullModel.ArffFormatFullModel;
 import yueyueGo.fullModel.DBAccessFullModel;
 import yueyueGo.fullModel.classifier.BaggingJ48FullModel;
@@ -66,12 +64,12 @@ public class DailyPredict {
 
 			//BaggingM5P当前使用的预测模型
 			classifierName=ClassifyUtility.BAGGING_M5P;
-			addModelData(classifierName,format,"\\extData2005-2016-baggingM5P-201607 MA ","\\extData2005-2016-baggingM5P-201608 MA ");
-
+//			addModelData(classifierName,format,"\\extData2005-2016-baggingM5P-201607 MA ","\\extData2005-2016-baggingM5P-201608 MA ");
+			addModelData(classifierName,format,"\\extData2005-2016-baggingM5P-201507 MA ","\\extData2005-2016-baggingM5P-201508 MA ");
 			//adaboost当前使用的预测模型
 			classifierName=ClassifyUtility.ADABOOST;
-			addModelData(classifierName,format,"\\extData2005-2016-adaboost-201607 MA ","\\extData2005-2016-adaboost-201608 MA ");
-			
+//			addModelData(classifierName,format,"\\extData2005-2016-adaboost-201607 MA ","\\extData2005-2016-adaboost-201608 MA ");
+			addModelData(classifierName,format,"\\extData2005-2016-adaboost-201507 MA ","\\extData2005-2016-adaboost-201508 MA ");
 			
 		}else if(EnvConstants.FULL_MODEL_ROOT_DIR.equals(type)){
 			// fullmodel不保留legacy
@@ -101,7 +99,7 @@ public class DailyPredict {
 			definePredictModels(EnvConstants.FULL_MODEL_ROOT_DIR);
 			shouyilv_thresholds=new double[] {0.03};
 			winrate_thresholds=new double[] {0.5};
-			callFullModelPredict();
+//			callFullModelPredict();
 
 			//用均线模型预测每日增量数据
 			System.out.println("==================================================");
@@ -130,30 +128,30 @@ public class DailyPredict {
 
 		//用旧的模型预测每日增量数据用于对比
 
-		//旧MLP主成分分析预测
-		MLPABClassifier nABModelLegacy=new MLPABClassifier();
-		nABModelLegacy.setModelArffFormat(ArffFormat.LEGACY_FORMAT);
-		predictWithDB(nABModelLegacy);
-
-		//旧M5P主成分分析预测
-		M5PABClassifier cABModelLegacy=new M5PABClassifier();
-		cABModelLegacy.setModelArffFormat(ArffFormat.LEGACY_FORMAT);
-		predictWithDB(cABModelLegacy);		
-
-		//旧BaggingM5P
-		BaggingM5P cBagModelLegacy=new BaggingM5P();
-		cBagModelLegacy.setModelArffFormat(ArffFormat.LEGACY_FORMAT);
-		predictWithDB(cBagModelLegacy);
-		
-		//旧Adaboost
-		AdaboostClassifier adaModelLegacy=new AdaboostClassifier();
-		adaModelLegacy.setModelArffFormat(ArffFormat.LEGACY_FORMAT);
-		predictWithDB(adaModelLegacy);
-		
-		
-		//新格式的MLP主成分分析预测
-		MLPABClassifier nABModel=new MLPABClassifier();
-		predictWithDB(nABModel);
+//		//旧MLP主成分分析预测
+//		MLPABClassifier nABModelLegacy=new MLPABClassifier();
+//		nABModelLegacy.setModelArffFormat(ArffFormat.LEGACY_FORMAT);
+//		predictWithDB(nABModelLegacy);
+//
+//		//旧M5P主成分分析预测
+//		M5PABClassifier cABModelLegacy=new M5PABClassifier();
+//		cABModelLegacy.setModelArffFormat(ArffFormat.LEGACY_FORMAT);
+//		predictWithDB(cABModelLegacy);		
+//
+//		//旧BaggingM5P
+//		BaggingM5P cBagModelLegacy=new BaggingM5P();
+//		cBagModelLegacy.setModelArffFormat(ArffFormat.LEGACY_FORMAT);
+//		predictWithDB(cBagModelLegacy);
+//		
+//		//旧Adaboost
+//		AdaboostClassifier adaModelLegacy=new AdaboostClassifier();
+//		adaModelLegacy.setModelArffFormat(ArffFormat.LEGACY_FORMAT);
+//		predictWithDB(adaModelLegacy);
+//		
+//		
+//		//新格式的MLP主成分分析预测
+//		MLPABClassifier nABModel=new MLPABClassifier();
+//		predictWithDB(nABModel);
 		
 		//新格式的bagging主成分分析预测
 		BaggingM5P cBagModel=new BaggingM5P();
@@ -163,16 +161,16 @@ public class DailyPredict {
 		AdaboostClassifier adaModel=new AdaboostClassifier();
 		Instances adaboostInstances=predictWithDB(adaModel);		
 
-		System.out.println("***************** now output legacy prediction results************************");
-		nABModelLegacy.outputClassifySummary();
-		nABModelLegacy=null;
-		cABModelLegacy.outputClassifySummary();
-		cABModelLegacy=null;
-		cBagModelLegacy.outputClassifySummary();
-		cBagModelLegacy=null;
-		adaModelLegacy.outputClassifySummary();
-		adaModelLegacy=null;
-		System.out.println("***************** end of output legacy prediction results************************");
+//		System.out.println("***************** now output legacy prediction results************************");
+//		nABModelLegacy.outputClassifySummary();
+//		nABModelLegacy=null;
+//		cABModelLegacy.outputClassifySummary();
+//		cABModelLegacy=null;
+//		cBagModelLegacy.outputClassifySummary();
+//		cBagModelLegacy=null;
+//		adaModelLegacy.outputClassifySummary();
+//		adaModelLegacy=null;
+//		System.out.println("***************** end of output legacy prediction results************************");
 
 		//保留bagging结果
 		FileUtility.saveCSVFile(baggingInstances, PREDICT_RESULT_DIR+cBagModel.getIdentifyName()+"Selected Result"+FormatUtility.getDateStringFor(1)+".csv");	
@@ -180,7 +178,7 @@ public class DailyPredict {
 		FileUtility.saveCSVFile(adaboostInstances, PREDICT_RESULT_DIR+adaModel.getIdentifyName()+"Selected Result"+FormatUtility.getDateStringFor(1)+".csv");	
 
 		System.out.println("***************** now output prediction results************************");
-		nABModel.outputClassifySummary();
+//		nABModel.outputClassifySummary();
 		cBagModel.outputClassifySummary();
 		adaModel.outputClassifySummary();
 		System.out.println("***************** end of output prediction results************************");
