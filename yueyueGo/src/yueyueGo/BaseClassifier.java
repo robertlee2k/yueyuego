@@ -232,7 +232,7 @@ public abstract class BaseClassifier implements Serializable{
 		double final_tp=0.0;
 		double final_fp=0.0;
 		Attribute att_tp = result.attribute(ThresholdCurve.TRUE_POS_NAME);
-		Attribute att_fp = result.attribute(ThresholdCurve.FALSE_NEG_NAME);
+		Attribute att_fp = result.attribute(ThresholdCurve.FALSE_POS_NAME);
 		Attribute att_lift = result.attribute(ThresholdCurve.LIFT_NAME);
 		Attribute att_threshold = result.attribute(ThresholdCurve.THRESHOLD_NAME);
 		Attribute att_samplesize = result.attribute(ThresholdCurve.SAMPLE_SIZE_NAME);
