@@ -32,7 +32,7 @@ public class ProcessFlowExecutor implements Callable<String> {
 	public void doPredictProcess() throws Exception {
 
 		
-		System.out.println("-----------------start for " + yearSplit + "-----------------policy=" + policySplit);
+		System.out.println("----Entering ProcessFlowExecutor for " + yearSplit + "------policy=" + policySplit);
 
 		Classifier model = null;
 		//找到回测创建评估预测时应该使用modelStore对象（主要为获取model文件和eval文件名称）-- 评估时创建的mdl并不是当前年份的，而是前推一年的
