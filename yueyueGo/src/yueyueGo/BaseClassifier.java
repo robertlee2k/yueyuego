@@ -480,7 +480,6 @@ public abstract class BaseClassifier implements Serializable{
 	/**
 	 * Creates a deep copy of the given classifier using serialization.
 	 *
-	 * @param model the classifier to copy
 	 * @return a deep copy of the classifier
 	 * @exception Exception if an error occurs
 	 */
