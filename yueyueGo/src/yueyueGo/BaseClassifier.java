@@ -154,7 +154,7 @@ public abstract class BaseClassifier implements Serializable{
 
 		ThresholdData thresholdData=null;
 		
-		double tp_fp_bottom_line=benchmark.getEval_tp_fp_ratio()*0.9;  
+		double tp_fp_bottom_line=benchmark.getEval_tp_fp_ratio();  
 		System.out.println("use the tp_fp_bottom_line based on training history data = "+tp_fp_bottom_line);
 		double trying_tp_fp=benchmark.getEval_tp_fp_ratio()*evalParams.getLift_up_target();
 		System.out.println("start from the trying_tp_fp based on training history data = "+trying_tp_fp + " / while  lift up target="+evalParams.getLift_up_target());
