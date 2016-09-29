@@ -60,10 +60,10 @@ public class ModelStore {
 			//模型文件按年处理，为特定年份下半年（2016）增加一个模型，提高准确度
 			if (yearMonthSplit.length()==6){
 				convertedYear=yearMonthSplit.substring(0,4);
-				//为特定年份下半年增加一个模型，提高准确度
-				int inputYear=Integer.parseInt(convertedYear);
+				//为下半年增加一个模型，提高准确度
+//				int inputYear=Integer.parseInt(convertedYear);
 				int inputMonth=Integer.parseInt(yearMonthSplit.substring(4,6));
-				if ((inputYear==2016) && inputMonth>=7){
+				if (inputMonth>=7){
 					halfYearString="07";
 				}
 			}else{
