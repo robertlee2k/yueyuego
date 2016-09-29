@@ -116,8 +116,6 @@ public class BackTest {
 		//按二分类器回测历史数据
 		
 		//神经网络
-//		MLPClassifier nModel = new MLPClassifier();
-//		RandomForestClassifier nModel=new RandomForestClassifier ();
 //		BaggingJ48 nModel=new BaggingJ48();
 //		MyNNClassifier nModel=new MyNNClassifier();
 //		MLPABClassifier nModel = new MLPABClassifier();
@@ -129,7 +127,6 @@ public class BackTest {
 //		Instances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 
 		//按连续分类器回测历史数据
-//		M5PClassifier cModel=new M5PClassifier();
 //		M5PABClassifier cModel=new M5PABClassifier();
 		BaggingM5P cModel=new BaggingM5P();
 		

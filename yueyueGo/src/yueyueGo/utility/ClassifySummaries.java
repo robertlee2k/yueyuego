@@ -101,12 +101,11 @@ public class ClassifySummaries {
 		
 
 		shouyilv_lift=selectedShouyilv-totalShouyilv;
-
+		System.out.println("*** Prediction Summary for period " + yearSplit +" policy="+ policySplit);
 		System.out.println("*** Overall selected ratio="+FormatUtility.formatPercent(selected_ratio));
 		System.out.println("*** selected count= " + selectedCount + " selected positive: " +selectedPositive + "  selected negative: "+selectedNegative); 
 		System.out.println("*** total    count= "	+ totalCount+ " actual positive: "+ positive + " actual negtive: "+ negative);
 		System.out.println("*** selected TPR= " + FormatUtility.formatPercent(selected_TPR) + " total TPR= " +FormatUtility.formatPercent(total_TPR) + "  lift up= "+FormatUtility.formatDouble(tpr_lift));
-		
 		System.out.println("*** selected average Shouyilv= " + FormatUtility.formatPercent(selectedShouyilv) + " total average Shouyilv= " +FormatUtility.formatPercent(totalShouyilv)+ "  lift difference= "+FormatUtility.formatPercent(shouyilv_lift) );
 		
 		
@@ -140,7 +139,7 @@ public class ClassifySummaries {
 		this.summary_lift.addValue(tpr_lift);
 		this.summary_selectedShouyilv.addValue(selectedShouyilv);
 		this.summary_totalShouyilv.addValue(totalShouyilv);
-		System.out.println("Predicting finished!");
+		
 		
 		//输出评估结果字符串
 		//"整体正收益股数,整体股数,整体TPR,选股比率,所选正收益股数,所选总股数,所选股TPR,提升率,所选股平均收益率,整体平均收益率,收益率差,是否改善\r\n";

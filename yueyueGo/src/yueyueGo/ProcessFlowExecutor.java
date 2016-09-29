@@ -5,7 +5,6 @@ import java.util.concurrent.Callable;
 import weka.classifiers.Classifier;
 import weka.core.Instances;
 import yueyueGo.utility.ClassifyUtility;
-import yueyueGo.utility.EvaluationParams;
 
 public class ProcessFlowExecutor implements Callable<String> {
 	private BaseClassifier clModel;
@@ -34,8 +33,6 @@ public class ProcessFlowExecutor implements Callable<String> {
 
 		
 		System.out.println("-----------------start for " + yearSplit + "-----------------policy=" + policySplit);
-		
-		
 
 		Classifier model = null;
 		//找到回测创建评估预测时应该使用modelStore对象（主要为获取model文件和eval文件名称）-- 评估时创建的mdl并不是当前年份的，而是前推一年的
@@ -46,7 +43,7 @@ public class ProcessFlowExecutor implements Callable<String> {
 			System.out.println("start to build model");
 			//初始化回测创建模型时使用的modelStore对象（这里严格按yearsplit和policysplit分割处理）
 			clModel.initModelStore(actualYearSplit,policySplit);
-			model = clModel.trainData(trainingData);
+			model=clModel.trainData(trainingData);
 			
 			//输出模型的confusionMatrix
 			boolean isNominal=false;
@@ -56,21 +53,22 @@ public class ProcessFlowExecutor implements Callable<String> {
 			ClassifyUtility.getConfusionMatrix(trainingData,evalData, model,isNominal);
 		} 
 //		Evaluation eval = new Evaluation(trainingData);
-		trainingData=null;//释放内存 （不管是不是用到了）		
+		trainingData=null;//释放内存 （不管是不是用到了）
+		model=null; //释放内存
 		
+		//获取评估和预测用的模型及阀值数据
 		clModel.locateModelStore(actualYearSplit,policySplit);
 		//是否需要重做评估阶段
 		if (clModel.m_skipEvalInBacktest == false) {
-			EvaluationParams evalParams=clModel.getEvaluationInstance(policySplit);
-			clModel.evaluateModel(evalData, model,evalParams);
+			clModel.evaluateModel(evalData, policySplit);
 		}
 		
 		evalData=null;//释放内存 （不管是不是用到了）
-		model=null;//释放model，后面预测时会方法内是会重新加载的。
+		
 		
 		clModel.predictData(testingData, result,yearSplit,policySplit);
 		testingData=null;//释放内存
-		System.out.println("complete for time " + yearSplit +" policy="+ policySplit);
+		
 		
 		//清除相应的内部内存
 		clModel.cleanUp();

@@ -113,17 +113,18 @@ public abstract class BaseClassifier implements Serializable{
 
 	
 	//评估模型
-	public void evaluateModel(Instances evalData,Classifier model,EvaluationParams evalParams) throws Exception{
-		if (model==null){ // 跳过建模直接做评估时，重新加载文件
-			model =m_modelStore.loadModelFromFile();
-			Instances header =m_modelStore.getModelFormat();
-			Instances evalFormat=new Instances(evalData,0);
-			//验证评估数据格式是否一致
-			String verify=verifyDataFormat(evalFormat, header);
-			if (verify!=null){
-				throw new Exception("attention! model and evaluation data structure is not the same. Here is the difference: "+verify);
-			}
+	public void evaluateModel(Instances evalData,String policySplit) throws Exception{
+
+		
+		Classifier model =m_modelStore.loadModelFromFile();
+		Instances header =m_modelStore.getModelFormat();
+		Instances evalFormat=new Instances(evalData,0);
+		//验证评估数据格式是否一致
+		String verify=verifyDataFormat(evalFormat, header);
+		if (verify!=null){
+			throw new Exception("attention! model and evaluation data structure is not the same. Here is the difference: "+verify);
 		}
+		
 
 //		eval.evaluateModel(model, evalData); // evaluate on the sample data to get threshold
 //		ThresholdCurve tc = new ThresholdCurve();
@@ -139,6 +140,7 @@ public abstract class BaseClassifier implements Serializable{
 		EvaluationBenchmark benchmark=new EvaluationBenchmark(evalData, isNominal);
 		
 		System.out.println(" try to get best threshold for model...");
+		EvaluationParams evalParams=getEvaluationInstance(policySplit);
 		ThresholdData thresholdData = doModelEvaluation(benchmark,evalData, model, evalParams);
 		ThresholdData.saveEvaluationToFile(m_modelStore.getEvalFileName(), thresholdData);
 
@@ -286,8 +288,8 @@ public abstract class BaseClassifier implements Serializable{
 			if (lift_max_fp>0){
 				max_tp_fp_ratio=lift_max_tp/lift_max_fp;
 			}
-			System.out.println("######possible lift max in range is : " + FormatUtility.formatDouble(lift_max) + "@ sample="+FormatUtility.formatDouble(lift_max_sample)+" where tp="+lift_max_tp+" /fp="+lift_max_fp);
-			System.out.println("###### max tp fp ratio="+max_tp_fp_ratio+ " while trying threshold="+tp_fp_ratio+ " isNormal="+(max_tp_fp_ratio<tp_fp_ratio));
+			System.out.println("###possible lift max in range is : " + FormatUtility.formatDouble(lift_max) + "@ sample="+FormatUtility.formatDouble(lift_max_sample)+" where tp="+lift_max_tp+" /fp="+lift_max_fp);
+			System.out.println("### max tp fp ratio="+max_tp_fp_ratio+ " while trying threshold="+tp_fp_ratio+ " isNormal="+(max_tp_fp_ratio<tp_fp_ratio));
 		}
 
 		return thresholdData;
@@ -416,7 +418,6 @@ public abstract class BaseClassifier implements Serializable{
 		}
 		String evalSummary=","+FormatUtility.formatDouble(thresholdMin)+","+FormatUtility.formatDouble(startPercent)+","+defaultThresholdUsed+"\r\n";  //输出评估结果及所使用阀值及期望样本百分比
 		classifySummaries.appendEvaluationSummary(evalSummary);
-		
 	}
 
 	// 对于连续分类器， 收益率就是classvalue，缺省直接返回， 对于nominal分类器，调用子类的方法获取暂存的收益率
