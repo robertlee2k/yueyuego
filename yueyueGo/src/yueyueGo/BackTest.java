@@ -30,8 +30,8 @@ import java.util.concurrent.TimeUnit;
 
 import weka.core.Attribute;
 import weka.core.Instances;
-import yueyueGo.classifier.AdaboostClassifier;
 import yueyueGo.classifier.BaggingM5P;
+import yueyueGo.classifier.MyNNClassifier;
 import yueyueGo.utility.AppContext;
 import yueyueGo.utility.BlockedThreadPoolExecutor;
 import yueyueGo.utility.ClassifySummaries;
@@ -122,9 +122,9 @@ public class BackTest {
 		
 		//神经网络
 //		BaggingJ48 nModel=new BaggingJ48();
-//		MyNNClassifier nModel=new MyNNClassifier();
+		MyNNClassifier nModel=new MyNNClassifier();
 //		MLPABClassifier nModel = new MLPABClassifier();
-		AdaboostClassifier nModel=new AdaboostClassifier();
+//		AdaboostClassifier nModel=new AdaboostClassifier();
 
 
 		Instances nominalResult=testBackward(nModel);
@@ -177,12 +177,16 @@ public class BackTest {
 		ThreadPoolExecutor threadPool = null;
         Vector<Instances> threadResult=null;
 
-		// 对于自带多线程实现的model，不再另外多线程。 如果定义的线程数小于1 ，也不要多线程
-		if ( clModel instanceof ParrallelizedRunning || RUNNING_THREADS<=1 ){ //
-			//do nothing 不初始化
-		}else { //需要多线程并发
-        	threadPool=BlockedThreadPoolExecutor.newFixedThreadPool(this.RUNNING_THREADS);
-        	threadResult=new Vector<Instances>();
+		// 按下面的逻辑创建线程池
+		if ( RUNNING_THREADS>1 ){ 
+			int threadPoolSize=0;
+			if (clModel instanceof ParrallelizedRunning){//模型内部有多线程，将外部线程进行系数转换
+				threadPoolSize=((ParrallelizedRunning) clModel).recommendRunningThreads(RUNNING_THREADS);
+			}else { //算法本身没有多线程，按原计划进行并发
+				threadPoolSize=RUNNING_THREADS;
+			}
+			threadPool=BlockedThreadPoolExecutor.newFixedThreadPool(threadPoolSize);
+			threadResult=new Vector<Instances>();
         }
 
 		
