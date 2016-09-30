@@ -50,7 +50,7 @@ public class BaggingGaussian extends ContinousClassifier implements Parrallelize
 		model.setNumDecimalPlaces(6);
 
 		if (useMultiPCA==true){
-			int bagging_samplePercent=70;//bagging sample 取样率
+			int bagging_samplePercent=80;//bagging sample 取样率
 			return ClassifyUtility.buildBaggingWithMultiPCA(train,model,bagging_iteration,bagging_samplePercent);
 		}else{
 			int bagging_samplePercent=100;// PrePCA算袋外误差时要求percent都为100
