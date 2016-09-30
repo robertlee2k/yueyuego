@@ -2,7 +2,7 @@ package yueyueGo.classifier;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.functions.GaussianProcesses;
-import weka.classifiers.functions.supportVector.CachedKernel;
+import weka.classifiers.functions.supportVector.PolyKernel;
 import weka.core.Instances;
 import yueyueGo.ContinousClassifier;
 import yueyueGo.ModelStore;
@@ -29,7 +29,7 @@ public class BaggingGaussian extends ContinousClassifier implements Parrallelize
 		classifierName=ClassifyUtility.BAGGING_GAUSSIAN;	
 		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
 		m_modelEvalFileShareMode=ModelStore.YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
-		bagging_iteration=6;	//bagging特有参数
+		bagging_iteration=10;	//bagging特有参数
 		divided=1000; //将trainingData分成多少份
 		
 		m_noCaculationAttrib=false; //添加计算字段!
@@ -43,7 +43,9 @@ public class BaggingGaussian extends ContinousClassifier implements Parrallelize
 	protected Classifier buildModel(Instances train) throws Exception {
 		
 		GaussianProcesses model=new GaussianProcesses();
-		((CachedKernel)model.getKernel()).setCacheSize(250007);
+		PolyKernel polyKernel=(PolyKernel)model.getKernel();
+		polyKernel.setCacheSize(250007);
+		model.setKernel(polyKernel);
 		int count=train.numInstances()/divided;
 		String batchSize=Integer.toString(count);
 		model.setBatchSize(batchSize);
