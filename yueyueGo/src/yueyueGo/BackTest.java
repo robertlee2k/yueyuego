@@ -279,16 +279,6 @@ public class BackTest {
 				}				
 
 				if (threadPool!=null){ //需要多线程并发
-					//如果线程池已满，等待一下
-					int waitCount=0;
-					do {    
-						//阻塞等待，直到有空余线程  ，虽然getActiveCount只是给大概的值，但因为只有主进程分发任务，这还是可以信赖的。
-						Thread.sleep(2000);
-						waitCount++;
-						if (waitCount%30==0){
-							System.out.println("waited for idle thread for seconds: "+ waitCount*2);
-						}
-					} while(threadPool.getActiveCount()==threadPool.getMaximumPoolSize());  
 
 					//多线程的时候clone一个clModel执行任务，当前的Model继续走下去。
 					ClassifySummaries commonSummaries=clModel.getClassifySummaries();
@@ -306,6 +296,16 @@ public class BackTest {
 					//将线程放入池中进行执行
 					threadPool.submit(t);
 
+					//如果线程池已满，等待一下
+					int waitCount=0;
+					do {    
+						//阻塞等待，直到有空余线程  ，虽然getActiveCount只是给大概的值，但因为只有主进程分发任务，这还是可以信赖的。
+						Thread.sleep(2000);
+						waitCount++;
+						if (waitCount%30==0){
+							System.out.println("waited for idle thread for seconds: "+ waitCount*2);
+						}
+					} while(threadPool.getActiveCount()==threadPool.getMaximumPoolSize());  
 					
 				}else{
 
