@@ -2,6 +2,7 @@ package yueyueGo.classifier;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.functions.GaussianProcesses;
+import weka.classifiers.functions.supportVector.CachedKernel;
 import weka.core.Instances;
 import yueyueGo.ContinousClassifier;
 import yueyueGo.ModelStore;
@@ -42,6 +43,7 @@ public class BaggingGaussian extends ContinousClassifier implements Parrallelize
 	protected Classifier buildModel(Instances train) throws Exception {
 		
 		GaussianProcesses model=new GaussianProcesses();
+		((CachedKernel)model.getKernel()).setCacheSize(250007);
 		int count=train.numInstances()/divided;
 		String batchSize=Integer.toString(count);
 		model.setBatchSize(batchSize);
