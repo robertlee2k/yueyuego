@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 import weka.core.Attribute;
 import weka.core.Instances;
 import yueyueGo.classifier.AdaboostClassifier;
-import yueyueGo.classifier.BaggingDecisionStump;
+import yueyueGo.classifier.BaggingGaussian;
 import yueyueGo.utility.AppContext;
 import yueyueGo.utility.BlockedThreadPoolExecutor;
 import yueyueGo.utility.ClassifySummaries;
@@ -133,7 +133,7 @@ public class BackTest {
 
 		//按连续分类器回测历史数据
 //		BaggingM5P cModel=new BaggingM5P();
-		BaggingDecisionStump cModel=new BaggingDecisionStump();
+		BaggingGaussian cModel=new BaggingGaussian();
 		
 		Instances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载

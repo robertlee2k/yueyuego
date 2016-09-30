@@ -1,13 +1,13 @@
 package yueyueGo.classifier;
 
 import weka.classifiers.Classifier;
-import weka.classifiers.trees.DecisionStump;
+import weka.classifiers.functions.GaussianProcesses;
 import weka.core.Instances;
 import yueyueGo.ContinousClassifier;
 import yueyueGo.ModelStore;
 import yueyueGo.utility.ClassifyUtility;
 
-public class BaggingDecisionStump extends ContinousClassifier {
+public class BaggingGaussian extends ContinousClassifier {
 
 	/**
 	 * 
@@ -24,7 +24,7 @@ public class BaggingDecisionStump extends ContinousClassifier {
 		m_skipTrainInBacktest = false;
 		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
-		classifierName=ClassifyUtility.BAGGING_DECISION_STUMP;	
+		classifierName=ClassifyUtility.BAGGING_GAUSSIAN;	
 		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
 		m_modelEvalFileShareMode=ModelStore.YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 		bagging_iteration=10;	//bagging特有参数
@@ -39,9 +39,8 @@ public class BaggingDecisionStump extends ContinousClassifier {
 
 	@Override
 	protected Classifier buildModel(Instances train) throws Exception {
-		//设置基础的m5p classifier参数
 		
-		DecisionStump model=new DecisionStump();
+		GaussianProcesses model=new GaussianProcesses();
 		int count=train.numInstances()/divided;
 		String batchSize=Integer.toString(count);
 		model.setBatchSize(batchSize);
@@ -72,8 +71,8 @@ public class BaggingDecisionStump extends ContinousClassifier {
 	public int recommendRunningThreads(int runningThreads){
 		int recommendThreads=0; 
 		if (runningThreads>1){ //如果外部调用者是多线程运行
-			if (this.m_skipTrainInBacktest==false){ //如果要重新构建模型，外部线程折4
-				recommendThreads=runningThreads/4;
+			if (this.m_skipTrainInBacktest==false){ //如果要重新构建模型，外部线程
+				recommendThreads=2;
 			}else if (this.m_skipEvalInBacktest==false){ //如果不需要构建模型，但需要重新评估模型，那将并发数折半
 				recommendThreads=runningThreads/2;
 			}else{ //如果只需要回测，简单减一后返回。
