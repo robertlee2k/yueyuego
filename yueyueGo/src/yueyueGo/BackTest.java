@@ -187,6 +187,7 @@ public class BackTest {
 			}
 			threadPool=BlockedThreadPoolExecutor.newFixedThreadPool(threadPoolSize);
 			threadResult=new Vector<Instances>();
+			System.out.println("####Thread Pool Created , size="+threadPoolSize);
         }
 
 		
