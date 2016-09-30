@@ -29,8 +29,8 @@ public class BaggingGaussian extends ContinousClassifier implements Parrallelize
 		classifierName=ClassifyUtility.BAGGING_GAUSSIAN;	
 		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
 		m_modelEvalFileShareMode=ModelStore.YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
-		bagging_iteration=5;	//bagging特有参数
-		divided=300; //将trainingData分成多少份
+		bagging_iteration=6;	//bagging特有参数
+		divided=1000; //将trainingData分成多少份
 		
 		m_noCaculationAttrib=false; //添加计算字段!
 
@@ -50,7 +50,7 @@ public class BaggingGaussian extends ContinousClassifier implements Parrallelize
 		model.setNumDecimalPlaces(6);
 
 		if (useMultiPCA==true){
-			int bagging_samplePercent=80;//bagging sample 取样率
+			int bagging_samplePercent=70;//bagging sample 取样率
 			return ClassifyUtility.buildBaggingWithMultiPCA(train,model,bagging_iteration,bagging_samplePercent);
 		}else{
 			int bagging_samplePercent=100;// PrePCA算袋外误差时要求percent都为100
