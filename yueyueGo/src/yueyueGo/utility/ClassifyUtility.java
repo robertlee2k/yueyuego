@@ -18,10 +18,14 @@ public class ClassifyUtility {
 	public static final String BAGGING_M5P="baggingM5P";
 	public static final String ADABOOST="adaboost";
 	public static final String MYNN_MLP="myNNAB"; //名字有AB但实际上没有做PCA
+	public static final String BAGGING_DECISION_STUMP="BaggingDecisionStump";
+	
+	
 	public static final String MYNN_MLP_FULLMODEL="myNNFullModel";
 	public static final String BAGGING_M5P_FULLMODEL="BaggingM5PABFullModel";
 	public static final String BAGGING_J48_FULLMODEL="BaggingJ48ABFullModel";
 	public static final String ADABOOST_FULLMODEL="adaboostFullModel";
+	
 
 		//设置M5P的相关参数
 	public static M5P prepareM5P(int trainDataCount,int minNumObj,int divide){
