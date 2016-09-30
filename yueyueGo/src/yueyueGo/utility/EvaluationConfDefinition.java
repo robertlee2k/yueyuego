@@ -24,18 +24,18 @@ public class EvaluationConfDefinition implements Serializable{
 //			LIFT_UP_TARGET = new double[] { 1.8, 1.7, 1.5, 1.2, 1}; //选择样本阀值时TP FP RATIO到了何种值就可以提前停止了。
 			SAMPLE_LOWER_LIMIT =new double[] { 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限
 			SAMPLE_UPPER_LIMIT =new double[] { 0.2, 0.2, 0.2, 0.2, 0.2 }; // 各条均线选择样本的上限
-			LIFT_UP_TARGET=new double[] { 1.5, 1.5, 1.5, 1.5, 1.5};//选择样本阀值时TP FP RATIO从何开始, 这个没必要做成数组了
+			LIFT_UP_TARGET=new double[] { 1.8, 1.8, 1.8, 1.8, 1.8};//选择样本阀值时TP FP RATIO从何开始, 这个没必要做成数组了
 		}else if (classifierName.equals(ClassifyUtility.BAGGING_GAUSSIAN)){
 			SAMPLE_LOWER_LIMIT =new double[] { 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限
 			SAMPLE_UPPER_LIMIT =new double[] { 0.2, 0.2, 0.2, 0.2, 0.2 }; // 各条均线选择样本的上限
-			LIFT_UP_TARGET=new double[] { 1.5, 1.5, 1.5, 1.5, 1.5};//选择样本阀值时TP FP RATIO从何开始, 这个没必要做成数组了
+			LIFT_UP_TARGET=new double[] { 1.8, 1.8, 1.8, 1.8, 1.8};//选择样本阀值时TP FP RATIO从何开始, 这个没必要做成数组了
 		}else if (classifierName.equals(ClassifyUtility.M5PAB)) {
 //			SAMPLE_LOWER_LIMIT = new double[]{ 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限 
 //			SAMPLE_UPPER_LIMIT = new double[]  { 0.06, 0.07, 0.1, 0.11, 0.12 };
 //			LIFT_UP_TARGET = new double[] { 1.8, 1.7, 1.5, 1.2, 1}; //选择样本阀值时TP FP RATIO到了何种值就可以提前停止了。
 			SAMPLE_LOWER_LIMIT =new double[] { 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限
 			SAMPLE_UPPER_LIMIT =new double[] { 0.2, 0.2, 0.2, 0.2, 0.2 }; // 各条均线选择样本的上限
-			LIFT_UP_TARGET=new double[] { 1.5, 1.5, 1.5, 1.5, 1.5};//选择样本阀值时TP FP RATIO从何开始, 这个没必要做成数组了
+			LIFT_UP_TARGET=new double[] { 1.8, 1.8, 1.8, 1.8, 1.8};//选择样本阀值时TP FP RATIO从何开始, 这个没必要做成数组了
 		}else if (classifierName.equals(ClassifyUtility.MLPAB)) {
 			SAMPLE_LOWER_LIMIT =new double[] { 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限
 			SAMPLE_UPPER_LIMIT =new double[] { 0.2, 0.2, 0.2, 0.2, 0.2 }; // 各条均线选择样本的上限
