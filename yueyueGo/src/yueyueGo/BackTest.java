@@ -176,19 +176,23 @@ public class BackTest {
 		 //创建一个可重用固定线程数的线程池
 		ThreadPoolExecutor threadPool = null;
         Vector<Instances> threadResult=null;
-
+        int threadPoolSize=0;
+        
 		// 按下面的逻辑创建线程池
 		if ( RUNNING_THREADS>1 ){ 
-			int threadPoolSize=0;
 			if (clModel instanceof ParrallelizedRunning){//模型内部有多线程，将外部线程进行系数转换
 				threadPoolSize=((ParrallelizedRunning) clModel).recommendRunningThreads(RUNNING_THREADS);
 			}else { //算法本身没有多线程，按原计划进行并发
 				threadPoolSize=RUNNING_THREADS;
 			}
+        }
+		if (threadPoolSize>1){
 			threadPool=BlockedThreadPoolExecutor.newFixedThreadPool(threadPoolSize);
 			threadResult=new Vector<Instances>();
 			System.out.println("####Thread Pool Created , size="+threadPoolSize);
-        }
+		}else{
+			System.out.println("####Thread Pool will not be used");
+		}
 
 		
 		// 别把数据文件里的ID变成Nominal的，否则读出来的ID就变成相对偏移量了
