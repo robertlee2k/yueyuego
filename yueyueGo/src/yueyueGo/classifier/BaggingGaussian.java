@@ -72,7 +72,7 @@ public class BaggingGaussian extends ContinousClassifier {
 		int recommendThreads=0; 
 		if (runningThreads>1){ //如果外部调用者是多线程运行
 			if (this.m_skipTrainInBacktest==false){ //如果要重新构建模型，外部线程
-				recommendThreads=1;
+				recommendThreads=2;
 			}else if (this.m_skipEvalInBacktest==false){ //如果不需要构建模型，但需要重新评估模型，那将并发数折半
 				recommendThreads=runningThreads/2;
 			}else{ //如果只需要回测，简单减一后返回。
