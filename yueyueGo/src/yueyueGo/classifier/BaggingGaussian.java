@@ -1,12 +1,12 @@
 package yueyueGo.classifier;
 
 import weka.classifiers.Classifier;
-import weka.classifiers.functions.GaussianProcesses;
 import weka.classifiers.functions.supportVector.PolyKernel;
 import weka.core.Instances;
 import yueyueGo.ContinousClassifier;
 import yueyueGo.ModelStore;
 import yueyueGo.ParrallelizedRunning;
+import yueyueGo.misc.MyGaussianClassifier;
 import yueyueGo.utility.ClassifyUtility;
 
 public class BaggingGaussian extends ContinousClassifier implements ParrallelizedRunning {
@@ -42,7 +42,7 @@ public class BaggingGaussian extends ContinousClassifier implements Parrallelize
 	@Override
 	protected Classifier buildModel(Instances train) throws Exception {
 		
-		GaussianProcesses model=new GaussianProcesses();
+		MyGaussianClassifier model=new MyGaussianClassifier();
 		PolyKernel polyKernel=(PolyKernel)model.getKernel();
 		polyKernel.setCacheSize(250007);
 		model.setKernel(polyKernel);
