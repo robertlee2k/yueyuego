@@ -26,7 +26,7 @@ public class BackTestFullModel extends BackTest {
 		AppContext.createContext(C_ROOT_DIRECTORY);	
 		BACKTEST_RESULT_DIR=AppContext.getBACKTEST_RESULT_DIR();
 		
-		RUNNING_THREADS=10;
+		RUNNING_THREADS=1;
 		
 		shouyilv_thresholds=new double[] {0.02};
 		winrate_thresholds=new double[] {0.5};
