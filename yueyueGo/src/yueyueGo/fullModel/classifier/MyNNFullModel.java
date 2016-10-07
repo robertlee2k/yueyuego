@@ -9,6 +9,17 @@ import yueyueGo.fullModel.ArffFormatFullModel;
 import yueyueGo.utility.ClassifyUtility;
 import ext.WekaNeuralNetwork;
 
+//===============================output summary===================================== for : myNNFullModel
+//Monthly selected_TPR mean: 48.60% standard deviation=34.52% Skewness=-0.05 Kurtosis=-1.36
+//Monthly selected_LIFT mean : 0.96
+//Monthly selected_positive summary: 76,570
+//Monthly selected_count summary: 150,888
+//Monthly selected_shouyilv average: 1.26% standard deviation=7.22% Skewness=1.77 Kurtosis=10.92
+//Monthly total_shouyilv average: 0.31% standard deviation=2.86% Skewness=-0.5 Kurtosis=1.45
+//mixed selected positive rate: 50.75%
+//Monthly summary_judge_result summary: good number= 57 bad number=47
+//===============================end of summary=====================================for : myNNFullModel
+
 public class MyNNFullModel extends MyNNClassifier {
 	/**
 	 * 
@@ -20,7 +31,7 @@ public class MyNNFullModel extends MyNNClassifier {
 	protected void initializeParams() {
 
 		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = false;
+		m_skipEvalInBacktest = true;
 		m_policySubGroup = new String[]{"" };
 		modelArffFormat=ArffFormatFullModel.FULLMODEL_FORMAT; //这个模型缺省是为FULLMODEL用的格式
 		

@@ -13,6 +13,10 @@ import yueyueGo.utility.ClassifyUtility;
 //selected shouyilv average for full market =1.58% count=145281
 //selected shouyilv average for hs300 =0.98% count=12875
 //selected shouyilv average for zz500 =1.10% count=32436
+
+
+
+
 public class BaggingM5PFullModel extends BaggingM5P {
 	 
 	/**
@@ -21,7 +25,7 @@ public class BaggingM5PFullModel extends BaggingM5P {
 	private static final long serialVersionUID = 8505755558382340493L;
 	@Override
 	protected void initializeParams() {
-		m_skipTrainInBacktest = true;
+		m_skipTrainInBacktest = false;
 		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{""};
 		modelArffFormat=ArffFormatFullModel.FULLMODEL_FORMAT; //这个模型缺省是为FULLMODEL用的格式
