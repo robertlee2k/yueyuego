@@ -5,8 +5,8 @@ import weka.classifiers.meta.AdaBoostM1;
 import weka.classifiers.trees.J48;
 import weka.core.Instances;
 import yueyueGo.ModelStore;
-import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.NominalClassifier;
+import yueyueGo.misc.MyAttributionSelectorWithPCA;
 import yueyueGo.utility.ClassifyUtility;
 
 //1.  20160912结果
@@ -81,7 +81,7 @@ public class AdaboostClassifier extends NominalClassifier {
 	protected void initializeParams() {
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = false;
+		m_skipEvalInBacktest = true;
 		
 		classifierName=ClassifyUtility.ADABOOST;
 //		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");

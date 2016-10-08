@@ -39,22 +39,22 @@ public class DailyPredict {
 			//=========================LEGACY FORMAT 部分========================
 			format=ArffFormat.LEGACY_FORMAT;
 
-			//经过主成分分析后的数据模型---
-			//M5PAB旧格式预测模型
-			classifierName=ClassifyUtility.M5PAB;
-			addModelData(classifierName,format,"\\extData2005-2016-m5pAB-201607 MA ","\\extData2005-2016-m5pAB-201607 MA ");
+//			//经过主成分分析后的数据模型---
+//			//M5PAB旧格式预测模型
+//			classifierName=ClassifyUtility.M5PAB;
+//			addModelData(classifierName,format,"\\extData2005-2016-m5pAB-201607 MA ","\\extData2005-2016-m5pAB-201607 MA ");
 
 			//MLPAB旧格式预测模型
 			classifierName=ClassifyUtility.MLPAB;
 			addModelData(classifierName,format,"\\extData2005-2016-mlpAB-2016 MA ","\\extData2005-2016-mlpAB-2016 MA ");
 
-			//BaggingM5P旧格式预测模型
-			classifierName=ClassifyUtility.BAGGING_M5P;
-			addModelData(classifierName,format,"\\extData2005-2016-baggingM5P-201606 MA ","\\extData2005-2016-baggingM5P-201607 MA ");
-
-			//adaboost旧格式预测模型
-			classifierName=ClassifyUtility.ADABOOST;
-			addModelData(classifierName,format,"\\extData2005-2016-adaboost-201606 MA ","\\extData2005-2016-adaboost-201606 MA ");
+//			//BaggingM5P旧格式预测模型
+//			classifierName=ClassifyUtility.BAGGING_M5P;
+//			addModelData(classifierName,format,"\\extData2005-2016-baggingM5P-201606 MA ","\\extData2005-2016-baggingM5P-201607 MA ");
+//
+//			//adaboost旧格式预测模型
+//			classifierName=ClassifyUtility.ADABOOST;
+//			addModelData(classifierName,format,"\\extData2005-2016-adaboost-201606 MA ","\\extData2005-2016-adaboost-201606 MA ");
 			
 			//=========================EXT FORMAT 部分========================
 			format=ArffFormat.EXT_FORMAT;			

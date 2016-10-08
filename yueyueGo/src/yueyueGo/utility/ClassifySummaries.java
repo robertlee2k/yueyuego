@@ -62,11 +62,7 @@ public class ClassifySummaries {
 			setEvaluationSummaryHeader();
 		}
 	}	
-	//用于评估单次分类的效果。 对于回测来说，评估的规则有以下几条：
-	//1. 市场牛市时（量化定义为total_TPR>0.5)， 应保持绝对胜率（selected_TPR>0.5）且选择足够多的机会， 以20单元格5均线为例。单月机会(selectedCount）应该大于2*20/5
-	//2. 市场小牛市时（量化定义为total_TPR介于0.33与0.5之间)， 应提升胜率（final_lift>1），且保持机会， 以20单元格5均线为例。单月机会(selectedCount）应该大于20/5
-	//3. 市场小熊市时（量化定义为total_TPR介于0.2到0.33之间)，  应提升绝对胜率（selected_TPR>0.33）或 选择少于半仓 selectedCount小于20/4/2
-	//3. 市场小熊市时（量化定义为total_TPR<0.2)，  应提升绝对胜率（selected_TPR>0.33）或 选择少于2成仓 selectedCount小于20/4/5
+
 	public void computeClassifySummaries(String yearSplit, String policySplit,DescriptiveStatistics totalPositiveShouyilv,DescriptiveStatistics totalNegativeShouyilv,DescriptiveStatistics selectedPositiveShouyilv,DescriptiveStatistics selectedNegativeShouyilv) {
 		
 		double selected_TPR=0;
@@ -109,23 +105,8 @@ public class ClassifySummaries {
 		System.out.println("*** selected average Shouyilv= " + FormatUtility.formatPercent(selectedShouyilv) + " total average Shouyilv= " +FormatUtility.formatPercent(totalShouyilv)+ "  lift difference= "+FormatUtility.formatPercent(shouyilv_lift) );
 		
 		
-		int resultJudgement=0;
-		
-		// 评估收益率是否有提升是按照选择平均收益率*可买入机会数 是否大于总体平均收益率*20（按20单元格单均线情况计算）
-		long buyableCount=0;
-		if (selectedCount>20){
-			buyableCount=20;
-		}else {
-			buyableCount=selectedCount;
-		}
-		
-		//评估此次成功与否
-		if (selectedShouyilv*buyableCount>=totalShouyilv*20)
-			resultJudgement=1;
-		else 
-			resultJudgement=0;
-
-		System.out.println("*** evaluation result for this period :"+resultJudgement);
+		int resultJudgement = judgeResult(selectedShouyilv, totalShouyilv,
+				selectedCount);
 		
 		
 		this.summary_judge_result.addValue(resultJudgement);
@@ -176,6 +157,38 @@ public class ClassifySummaries {
 		appendEvaluationSummary(evalSummary.toString());
 		
 		
+	}
+
+	/**
+	 * @param selectedShouyilv
+	 * @param totalShouyilv
+	 * @param selectedCount
+	 * 	用于评估单次分类的效果。 对于回测来说，评估的规则有以下几条：
+		1. 市场牛市时（量化定义为total_TPR>0.5)， 应保持绝对胜率（selected_TPR>0.5）且选择足够多的机会， 以20单元格5均线为例。单月机会(selectedCount）应该大于2*20/5
+		2. 市场小牛市时（量化定义为total_TPR介于0.33与0.5之间)， 应提升胜率（final_lift>1），且保持机会， 以20单元格5均线为例。单月机会(selectedCount）应该大于20/5
+		3. 市场小熊市时（量化定义为total_TPR介于0.2到0.33之间)，  应提升绝对胜率（selected_TPR>0.33）或 选择少于半仓 selectedCount小于20/4/2
+		4. 市场大熊市时（量化定义为total_TPR<0.2)，  应提升绝对胜率（selected_TPR>0.33）或 选择少于2成仓 selectedCount小于20/4/5
+	 * @return
+	 */
+	private int judgeResult(double selectedShouyilv, double totalShouyilv,	long selectedCount) {
+		int resultJudgement=0;
+		
+		// 评估收益率是否有提升是按照选择平均收益率*可买入机会数 是否大于总体平均收益率*20（按20单元格单均线情况计算）
+		long buyableCount=0;
+		if (selectedCount>20){
+			buyableCount=20;
+		}else {
+			buyableCount=selectedCount;
+		}
+		
+		//评估此次成功与否
+		if (selectedShouyilv*buyableCount>=totalShouyilv*20)
+			resultJudgement=1;
+		else 
+			resultJudgement=0;
+
+		System.out.println("*** evaluation result for this period :"+resultJudgement);
+		return resultJudgement;
 	}
 	
 	//每日预测时，因为没有收益率数据，不做评估，仅作存储

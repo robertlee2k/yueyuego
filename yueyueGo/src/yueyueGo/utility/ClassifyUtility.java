@@ -7,7 +7,7 @@ import weka.classifiers.trees.J48;
 import weka.classifiers.trees.M5P;
 import weka.core.Instances;
 import yueyueGo.EnvConstants;
-import yueyueGo.MyAttributionSelectorWithPCA;
+import yueyueGo.misc.MyAttributionSelectorWithPCA;
 
 // 设置一些基础分类器属性的方法组
 public class ClassifyUtility {
@@ -18,7 +18,7 @@ public class ClassifyUtility {
 	public static final String BAGGING_M5P="baggingM5P";
 	public static final String ADABOOST="adaboost";
 	public static final String MYNN_MLP="myNNAB"; //名字有AB但实际上没有做PCA
-	public static final String BAGGING_GAUSSIAN="BaggingGaussian";
+	public static final String BAGGING_LINEAR_REGRESSION="BaggingLinearRegression";
 	
 	
 	public static final String MYNN_MLP_FULLMODEL="myNNFullModel";

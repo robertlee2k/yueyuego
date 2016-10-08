@@ -1,15 +1,15 @@
 package yueyueGo.classifier;
 
 import weka.classifiers.Classifier;
-import weka.classifiers.functions.supportVector.PolyKernel;
+import weka.classifiers.functions.LinearRegression;
 import weka.core.Instances;
+import weka.core.SelectedTag;
 import yueyueGo.ContinousClassifier;
 import yueyueGo.ModelStore;
 import yueyueGo.ParrallelizedRunning;
-import yueyueGo.misc.MyGaussianClassifier;
 import yueyueGo.utility.ClassifyUtility;
 
-public class BaggingGaussian extends ContinousClassifier implements ParrallelizedRunning {
+public class BaggingLinearRegression extends ContinousClassifier implements ParrallelizedRunning {
 
 	/**
 	 * 
@@ -26,11 +26,11 @@ public class BaggingGaussian extends ContinousClassifier implements Parrallelize
 		m_skipTrainInBacktest = false;
 		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
-		classifierName=ClassifyUtility.BAGGING_GAUSSIAN;	
+		classifierName=ClassifyUtility.BAGGING_LINEAR_REGRESSION;	
 		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
 		m_modelEvalFileShareMode=ModelStore.YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
-		bagging_iteration=3;	//bagging特有参数
-		divided=1000; //将trainingData分成多少份
+		bagging_iteration=10;	//bagging特有参数
+		divided=300; //将trainingData分成多少份
 		
 		m_noCaculationAttrib=false; //添加计算字段!
 
@@ -42,14 +42,13 @@ public class BaggingGaussian extends ContinousClassifier implements Parrallelize
 	@Override
 	protected Classifier buildModel(Instances train) throws Exception {
 		
-		MyGaussianClassifier model=new MyGaussianClassifier();
-		PolyKernel polyKernel=(PolyKernel)model.getKernel();
-		polyKernel.setCacheSize(250007);
-		model.setKernel(polyKernel);
+		LinearRegression model=new LinearRegression();
 		int count=train.numInstances()/divided;
 		String batchSize=Integer.toString(count);
 		model.setBatchSize(batchSize);
 		model.setNumDecimalPlaces(6);
+		model.setAttributeSelectionMethod(new SelectedTag(LinearRegression.SELECTION_GREEDY, LinearRegression.TAGS_SELECTION));
+		model.setDebug(true);
 
 		if (useMultiPCA==true){
 			int bagging_samplePercent=80;//bagging sample 取样率

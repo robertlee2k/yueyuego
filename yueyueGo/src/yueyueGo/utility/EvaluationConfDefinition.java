@@ -25,7 +25,7 @@ public class EvaluationConfDefinition implements Serializable{
 			SAMPLE_LOWER_LIMIT =new double[] { 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限
 			SAMPLE_UPPER_LIMIT =new double[] { 0.2, 0.2, 0.2, 0.2, 0.2 }; // 各条均线选择样本的上限
 			LIFT_UP_TARGET=new double[] { 1.8, 1.8, 1.8, 1.8, 1.8};//选择样本阀值时TP FP RATIO从何开始, 这个没必要做成数组了
-		}else if (classifierName.equals(ClassifyUtility.BAGGING_GAUSSIAN)){
+		}else if (classifierName.equals(ClassifyUtility.BAGGING_LINEAR_REGRESSION)){
 			SAMPLE_LOWER_LIMIT =new double[] { 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限
 			SAMPLE_UPPER_LIMIT =new double[] { 0.2, 0.2, 0.2, 0.2, 0.2 }; // 各条均线选择样本的上限
 			LIFT_UP_TARGET=new double[] { 1.8, 1.8, 1.8, 1.8, 1.8};//选择样本阀值时TP FP RATIO从何开始, 这个没必要做成数组了
