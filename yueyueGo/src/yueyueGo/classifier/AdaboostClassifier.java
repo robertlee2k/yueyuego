@@ -5,8 +5,8 @@ import weka.classifiers.meta.AdaBoostM1;
 import weka.classifiers.trees.J48;
 import weka.core.Instances;
 import yueyueGo.ModelStore;
+import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.NominalClassifier;
-import yueyueGo.misc.MyAttributionSelectorWithPCA;
 import yueyueGo.utility.ClassifyUtility;
 
 //1.  20160912结果

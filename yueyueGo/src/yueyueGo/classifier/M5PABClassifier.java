@@ -7,7 +7,7 @@ import weka.classifiers.trees.M5P;
 import weka.core.Instances;
 import yueyueGo.ContinousClassifier;
 import yueyueGo.ModelStore;
-import yueyueGo.misc.MyAttributionSelectorWithPCA;
+import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.utility.ClassifyUtility;
 
 

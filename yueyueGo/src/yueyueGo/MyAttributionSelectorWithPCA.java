@@ -1,4 +1,4 @@
-package yueyueGo.misc;
+package yueyueGo;
 
 import weka.attributeSelection.Ranker;
 import weka.classifiers.meta.AttributeSelectedClassifier;

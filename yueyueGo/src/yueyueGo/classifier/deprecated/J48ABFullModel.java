@@ -4,9 +4,9 @@ import weka.classifiers.Classifier;
 import weka.classifiers.trees.J48;
 import weka.core.Instances;
 import yueyueGo.ModelStore;
+import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.NominalClassifier;
 import yueyueGo.fullModel.ArffFormatFullModel;
-import yueyueGo.misc.MyAttributionSelectorWithPCA;
 import yueyueGo.utility.ClassifyUtility;
 @Deprecated
 public class J48ABFullModel extends NominalClassifier {

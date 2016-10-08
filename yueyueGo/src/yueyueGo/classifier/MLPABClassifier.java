@@ -3,8 +3,8 @@ import weka.classifiers.Classifier;
 import weka.classifiers.functions.MultilayerPerceptron;
 import weka.core.Instances;
 import yueyueGo.ModelStore;
+import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.NominalClassifier;
-import yueyueGo.misc.MyAttributionSelectorWithPCA;
 import yueyueGo.utility.ClassifyUtility;
 
 
