@@ -87,7 +87,7 @@ public class ClassifyUtility {
 			threads=factor*2;
 		}
 		
-		System.out.println("caculation threads number="+threads + " while factor="+factor );
+		System.out.println("###caculation threads number="+threads + " while factor="+factor );
 		int executionSlots=(int)threads;
 	    if (executionSlots>bagging_iteration){ //无须超过iteration个数
 	    	executionSlots=bagging_iteration;
