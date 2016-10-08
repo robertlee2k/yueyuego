@@ -105,6 +105,19 @@ public class ClassifyUtility {
 		
 	}
 
+	//直接bagging不使用PCA
+	public static Classifier buildBaggingWithoutPCA(Instances train,Classifier model,int bagging_iteration, int bagging_samplePercent) throws Exception {
+		
+	
+		Bagging bagger=createBaggingRunner(train.numInstances(), train.numAttributes(),bagging_iteration,bagging_samplePercent);
+	    
+	    bagger.setClassifier(model);
+	    bagger.setCalcOutOfBag(false); //不计算袋外误差
+	    bagger.buildClassifier(train);
+		return bagger;
+	}
+	
+	
 	//bagging 内的每个模型自己有单独的PCA
 	public static Classifier buildBaggingWithMultiPCA(Instances train,Classifier model,int bagging_iteration, int bagging_samplePercent) throws Exception {
 		
