@@ -16,7 +16,7 @@ public class BaggingLinearRegression extends ContinousClassifier implements Parr
 	 */
 	private static final long serialVersionUID = 4124135341808054675L;
 
-	protected boolean useMultiPCA;
+//	protected boolean useMultiPCA;
 	protected int bagging_iteration;
 	protected int divided;
 	
@@ -48,7 +48,8 @@ public class BaggingLinearRegression extends ContinousClassifier implements Parr
 		model.setBatchSize(batchSize);
 		model.setNumDecimalPlaces(6);
 		model.setAttributeSelectionMethod(new SelectedTag(LinearRegression.SELECTION_M5, LinearRegression.TAGS_SELECTION));
-		model.setDebug(true);
+		model.setDebug(false);
+		
 		
 		int bagging_samplePercent=70;//bagging sample 取样率
 		return ClassifyUtility.buildBaggingWithoutPCA(train,model,bagging_iteration,bagging_samplePercent);
@@ -62,17 +63,17 @@ public class BaggingLinearRegression extends ContinousClassifier implements Parr
 //		}
 	}
 	
-	@Override
-	public String getIdentifyName(){
-		String idenString;
-		if (useMultiPCA==true){
-			idenString =classifierName+ClassifyUtility.MULTI_PCA_SURFIX;
-		}else{
-			idenString =classifierName+"-singlePCA";
-		}
-
-		return idenString;
-	}
+//	@Override
+//	public String getIdentifyName(){
+//		String idenString;
+//		if (useMultiPCA==true){
+//			idenString =classifierName+ClassifyUtility.MULTI_PCA_SURFIX;
+//		}else{
+//			idenString =classifierName+"-singlePCA";
+//		}
+//
+//		return idenString;
+//	}
 	
 	//	将外部的并发线程根据算法内并发的计算强度折算出新的建议值
 	public int recommendRunningThreads(int runningThreads){
