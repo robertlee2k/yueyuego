@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 import weka.core.Attribute;
 import weka.core.Instances;
 import yueyueGo.classifier.AdaboostClassifier;
-import yueyueGo.classifier.BaggingLinearRegression;
+import yueyueGo.classifier.BaggingM5P;
 import yueyueGo.utility.AppContext;
 import yueyueGo.utility.BlockedThreadPoolExecutor;
 import yueyueGo.utility.ClassifySummaries;
@@ -75,11 +75,11 @@ public class BackTest {
 		
 		splitYear=new String[] {
 		//为年度模型使用
-		  "2008","2009","2010","2011","2012","2013","2014","2015","2016",
+//		  "2008","2009","2010","2011","2012","2013","2014","2015","2016",
 		//为半年度模型使用		
 //		"200807","200907","201007","201107","201207","201307","201407","201507","201607"
 		//为月度模型使用		
-//		"200801","200802","200803","200804","200805","200806","200807","200808","200809","200810","200811","200812","200901","200902","200903","200904","200905","200906","200907","200908","200909","200910","200911","200912","201001","201002","201003","201004","201005","201006","201007","201008","201009","201010","201011","201012","201101","201102","201103","201104","201105","201106","201107","201108","201109","201110","201111","201112","201201","201202","201203","201204","201205","201206","201207","201208","201209","201210","201211","201212","201301","201302","201303","201304","201305","201306","201307","201308","201309","201310","201311","201312","201401","201402","201403","201404","201405","201406","201407","201408","201409","201410","201411","201412","201501","201502","201503","201504","201505","201506","201507","201508","201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607","201608"
+		"200801","200802","200803","200804","200805","200806","200807","200808","200809","200810","200811","200812","200901","200902","200903","200904","200905","200906","200907","200908","200909","200910","200911","200912","201001","201002","201003","201004","201005","201006","201007","201008","201009","201010","201011","201012","201101","201102","201103","201104","201105","201106","201107","201108","201109","201110","201111","201112","201201","201202","201203","201204","201205","201206","201207","201208","201209","201210","201211","201212","201301","201302","201303","201304","201305","201306","201307","201308","201309","201310","201311","201312","201401","201402","201403","201404","201405","201406","201407","201408","201409","201410","201411","201412","201501","201502","201503","201504","201505","201506","201507","201508","201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607","201608"
 		//生成预测使用模型		
 //		"201607"	
 		//生成预测所用的模型		
@@ -127,13 +127,13 @@ public class BackTest {
 		AdaboostClassifier nModel=new AdaboostClassifier();
 
 
-//		Instances nominalResult=testBackward(nModel);
+		Instances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
-		Instances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
+//		Instances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 
 		//按连续分类器回测历史数据
-//		BaggingM5P cModel=new BaggingM5P();
-		BaggingLinearRegression cModel=new BaggingLinearRegression();
+		BaggingM5P cModel=new BaggingM5P();
+//		BaggingLinearRegression cModel=new BaggingLinearRegression();
 
 		Instances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
@@ -221,10 +221,10 @@ public class BackTest {
 				if (result == null) {// initialize result instances
 					result = prepareResultInstances(clModel, fullSetData);
 				}
-			
-				String splitTrainClause = getSplitClause(splitTrainYearClause,policy);
-				String splitEvalClause =  getSplitClause(splitEvalYearClause,policy);;
-				String splitTestClause =  getSplitClause(splitTestYearClause, policy);
+				int policyIndex=InstanceUtility.findATTPosition(fullSetData, ArffFormat.SELECTED_AVG_LINE);
+				String splitTrainClause = getSplitClause(policyIndex,splitTrainYearClause,policy);
+				String splitEvalClause =  getSplitClause(policyIndex,splitEvalYearClause,policy);;
+				String splitTestClause =  getSplitClause(policyIndex,splitTestYearClause, policy);
 				
 				Instances trainingData = null;
 				if (clModel.m_skipTrainInBacktest == false ){ //如果需要训练模型，则取训练数据 
@@ -366,7 +366,8 @@ public class BackTest {
 		Instances result;
 		Instances header = new Instances(fullSetData, 0);
 		// 去除不必要的字段，保留ID（第1），均线策略（第3）、bias5（第4）、收益率（最后一列）、增加预测值、是否被选择。
-		result = InstanceUtility.removeAttribs(header, ArffFormat.YEAR_MONTH_INDEX + ",5-"
+		int removeFromIndex=InstanceUtility.findATTPosition(fullSetData, ArffFormat.BIAS5)+1;
+		result = InstanceUtility.removeAttribs(header, ArffFormat.YEAR_MONTH_INDEX + ","+removeFromIndex+"-"
 				+ (header.numAttributes() - 1));
 		if (clModel instanceof NominalClassifier ){
 			result = InstanceUtility.AddAttribute(result, ArffFormat.RESULT_PREDICTED_WIN_RATE,
@@ -378,6 +379,7 @@ public class BackTest {
 		result = InstanceUtility.AddAttribute(result, ArffFormat.RESULT_SELECTED,
 				result.numAttributes());
 		return result;
+		
 	}
 
 	/**
@@ -443,10 +445,9 @@ public class BackTest {
 	 * @param policy
 	 * @return
 	 */
-	protected String getSplitClause(String splitYearClause,	String policy) {
+	protected String getSplitClause(int policyIndex,String splitYearClause,	String policy) {
 		String splitClause;
-		//TODO ATT3 should be processed more gracefully
-		splitClause = splitYearClause + " and (ATT3 is '"	+ policy + "')";
+		splitClause = splitYearClause + " and (ATT"+policyIndex+" is '"	+ policy + "')";
 		return splitClause;
 	}
 

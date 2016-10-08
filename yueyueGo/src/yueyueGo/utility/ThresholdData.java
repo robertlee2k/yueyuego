@@ -34,12 +34,12 @@ public class ThresholdData implements Serializable{
 //		System.out.println("Classifier Threshold Loaded From: "+ evalFileName);
 //
 //		thresholdMin = ((Double) v_threshold.get(0)).doubleValue();
-//		//TODO 是否真的要设置上限需要评估8888
+//		// 是否真的要设置上限需要评估8888
 //		thresholdMax = ((Double) v_threshold.get(1)).doubleValue();
 //		System.out.println("full market thresholding value：between "	+ thresholdMin + " , "+ thresholdMax);
 //		try{
 //			startPercent = ((Double) v_threshold.get(2)).doubleValue();
-//			//TODO 是否真的要设置上限需要评估8888
+//			// 是否真的要设置上限需要评估8888
 //			endPercent = ((Double) v_threshold.get(3)).doubleValue();
 //			System.out.println("full market percentile value：between "	+ startPercent + " , "+ endPercent);
 //
@@ -47,7 +47,7 @@ public class ThresholdData implements Serializable{
 //			//		thresholdMax_hs300=-1;
 //			//		if (seperate_classify_HS300==true){
 //			//			thresholdMin_hs300=((Double) v_threshold.get(2)).doubleValue();
-//			//			//TODO 是否真的要设置上限需要评估
+//			//			// 是否真的要设置上限需要评估
 //			//			thresholdMax_hs300=((Double) v_threshold.get(3)).doubleValue();
 //			//			System.out.println("HS300 index thresholding value：between "	+ thresholdMin_hs300 + " , "+ thresholdMax_hs300);
 //			//		}

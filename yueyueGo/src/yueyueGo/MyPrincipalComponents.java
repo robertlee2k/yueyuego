@@ -496,7 +496,7 @@ import weka.filters.unsupervised.attribute.Standardize;
 	    
 	    System.out.println("now entering buildAttributeConstructor, trainData size="+data.numInstances()+" @address data="+data.hashCode()+" this instance="+this.hashCode());
 	    
-	    //TODO: modified by libo on 20160818
+	    // modified by libo on 20160818 to save memory
 	    m_trainInstances = data;//new Instances(data);
 	    
 	    // make a copy of the training data so that we can get the class

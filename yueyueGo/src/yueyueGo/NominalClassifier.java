@@ -78,7 +78,7 @@ public abstract class NominalClassifier extends BaseClassifier{
 //		
 //		Vector<Double> v = new Vector<Double>();
 //		v.add(new Double(thresholdBottom));
-//		//TODO 先将模型阀值上限设为1，以后找到合适的算法再计算。
+//		
 //		double thresholdTop=1; 
 //		v.add(new Double(thresholdTop));
 //		v.add(new Double(startPercent));
@@ -152,7 +152,7 @@ public abstract class NominalClassifier extends BaseClassifier{
 ////				tpr = curr.value(att_tpr);
 ////				fpr = curr.value(att_fpr);
 //				if (tp>fp*tp_fp_ratio ){
-////					TODO 试了求TPR-FPR的最大值(tpr-fpr)，效果差不多，先恢复原始的
+////					试了求TPR-FPR的最大值(tpr-fpr)，效果差不多，先恢复原始的
 ////					if (tp-fp > final_deviation ) {
 //					thresholdBottom = curr.value(att_threshold);
 //					finalSampleSize = sampleSize;

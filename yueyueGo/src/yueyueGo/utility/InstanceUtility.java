@@ -215,7 +215,6 @@ public class InstanceUtility {
 					if (index != -1) {
 						copyTo.setValue(copyToAtt, index);
 					}else{
-						//TODO 临时解决申万指数code会冒出来0的问题。
 						if ("0".equals(label) && "sw_zhishu_code".equals(copyFromAttName)){
 							System.err.println("sw_zhishu_code is 0, leave it as blank"+ " current ID ="+copyFrom.value(0));
 						}else{

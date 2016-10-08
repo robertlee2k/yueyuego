@@ -70,7 +70,7 @@ public class ModelStore {
 				convertedYear=yearMonthSplit;
 			}
 			modelFile=concatModeFilenameString(convertedYear+halfYearString, policySplit, workFileFullPrefix, classifierName);
-			//TODO 这里可以判断一下这个文件是否存在，不存在的情况下可以直接使用YEAR_SHARED_MODEL模式
+
 			break;
 		
 		case YEAR_SHARED_MODEL_AND_EVAL:	

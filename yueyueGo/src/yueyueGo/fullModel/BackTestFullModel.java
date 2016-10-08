@@ -7,7 +7,6 @@ import yueyueGo.ArffFormat;
 import yueyueGo.BackTest;
 import yueyueGo.BaseClassifier;
 import yueyueGo.EnvConstants;
-import yueyueGo.NominalClassifier;
 import yueyueGo.fullModel.classifier.BaggingM5PFullModel;
 import yueyueGo.fullModel.classifier.MyNNFullModel;
 import yueyueGo.utility.AppContext;
@@ -115,36 +114,11 @@ public class BackTestFullModel extends BackTest {
 	 * @param policy
 	 * @return
 	 */
-	protected String getSplitClause(String splitYearClause,	String policy) {
+	protected String getSplitClause(int policyIndex,String splitYearClause,	String policy) {
 		return splitYearClause;
 	}
 	
-	/**
-	 * 子类覆盖
-	 * @param clModel
-	 * @param fullSetData
-	 * @return
-	 * @throws Exception
-	 */
-	protected Instances prepareResultInstances(BaseClassifier clModel,
-			Instances fullSetData) throws Exception {
-		Instances result;
-		Instances header = new Instances(fullSetData, 0);
-		// 去除不必要的字段，保留ID（第1），bias5（第3）、收益率（最后一列）、增加预测值、是否被选择。
-		//TODO
-		result = InstanceUtility.removeAttribs(header, ArffFormat.YEAR_MONTH_INDEX + ",4-"
-				+ (header.numAttributes() - 1));
-		if (clModel instanceof NominalClassifier ){
-			result = InstanceUtility.AddAttribute(result, ArffFormat.RESULT_PREDICTED_WIN_RATE,
-					result.numAttributes());
-		}else{
-			result = InstanceUtility.AddAttribute(result, ArffFormat.RESULT_PREDICTED_PROFIT,
-					result.numAttributes());
-		}
-		result = InstanceUtility.AddAttribute(result, ArffFormat.RESULT_SELECTED,
-				result.numAttributes());
-		return result;
-	}
+	
 
 	/**
 	 * 子类覆盖

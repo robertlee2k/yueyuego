@@ -198,17 +198,5 @@ public class MLPABClassifier extends NominalClassifier {
 
 		return classifier;
 	}
-	
-//	@Override
-//	//此类可以在子类中被覆盖（通过把yearsplit的值做处理，实现临时指定模型）
-//	public void locateModelStore(String yearSplit,String policySplit) {
-//		int modelShareMode=this.m_modelEvalFileShareMode;
-//		
-//		//TODO 临时增加一个8月的模型
-//		if ("201608".equals(yearSplit)){
-//			modelShareMode=ModelStore.SEPERATE_MODEL_AND_EVAL;
-//		}
-//		ModelStore modelStore=new ModelStore(yearSplit,policySplit,this.WORK_PATH+this.WORK_FILE_PREFIX, this.classifierName,modelShareMode);
-//		m_modelStore=modelStore;
-//	}
+
 }

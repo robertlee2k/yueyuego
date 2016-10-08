@@ -76,11 +76,11 @@ public class DailyPredict {
 			format=ArffFormatFullModel.FULLMODEL_FORMAT;
 			//BaggingM5PFullModel当前使用的预测模型---------FullMODEL
 			classifierName=ClassifyUtility.BAGGING_M5P_FULLMODEL;
-			addModelData(classifierName,format,"\\extData2005-2016-BaggingM5PABFullModel-201606 MA ", "\\extData2005-2016-BaggingM5PABFullModel-201607 MA ");
+			addModelData(classifierName,format,"\\extData2005-2016-BaggingM5PABFullModel-201507 MA ", "\\extData2005-2016-BaggingM5PABFullModel-201508 MA ");
 
 			//BaggingJ48FullModel当前使用的预测模型---------FullMODEL
-			classifierName=ClassifyUtility.BAGGING_J48_FULLMODEL;
-			addModelData(classifierName,format,"\\extData2005-2016-BaggingJ48ABFullModel-201606 MA ", "\\extData2005-2016-BaggingJ48ABFullModel-201607 MA ");
+			classifierName=ClassifyUtility.MYNN_MLP_FULLMODEL;
+			addModelData(classifierName,format,"\\extData2005-2016-myNNFullModel-201507 MA ", "\\extData2005-2016-myNNFullModel-201508 MA ");
 		}
 	}
 
@@ -99,7 +99,7 @@ public class DailyPredict {
 			definePredictModels(EnvConstants.FULL_MODEL_ROOT_DIR);
 			shouyilv_thresholds=new double[] {0.03};
 			winrate_thresholds=new double[] {0.5};
-//			callFullModelPredict();
+			callFullModelPredict();
 
 			//用均线模型预测每日增量数据
 			System.out.println("==================================================");
