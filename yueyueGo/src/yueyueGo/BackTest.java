@@ -122,8 +122,8 @@ public class BackTest {
 		
 		//神经网络
 //		BaggingJ48 nModel=new BaggingJ48();
-//		MyNNClassifier nModel=new MyNNClassifier();
 //		MLPABClassifier nModel = new MLPABClassifier();
+//		MyNNClassifier nModel=new MyNNClassifier(); //需要重新build 20161008
 		AdaboostClassifier nModel=new AdaboostClassifier();
 
 
