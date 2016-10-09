@@ -51,7 +51,7 @@ public class BaggingLinearRegression extends ContinousClassifier implements Parr
 		model.setDebug(false);
 		
 		
-		int bagging_samplePercent=80;//bagging sample 取样率
+		int bagging_samplePercent=70;//bagging sample 取样率
 		return ClassifyUtility.buildBaggingWithoutPCA(train,model,bagging_iteration,bagging_samplePercent);
 		
 //		if (useMultiPCA==true){
