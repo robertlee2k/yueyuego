@@ -48,7 +48,7 @@ public class BaggingLinearRegression extends ContinousClassifier implements Parr
 		model.setBatchSize(batchSize);
 		model.setNumDecimalPlaces(6);
 		model.setAttributeSelectionMethod(new SelectedTag(LinearRegression.SELECTION_GREEDY, LinearRegression.TAGS_SELECTION));
-		model.setDebug(true);
+		model.setDebug(false);
 		
 		
 		int bagging_samplePercent=80;//bagging sample 取样率
