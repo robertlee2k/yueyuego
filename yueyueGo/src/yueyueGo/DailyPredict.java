@@ -7,8 +7,8 @@ import yueyueGo.classifier.AdaboostClassifier;
 import yueyueGo.classifier.BaggingM5P;
 import yueyueGo.fullModel.ArffFormatFullModel;
 import yueyueGo.fullModel.DBAccessFullModel;
-import yueyueGo.fullModel.classifier.BaggingJ48FullModel;
 import yueyueGo.fullModel.classifier.BaggingM5PFullModel;
+import yueyueGo.fullModel.classifier.MyNNFullModel;
 import yueyueGo.utility.AppContext;
 import yueyueGo.utility.ClassifySummaries;
 import yueyueGo.utility.ClassifyUtility;
@@ -208,24 +208,25 @@ public class DailyPredict {
 	private static void callFullModelPredict() throws Exception {
 
 		//BaggingM5P
-		BaggingM5PFullModel cBagModel=new BaggingM5PFullModel();
-		Instances cBagInstances=predictWithDB(cBagModel);		
+		BaggingM5PFullModel cFullModel=new BaggingM5PFullModel();
+		Instances cInstances=predictWithDB(cFullModel);		
 
 		//BaggingJ48
-		BaggingJ48FullModel nBagModel=new BaggingJ48FullModel();
-		Instances nBagInstances=predictWithDB(nBagModel);		
+//		BaggingJ48FullModel nFullModel=new BaggingJ48FullModel();
+		MyNNFullModel nFullModel= new MyNNFullModel(); 
+		Instances nInstances=predictWithDB(nFullModel);		
 
-		cBagModel.outputClassifySummary();
-		nBagModel.outputClassifySummary();
+		cFullModel.outputClassifySummary();
+		nFullModel.outputClassifySummary();
 
 		//合并baggingJ48和baggingM5P
-		System.out.println("-----now output combined predictions----------"+cBagModel.getIdentifyName());
-		Instances left=FileUtility.loadDataFromFile(getLeftArffFileName(cBagModel)); //获取刚生成的左侧文件（主要存了CODE）
+		System.out.println("-----now output combined predictions----------"+cFullModel.getIdentifyName());
+		Instances left=FileUtility.loadDataFromFile(getLeftArffFileName(cFullModel)); //获取刚生成的左侧文件（主要存了CODE）
 
 		MergeClassifyResults merge=new MergeClassifyResults(shouyilv_thresholds, winrate_thresholds);
-		Instances mergedOutput=merge.mergeResults(cBagInstances,nBagInstances,ArffFormat.RESULT_PREDICTED_WIN_RATE,left);
+		Instances mergedOutput=merge.mergeResults(cInstances,nInstances,ArffFormat.RESULT_PREDICTED_WIN_RATE,left);
 		mergedOutput=InstanceUtility.removeAttribs(mergedOutput, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
-		FileUtility.saveCSVFile(mergedOutput, PREDICT_RESULT_DIR+ "FullModel Selected Result-"+cBagModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv");
+		FileUtility.saveCSVFile(mergedOutput, PREDICT_RESULT_DIR+ "FullModel Selected Result-"+cFullModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv");
 
 	}
 
@@ -311,7 +312,7 @@ public class DailyPredict {
 
 		for (int j = 0; j < clModel.m_policySubGroup.length; j++) {
 
-			System.out.println("start to load data for " + ArffFormat.SELECTED_AVG_LINE+"  : "	+ clModel.m_policySubGroup[j]);
+			System.out.println("start to load data for " + clModel.m_policySubGroup[j]+"  : "	+ clModel.m_policySubGroup[j]);
 			String expression=null;
 			if (maIndex>0){// 均线策略
 				expression=InstanceUtility.WEKA_ATT_PREFIX+ maIndex+" is '"+ clModel.m_policySubGroup[j] + "'";

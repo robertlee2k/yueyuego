@@ -204,7 +204,7 @@ public class ClassifySummaries {
 		this.summary_selected_count.addValue(selectedCount);
 
 		
-		String evalSummary="For Policy:( "+ policySplit+" ): selectedCount="+selectedCount+" out of totalCount="+totalCount+" using thresholds=";
+		String evalSummary="For Policy:( "+ policySplit+" ): selectedCount="+selectedCount+" out of totalCount="+totalCount;
 		appendEvaluationSummary(evalSummary);
 
 	}

@@ -402,22 +402,25 @@ public abstract class BaseClassifier implements Serializable{
 			result.add(inst);
 		}
 		
-
-		if ("".equals(yearSplit) ){
-			//这是预测每日数据时，没有实际收益率数据可以做评估 (上述逻辑会让所有的数据都进入negative的分支）
-			classifySummaries.savePredictSummaries(policySplit,totalNegativeShouyilv,selectedNegativeShouyilv);
-		}else{
-			//这是进行历史回测数据时，根据历史收益率数据进行阶段评估
-			classifySummaries.computeClassifySummaries(yearSplit,policySplit,totalPositiveShouyilv,totalNegativeShouyilv,selectedPositiveShouyilv,selectedNegativeShouyilv);
-		}
+		
 		double startPercent=thresholdData.getStartPercent();
 		boolean isGuessed=thresholdData.isGuessed();
 		String defaultThresholdUsed=" ";
 		if (isGuessed){
 			defaultThresholdUsed="Y";
+		}		
+		if ("".equals(yearSplit) ){
+			//这是预测每日数据时，没有实际收益率数据可以做评估 (上述逻辑会让所有的数据都进入negative的分支）
+			classifySummaries.savePredictSummaries(policySplit,totalNegativeShouyilv,selectedNegativeShouyilv);
+			String evalSummary="( with params: thresholdMin="+FormatUtility.formatDouble(thresholdMin)+" , startPercent="+FormatUtility.formatPercent(startPercent/100)+" ,defaultThresholdUsed="+defaultThresholdUsed+" )\r\n";  //输出评估结果及所使用阀值及期望样本百分比
+			classifySummaries.appendEvaluationSummary(evalSummary);
+
+		}else{
+			//这是进行历史回测数据时，根据历史收益率数据进行阶段评估
+			classifySummaries.computeClassifySummaries(yearSplit,policySplit,totalPositiveShouyilv,totalNegativeShouyilv,selectedPositiveShouyilv,selectedNegativeShouyilv);
+			String evalSummary=","+FormatUtility.formatDouble(thresholdMin)+","+FormatUtility.formatPercent(startPercent/100)+","+defaultThresholdUsed+"\r\n";  //输出评估结果及所使用阀值及期望样本百分比
+			classifySummaries.appendEvaluationSummary(evalSummary);
 		}
-		String evalSummary=","+FormatUtility.formatDouble(thresholdMin)+","+FormatUtility.formatDouble(startPercent)+","+defaultThresholdUsed+"\r\n";  //输出评估结果及所使用阀值及期望样本百分比
-		classifySummaries.appendEvaluationSummary(evalSummary);
 	}
 
 	// 对于连续分类器， 收益率就是classvalue，缺省直接返回， 对于nominal分类器，调用子类的方法获取暂存的收益率
