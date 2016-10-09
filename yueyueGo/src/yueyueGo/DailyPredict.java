@@ -109,8 +109,8 @@ public class DailyPredict {
 			AppContext.createContext(EnvConstants.AVG_LINE_ROOT_DIR);
 			//预先初始化各种模型文件的位置
 			definePredictModels(EnvConstants.AVG_LINE_ROOT_DIR);
-			shouyilv_thresholds=new double[] {0.01,0.02,0.03,0.03,0.04};
-			winrate_thresholds=new double[] {0.3,0.3,0.3,0.25,0.25};
+			shouyilv_thresholds=new double[] {0.005,0.005,0.01,0.03,0.03}; // {0.01,0.02,0.03,0.03,0.04};
+			winrate_thresholds=new double[]  {0.45,0.45,0.45,0.35,0.25};  //{0.3,0.3,0.3,0.25,0.25};
 			callDailyPredict();
 
 		} catch (Exception e) {
@@ -172,10 +172,10 @@ public class DailyPredict {
 //		adaModelLegacy=null;
 //		System.out.println("***************** end of output legacy prediction results************************");
 
-		//保留bagging结果
-		FileUtility.saveCSVFile(baggingInstances, PREDICT_RESULT_DIR+cBagModel.getIdentifyName()+"Selected Result"+FormatUtility.getDateStringFor(1)+".csv");	
-		//保留adaboost结果
-		FileUtility.saveCSVFile(adaboostInstances, PREDICT_RESULT_DIR+adaModel.getIdentifyName()+"Selected Result"+FormatUtility.getDateStringFor(1)+".csv");	
+//		//保留bagging结果
+//		FileUtility.saveCSVFile(baggingInstances, PREDICT_RESULT_DIR+cBagModel.getIdentifyName()+"Selected Result"+FormatUtility.getDateStringFor(1)+".csv");	
+//		//保留adaboost结果
+//		FileUtility.saveCSVFile(adaboostInstances, PREDICT_RESULT_DIR+adaModel.getIdentifyName()+"Selected Result"+FormatUtility.getDateStringFor(1)+".csv");	
 
 		System.out.println("***************** now output prediction results************************");
 //		nABModel.outputClassifySummary();
@@ -192,13 +192,14 @@ public class DailyPredict {
 		mergedOutput=InstanceUtility.removeAttribs(mergedOutput, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
 		FileUtility.saveCSVFile(mergedOutput, PREDICT_RESULT_DIR+ "Merged Selected Result-"+adaModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv");
 		mergedOutput=null;
-
+		System.out.println(adaModel.getIdentifyName()+"----------prediction ends---------");
 		//以bagging为主，合并adaboost
 		System.out.println("-----now output combined predictions----------"+cBagModel.getIdentifyName());
 		Instances mergedOutputBagging=merge.mergeResults(baggingInstances,adaboostInstances,ArffFormat.RESULT_PREDICTED_WIN_RATE,left);
 		mergedOutputBagging=InstanceUtility.removeAttribs(mergedOutputBagging, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
 		FileUtility.saveCSVFile(mergedOutputBagging, PREDICT_RESULT_DIR+ "Merged Selected Result-"+cBagModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv");
 		mergedOutputBagging=null;
+		System.out.println(cBagModel.getIdentifyName()+"----------prediction ends--------");
 	}
 
 

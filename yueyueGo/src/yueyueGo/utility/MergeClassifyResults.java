@@ -73,6 +73,7 @@ public class MergeClassifyResults {
 			int referenceDataNum=referenceData.numInstances();
 			
 			//以下变量是为合并时修改选择结果而设
+			int finalSelected=0;
 			int resultChanged=0;
 			int goodChangeNum=0;
 			double changedShouyilv=0;
@@ -143,13 +144,14 @@ public class MergeClassifyResults {
 							winrate=referenceCurr.value(referenceData.attribute(ArffFormat.RESULT_PREDICTED_WIN_RATE));
 							//当为连续分类器合并胜率时，如果参照的二分类器预期胜率小于等于0.5，则不选择该条记录?
 							if (selected==1){
+								
 								int index;
 								if (resultMA==null){ //非均线策略时默认选择THREDHOLD的第一个
 									index=0;
 								}else{//均线策略时按序选择THREDHOLD的第一个
 									index=new Double(resultCurr.value(resultMA)).intValue();	
 								}
-								if (winrate<winrate_thresholds[index]){ 
+								if (winrate<winrate_thresholds[index]){ //需要修改选股结果 
 									selected=0;
 									resultChanged++;
 									if (shouyilvAtt!=null){
@@ -160,6 +162,8 @@ public class MergeClassifyResults {
 											goodChangeNum++;
 										}// end if shouyilv<=
 									}
+								}else{ //不需要修改选股结果
+									finalSelected++;
 								}
 							}// end if (selected
 						}else{ 
@@ -171,13 +175,14 @@ public class MergeClassifyResults {
 	
 							
 							if (selected==1){
+								
 								int index;
 								if (resultMA==null){ //非均线策略时默认选择SHOUYILV_THREDHOLD的第一个
 									index=0;
 								}else{//均线策略时按序选择SHOUYILV_THREDHOLD的第一个
 									index=new Double(resultCurr.value(resultMA)).intValue();	
 								}
-								if (profit<=shouyilv_thresholds[index]){ 
+								if (profit<=shouyilv_thresholds[index]){  //需要修改选股结果
 									selected=0;
 									resultChanged++;
 									if (shouyilvAtt!=null){
@@ -188,7 +193,9 @@ public class MergeClassifyResults {
 											goodChangeNum++;
 										}// end if shouyilv<=
 									}
-								}// end profit<=
+								}else{ //不需要修改选股结果
+									finalSelected++;
+								}// end if profit<=
 							}// end if (selected
 						}//end else of dataToAdd
 	
@@ -212,8 +219,8 @@ public class MergeClassifyResults {
 			}else {
 				System.out.println("number of results merged and processed: "+ mergedResult.numInstances());
 			}
-			
-			System.out.println("result changed because of reference data not matched="+resultChanged+" while good change number="+goodChangeNum);
+			System.out.println("###### Finally selected count="+finalSelected+ "  ######");
+			System.out.println(" result changed because of reference data not matched="+resultChanged+" while good change number="+goodChangeNum);
 			if (resultChanged>0){
 				double goodRatio=new Double(goodChangeNum).doubleValue()/resultChanged;
 				System.out.print(" good ratio="+FormatUtility.formatPercent(goodRatio));

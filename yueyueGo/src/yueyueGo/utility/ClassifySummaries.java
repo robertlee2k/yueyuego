@@ -212,12 +212,12 @@ public class ClassifySummaries {
 	public void outputPredictSummary() throws Exception{
 		
 		String selected_count_sum=FormatUtility.formatDouble(summary_selected_count.getSum(),8,0);
-		System.out.println("......................");
+		System.out.println("..............................");
 		System.out.println("===============================output summary===================================== for : "+identityName);
 		System.out.println(this.getEvaluationSummary());
 		System.out.println("Total Selected Count: "+selected_count_sum);
-		System.out.println("===============================end of summary=====================================for : "+identityName);
-		System.out.println("......................");
+		System.out.println(identityName+"===============================end of summary===================================== ");
+		System.out.println("..............................");
 		
 	}
 	
