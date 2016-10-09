@@ -29,7 +29,7 @@ public class BaggingLinearRegression extends ContinousClassifier implements Parr
 		classifierName=ClassifyUtility.BAGGING_LINEAR_REGRESSION;	
 //		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
 		m_modelEvalFileShareMode=ModelStore.YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
-		bagging_iteration=3;	//bagging特有参数
+		bagging_iteration=6;	//bagging特有参数
 		divided=300; //将trainingData分成多少份
 		
 		m_noCaculationAttrib=false; //添加计算字段!
