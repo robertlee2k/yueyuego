@@ -23,12 +23,12 @@ public class BaggingLinearRegression extends ContinousClassifier implements Parr
 
 	@Override
 	protected void initializeParams() {
-		m_skipTrainInBacktest = false;
+		m_skipTrainInBacktest = true;
 		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 		classifierName=ClassifyUtility.BAGGING_LINEAR_REGRESSION;	
 //		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
-		m_modelEvalFileShareMode=ModelStore.YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
+		m_modelEvalFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 		bagging_iteration=10;	//bagging特有参数
 		divided=300; //将trainingData分成多少份
 		
