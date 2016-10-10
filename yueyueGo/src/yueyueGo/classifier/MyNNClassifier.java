@@ -8,7 +8,23 @@ import yueyueGo.NominalClassifier;
 import yueyueGo.ParrallelizedRunning;
 import yueyueGo.utility.ClassifyUtility;
 import ext.WekaNeuralNetwork;
-
+//20161010
+//===============================output summary===================================== for : myNNAB
+//Monthly selected_TPR mean: 22.93% standard deviation=27.49% Skewness=1.09 Kurtosis=0.18
+//Monthly selected_LIFT mean : 0.69
+//Monthly selected_positive summary: 37,370
+//Monthly selected_count summary: 93,408
+//Monthly selected_shouyilv average: 0.83% standard deviation=6.88% Skewness=3.8 Kurtosis=24.16
+//Monthly total_shouyilv average: 0.98% standard deviation=6.09% Skewness=3.06 Kurtosis=15.62
+//mixed selected positive rate: 40.01%
+//Monthly summary_judge_result summary: good number= 289 bad number=231
+//===============================end of summary=====================================for : myNNAB
+//###### Finally selected count=70633  ######
+//result changed because of reference data not matched=22775 while good change number=16665
+//good ratio=73.17% average changed shouyilv=1.06% @ shouyilv thredhold= /0.50% /0.50% /1.00% /3.00% /3.00% /
+//number of records for full market=1436457
+//shouyilv average for full market=0.79%
+//selected shouyilv average for full market =2.71% count=70633
 public class MyNNClassifier extends NominalClassifier implements ParrallelizedRunning {
 
 	/**
@@ -25,7 +41,7 @@ public class MyNNClassifier extends NominalClassifier implements ParrallelizedRu
 	protected void initializeParams()  {
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = false;
+		m_skipEvalInBacktest = true;
 		
 		classifierName=ClassifyUtility.MYNN_MLP;
 //		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");

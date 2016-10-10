@@ -68,6 +68,24 @@ import yueyueGo.utility.ClassifyUtility;
 //Monthly summary_judge_result summary: good number= 281 bad number=239
 //===============================end of summary=====================================for : baggingM5P-multiPCA
 
+//20161010(调整阀值评估方法后）
+//===============================output summary===================================== for : baggingM5P-multiPCA
+//Monthly selected_TPR mean: 28.42% standard deviation=22.67% Skewness=0.56 Kurtosis=-0.34
+//Monthly selected_LIFT mean : 0.87
+//Monthly selected_positive summary: 37,718
+//Monthly selected_count summary: 99,605
+//Monthly selected_shouyilv average: 1.00% standard deviation=6.05% Skewness=2.66 Kurtosis=12.83
+//Monthly total_shouyilv average: 0.98% standard deviation=6.09% Skewness=3.06 Kurtosis=15.62
+//mixed selected positive rate: 37.87%
+//Monthly summary_judge_result summary: good number= 293 bad number=227
+//===============================end of summary=====================================for : baggingM5P-multiPCA
+//###### Finally selected count=30451  ######
+//result changed because of reference data not matched=69154 while good change number=45169
+//good ratio=65.32% average changed shouyilv=1.68% @ winrate thredhold= /45.00% /45.00% /45.00% /35.00% /25.00% /
+//number of records for full market=1436457
+//shouyilv average for full market=0.79%
+//selected shouyilv average for full market =3.02% count=30451
+//-----now output nominal predictions----------myNNAB
 public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunning{
 	/**
 	 * 

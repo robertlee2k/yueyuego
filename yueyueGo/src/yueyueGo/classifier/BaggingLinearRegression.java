@@ -41,8 +41,8 @@ public class BaggingLinearRegression extends ContinousClassifier implements Parr
 
 	@Override
 	protected void initializeParams() {
-		m_skipTrainInBacktest = false;
-		m_skipEvalInBacktest = false;
+		m_skipTrainInBacktest = true;
+		m_skipEvalInBacktest = true;
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 		classifierName=ClassifyUtility.BAGGING_LINEAR_REGRESSION;	
 		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
@@ -81,17 +81,17 @@ public class BaggingLinearRegression extends ContinousClassifier implements Parr
 		}
 	}
 	
-//	@Override
-//	public String getIdentifyName(){
-//		String idenString;
-//		if (useMultiPCA==true){
-//			idenString =classifierName+ClassifyUtility.MULTI_PCA_SURFIX;
-//		}else{
-//			idenString =classifierName+"-singlePCA";
-//		}
-//
-//		return idenString;
-//	}
+	@Override
+	public String getIdentifyName(){
+		String idenString;
+		if (useMultiPCA==true){
+			idenString =classifierName+ClassifyUtility.MULTI_PCA_SURFIX;
+		}else{
+			idenString =classifierName+"-singlePCA";
+		}
+
+		return idenString;
+	}
 	
 	//	将外部的并发线程根据算法内并发的计算强度折算出新的建议值
 	public int recommendRunningThreads(int runningThreads){
