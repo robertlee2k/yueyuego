@@ -34,23 +34,23 @@ public class BaggingLinearRegression extends ContinousClassifier implements Parr
 	 */
 	private static final long serialVersionUID = 4124135341808054675L;
 
-//	protected boolean useMultiPCA;
+	protected boolean useMultiPCA;
 	protected int bagging_iteration;
 	protected int divided;
 	
 
 	@Override
 	protected void initializeParams() {
-		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = true;
+		m_skipTrainInBacktest = false;
+		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 		classifierName=ClassifyUtility.BAGGING_LINEAR_REGRESSION;	
-//		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
+		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
 		m_modelEvalFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 		bagging_iteration=10;	//bagging特有参数
 		divided=300; //将trainingData分成多少份
 		
-		m_noCaculationAttrib=false; //添加计算字段!
+		m_noCaculationAttrib=true; //不必添加计算字段!
 
 	}
 
@@ -65,20 +65,20 @@ public class BaggingLinearRegression extends ContinousClassifier implements Parr
 		String batchSize=Integer.toString(count);
 		model.setBatchSize(batchSize);
 		model.setNumDecimalPlaces(6);
-		model.setAttributeSelectionMethod(new SelectedTag(LinearRegression.SELECTION_M5, LinearRegression.TAGS_SELECTION));
+		model.setAttributeSelectionMethod(new SelectedTag(LinearRegression.SELECTION_GREEDY, LinearRegression.TAGS_SELECTION));
 		model.setDebug(false);
 		
 		
-		int bagging_samplePercent=70;//bagging sample 取样率
-		return ClassifyUtility.buildBaggingWithoutPCA(train,model,bagging_iteration,bagging_samplePercent);
+//		int bagging_samplePercent=70;//bagging sample 取样率
+//		return ClassifyUtility.buildBaggingWithoutPCA(train,model,bagging_iteration,bagging_samplePercent);
 		
-//		if (useMultiPCA==true){
-//			int bagging_samplePercent=80;//bagging sample 取样率
-//			return ClassifyUtility.buildBaggingWithMultiPCA(train,model,bagging_iteration,bagging_samplePercent);
-//		}else{
-//			int bagging_samplePercent=100;// PrePCA算袋外误差时要求percent都为100
-//			return ClassifyUtility.buildBaggingWithSinglePCA(train,model,bagging_iteration,bagging_samplePercent);
-//		}
+		if (useMultiPCA==true){
+			int bagging_samplePercent=70;//bagging sample 取样率
+			return ClassifyUtility.buildBaggingWithMultiPCA(train,model,bagging_iteration,bagging_samplePercent);
+		}else{
+			int bagging_samplePercent=100;// PrePCA算袋外误差时要求percent都为100
+			return ClassifyUtility.buildBaggingWithSinglePCA(train,model,bagging_iteration,bagging_samplePercent);
+		}
 	}
 	
 //	@Override

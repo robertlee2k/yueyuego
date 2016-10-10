@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 import weka.core.Attribute;
 import weka.core.Instances;
-import yueyueGo.classifier.BaggingM5P;
+import yueyueGo.classifier.BaggingLinearRegression;
 import yueyueGo.classifier.MyNNClassifier;
 import yueyueGo.utility.AppContext;
 import yueyueGo.utility.BlockedThreadPoolExecutor;
@@ -75,7 +75,7 @@ public class BackTest {
 		
 		splitYear=new String[] {
 		//为年度模型使用
-//		  "2008","2009","2010","2011","2012","2013","2014","2015","2016",
+		  "2008","2009","2010","2011","2012","2013","2014","2015","2016",
 		//为半年度模型使用		
 		"200807","200907","201007","201107","201207","201307","201407","201507","201607"
 		//为月度模型使用		
@@ -123,17 +123,17 @@ public class BackTest {
 		//神经网络
 //		BaggingJ48 nModel=new BaggingJ48();
 //		MLPABClassifier nModel = new MLPABClassifier();
-		MyNNClassifier nModel=new MyNNClassifier(); //需要重新build 20161008
+		MyNNClassifier nModel=new MyNNClassifier(); 
 //		AdaboostClassifier nModel=new AdaboostClassifier();
 
 
-		Instances nominalResult=testBackward(nModel);
+//		Instances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
-//		Instances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
+		Instances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 
 		//按连续分类器回测历史数据
-		BaggingM5P cModel=new BaggingM5P();
-//		BaggingLinearRegression cModel=new BaggingLinearRegression();
+//		BaggingM5P cModel=new BaggingM5P();
+		BaggingLinearRegression cModel=new BaggingLinearRegression();
 
 		Instances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
