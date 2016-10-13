@@ -14,7 +14,7 @@ import yueyueGo.utility.AppContext;
 public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 	
 	protected static void callRefreshInstancesFullModel() throws Exception {
-		String startYearMonth="201508";
+		String startYearMonth="201608";
 		String endYearMonth="201612";
 		
 
