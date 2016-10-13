@@ -14,13 +14,13 @@ import yueyueGo.utility.AppContext;
 public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 	
 	protected static void callRefreshInstancesFullModel() throws Exception {
-		String startYearMonth="201608";
-		String endYearMonth="201608";
+		String startYearMonth="201508";
+		String endYearMonth="201612";
 		
 
 		String originFilePrefix=AppContext.getC_ROOT_DIRECTORY()+ArffFormatFullModel.FULL_MODEL_ARFF_PREFIX;
 		
-		String newDataFileName=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\更新\\onceyield_group4allhis_optional_20160801_20160831.txt";		
+		String newDataFileName=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group5\\onceyield_group5all_optional20160801_20160930.txt";		
 		Instances newData = loadDataFromFullModelCSVFile(newDataFileName);
 		//刷新的Arff文件
 		refreshArffFile(startYearMonth,endYearMonth,originFilePrefix,newData);
