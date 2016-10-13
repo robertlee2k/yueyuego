@@ -20,12 +20,12 @@ public class UpdateHistoryArffFile {
 
 
 	protected static void callRefreshInstances() throws Exception {
-		String startYearMonth="201601";
+		String startYearMonth="201509";
 		String endYearMonth="201612";
 
 		String originFilePrefix=AppContext.getC_ROOT_DIRECTORY()+ArffFormat.TRANSACTION_ARFF_PREFIX;
 		
-		String newDataFileName=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\full4group\\onceyield_group4_2016.txt";
+		String newDataFileName=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group5\\onceyield_group5all20150901_20160930.txt";
 		Instances newData = loadDataFromIncrementalCSVFile(newDataFileName);
 		
 

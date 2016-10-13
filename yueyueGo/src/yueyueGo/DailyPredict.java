@@ -313,7 +313,7 @@ public class DailyPredict {
 
 		for (int j = 0; j < clModel.m_policySubGroup.length; j++) {
 
-			System.out.println("start to load data for " + clModel.m_policySubGroup[j]+"  : "	+ clModel.m_policySubGroup[j]);
+			System.out.println("start to load data for policy : "	+ clModel.m_policySubGroup[j]);
 			String expression=null;
 			if (maIndex>0){// 均线策略
 				expression=InstanceUtility.WEKA_ATT_PREFIX+ maIndex+" is '"+ clModel.m_policySubGroup[j] + "'";
