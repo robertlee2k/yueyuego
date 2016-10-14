@@ -2,9 +2,9 @@ package yueyueGo.classifier.deprecated;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.functions.MultilayerPerceptron;
-import weka.core.Instances;
 import yueyueGo.ModelStore;
 import yueyueGo.NominalClassifier;
+import yueyueGo.databeans.DataInstances;
 
 //结论1： 5单元格的不可靠，偶然性因素太大， 应该在10-30单元格中间选择
 //结论2： 这个分类器适用沪深300, 全市场不大合适大熊市（因为2008年亏损大收益率偏低）
@@ -93,7 +93,7 @@ public class MLPClassifier extends NominalClassifier {
 	}
 
 	@Override
-	protected Classifier buildModel(Instances train) throws Exception {
+	protected Classifier buildModel(DataInstances train) throws Exception {
 
 		 
 		int minNumObj=train.numInstances()/300;
@@ -103,7 +103,7 @@ public class MLPClassifier extends NominalClassifier {
 		model.setNumDecimalPlaces(6);
 		model.setHiddenLayers("a");
 		model.setDebug(true);
-		model.buildClassifier(train);
+		model.buildClassifier(train.getInternalStore());
 
 		return model;
 	}

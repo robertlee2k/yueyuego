@@ -4,10 +4,10 @@ package yueyueGo.classifier;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.trees.M5P;
-import weka.core.Instances;
 import yueyueGo.ContinousClassifier;
 import yueyueGo.ModelStore;
 import yueyueGo.MyAttributionSelectorWithPCA;
+import yueyueGo.databeans.DataInstances;
 import yueyueGo.utility.ClassifyUtility;
 
 
@@ -106,7 +106,7 @@ public class M5PABClassifier extends ContinousClassifier {
 
 	
 	@Override
-	protected Classifier buildModel(Instances train) throws Exception {
+	protected Classifier buildModel(DataInstances train) throws Exception {
 
 		
 		//设置基础的m5p classifier参数

@@ -1,9 +1,8 @@
 package yueyueGo;
 
-import weka.core.Attribute;
-import weka.core.DenseInstance;
-import weka.core.Instance;
-import weka.core.Instances;
+import yueyueGo.databeans.DataAttribute;
+import yueyueGo.databeans.DataInstance;
+import yueyueGo.databeans.DataInstances;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.InstanceUtility;
 
@@ -207,14 +206,14 @@ public class ArffFormat {
 	};
 	
 	//返回给定数据集里与NOMINAL_ATTRIBS同名字段的位置字符串（从1开始），这主要是为filter使用
-	public static String findNominalAttribs(Instances data){
+	public static String findNominalAttribs(DataInstances data){
 		return InstanceUtility.returnAttribsPosition(data,NOMINAL_ATTRIBS);
 	}
 	
 	// 从All Transaction Data中删除无关字段 (tradeDate到均线策略之前）
-	protected static Instances prepareTransData(Instances allData)
+	protected static DataInstances prepareTransData(DataInstances allData)
 			throws Exception {
-		Instances result = InstanceUtility.removeAttribs(allData,TRANS_DATA_NOT_SAVED_IN_ARFF);// "3-9");
+		DataInstances result = InstanceUtility.removeAttribs(allData,TRANS_DATA_NOT_SAVED_IN_ARFF);// "3-9");
 		return result;
 	}
 
@@ -225,14 +224,14 @@ public class ArffFormat {
 			IS_ZZ500,SHOUYILV };
 
 	// 此方法从All Transaction Data中保留计算收益率的相关字段，以及最后的收益率，删除其他计算字段
-	protected static Instances getTransLeftPartFromAllTransaction(Instances allData)
+	protected static DataInstances getTransLeftPartFromAllTransaction(DataInstances allData)
 			throws Exception {
 		return InstanceUtility.keepAttributes(allData,TRANS_DATA_LEFT_PART);
 	}
 	
 	// 为原始的Arff文件加上计算属性
-	public static Instances addCalculateAttribute(Instances data) throws Exception {
-		Instances result = new Instances(data, 0);
+	public static DataInstances addCalculateAttribute(DataInstances data) throws Exception {
+		DataInstances result = new DataInstances(data, 0);
 
 		int row = data.numInstances();
 		double[][] bias5to60 = { { 0.0, 0.0, 0.0, 0.0, 0.0 },
@@ -249,30 +248,28 @@ public class ArffFormat {
 			for (int m = 0; m < bias5to60[x].length; m++) {
 				for (int k = m + 1; k < bias5to60[x].length; k++) {
 					// insert before class value
-					result.insertAttributeAt(new Attribute(biasAttName[x][m]
-							+ "-" + biasAttName[x][k]),
-							result.numAttributes() - 1);
+					result.insertAttributeAt(new DataAttribute(biasAttName[x][m]+ "-" + biasAttName[x][k]),result.numAttributes() - 1);
 				}
 			}
 		}
 
 		// 为每一行数据处理
 		for (int i = 0; i < row; i++) {
-			Instance oneRow = data.instance(i);
+			DataInstance oneRow = data.instance(i);
 			for (int x = 0; x < biasAttName.length; x++) {
 				for (int j = 0; j < biasAttName[x].length; j++) {
-					Attribute attribute = data.attribute(biasAttName[x][j]);
+					DataAttribute attribute = data.attribute(biasAttName[x][j]);
 					bias5to60[x][j] = oneRow.value(attribute);
 				}
 			}
-			Instance newRow = new DenseInstance(result.numAttributes());
-			newRow.setDataset(result);
+			DataInstance newRow = new DataInstance(result.numAttributes());
+			newRow.setDataset(result.getInternalStore());
 
 			// copy same values
 
 			for (int n = 0; n < data.numAttributes() - 1; n++) {
-				Attribute att = data.attribute(n);
-				Attribute newRowAtt=result.attribute(n);
+				DataAttribute att = data.attribute(n);
+				DataAttribute newRowAtt=result.attribute(n);
 				InstanceUtility.fullCopyAttribute(oneRow, newRow, att, newRowAtt);
 //				if (att != null) {
 //					if (att.isNominal()) {
@@ -311,7 +308,7 @@ public class ArffFormat {
 	}
 
 	// 将输入文件和standardFormat数据字段名称顺序对比 ，不一致则报错。
-	public static Instances validateAttributeNames(Instances data,String[] standardFormat) throws Exception {
+	public static DataInstances validateAttributeNames(DataInstances data,String[] standardFormat) throws Exception {
 		String incomingColumnName=null;
 		int ignoredColumns=0; //当需要忽略standardFormat中的某列时
 		int validColumns=0;
@@ -337,8 +334,8 @@ public class ArffFormat {
 
 
 	// 判断是否为沪深300、中证500、上证50
-	protected static boolean belongToIndex(Instance curr, String indexName) {
-		Attribute hsAtt = curr.dataset().attribute(indexName);
+	protected static boolean belongToIndex(DataInstance curr, String indexName) {
+		DataAttribute hsAtt = curr.dataset().attribute(indexName);
 		String label = curr.stringValue(hsAtt);
 		if (label.equals(VALUE_YES)) { // 故意用这个顺序，如果label是null就扔exception出去
 			return true;
@@ -348,17 +345,17 @@ public class ArffFormat {
 	}
 
 	// 判断是否为沪深300
-	public static boolean isHS300(Instance curr) {
+	public static boolean isHS300(DataInstance curr) {
 		return belongToIndex(curr, IS_HS300);
 	}
 
 	// 判断是否为中证500
-	public static boolean isZZ500(Instance curr) {
+	public static boolean isZZ500(DataInstance curr) {
 		return belongToIndex(curr, IS_ZZ500);
 	}
 
 	// 判断是否为上证50
-	public static boolean isSZ50(Instance curr) {
+	public static boolean isSZ50(DataInstance curr) {
 		return belongToIndex(curr, IS_SZ50);
 	}
 
@@ -366,9 +363,9 @@ public class ArffFormat {
 	  比较两个instances中的均线策略和bias5字段是否一致（数据冗余校验）
 	 * @return
 	 */
-	public static boolean checkSumBeforeMerge(Instance leftCurr,
-			Instance rightCurr, Attribute leftMA, Attribute rightMA,
-			Attribute leftBias5, Attribute rightBias5) {
+	public static boolean checkSumBeforeMerge(DataInstance leftCurr,
+			DataInstance rightCurr, DataAttribute leftMA, DataAttribute rightMA,
+			DataAttribute leftBias5, DataAttribute rightBias5) {
 
 		boolean result=false;
 		try {

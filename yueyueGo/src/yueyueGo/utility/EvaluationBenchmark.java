@@ -2,8 +2,8 @@ package yueyueGo.utility;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
-import weka.core.Instances;
 import yueyueGo.ArffFormat;
+import yueyueGo.databeans.DataInstances;
 
 public class EvaluationBenchmark {
 	static public final int POSITIVE=1;
@@ -37,7 +37,7 @@ public class EvaluationBenchmark {
 
 	
 
-	public EvaluationBenchmark(Instances evalData, boolean isNominal) {
+	public EvaluationBenchmark(DataInstances evalData, boolean isNominal) {
 		this.nominalClass=isNominal;
 		int pos=-1;
 		if (isNominal){

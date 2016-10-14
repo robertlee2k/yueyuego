@@ -1,7 +1,7 @@
 package yueyueGo.fullModel;
 
-import weka.core.Instances;
 import yueyueGo.ArffFormat;
+import yueyueGo.databeans.DataInstances;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.InstanceUtility;
 
@@ -104,17 +104,17 @@ public class ArffFormatFullModel extends ArffFormat {
 		
 
 	// 此方法从All Transaction Data中保留计算收益率的相关字段，以及最后的收益率，删除其他计算字段
-	protected static Instances getTransLeftPartForFullModel(Instances allData)
+	protected static DataInstances getTransLeftPartForFullModel(DataInstances allData)
 			throws Exception {
 		String saveString=InstanceUtility.returnAttribsPosition(allData,FULL_MODEL_DATA_LEFT_PART);
-		Instances result = InstanceUtility.filterAttribs(allData,saveString);
+		DataInstances result = InstanceUtility.filterAttribs(allData,saveString);
 		return result;
 	}
 	
 	// 从All Transaction Data中删除无关字段 (tradeDate到均线策略之前）
-	protected static Instances prepareTransDataForFullModel(Instances allData)
+	protected static DataInstances prepareTransDataForFullModel(DataInstances allData)
 			throws Exception {
-		Instances result = InstanceUtility.removeAttribs(allData,FULL_MODEL_DATA_NOT_SAVED_IN_ARFF);
+		DataInstances result = InstanceUtility.removeAttribs(allData,FULL_MODEL_DATA_NOT_SAVED_IN_ARFF);
 		return result;
 	}
 }

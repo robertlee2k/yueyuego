@@ -2,11 +2,11 @@ package yueyueGo.fullModel;
 
 import java.io.IOException;
 
-import weka.core.Instances;
 import yueyueGo.ArffFormat;
 import yueyueGo.BackTest;
 import yueyueGo.BaseClassifier;
 import yueyueGo.EnvConstants;
+import yueyueGo.databeans.DataInstances;
 import yueyueGo.fullModel.classifier.BaggingM5PFullModel;
 import yueyueGo.fullModel.classifier.MyNNFullModel;
 import yueyueGo.utility.AppContext;
@@ -81,7 +81,7 @@ public class BackTestFullModel extends BackTest {
 		
 //		Instances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
-		Instances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
+		DataInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 
 		//按连续分类器回测历史数据
 		BaggingM5PFullModel cModel=new BaggingM5PFullModel();
@@ -90,7 +90,7 @@ public class BackTestFullModel extends BackTest {
 			cModel.m_skipEvalInBacktest=true;
 		}
 
-		Instances continuousResult=testBackward(cModel);
+		DataInstances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
 //		Instances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 		
@@ -100,10 +100,10 @@ public class BackTestFullModel extends BackTest {
 
 		//输出用于计算收益率的CSV文件
 		System.out.println("-----now output continuous predictions----------"+cModel.getIdentifyName());
-		Instances m5pOutput=mergeResultWithData(continuousResult,nominalResult,ArffFormat.RESULT_PREDICTED_WIN_RATE,cModel.getModelArffFormat());
+		DataInstances m5pOutput=mergeResultWithData(continuousResult,nominalResult,ArffFormat.RESULT_PREDICTED_WIN_RATE,cModel.getModelArffFormat());
 		saveSelectedFileForMarkets(m5pOutput,cModel.getIdentifyName());
 		System.out.println("-----now output nominal predictions----------"+nModel.getIdentifyName());
-		Instances mlpOutput=mergeResultWithData(nominalResult,continuousResult,ArffFormat.RESULT_PREDICTED_PROFIT,nModel.getModelArffFormat());
+		DataInstances mlpOutput=mergeResultWithData(nominalResult,continuousResult,ArffFormat.RESULT_PREDICTED_PROFIT,nModel.getModelArffFormat());
 		saveSelectedFileForMarkets(mlpOutput,nModel.getIdentifyName());
 		System.out.println("-----end of test backward------");
 	}
@@ -127,7 +127,7 @@ public class BackTestFullModel extends BackTest {
 	 * @throws Exception
 	 */
 	@Override
-	protected Instances getBacktestInstances(BaseClassifier clModel,String splitMark,String policy)
+	protected DataInstances getBacktestInstances(BaseClassifier clModel,String splitMark,String policy)
 			throws Exception {
 
 		String arffFullFileName = null;
@@ -136,7 +136,7 @@ public class BackTestFullModel extends BackTest {
 		}else{
 			arffFullFileName=getFullModelArffFileName(clModel);
 		}
-		Instances fullSetData;
+		DataInstances fullSetData;
 		System.out.println("start to load File for fullset from File: "+ arffFullFileName  );
 		fullSetData = FileUtility.loadDataFromFile( arffFullFileName);
 		if (applyToMaModelInTestBack==true){//用fullModel模型来测试均线模型时加载均线模型的arff
@@ -189,8 +189,8 @@ public class BackTestFullModel extends BackTest {
 
 
 	
-	protected Instances mergeResultWithData(Instances resultData,Instances referenceData,String dataToAdd,int format) throws Exception{
-		Instances left=null;		
+	protected DataInstances mergeResultWithData(DataInstances resultData,DataInstances referenceData,String dataToAdd,int format) throws Exception{
+		DataInstances left=null;		
 		//读取磁盘上预先保存的左侧数据
 		if (applyToMaModelInTestBack==true){
 			left=FileUtility.loadDataFromFile(EnvConstants.AVG_LINE_ROOT_DIR+ArffFormat.TRANSACTION_ARFF_PREFIX+"-left.arff");
@@ -199,7 +199,7 @@ public class BackTestFullModel extends BackTest {
 		}
 		
 		MergeClassifyResults merge=new MergeClassifyResults(shouyilv_thresholds, winrate_thresholds);
-		Instances mergedResult = merge.mergeResults(resultData, referenceData,dataToAdd, left);
+		DataInstances mergedResult = merge.mergeResults(resultData, referenceData,dataToAdd, left);
 		
 		//返回结果之前需要按TradeDate重新排序
 		int tradeDateIndex=InstanceUtility.findATTPosition(mergedResult, ArffFormat.TRADE_DATE);

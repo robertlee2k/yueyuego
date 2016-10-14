@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import weka.classifiers.Classifier;
 import weka.classifiers.evaluation.EvaluationUtils;
 import weka.classifiers.evaluation.Prediction;
-import weka.core.Instance;
-import weka.core.Instances;
+import yueyueGo.databeans.DataInstances;
+import yueyueGo.databeans.DataInstance;
 import yueyueGo.utility.NumericThresholdCurve;
 
 public abstract class ContinousClassifier extends BaseClassifier {
@@ -25,13 +25,13 @@ public abstract class ContinousClassifier extends BaseClassifier {
 	 * @return
 	 * @throws Exception
 	 */
-	protected Instances getROCInstances(Instances evalData, Classifier model)
+	protected DataInstances getROCInstances(DataInstances evalData, Classifier model)
 			throws Exception {
 		// generate curve
 		EvaluationUtils eUtils=new EvaluationUtils();
-		ArrayList<Prediction> predictions=eUtils.getTestPredictions(model, evalData);
+		ArrayList<Prediction> predictions=eUtils.getTestPredictions(model, evalData.getInternalStore());
 		NumericThresholdCurve tc = new NumericThresholdCurve();
-		Instances result = tc.getCurve(predictions);
+		DataInstances result = new DataInstances(tc.getCurve(predictions));
 		return result;
 	}
 	
@@ -239,8 +239,9 @@ public abstract class ContinousClassifier extends BaseClassifier {
 
 
 	//对于连续变量，返回预测值
-	protected  double classify(Classifier model,Instance curr) throws Exception {
-		double pred =  model.classifyInstance(curr);
+	protected  double classify(Classifier model,DataInstance curr) throws Exception {
+		//TODO 以后需要把classifyInstance抽象化
+		double pred =  model.classifyInstance(curr.getInstance());
 		return pred;
 	}
 

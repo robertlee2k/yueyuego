@@ -5,9 +5,9 @@ import weka.classifiers.Evaluation;
 import weka.classifiers.meta.Bagging;
 import weka.classifiers.trees.J48;
 import weka.classifiers.trees.M5P;
-import weka.core.Instances;
 import yueyueGo.EnvConstants;
 import yueyueGo.MyAttributionSelectorWithPCA;
+import yueyueGo.databeans.DataInstances;
 
 // 设置一些基础分类器属性的方法组
 public class ClassifyUtility {
@@ -106,20 +106,20 @@ public class ClassifyUtility {
 	}
 
 	//直接bagging不使用PCA
-	public static Classifier buildBaggingWithoutPCA(Instances train,Classifier model,int bagging_iteration, int bagging_samplePercent) throws Exception {
+	public static Classifier buildBaggingWithoutPCA(DataInstances train,Classifier model,int bagging_iteration, int bagging_samplePercent) throws Exception {
 		
 	
 		Bagging bagger=createBaggingRunner(train.numInstances(), train.numAttributes(),bagging_iteration,bagging_samplePercent);
 	    
 	    bagger.setClassifier(model);
 	    bagger.setCalcOutOfBag(false); //不计算袋外误差
-	    bagger.buildClassifier(train);
+	    bagger.buildClassifier(train.getInternalStore());
 		return bagger;
 	}
 	
 	
 	//bagging 内的每个模型自己有单独的PCA
-	public static Classifier buildBaggingWithMultiPCA(Instances train,Classifier model,int bagging_iteration, int bagging_samplePercent) throws Exception {
+	public static Classifier buildBaggingWithMultiPCA(DataInstances train,Classifier model,int bagging_iteration, int bagging_samplePercent) throws Exception {
 		
 		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();
 		classifier.setDebug(true);
@@ -129,12 +129,12 @@ public class ClassifyUtility {
 	    
 	    bagger.setClassifier(classifier);
 	    bagger.setCalcOutOfBag(false); //不计算袋外误差
-	    bagger.buildClassifier(train);
+	    bagger.buildClassifier(train.getInternalStore());
 		return bagger;
 	}
 
 	//bagging 之前使用PCA，bagging大家用同一的
-	public static  Classifier buildBaggingWithSinglePCA(Instances train,Classifier model,int bagging_iteration, int bagging_samplePercent) throws Exception {
+	public static  Classifier buildBaggingWithSinglePCA(DataInstances train,Classifier model,int bagging_iteration, int bagging_samplePercent) throws Exception {
 	
 	    // set up the bagger and build the classifier
 		Bagging bagger=createBaggingRunner(train.numInstances(), train.numAttributes(),bagging_iteration,bagging_samplePercent);
@@ -163,7 +163,7 @@ public class ClassifyUtility {
 	 *      3. 同等情况下，我希望尝试多一层（node数大于输入层数量2倍时多分一层）
 	 * @return
 	 */
-	public static String estimateHiddenLayerNodes(Instances train, boolean usePCA){
+	public static String estimateHiddenLayerNodes(DataInstances train, boolean usePCA){
 		int instanceNum=train.numInstances();
 		double upperLimit=(double)instanceNum/10;
 		int inputNodeNum=train.numAttributes();
@@ -219,12 +219,12 @@ public class ClassifyUtility {
 	}
 
 	//评估时输出confusionMatrix
-	public static Evaluation getConfusionMatrix(Instances trainData,Instances evalData, Classifier model,boolean isNominal)
+	public static Evaluation getConfusionMatrix(DataInstances trainData,DataInstances evalData, Classifier model,boolean isNominal)
 			throws Exception {
 	
 		System.out.println("evluation with full incoming dataset, size: "+evalData.numInstances());
-		Evaluation eval = new Evaluation(trainData);
-		eval.evaluateModel(model, evalData); // evaluate on the sample data to get threshold
+		Evaluation eval = new Evaluation(trainData.getInternalStore());
+		eval.evaluateModel(model, evalData.getInternalStore()); // evaluate on the sample data to get threshold
 		System.out.println(eval.toSummaryString("\nEvaluate Model Results\n\n", true));
 	
 		if (isNominal==true){

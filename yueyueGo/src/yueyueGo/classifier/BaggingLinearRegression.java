@@ -2,11 +2,11 @@ package yueyueGo.classifier;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.functions.LinearRegression;
-import weka.core.Instances;
 import weka.core.SelectedTag;
 import yueyueGo.ContinousClassifier;
 import yueyueGo.ModelStore;
 import yueyueGo.ParrallelizedRunning;
+import yueyueGo.databeans.DataInstances;
 import yueyueGo.utility.ClassifyUtility;
 
 
@@ -58,7 +58,7 @@ public class BaggingLinearRegression extends ContinousClassifier implements Parr
 
 
 	@Override
-	protected Classifier buildModel(Instances train) throws Exception {
+	protected Classifier buildModel(DataInstances train) throws Exception {
 		
 		LinearRegression model=new LinearRegression();
 		int count=train.numInstances()/divided;

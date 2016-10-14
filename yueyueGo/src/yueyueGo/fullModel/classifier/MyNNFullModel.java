@@ -1,10 +1,10 @@
 package yueyueGo.fullModel.classifier;
 
 import weka.classifiers.Classifier;
-import weka.core.Instances;
 import yueyueGo.EnvConstants;
 import yueyueGo.ModelStore;
 import yueyueGo.classifier.MyNNClassifier;
+import yueyueGo.databeans.DataInstances;
 import yueyueGo.fullModel.ArffFormatFullModel;
 import yueyueGo.utility.ClassifyUtility;
 import ext.WekaNeuralNetwork;
@@ -47,7 +47,7 @@ public class MyNNFullModel extends MyNNClassifier {
 	}
 		
 	@Override
-	protected Classifier buildModel(Instances train) throws Exception {
+	protected Classifier buildModel(DataInstances train) throws Exception {
 
 //		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();
 
@@ -63,7 +63,7 @@ public class MyNNFullModel extends MyNNClassifier {
 		model.setDebug(true);
 		
 		
-		model.buildClassifier(train);
+		model.buildClassifier(train.getInternalStore());
 		return model;
 //		classifier.setClassifier(model);
 //		classifier.setDebug(true);

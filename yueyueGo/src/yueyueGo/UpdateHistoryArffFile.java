@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 
 import weka.core.Attribute;
-import weka.core.DenseInstance;
-import weka.core.Instance;
-import weka.core.Instances;
+import yueyueGo.databeans.DataAttribute;
+import yueyueGo.databeans.DataInstance;
+import yueyueGo.databeans.DataInstances;
 import yueyueGo.utility.AppContext;
 import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.FormatUtility;
@@ -26,7 +26,7 @@ public class UpdateHistoryArffFile {
 		String originFilePrefix=AppContext.getC_ROOT_DIRECTORY()+ArffFormat.TRANSACTION_ARFF_PREFIX;
 		
 		String newDataFileName=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group5\\onceyield_group5all20150901_20160930.txt";
-		Instances newData = loadDataFromIncrementalCSVFile(newDataFileName);
+		DataInstances newData = loadDataFromIncrementalCSVFile(newDataFileName);
 		
 
 		//刷新的Arff文件
@@ -48,8 +48,8 @@ public class UpdateHistoryArffFile {
 	protected static void callMergeExtData() throws Exception{
 		String file1=null;
 		String file2=null;
-		Instances extData=null;
-		Instances extData2=null;
+		DataInstances extData=null;
+		DataInstances extData2=null;
 	
 		file1=AppContext.getC_ROOT_DIRECTORY()+"\\sourceData\\波动率\\onceyield_hv_update_2005_2007.txt";
 		file2=AppContext.getC_ROOT_DIRECTORY()+"\\sourceData\\波动率\\onceyield_hv_update_2008_2012.txt";
@@ -66,7 +66,7 @@ public class UpdateHistoryArffFile {
 	
 		//加载原始arff文件
 		String originFileName=AppContext.getC_ROOT_DIRECTORY()+ArffFormat.TRANSACTION_ARFF_PREFIX;
-		Instances fullData = FileUtility.loadDataFromFile(originFileName+"-origin.arff");
+		DataInstances fullData = FileUtility.loadDataFromFile(originFileName+"-origin.arff");
 	
 	
 		System.out.println("full trans data loaded. number="+fullData.numInstances());
@@ -77,7 +77,7 @@ public class UpdateHistoryArffFile {
 		System.out.println("all data sorted by id");
 	
 	
-		Instances result=mergeTransactionWithExtension(fullData,extData,ArffFormat.EXT_ARFF_COLUMNS,ArffFormat.EXT_ARFF_CRC);
+		DataInstances result=mergeTransactionWithExtension(fullData,extData,ArffFormat.EXT_ARFF_COLUMNS,ArffFormat.EXT_ARFF_CRC);
 		System.out.println("NewGroup data processed. number="+result.numInstances()+" columns="+result.numAttributes());
 		extData=null;
 		fullData=null;
@@ -101,13 +101,13 @@ public class UpdateHistoryArffFile {
 	
 	
 		String arffFileName=AppContext.getC_ROOT_DIRECTORY()+ArffFormat.TRANSACTION_ARFF_PREFIX;
-		Instances rawData = mergeSrcTransFiles();
+		DataInstances rawData = mergeSrcTransFiles();
 	
 		//处理所有的日期字段，并插入yearmonth
 		processDateColumns(rawData);
 	
 		//处理各种nominal字段
-		Instances fullData=FileUtility.loadDataFromFile(AppContext.getC_ROOT_DIRECTORY()+"fullTranFormat.arff");
+		DataInstances fullData=FileUtility.loadDataFromFile(AppContext.getC_ROOT_DIRECTORY()+"fullTranFormat.arff");
 		InstanceUtility.calibrateAttributes(rawData, fullData);
 		rawData=null; //试图释放内存
 	
@@ -121,7 +121,7 @@ public class UpdateHistoryArffFile {
 	
 		//取出前半年的旧数据和当年的新数据作为验证的sample数据
 		String splitSampleClause = "( ATT" + ArffFormat.YEAR_MONTH_INDEX + " >= 201506) and ( ATT" + ArffFormat.YEAR_MONTH_INDEX+ " <= 201612) ";
-		Instances sampleData=InstanceUtility.getInstancesSubset(fullData, splitSampleClause);
+		DataInstances sampleData=InstanceUtility.getInstancesSubset(fullData, splitSampleClause);
 		FileUtility.SaveDataIntoFile(sampleData, arffFileName+"-sample.arff");
 		System.out.println("sample arff file saved. ");
 		sampleData=null;//试图释放内存
@@ -134,9 +134,9 @@ public class UpdateHistoryArffFile {
 
 
 	//从文件中读取指定区间的数据，刷新原有数据，再用processHistoryData生成有计算字段之后的数据
-	final protected static void refreshArffFile(String startYearMonth, String endYearMonth,String originFilePrefix,Instances newData) throws Exception {
+	final protected static void refreshArffFile(String startYearMonth, String endYearMonth,String originFilePrefix,DataInstances newData) throws Exception {
 		System.out.println("loading original history file into memory "  );
-		Instances fullData = FileUtility.loadDataFromFile(originFilePrefix+"-origin.arff");
+		DataInstances fullData = FileUtility.loadDataFromFile(originFilePrefix+"-origin.arff");
 
 
 		//将股票代码，交易日期之类的字段变换为String格式
@@ -180,7 +180,7 @@ public class UpdateHistoryArffFile {
 
 		//取出最后一年的数据作为验证的sample数据
 		String splitSampleClause = "( ATT" + ArffFormat.YEAR_MONTH_INDEX + " >= " + endYearMonth.subSequence(0, 4) + "01) and ( ATT" + ArffFormat.YEAR_MONTH_INDEX+ " <= "	+ endYearMonth + ") ";
-		Instances sampleData=InstanceUtility.getInstancesSubset(fullData, splitSampleClause);
+		DataInstances sampleData=InstanceUtility.getInstancesSubset(fullData, splitSampleClause);
 		FileUtility.SaveDataIntoFile(sampleData, originFilePrefix+"-sample.arff");
 	}
 
@@ -189,16 +189,16 @@ public class UpdateHistoryArffFile {
 	 * @param newData
 	 * @throws ParseException
 	 */
-	final protected static void processDateColumns(Instances newData)
+	final protected static void processDateColumns(DataInstances newData)
 			throws ParseException {
 		int yearMonthIndex=InstanceUtility.findATTPosition(newData, ArffFormat.ID); //在ID之后插入
-		newData.insertAttributeAt(new Attribute(ArffFormat.YEAR_MONTH), yearMonthIndex);
+		newData.insertAttributeAt(new DataAttribute(ArffFormat.YEAR_MONTH), yearMonthIndex);
 		//重新计算yearmonth
-		Attribute tradeDateAtt=newData.attribute(ArffFormat.TRADE_DATE);
-		Attribute mcDateAtt=newData.attribute(ArffFormat.SELL_DATE);
-		Attribute dataDateAtt=newData.attribute(ArffFormat.DATA_DATE);
-		Attribute yearMonthAtt=newData.attribute(ArffFormat.YEAR_MONTH);
-		Instance curr;
+		DataAttribute tradeDateAtt=newData.attribute(ArffFormat.TRADE_DATE);
+		DataAttribute mcDateAtt=newData.attribute(ArffFormat.SELL_DATE);
+		DataAttribute dataDateAtt=newData.attribute(ArffFormat.DATA_DATE);
+		DataAttribute yearMonthAtt=newData.attribute(ArffFormat.YEAR_MONTH);
+		DataInstance curr;
 		String tradeDate;
 		double ym;
 		for (int i=0;i<newData.numInstances();i++){
@@ -225,12 +225,12 @@ public class UpdateHistoryArffFile {
 
 		String splitSampleClause = "( ATT" + ArffFormat.YEAR_MONTH_INDEX + " >= " + startYearMonth + ") and ( ATT" + ArffFormat.YEAR_MONTH_INDEX+ " <= "	+ endYearMonth + ") ";
 		System.out.println("start to compare refreshed data, try to get sample data using clause: "+splitSampleClause);
-		Instances originData=FileUtility.loadDataFromFile(filePrefix+"-origin.arff");
+		DataInstances originData=FileUtility.loadDataFromFile(filePrefix+"-origin.arff");
 		originData=InstanceUtility.getInstancesSubset(originData, splitSampleClause);
 
 		int originDataSize=originData.numInstances();
 		System.out.println("loaded original file into memory, number= "+originDataSize);
-		Instances refreshedData=FileUtility.loadDataFromFile(filePrefix+".arff");
+		DataInstances refreshedData=FileUtility.loadDataFromFile(filePrefix+".arff");
 		refreshedData=InstanceUtility.getInstancesSubset(refreshedData, splitSampleClause);
 
 		int refreshedDataSize=refreshedData.numInstances();
@@ -246,10 +246,10 @@ public class UpdateHistoryArffFile {
 		int codeIndex=InstanceUtility.findATTPosition(originData,ArffFormat.CODE);
 		int maIndex=InstanceUtility.findATTPosition(originData, ArffFormat.SELECTED_AVG_LINE); //对于短线策略，这里的值是-1
 
-		Instances originDailyData=null;
-		Instances refreshedDailyData=null;
-		Instance originRow=null;
-		Instance refreshedRow=null;
+		DataInstances originDailyData=null;
+		DataInstances refreshedDailyData=null;
+		DataInstance originRow=null;
+		DataInstance refreshedRow=null;
 		String tradeDate=null;
 		String code=null;
 		int cursor=0;
@@ -330,8 +330,8 @@ public class UpdateHistoryArffFile {
 	 * @return
 	 * @throws IllegalStateException
 	 */
-	final protected static boolean compareRefreshedRow(int maIndex, Instance originRow,
-			Instance refreshedRow, String tradeDate, String code)
+	final protected static boolean compareRefreshedRow(int maIndex, DataInstance originRow,
+			DataInstance refreshedRow, String tradeDate, String code)
 					throws IllegalStateException {
 		boolean rowSame=true;
 		double originMa;
@@ -353,11 +353,11 @@ public class UpdateHistoryArffFile {
 			rowSame=false;
 		}else{
 			//从Bias5开始比较
-			int startingPoint=InstanceUtility.findATTPosition(originRow.dataset(), ArffFormat.BIAS5);
+			int startingPoint=InstanceUtility.findATTPosition(new DataInstances(originRow.dataset()), ArffFormat.BIAS5);
 			for (int n = startingPoint; n < originRow.numAttributes() ; n++) { //跳过左边的值 
 
-				Attribute originAtt = originRow.attribute(n);
-				Attribute refresedAtt=refreshedRow.attribute(n);
+				DataAttribute originAtt = originRow.attribute(n);
+				DataAttribute refresedAtt=refreshedRow.attribute(n);
 				if (originAtt.isNominal() || originAtt.isString()) {
 					String originValue=originRow.stringValue(n);
 					String refreshedValue=refreshedRow.stringValue(n);
@@ -388,14 +388,14 @@ public class UpdateHistoryArffFile {
 	}
 
 	//数据必须是以ID排序的。
-	final protected static Instances mergeTransactionWithExtension(Instances transData,Instances extData,String[] extDataFormat, String[] extArffCRC) throws Exception{
+	final protected static DataInstances mergeTransactionWithExtension(DataInstances transData,DataInstances extData,String[] extDataFormat, String[] extArffCRC) throws Exception{
 
 		//找出transData中的所有待校验字段
-		Attribute[] attToCompare=new Attribute[extArffCRC.length];
+		DataAttribute[] attToCompare=new DataAttribute[extArffCRC.length];
 		for (int i=0;i<extArffCRC.length;i++){
 			attToCompare[i]=transData.attribute(extArffCRC[i]);
 		}
-		Instances mergedResult=prepareMergedFormat(new Instances(transData,0), new Instances(extData,0),extArffCRC);
+		DataInstances mergedResult=prepareMergedFormat(new DataInstances(transData,0), new DataInstances(extData,0),extArffCRC);
 		System.out.println("merged output column number="+mergedResult.numAttributes());
 
 		//开始准备合并
@@ -405,9 +405,9 @@ public class UpdateHistoryArffFile {
 
 		int leftProcessed=0;
 		int rightProcessed=0;
-		Instance leftCurr;
-		Instance rightCurr;
-		Instance newData;
+		DataInstance leftCurr;
+		DataInstance rightCurr;
+		DataInstance newData;
 
 		while (leftProcessed<transData.numInstances() && rightProcessed<extData.numInstances()){	
 			leftCurr=transData.instance(leftProcessed);
@@ -430,7 +430,7 @@ public class UpdateHistoryArffFile {
 			}else if (leftID==rightID ){//找到相同ID的记录了
 				//先对所有的冗余数据进行校验
 				for (int j=0;j<extArffCRC.length;j++){
-					Attribute att = attToCompare[j];
+					DataAttribute att = attToCompare[j];
 					if (att.isNominal() || att.isString()) {
 						String leftLabel = leftCurr.stringValue(att);
 						String rightLabel=rightCurr.stringValue(j);
@@ -476,8 +476,8 @@ public class UpdateHistoryArffFile {
 
 				}//end for j
 
-				newData=new DenseInstance(mergedResult.numAttributes());
-				newData.setDataset(mergedResult);
+				newData=new DataInstance(mergedResult.numAttributes());
+				newData.setDataset(mergedResult.getInternalStore());
 
 				//先拷贝transData中除了classvalue以外的数据
 				int srcStartIndex=0;
@@ -519,11 +519,11 @@ public class UpdateHistoryArffFile {
 
 	final protected static void addCalculationsToFile(String path, String arffName) throws Exception{
 		System.out.println("start to load File for data "  );
-		Instances fullSetData = FileUtility.loadDataFromFile(path+arffName + "-short.arff");
+		DataInstances fullSetData = FileUtility.loadDataFromFile(path+arffName + "-short.arff");
 		System.out.println("finish  loading fullset File  row : "
 				+ fullSetData.numInstances() + " column:"
 				+ fullSetData.numAttributes());
-		Instances result=ArffFormat.addCalculateAttribute(fullSetData);
+		DataInstances result=ArffFormat.addCalculateAttribute(fullSetData);
 		FileUtility.SaveDataIntoFile(result, path+arffName+"-new.arff");
 		System.out.println("file saved "  );
 	}
@@ -537,10 +537,10 @@ public class UpdateHistoryArffFile {
 	 * @throws Exception
 	 * @throws IllegalStateException
 	 */
-	final protected static Instances mergeExtDataFromTwoFiles(String firstFile,
+	final protected static DataInstances mergeExtDataFromTwoFiles(String firstFile,
 			String secondFile,String[] verifyFormat) throws Exception, IllegalStateException {
-		Instances extData=FileUtility.loadDataFromExtCSVFile(firstFile,verifyFormat);
-		Instances extDataSecond=FileUtility.loadDataFromExtCSVFile(secondFile,verifyFormat);
+		DataInstances extData=FileUtility.loadDataFromExtCSVFile(firstFile,verifyFormat);
+		DataInstances extDataSecond=FileUtility.loadDataFromExtCSVFile(secondFile,verifyFormat);
 
 
 		return InstanceUtility.mergeTwoInstances(extData, extDataSecond);
@@ -554,19 +554,19 @@ public class UpdateHistoryArffFile {
 	 * @throws IOException
 	 */
 	private static void generateArffFileSet(String originFileName,
-			Instances fullSetData) throws Exception, IOException {
+			DataInstances fullSetData) throws Exception, IOException {
 	
 		// 存下用于计算收益率的数据
-		Instances left=ArffFormat.getTransLeftPartFromAllTransaction(fullSetData);
+		DataInstances left=ArffFormat.getTransLeftPartFromAllTransaction(fullSetData);
 		FileUtility.SaveDataIntoFile(left, originFileName+"-left.arff");
 		System.out.println("history Data left File saved: "+originFileName+"-left.arff"  );
 		left=null; //试图释放内存
 	
 		// 去除与训练无关的字段
-		Instances result=ArffFormat.prepareTransData(fullSetData);
+		DataInstances result=ArffFormat.prepareTransData(fullSetData);
 	
 		//保存训练用的format，用于做日后的校验 
-		Instances format=new Instances(result,0);
+		DataInstances format=new DataInstances(result,0);
 		FileUtility.SaveDataIntoFile(format, originFileName+"-format.arff");	
 		//保存不含计算字段的格式
 		FileUtility.SaveDataIntoFile(result, originFileName+"-short.arff");
@@ -587,29 +587,29 @@ public class UpdateHistoryArffFile {
 	 * 将第一个Instances的classvalue（最后一列）作为合并后的classvalue
 	 * 
 	 */
-	private static Instances prepareMergedFormat(Instances transData, Instances extData,String[] extArffCRC) {
+	private static DataInstances prepareMergedFormat(DataInstances transData, DataInstances extData,String[] extArffCRC) {
 		// Create the vector of merged attributes
-		ArrayList<Attribute> newAttributes = new ArrayList<Attribute>(transData.numAttributes() +
+		ArrayList<DataAttribute> newAttributes = new ArrayList<DataAttribute>(transData.numAttributes() +
 				extData.numAttributes()-extArffCRC.length);
 		Enumeration<Attribute> enu = transData.enumerateAttributes();
 		while (enu.hasMoreElements()) {
-			newAttributes.add((Attribute) (enu.nextElement().copy()));// Need to copy because indices will change.
+			newAttributes.add(new DataAttribute((Attribute)enu.nextElement().copy()));// Need to copy because indices will change.
 		}
 		enu = extData.enumerateAttributes();
 		while (enu.hasMoreElements()) {
 			//去掉冗余字段，将有效数据字段加入新数据集
 			// Need to copy because indices will change.
-			Attribute att=(Attribute)enu.nextElement().copy();
+			DataAttribute att=(DataAttribute)enu.nextElement().copy();
 			if (att.index()>= extArffCRC.length){
 				newAttributes.add(att);
 			}
 		}
 		//将第一个数据集里的Class属性作为新数据集的class属性
-		Attribute classAttribute=(Attribute)transData.classAttribute().copy();// Need to copy because indices will change.
+		DataAttribute classAttribute=(DataAttribute)transData.classAttribute().copy();// Need to copy because indices will change.
 		newAttributes.add(classAttribute);
 	
 		// Create the set of mergedInstances
-		Instances merged = new Instances(transData.relationName(), newAttributes, 0);
+		DataInstances merged = new DataInstances(transData.relationName(), newAttributes, 0);
 		merged.setClassIndex(merged.numAttributes()-1);
 	
 		return merged;
@@ -622,7 +622,7 @@ public class UpdateHistoryArffFile {
 	private static void processHistoryFile() throws Exception {
 		System.out.println("loading history file into memory "  );
 		String originFileName=AppContext.getC_ROOT_DIRECTORY()+ArffFormat.TRANSACTION_ARFF_PREFIX;
-		Instances fullSetData = FileUtility.loadDataFromFile(originFileName+".arff");
+		DataInstances fullSetData = FileUtility.loadDataFromFile(originFileName+".arff");
 		System.out.println("finish  loading fullset File  row : "+ fullSetData.numInstances() + " column:"+ fullSetData.numAttributes());
 		generateArffFileSet(originFileName, fullSetData);
 	}
@@ -634,11 +634,11 @@ public class UpdateHistoryArffFile {
 	 * @throws Exception
 	 * @throws IllegalStateException
 	 */
-	private static Instances mergeSrcTransFiles() throws Exception,
+	private static DataInstances mergeSrcTransFiles() throws Exception,
 	IllegalStateException {
 		String sourceFilePrefix=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\full4group\\test_onceyield_group4allhis";
-		Instances fullData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2005-2006.txt");
-		Instances addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2007-2008.txt");
+		DataInstances fullData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2005-2006.txt");
+		DataInstances addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2007-2008.txt");
 		fullData=InstanceUtility.mergeTwoInstances(fullData, addData);
 		System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
 		addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2009-2010.txt");
@@ -659,7 +659,7 @@ public class UpdateHistoryArffFile {
 
 
 	// 从增量的交易CSV文件中加载数据
-	private static Instances loadDataFromIncrementalCSVFile(String fileName) throws Exception{ 
+	private static DataInstances loadDataFromIncrementalCSVFile(String fileName) throws Exception{ 
 		return FileUtility.loadDataWithFormatFromCSVFile(fileName,ArffFormat.TRANS_DATA_FORMAT_NEW);
 	}
 

@@ -3,10 +3,10 @@ package yueyueGo.classifier;
 import weka.classifiers.Classifier;
 import weka.classifiers.meta.AdaBoostM1;
 import weka.classifiers.trees.J48;
-import weka.core.Instances;
 import yueyueGo.ModelStore;
 import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.NominalClassifier;
+import yueyueGo.databeans.DataInstances;
 import yueyueGo.utility.ClassifyUtility;
 
 //1.  20160912结果
@@ -95,7 +95,7 @@ public class AdaboostClassifier extends NominalClassifier {
 	}
 		
 	@Override
-	protected Classifier buildModel(Instances train) throws Exception {
+	protected Classifier buildModel(DataInstances train) throws Exception {
 		
  
 		//设置基础的J48 classifier参数

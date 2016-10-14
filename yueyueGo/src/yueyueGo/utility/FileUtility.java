@@ -11,20 +11,20 @@ import java.io.OutputStreamWriter;
 import java.util.Vector;
 
 import weka.classifiers.Classifier;
-import weka.core.Instances;
 import weka.core.SerializationHelper;
 import weka.core.converters.ArffSaver;
 import weka.core.converters.CSVLoader;
 import weka.core.converters.CSVSaver;
 import weka.core.converters.ConverterUtils.DataSource;
 import yueyueGo.ArffFormat;
+import yueyueGo.databeans.DataInstances;
 
 public class FileUtility {
 	// load full set of data
-	public static Instances loadDataFromFile(String fileName)
+	public static DataInstances loadDataFromFile(String fileName)
 			throws Exception {
 		DataSource source = new DataSource(fileName); 
-		Instances data = source.getDataSet();
+		DataInstances data = new DataInstances(source.getDataSet());
 
 		// setting class attribute if the data format does not provide this
 		// information
@@ -34,11 +34,11 @@ public class FileUtility {
 	}
 	
 	// 从CSV文件中加载数据，不做任何特殊操作及后续处理
-	public static Instances loadNormalCSVFile(String fileName)
+	public static DataInstances loadNormalCSVFile(String fileName)
 			throws Exception {
 		CSVLoader loader = new CSVLoader();
 		loader.setSource(new File(fileName));
-		Instances datasrc = loader.getDataSet();
+		DataInstances datasrc = new DataInstances(loader.getDataSet());
 		return datasrc;
 	}
 
@@ -68,19 +68,19 @@ public class FileUtility {
 	
 	
 	// 从CSV文件中加载数据，用给定格式校验，并设置classIndex
-	public static Instances loadDataWithFormatFromCSVFile(String fileName, String[] format)
+	public static DataInstances loadDataWithFormatFromCSVFile(String fileName, String[] format)
 				throws Exception {
-			Instances datasrc=loadDataFromExtCSVFile(fileName, format); 
+			DataInstances datasrc=loadDataFromExtCSVFile(fileName, format); 
 			if (datasrc.classIndex() == -1)
 				  datasrc.setClassIndex(datasrc.numAttributes() - 1);
 			return datasrc;
 		}
 	
 	// 从CSV文件中加载数据，用给定格式校验，但设置classIndex
-	public static Instances loadDataFromExtCSVFile(String fileName,String[] verifyFormat)	throws Exception {
+	public static DataInstances loadDataFromExtCSVFile(String fileName,String[] verifyFormat)	throws Exception {
 			CSVLoader loader = new CSVLoader();
 			loader.setSource(new File(fileName));
-			Instances datasrc = loader.getDataSet();
+			DataInstances datasrc = new DataInstances(loader.getDataSet());
 
 			// 对读入的数据字段名称校验 确保其顺序完全和内部训练的arff格式一致
 			datasrc=ArffFormat.validateAttributeNames(datasrc,verifyFormat);
@@ -97,17 +97,17 @@ public class FileUtility {
 			return datasrc;
 		}	
 	
-	public static void SaveDataIntoFile(Instances dataSet, String fileName) throws IOException {
+	public static void SaveDataIntoFile(DataInstances dataSet, String fileName) throws IOException {
 
 		ArffSaver saver = new ArffSaver();
-		saver.setInstances(dataSet);
+		saver.setInstances(dataSet.getInternalStore());
 		saver.setFile(new File(fileName));
 		saver.writeBatch();
 
 	}
-	public static void saveCSVFile(Instances data, String fileName) throws IOException {
+	public static void saveCSVFile(DataInstances data, String fileName) throws IOException {
 		CSVSaver saver = new CSVSaver();
-		saver.setInstances(data);
+		saver.setInstances(data.getInternalStore());
 		saver.setFile(new File(fileName));
 		saver.writeBatch();
 	}

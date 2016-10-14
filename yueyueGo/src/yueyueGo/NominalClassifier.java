@@ -6,10 +6,9 @@ import weka.classifiers.Classifier;
 import weka.classifiers.evaluation.EvaluationUtils;
 import weka.classifiers.evaluation.Prediction;
 import weka.classifiers.evaluation.ThresholdCurve;
-import weka.core.Attribute;
-import weka.core.DenseInstance;
-import weka.core.Instance;
-import weka.core.Instances;
+import yueyueGo.databeans.DataAttribute;
+import yueyueGo.databeans.DataInstance;
+import yueyueGo.databeans.DataInstances;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.InstanceUtility;
 
@@ -19,7 +18,7 @@ public abstract class NominalClassifier extends BaseClassifier{
 	 */
 	private static final long serialVersionUID = 5570283670170193026L;
 
-	private Instances m_cachedOldClassInstances=null;
+	private DataInstances m_cachedOldClassInstances=null;
 	
 	/**
 	 * @param evalData
@@ -27,15 +26,15 @@ public abstract class NominalClassifier extends BaseClassifier{
 	 * @return
 	 * @throws Exception
 	 */
-	protected Instances getROCInstances(Instances evalData, Classifier model)
+	protected DataInstances getROCInstances(DataInstances evalData, Classifier model)
 			throws Exception {
 		// generate curve
 //		Evaluation eval=benchmark.getEvalulation();
 		EvaluationUtils eUtils=new EvaluationUtils();
-		ArrayList<Prediction> predictions=eUtils.getTestPredictions(model, evalData);
+		ArrayList<Prediction> predictions=eUtils.getTestPredictions(model, evalData.getInternalStore());
 		ThresholdCurve tc = new ThresholdCurve();
 		int classIndex = 1;
-		Instances result = tc.getCurve(predictions, classIndex);
+		DataInstances result = new DataInstances(tc.getCurve(predictions, classIndex));
 
 
 		
@@ -180,13 +179,14 @@ public abstract class NominalClassifier extends BaseClassifier{
 
 	//对于二分类变量，返回分类1的预测可能性
 	@Override
-	protected  double classify(Classifier model,Instance curr) throws Exception {
-		double[] problity =  model.distributionForInstance(curr);
+	protected  double classify(Classifier model,DataInstance curr) throws Exception {
+		//TODO
+		double[] problity =  model.distributionForInstance(curr.getInstance());
 		return problity[1];
 	}
 	
 	//将原始数据变换为nominal Classifier需要的形式（更换class 变量等等）
-	public Instances processDataForNominalClassifier(Instances inData, boolean cacheOldClassValue) throws Exception{
+	public DataInstances processDataForNominalClassifier(DataInstances inData, boolean cacheOldClassValue) throws Exception{
 
 		int oldClassIndex=inData.classIndex();
 		if (oldClassIndex!=(inData.numAttributes()-1)){
@@ -195,7 +195,7 @@ public abstract class NominalClassifier extends BaseClassifier{
 		ArrayList<String> values=new ArrayList<String>();
 		values.add(ArffFormat.VALUE_NO);
 		values.add(ArffFormat.VALUE_YES);
-		Attribute newClassAtt=new Attribute(ArffFormat.IS_POSITIVE,values);
+		DataAttribute newClassAtt=new DataAttribute(ArffFormat.IS_POSITIVE,values);
 		//在classValue之前插入positive,然后记录下它的新位置index
 		inData.insertAttributeAt(newClassAtt,inData.numAttributes()-1);
 		int newClassIndex=inData.numAttributes()-2;
@@ -218,8 +218,8 @@ public abstract class NominalClassifier extends BaseClassifier{
 			//暂存收益率
 			if (cacheOldClassValue==true){
 				double id=inData.instance(i).value(0);
-				Instance cacheRow=new DenseInstance(m_cachedOldClassInstances.numAttributes());
-				cacheRow.setDataset(m_cachedOldClassInstances);
+				DataInstance cacheRow=new DataInstance(m_cachedOldClassInstances.numAttributes());
+				cacheRow.setDataset(m_cachedOldClassInstances.getInternalStore());
 				cacheRow.setValue(0, id);
 				cacheRow.setValue(1, shouyilv);
 				m_cachedOldClassInstances.add(cacheRow);
@@ -235,13 +235,13 @@ public abstract class NominalClassifier extends BaseClassifier{
 	
 	
 	// 创建暂存oldClassValue（目前情况下为暂存收益率）的arff结构（id-收益率）
-	protected Instances CreateCachedOldClassInstances() {
-		Attribute pred = new Attribute(ArffFormat.ID);
-		Attribute shouyilv = new Attribute(ArffFormat.SHOUYILV);
-		ArrayList<Attribute> fvWekaAttributes = new ArrayList<Attribute>(2);
+	protected DataInstances CreateCachedOldClassInstances() {
+		DataAttribute pred = new DataAttribute(ArffFormat.ID);
+		DataAttribute shouyilv = new DataAttribute(ArffFormat.SHOUYILV);
+		ArrayList<DataAttribute> fvWekaAttributes = new ArrayList<DataAttribute>(2);
 		fvWekaAttributes.add(pred);
 		fvWekaAttributes.add(shouyilv);
-		Instances structure = new Instances("cachedOldClass", fvWekaAttributes, 0);
+		DataInstances structure = new DataInstances("cachedOldClass", fvWekaAttributes, 0);
 		structure.setClassIndex(structure.numAttributes() - 1);
 		return structure;
 	}

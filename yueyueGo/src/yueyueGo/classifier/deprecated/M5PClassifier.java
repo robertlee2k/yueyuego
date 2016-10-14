@@ -2,8 +2,8 @@ package yueyueGo.classifier.deprecated;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.trees.M5P;
-import weka.core.Instances;
 import yueyueGo.ContinousClassifier;
+import yueyueGo.databeans.DataInstances;
 import yueyueGo.utility.ClassifyUtility;
 
 
@@ -144,12 +144,12 @@ public class M5PClassifier extends ContinousClassifier {
 
 
 	@Override
-	protected Classifier buildModel(Instances train) throws Exception {
+	protected Classifier buildModel(DataInstances train) throws Exception {
 		
 	
 		M5P model=ClassifyUtility.prepareM5P(train.numInstances(),leafMinObjNum,divided);
 
-		model.buildClassifier(train);
+		model.buildClassifier(train.getInternalStore());
 		
 
 		return model;
