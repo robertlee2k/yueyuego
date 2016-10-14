@@ -30,6 +30,8 @@ import java.util.concurrent.TimeUnit;
 
 import weka.core.Attribute;
 import weka.core.Instances;
+import yueyueGo.classifier.AdaboostClassifier;
+import yueyueGo.classifier.BaggingLinearRegression;
 import yueyueGo.classifier.BaggingM5P;
 import yueyueGo.classifier.MyNNClassifier;
 import yueyueGo.utility.AppContext;
@@ -79,12 +81,9 @@ public class BackTest {
 		//为半年度模型使用		
 //		"200807","200907","201007","201107","201207","201307","201407","201507","201607"
 		//为月度模型使用		
-		"200801","200802","200803","200804","200805","200806","200807","200808","200809","200810","200811","200812","200901","200902","200903","200904","200905","200906","200907","200908","200909","200910","200911","200912","201001","201002","201003","201004","201005","201006","201007","201008","201009","201010","201011","201012","201101","201102","201103","201104","201105","201106","201107","201108","201109","201110","201111","201112","201201","201202","201203","201204","201205","201206","201207","201208","201209","201210","201211","201212","201301","201302","201303","201304","201305","201306","201307","201308","201309","201310","201311","201312","201401","201402","201403","201404","201405","201406","201407","201408","201409","201410","201411","201412","201501","201502","201503","201504","201505","201506","201507","201508","201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607","201608","201609"
-		//生成预测使用模型		
+//		"200801","200802","200803","200804","200805","200806","200807","200808","200809","200810","200811","200812","200901","200902","200903","200904","200905","200906","200907","200908","200909","200910","200911","200912","201001","201002","201003","201004","201005","201006","201007","201008","201009","201010","201011","201012","201101","201102","201103","201104","201105","201106","201107","201108","201109","201110","201111","201112","201201","201202","201203","201204","201205","201206","201207","201208","201209","201210","201211","201212","201301","201302","201303","201304","201305","201306","201307","201308","201309","201310","201311","201312","201401","201402","201403","201404","201405","201406","201407","201408","201409","201410","201411","201412","201501","201502","201503","201504","201505","201506","201507","201508","201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607","201608","201609"
+		//生成预测所使用半年度模型		
 //		"201607"	
-		//生成预测所用的模型		
-//		"201608"				
-
 		};		
 		
 	}
@@ -105,26 +104,54 @@ public class BackTest {
 			
 //			UpdateHistoryArffFile.createTransInstances();
 			
-
+			//刷新最新月份的模型
+//			worker.callRefreshModelUseLatestData();
 			
 		} catch (Exception e) {
 			
 			e.printStackTrace();
 		}
 	}
-
+	
 	/**
+	 * 根据最新这个月的增量数据刷新模型
 	 * @throws Exception
-	 * @throws IOException
 	 */
-	protected void callTestBack() throws Exception, IOException {
+	protected void callRefreshModelUseLatestData() throws Exception{
+		BaseClassifier model=null;
+		splitYear=new String[] {"201609"};
+		RUNNING_THREADS=5;
+		
+		//逐次刷新数据
+		model=new AdaboostClassifier();
+		model.m_skipTrainInBacktest=true;
+		model.m_skipEvalInBacktest=false;
+		testBackward(model);
+		
+		model=new MyNNClassifier();
+		model.m_skipTrainInBacktest=true;
+		model.m_skipEvalInBacktest=false;
+		testBackward(model);
+		
+		model=new BaggingM5P();
+		model.m_skipTrainInBacktest=true;
+		model.m_skipEvalInBacktest=false;
+		testBackward(model);
+
+		model=new BaggingLinearRegression();
+		model.m_skipTrainInBacktest=true;
+		model.m_skipEvalInBacktest=false;
+		testBackward(model);
+	}
+
+	protected void callTestBack() throws Exception {
 		//按二分类器回测历史数据
 		
 		//神经网络
 //		BaggingJ48 nModel=new BaggingJ48();
 //		MLPABClassifier nModel = new MLPABClassifier();
-		MyNNClassifier nModel=new MyNNClassifier(); 
-//		AdaboostClassifier nModel=new AdaboostClassifier();
+//		MyNNClassifier nModel=new MyNNClassifier(); 
+		AdaboostClassifier nModel=new AdaboostClassifier();
 
 
 		Instances nominalResult=testBackward(nModel);
@@ -135,9 +162,9 @@ public class BackTest {
 		BaggingM5P cModel=new BaggingM5P();
 //		BaggingLinearRegression cModel=new BaggingLinearRegression();
 
-//		Instances continuousResult=testBackward(cModel);
+		Instances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
-		Instances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
+//		Instances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 		
 		//统一输出统计结果
 		nModel.outputClassifySummary();
@@ -160,8 +187,7 @@ public class BackTest {
 	//用模型预测数据
 	
 	//历史回测
-	protected  Instances testBackward(BaseClassifier clModel) throws Exception,
-			IOException {
+	protected  Instances testBackward(BaseClassifier clModel) throws Exception{
 		Instances fullSetData = null;
 		Instances result = null;
 		
