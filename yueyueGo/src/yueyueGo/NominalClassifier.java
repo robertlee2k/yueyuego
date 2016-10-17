@@ -219,7 +219,7 @@ public abstract class NominalClassifier extends BaseClassifier{
 			if (cacheOldClassValue==true){
 				double id=inData.instance(i).value(0);
 				DataInstance cacheRow=new DataInstance(m_cachedOldClassInstances.numAttributes());
-				cacheRow.setDataset(m_cachedOldClassInstances.getInternalStore());
+				cacheRow.setDataset(m_cachedOldClassInstances);
 				cacheRow.setValue(0, id);
 				cacheRow.setValue(1, shouyilv);
 				m_cachedOldClassInstances.add(cacheRow);

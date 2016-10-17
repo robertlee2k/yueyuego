@@ -8,11 +8,10 @@ import java.util.Enumeration;
 import weka.classifiers.AbstractClassifier;
 import weka.core.Attribute;
 import weka.core.Capabilities;
+import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.Option;
 import weka.core.Utils;
-import yueyueGo.databeans.DataAttribute;
-import yueyueGo.databeans.DataInstance;
 import ext.amten.ml.NNParams;
 import ext.amten.ml.matrix.Matrix;
 import ext.amten.ml.matrix.MatrixElement;
@@ -93,14 +92,14 @@ public class WekaNeuralNetwork extends AbstractClassifier implements Serializabl
         myNN.train(x, y);
     }
 
-    public double[] distributionForInstance(DataInstance instance) throws Exception {
+    public double[] distributionForInstance(Instance instance) throws Exception {
 
         Matrix x = new Matrix(1, instance.numAttributes()-1);
         int classIndex = instance.classIndex();
 
         int col = 0;
         for (int attrIndex = 0; attrIndex < instance.numAttributes(); attrIndex++) {
-            DataAttribute attr = instance.attribute(attrIndex);
+            Attribute attr = instance.attribute(attrIndex);
             if (attrIndex != classIndex) {
                 double value = instance.value(attrIndex);
                 boolean missing = instance.isMissing(attrIndex);

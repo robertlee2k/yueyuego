@@ -124,7 +124,7 @@ public class MergeClassifyResults {
 					//接下来做冗余字段的数据校验
 					if ( ArffFormat.checkSumBeforeMerge(leftCurr, resultCurr, leftMA, resultMA,leftBias5, resultBias5)) {
 						newData=new DataInstance(mergedResult.numAttributes());
-						newData.setDataset(mergedResult.getInternalStore());
+						newData.setDataset(mergedResult);
 						int srcStartIndex=0;
 						int srcEndIndex=leftCurr.numAttributes()-1;
 						int targetStartIndex=0;

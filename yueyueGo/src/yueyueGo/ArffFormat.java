@@ -263,7 +263,7 @@ public class ArffFormat {
 				}
 			}
 			DataInstance newRow = new DataInstance(result.numAttributes());
-			newRow.setDataset(result.getInternalStore());
+			newRow.setDataset(result);
 
 			// copy same values
 

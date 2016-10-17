@@ -349,7 +349,7 @@ public abstract class BaseClassifier implements Serializable{
 			DataInstance curr = new DataInstance(test.instance(i));
 			double pred=classify(model,curr);  //调用子类的分类函数
 			DataInstance inst = new DataInstance(result.numAttributes());
-			inst.setDataset(result.getInternalStore());
+			inst.setDataset(result);
 			//将相应的ID赋值回去
 			inst.setValue(ArffFormat.ID_POSITION - 1, ids[i]);
 			for (int n = 1; n < inst.numAttributes() - 3; n++) { // ignore the

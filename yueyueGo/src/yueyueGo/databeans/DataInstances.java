@@ -64,11 +64,21 @@ public class DataInstances implements DataBean{
 //	}
 
 	public DataAttribute attribute(int index) {
-		return new DataAttribute(internalStore.attribute(index));
+		Attribute findAttribute=internalStore.attribute(index);
+		if (findAttribute!=null){
+			return new DataAttribute(findAttribute);
+		}else{
+			return null;
+		}
 	}
 
 	public DataAttribute attribute(String name) {
-		return new DataAttribute(internalStore.attribute(name));
+		Attribute findAttribute=internalStore.attribute(name);
+		if (findAttribute!=null){
+			return new DataAttribute(findAttribute);
+		}else{
+			return null;
+		}
 	}
 
 //	public AttributeStats attributeStats(int arg0) {

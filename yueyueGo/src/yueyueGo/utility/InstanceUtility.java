@@ -188,8 +188,7 @@ public class InstanceUtility {
 		
 		for (int m=0; m<input.numInstances();m++){
 			DataInstance copyTo=new DataInstance(output.numAttributes());
-			Instances woutput=output.getInternalStore();
-			copyTo.setDataset(woutput);
+			copyTo.setDataset(output);
 			DataInstance copyFrom=input.instance(m);
 			fullCopyInstance(copyFrom,copyTo);
 			output.add(copyTo);
@@ -255,8 +254,7 @@ public class InstanceUtility {
 		int colSize=extData.numAttributes()-1;
 		for (int i=0;i<extDataSecond.numInstances();i++){
 			DataInstance newRow=new DataInstance(extData.numAttributes());
-			Instances wextData=extData.getInternalStore();
-			newRow.setDataset(wextData);
+			newRow.setDataset(extData);
 			oldRow=extDataSecond.instance(i);
 			copyToNewInstance(oldRow,newRow,0,colSize,0);
 			extData.add(newRow);
@@ -301,7 +299,7 @@ public class InstanceUtility {
 		DataAttribute incomingAttribue=null;
 		for (int i = 0; i < searchAttributes.length; i++) {
 			incomingAttribue=data.attribute(searchAttributes[i]);
-			if (incomingAttribue.isEmpty()==false){//!=null){
+			if (incomingAttribue!=null){
 				int pos=incomingAttribue.index()+1;//在内部的attribute index是0开始的
 				if (nominalAttribPosition==null){ //找到的第一个
 					nominalAttribPosition=new Integer(pos).toString(); 

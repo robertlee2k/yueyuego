@@ -477,7 +477,7 @@ public class UpdateHistoryArffFile {
 				}//end for j
 
 				newData=new DataInstance(mergedResult.numAttributes());
-				newData.setDataset(mergedResult.getInternalStore());
+				newData.setDataset(mergedResult);
 
 				//先拷贝transData中除了classvalue以外的数据
 				int srcStartIndex=0;
