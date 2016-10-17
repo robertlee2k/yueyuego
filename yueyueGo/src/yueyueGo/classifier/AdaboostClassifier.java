@@ -67,6 +67,25 @@ import yueyueGo.utility.ClassifyUtility;
 //mixed selected positive rate: 36.55%
 //Monthly summary_judge_result summary: good number= 285 bad number=235
 //===============================end of summary=====================================for : adaboost
+
+// 20161017
+//===============================output summary===================================== for : adaboost
+//Monthly selected_TPR mean: 31.25% standard deviation=21.37% Skewness=0.49 Kurtosis=-0.5
+//Monthly selected_LIFT mean : 1.02
+//Monthly selected_positive summary: 24,385
+//Monthly selected_count summary: 61,586
+//Monthly selected_shouyilv average: 1.22% standard deviation=6.84% Skewness=3.21 Kurtosis=17.25
+//Monthly total_shouyilv average: 0.96% standard deviation=6.07% Skewness=3.08 Kurtosis=15.81
+//mixed selected positive rate: 39.60%
+//Monthly summary_judge_result summary: good number= 310 bad number=215
+//===============================end of summary=====================================for : adaboost
+//###### Finally selected count=40538  ######
+//result changed because of reference data not matched=21048 while good change number=14933
+//good ratio=70.95% average changed shouyilv=1.08% @ shouyilv thredhold= /0.50% /0.50% /1.00% /3.00% /3.00% /
+//number of records for full market=1454589
+//shouyilv average for full market=0.77%
+//selected shouyilv average for full market =2.47% count=40538
+//-----end of test backward------ (with baggingM5P)
 public class AdaboostClassifier extends NominalClassifier {
 
 	/**

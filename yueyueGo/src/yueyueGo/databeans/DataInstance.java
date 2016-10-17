@@ -1,12 +1,18 @@
 
 package yueyueGo.databeans;
 
+import java.io.Serializable;
+
 import weka.core.Attribute;
 import weka.core.DenseInstance;
 import weka.core.Instance;
 
 
-public class DataInstance {
+public class DataInstance implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7442832870650058195L;
 	DenseInstance instance;
 
 	public DataInstance(DenseInstance denseInstance) {

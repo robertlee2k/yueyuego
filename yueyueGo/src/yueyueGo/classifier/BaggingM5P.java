@@ -86,6 +86,25 @@ import yueyueGo.utility.ClassifyUtility;
 //shouyilv average for full market=0.79%
 //selected shouyilv average for full market =3.02% count=30451
 //-----now output nominal predictions----------myNNAB
+
+//20161017 
+//===============================output summary===================================== for : baggingM5P-multiPCA
+//Monthly selected_TPR mean: 28.37% standard deviation=22.79% Skewness=0.6 Kurtosis=-0.23
+//Monthly selected_LIFT mean : 0.87
+//Monthly selected_positive summary: 37,699
+//Monthly selected_count summary: 99,647
+//Monthly selected_shouyilv average: 1.00% standard deviation=6.03% Skewness=2.66 Kurtosis=12.89
+//Monthly total_shouyilv average: 0.96% standard deviation=6.07% Skewness=3.08 Kurtosis=15.81
+//mixed selected positive rate: 37.83%
+//Monthly summary_judge_result summary: good number= 295 bad number=230
+//===============================end of summary=====================================for : baggingM5P-multiPCA
+//###### Finally selected count=38867  ######
+//result changed because of reference data not matched=60780 while good change number=38788
+//good ratio=63.82% average changed shouyilv=1.96% @ winrate thredhold= /45.00% /45.00% /45.00% /35.00% /25.00% /
+//number of records for full market=1454589
+//shouyilv average for full market=0.77%
+//selected shouyilv average for full market =2.29% count=38867
+//-----now output nominal predictions----------adaboost
 public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunning{
 	/**
 	 * 

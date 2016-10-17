@@ -1,13 +1,18 @@
 package yueyueGo.databeans;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Enumeration;
 
 import weka.core.Attribute;
 import weka.core.Instances;
 
-public class DataInstances implements DataBean{
+public class DataInstances implements Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3704902897369927844L;
 	Instances internalStore;
 
 	//根据输入Instance格式创建instance的wrapper

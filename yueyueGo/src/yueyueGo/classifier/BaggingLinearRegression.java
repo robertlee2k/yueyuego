@@ -27,6 +27,26 @@ import yueyueGo.utility.ClassifyUtility;
 //shouyilv average for full market=0.79%
 //selected shouyilv average for full market =2.29% count=41348
 
+
+//20161017
+//===============================output summary===================================== for : BaggingLinearRegression-multiPCA
+//Monthly selected_TPR mean: 30.87% standard deviation=26.14% Skewness=0.7 Kurtosis=-0.13
+//Monthly selected_LIFT mean : 0.97
+//Monthly selected_positive summary: 38,376
+//Monthly selected_count summary: 95,881
+//Monthly selected_shouyilv average: 1.11% standard deviation=6.54% Skewness=1.91 Kurtosis=6.81
+//Monthly total_shouyilv average: 0.96% standard deviation=6.07% Skewness=3.08 Kurtosis=15.81
+//mixed selected positive rate: 40.02%
+//Monthly summary_judge_result summary: good number= 319 bad number=206
+//===============================end of summary=====================================for : BaggingLinearRegression-multiPCA
+//###### Finally selected count=39216  ######
+//result changed because of reference data not matched=56665 while good change number=34740
+//good ratio=61.31% average changed shouyilv=3.74% @ winrate thredhold= /45.00% /45.00% /45.00% /35.00% /25.00% /
+//number of records for full market=1454589
+//shouyilv average for full market=0.77%
+//selected shouyilv average for full market =3.17% count=39216
+//-----now output nominal predictions----------adaboost
+
 public class BaggingLinearRegression extends ContinousClassifier implements ParrallelizedRunning {
 
 	/**

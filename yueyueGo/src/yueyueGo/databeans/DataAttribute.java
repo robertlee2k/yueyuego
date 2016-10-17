@@ -21,11 +21,17 @@
 
 package yueyueGo.databeans;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+
 import weka.core.Attribute;
 
 
-public class DataAttribute  {
+public class DataAttribute  implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4936762715817718008L;
 	Attribute attribute;
 
 	public DataAttribute(Attribute attribute) {
