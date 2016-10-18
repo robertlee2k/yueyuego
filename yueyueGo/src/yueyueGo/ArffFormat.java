@@ -199,9 +199,9 @@ public class ArffFormat {
 	private static final String[] TRANS_DATA_LEFT = FormatUtility.concatStrings(new String[]{ID},TRANS_DATA_NOT_SAVED_IN_ARFF);
 	public static final String[] TRANS_DATA_FORMAT_NEW=FormatUtility.concatStrings(TRANS_DATA_LEFT,MODEL_ATTRIB_FORMAT_NEW);
 
-	//所有数据中需要作为STRING/nominal 处理的数据
+	//所有数据中需要作为nominal 处理的数据
 	private static final String[] NOMINAL_ATTRIBS={
-		TRADE_DATE, CODE, SELL_DATE, 
+		TRADE_DATE,CODE, SELL_DATE, 
 		DATA_DATE, SELECTED_AVG_LINE, IS_POSITIVE,
 		"zhangdieting",
 		"zhishu_code", "sw_zhishu_code",IS_SZ50 ,IS_HS300 , "iszz100",

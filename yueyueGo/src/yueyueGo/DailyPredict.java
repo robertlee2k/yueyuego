@@ -6,6 +6,7 @@ import yueyueGo.classifier.AdaboostClassifier;
 import yueyueGo.classifier.BaggingLinearRegression;
 import yueyueGo.classifier.BaggingM5P;
 import yueyueGo.classifier.MyNNClassifier;
+import yueyueGo.databeans.BaseInstance;
 import yueyueGo.databeans.BaseInstances;
 import yueyueGo.databeans.DataInstances;
 import yueyueGo.fullModel.ArffFormatFullModel;
@@ -69,11 +70,11 @@ public class DailyPredict {
 			format=ArffFormatFullModel.FULLMODEL_FORMAT;
 			//BaggingM5PFullModel当前使用的预测模型---------FullMODEL
 			classifierName=ClassifyUtility.BAGGING_M5P_FULLMODEL;
-			addModelData(classifierName,format,"\\extData2005-2016-BaggingM5PABFullModel-201507 MA ", "\\extData2005-2016-BaggingM5PABFullModel-201508 MA ");
+			addModelData(classifierName,format,"\\extData2005-2016-BaggingM5PABFullModel-201507 MA ", "\\extData2005-2016-BaggingM5PABFullModel-201509 MA ");
 
 			//BaggingJ48FullModel当前使用的预测模型---------FullMODEL
 			classifierName=ClassifyUtility.MYNN_MLP_FULLMODEL;
-			addModelData(classifierName,format,"\\extData2005-2016-myNNFullModel-201507 MA ", "\\extData2005-2016-myNNFullModel-201508 MA ");
+			addModelData(classifierName,format,"\\extData2005-2016-myNNFullModel-201507 MA ", "\\extData2005-2016-myNNFullModel-201509 MA ");
 		}
 	}
 
@@ -252,9 +253,19 @@ public class DailyPredict {
 			default:
 				throw new Exception("invalid arffFormat type");
 			}
-			//保留DAILY RESULT的LEFT部分在磁盘上
+			//保留DAILY RESULT的LEFT部分在磁盘上，主要为了保存股票代码
 			BaseInstances left = new DataInstances(dailyData);
 			left=InstanceUtility.keepAttributes(dailyData, ArffFormat.DAILY_PREDICT_RESULT_LEFT);
+			//将LEFT中的CODE加上=""，避免输出格式中前导零消失。
+			int codeIndex=InstanceUtility.findATTPosition(left,ArffFormat.CODE);
+			left=InstanceUtility.NominalToString(left, String.valueOf(codeIndex));
+			codeIndex-=1;  //以下的index是从0开始
+			for (int i=0;i<left.size();i++){
+				BaseInstance originInstance=left.instance(i);
+				String originValue=originInstance.stringValue(codeIndex);
+				originInstance.setValue(codeIndex, " "+originValue);
+			}
+			
 			FileUtility.SaveDataIntoFile(left,  getLeftArffFileName(clModel));
 
 			//去掉多读入的CODE部分
