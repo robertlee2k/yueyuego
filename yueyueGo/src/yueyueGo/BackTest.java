@@ -32,9 +32,9 @@ import yueyueGo.classifier.AdaboostClassifier;
 import yueyueGo.classifier.BaggingLinearRegression;
 import yueyueGo.classifier.BaggingM5P;
 import yueyueGo.classifier.MyNNClassifier;
+import yueyueGo.databeans.BaseAttribute;
 import yueyueGo.databeans.BaseInstances;
-import yueyueGo.databeans.WekaAttribute;
-import yueyueGo.databeans.WekaInstances;
+import yueyueGo.databeans.DataInstances;
 import yueyueGo.utility.AppContext;
 import yueyueGo.utility.BlockedThreadPoolExecutor;
 import yueyueGo.utility.ClassifySummaries;
@@ -202,7 +202,7 @@ public class BackTest {
 		
 		 //创建一个可重用固定线程数的线程池
 		ThreadPoolExecutor threadPool = null;
-        Vector<WekaInstances> threadResult=null;
+        Vector<BaseInstances> threadResult=null;
         int threadPoolSize=0;
         
 		// 按下面的逻辑创建线程池
@@ -215,7 +215,7 @@ public class BackTest {
         }
 		if (threadPoolSize>1){
 			threadPool=BlockedThreadPoolExecutor.newFixedThreadPool(threadPoolSize);
-			threadResult=new Vector<WekaInstances>();
+			threadResult=new Vector<BaseInstances>();
 			System.out.println("####Thread Pool Created , size="+threadPoolSize);
 		}else{
 			System.out.println("####Thread Pool will not be used");
@@ -259,7 +259,7 @@ public class BackTest {
 					trainingData=InstanceUtility.getInstancesSubset(fullSetData,splitTrainClause);
 					int trainingDataSize=trainingData.numInstances();
 					if (trainingDataSize>EnvConstants.TRAINING_DATA_LIMIT){
-						trainingData=new WekaInstances(trainingData,trainingDataSize-EnvConstants.TRAINING_DATA_LIMIT,EnvConstants.TRAINING_DATA_LIMIT);
+						trainingData=new DataInstances(trainingData,trainingDataSize-EnvConstants.TRAINING_DATA_LIMIT,EnvConstants.TRAINING_DATA_LIMIT);
 					}
 					//对于二分类器，这里要把输入的收益率转换为分类变量
 					if (clModel instanceof NominalClassifier ){
@@ -320,7 +320,7 @@ public class BackTest {
 					
 					
 					//多线程的时候clone一个空result执行分配给线程。
-					WekaInstances resultClone=new WekaInstances(result);
+					DataInstances resultClone=new DataInstances(result);
 					threadResult.add(resultClone);
 					//创建实现了Runnable接口对象
 					ProcessFlowExecutor t = new ProcessFlowExecutor(clModelClone, resultClone,splitMark, policy,trainingData,evaluationData,testingData);
@@ -391,7 +391,7 @@ public class BackTest {
 	protected BaseInstances prepareResultInstances(BaseClassifier clModel,
 			BaseInstances fullSetData) throws Exception {
 		BaseInstances result;
-		BaseInstances header = new WekaInstances(fullSetData, 0);
+		DataInstances header = new DataInstances(fullSetData, 0);
 		// 去除不必要的字段，保留ID（第1），均线策略（第3）、bias5（第4）、收益率（最后一列）、增加预测值、是否被选择。
 		int removeFromIndex=InstanceUtility.findATTPosition(fullSetData, ArffFormat.BIAS5)+1;
 		result = InstanceUtility.removeAttribs(header, ArffFormat.YEAR_MONTH_INDEX + ","+removeFromIndex+"-"
@@ -518,14 +518,14 @@ public class BackTest {
 
 	protected void saveSelectedFileForMarkets(BaseInstances fullOutput,String classiferName) throws Exception{
 		//输出全市场概况
-		WekaAttribute shouyilvAttribute=(WekaAttribute)fullOutput.attribute(ArffFormat.SHOUYILV);
+		BaseAttribute shouyilvAttribute=fullOutput.attribute(ArffFormat.SHOUYILV);
 		System.out.println("number of records for full market="+fullOutput.numInstances());
 		System.out.println("shouyilv average for full market="+FormatUtility.formatPercent(fullOutput.meanOrMode(shouyilvAttribute),2,2));
 		
 		//输出全市场选股结果
 		int pos = InstanceUtility.findATTPosition(fullOutput,ArffFormat.RESULT_SELECTED);
 		BaseInstances fullMarketSelected=InstanceUtility.getInstancesSubset(fullOutput, InstanceUtility.WEKA_ATT_PREFIX +pos+" = 1");
-		shouyilvAttribute=(WekaAttribute)fullMarketSelected.attribute(ArffFormat.SHOUYILV);
+		shouyilvAttribute=fullMarketSelected.attribute(ArffFormat.SHOUYILV);
 		System.out.println("selected shouyilv average for full market ="+FormatUtility.formatPercent(fullMarketSelected.meanOrMode(shouyilvAttribute),2,2)+" count="+fullMarketSelected.numInstances());
 		FileUtility.saveCSVFile(fullMarketSelected, BACKTEST_RESULT_DIR+"选股-"+ classiferName+"-full" + RESULT_EXTENSION );
 

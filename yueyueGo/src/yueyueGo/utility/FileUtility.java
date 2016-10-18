@@ -43,30 +43,6 @@ public class FileUtility {
 		return datasrc;
 	}
 
-//	// 从文件中加载每天的预测数据（该方法不常用，仅限于数据库加载失败时使用）
-//	public static Instances loadDailyNewDataFromCSVFile(String fileName)
-//			throws Exception {
-//		CSVLoader loader = new CSVLoader();
-//		loader.setSource(new File(fileName));
-//
-//		
-////		 永远别把数据文件里的ID变成Nominal的，否则读出来的ID就变成相对偏移量了
-//		Instances datasrc = loader.getDataSet();
-//
-//		//读入数据后最后一行加上为空的收益率
-//		datasrc = InstanceUtility.AddAttribute(datasrc, ArffFormat.SHOUYILV,datasrc.numAttributes());
-//		// 对读入的数据校验以适应内部训练的arff格式
-//		datasrc=ArffFormat.validateAttributeNames(datasrc,ArffFormat.DAILY_DATA_TO_PREDICT_FORMAT_NEW);
-//
-//		//全部读进来之后再转nominal，这里读入的数据可能只是子集，所以nominal的index值会不对，所以后续会用calibrateAttributes处理
-//		String nominalAttribString=ArffFormat.findNominalAttribs(datasrc);
-//		datasrc=InstanceUtility.numToNominal(datasrc, nominalAttribString);// "2,48-56";
-//		
-//		if (datasrc.classIndex() == -1)
-//			  datasrc.setClassIndex(datasrc.numAttributes() - 1);
-//		return datasrc;
-//	}
-	
 	
 	// 从CSV文件中加载数据，用给定格式校验，并设置classIndex
 	public static BaseInstances loadDataWithFormatFromCSVFile(String fileName, String[] format)
