@@ -7,7 +7,9 @@ import weka.classifiers.Classifier;
 import weka.core.Instances;
 import weka.core.SerializationHelper;
 import yueyueGo.databeans.BaseInstances;
+import yueyueGo.databeans.DataInstances;
 import yueyueGo.databeans.WekaInstances;
+//import yueyueGo.databeans.WekaInstances;
 import yueyueGo.utility.FileUtility;
 
 public class ModelStore {
@@ -146,8 +148,14 @@ public class ModelStore {
 			@SuppressWarnings("unchecked")
 			Vector<Object> v = (Vector<Object>) SerializationHelper.read(modelFileName);
 			Classifier model = (Classifier) v.get(0);
-			//TODO  legacy数据强转为Instances
-			BaseInstances header = new WekaInstances((Instances) (v.get(1)));
+			
+			Object savedHeaderObject=v.get(1);
+			BaseInstances header =null;
+			if (savedHeaderObject instanceof DataInstances){
+				header=(DataInstances)savedHeaderObject;
+			}else{ //TODO  interface化之前的旧模型的legacy数据强转为Instances
+				header=new WekaInstances((Instances)savedHeaderObject);
+			}
 			System.out.println("Classifier Model and Format Loaded from: "+ modelFileName);
 			m_model=model;
 			m_modelFormat=header;
