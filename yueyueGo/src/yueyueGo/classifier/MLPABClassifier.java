@@ -4,7 +4,7 @@ import weka.classifiers.functions.MultilayerPerceptron;
 import yueyueGo.ModelStore;
 import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.NominalClassifier;
-import yueyueGo.databeans.DataInstances;
+import yueyueGo.databeans.BaseInstances;
 import yueyueGo.utility.ClassifyUtility;
 
 
@@ -179,7 +179,7 @@ public class MLPABClassifier extends NominalClassifier {
 	}
 		
 	@Override
-	protected Classifier buildModel(DataInstances train) throws Exception {
+	protected Classifier buildModel(BaseInstances train) throws Exception {
 
 		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();
 

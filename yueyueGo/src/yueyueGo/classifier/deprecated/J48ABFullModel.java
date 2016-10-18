@@ -5,7 +5,7 @@ import weka.classifiers.trees.J48;
 import yueyueGo.ModelStore;
 import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.NominalClassifier;
-import yueyueGo.databeans.DataInstances;
+import yueyueGo.databeans.BaseInstances;
 import yueyueGo.fullModel.ArffFormatFullModel;
 import yueyueGo.utility.ClassifyUtility;
 @Deprecated
@@ -44,7 +44,7 @@ public class J48ABFullModel extends NominalClassifier {
 	
 	
 	@Override
-	protected Classifier buildModel(DataInstances train) throws Exception {
+	protected Classifier buildModel(BaseInstances train) throws Exception {
  
 		//设置基础的J48 classifier参数
 		J48 model=ClassifyUtility.prepareJ48(train.numInstances(),leafMinObjNum,divided);

@@ -32,8 +32,9 @@ import yueyueGo.classifier.AdaboostClassifier;
 import yueyueGo.classifier.BaggingLinearRegression;
 import yueyueGo.classifier.BaggingM5P;
 import yueyueGo.classifier.MyNNClassifier;
-import yueyueGo.databeans.DataAttribute;
-import yueyueGo.databeans.DataInstances;
+import yueyueGo.databeans.BaseInstances;
+import yueyueGo.databeans.WekaAttribute;
+import yueyueGo.databeans.WekaInstances;
 import yueyueGo.utility.AppContext;
 import yueyueGo.utility.BlockedThreadPoolExecutor;
 import yueyueGo.utility.ClassifySummaries;
@@ -154,7 +155,7 @@ public class BackTest {
 		AdaboostClassifier nModel=new AdaboostClassifier();
 
 
-		DataInstances nominalResult=testBackward(nModel);
+		BaseInstances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
 //		Instances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 
@@ -162,7 +163,7 @@ public class BackTest {
 		BaggingM5P cModel=new BaggingM5P();
 //		BaggingLinearRegression cModel=new BaggingLinearRegression();
 
-		DataInstances continuousResult=testBackward(cModel);
+		BaseInstances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
 //		Instances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 		
@@ -172,10 +173,10 @@ public class BackTest {
 
 		//输出用于计算收益率的CSV文件
 		System.out.println("-----now output continuous predictions----------"+cModel.getIdentifyName());
-		DataInstances m5pOutput=mergeResultWithData(continuousResult,nominalResult,ArffFormat.RESULT_PREDICTED_WIN_RATE,cModel.getModelArffFormat());
+		BaseInstances m5pOutput=mergeResultWithData(continuousResult,nominalResult,ArffFormat.RESULT_PREDICTED_WIN_RATE,cModel.getModelArffFormat());
 		saveSelectedFileForMarkets(m5pOutput,cModel.getIdentifyName());
 		System.out.println("-----now output nominal predictions----------"+nModel.getIdentifyName());
-		DataInstances mlpOutput=mergeResultWithData(nominalResult,continuousResult,ArffFormat.RESULT_PREDICTED_PROFIT,nModel.getModelArffFormat());
+		BaseInstances mlpOutput=mergeResultWithData(nominalResult,continuousResult,ArffFormat.RESULT_PREDICTED_PROFIT,nModel.getModelArffFormat());
 		saveSelectedFileForMarkets(mlpOutput,nModel.getIdentifyName());
 		System.out.println("-----end of test backward------");
 	}
@@ -187,9 +188,9 @@ public class BackTest {
 	//用模型预测数据
 	
 	//历史回测
-	protected  DataInstances testBackward(BaseClassifier clModel) throws Exception{
-		DataInstances fullSetData = null;
-		DataInstances result = null;
+	protected  BaseInstances testBackward(BaseClassifier clModel) throws Exception{
+		BaseInstances fullSetData = null;
+		BaseInstances result = null;
 		
 		
 		//创建存储评估结果的数据容器
@@ -201,7 +202,7 @@ public class BackTest {
 		
 		 //创建一个可重用固定线程数的线程池
 		ThreadPoolExecutor threadPool = null;
-        Vector<DataInstances> threadResult=null;
+        Vector<WekaInstances> threadResult=null;
         int threadPoolSize=0;
         
 		// 按下面的逻辑创建线程池
@@ -214,7 +215,7 @@ public class BackTest {
         }
 		if (threadPoolSize>1){
 			threadPool=BlockedThreadPoolExecutor.newFixedThreadPool(threadPoolSize);
-			threadResult=new Vector<DataInstances>();
+			threadResult=new Vector<WekaInstances>();
 			System.out.println("####Thread Pool Created , size="+threadPoolSize);
 		}else{
 			System.out.println("####Thread Pool will not be used");
@@ -252,13 +253,13 @@ public class BackTest {
 				String splitEvalClause =  getSplitClause(policyIndex,splitEvalYearClause,policy);;
 				String splitTestClause =  getSplitClause(policyIndex,splitTestYearClause, policy);
 				
-				DataInstances trainingData = null;
+				BaseInstances trainingData = null;
 				if (clModel.m_skipTrainInBacktest == false ){ //如果需要训练模型，则取训练数据 
 					System.out.println("start to split training set from data: "+ splitTrainClause);
 					trainingData=InstanceUtility.getInstancesSubset(fullSetData,splitTrainClause);
 					int trainingDataSize=trainingData.numInstances();
 					if (trainingDataSize>EnvConstants.TRAINING_DATA_LIMIT){
-						trainingData=new DataInstances(trainingData,trainingDataSize-EnvConstants.TRAINING_DATA_LIMIT,EnvConstants.TRAINING_DATA_LIMIT);
+						trainingData=new WekaInstances(trainingData,trainingDataSize-EnvConstants.TRAINING_DATA_LIMIT,EnvConstants.TRAINING_DATA_LIMIT);
 					}
 					//对于二分类器，这里要把输入的收益率转换为分类变量
 					if (clModel instanceof NominalClassifier ){
@@ -271,7 +272,7 @@ public class BackTest {
 							+ trainingData.numAttributes());					
 				}
 
-				DataInstances evaluationData = null;
+				BaseInstances evaluationData = null;
 				if (clModel.m_skipEvalInBacktest==false || clModel.m_skipTrainInBacktest == false  ){//如果需要评估模型，则取评估数据（训练时缺省要做一次评估）
 					System.out.println("start to split evaluation set from  data: "+ splitEvalClause);
 					evaluationData=InstanceUtility.getInstancesSubset(fullSetData,splitEvalClause);
@@ -286,7 +287,7 @@ public class BackTest {
 				}
 	
 				
-				DataInstances testingData = null;				
+				BaseInstances testingData = null;				
 				// prepare testing data
 				System.out.println("start to split testing set: "+ splitTestClause);
 				testingData = InstanceUtility
@@ -319,7 +320,7 @@ public class BackTest {
 					
 					
 					//多线程的时候clone一个空result执行分配给线程。
-					DataInstances resultClone=new DataInstances(result);
+					WekaInstances resultClone=new WekaInstances(result);
 					threadResult.add(resultClone);
 					//创建实现了Runnable接口对象
 					ProcessFlowExecutor t = new ProcessFlowExecutor(clModelClone, resultClone,splitMark, policy,trainingData,evaluationData,testingData);
@@ -364,7 +365,7 @@ public class BackTest {
 				e.printStackTrace();  
 			}  
 			//将所有线程的result合并
-			for (DataInstances temp : threadResult) {
+			for (BaseInstances temp : threadResult) {
 			  result=InstanceUtility.mergeTwoInstances(result, temp);
 			}
 			
@@ -387,10 +388,10 @@ public class BackTest {
 	 * @return
 	 * @throws Exception
 	 */
-	protected DataInstances prepareResultInstances(BaseClassifier clModel,
-			DataInstances fullSetData) throws Exception {
-		DataInstances result;
-		DataInstances header = new DataInstances(fullSetData, 0);
+	protected BaseInstances prepareResultInstances(BaseClassifier clModel,
+			BaseInstances fullSetData) throws Exception {
+		BaseInstances result;
+		BaseInstances header = new WekaInstances(fullSetData, 0);
 		// 去除不必要的字段，保留ID（第1），均线策略（第3）、bias5（第4）、收益率（最后一列）、增加预测值、是否被选择。
 		int removeFromIndex=InstanceUtility.findATTPosition(fullSetData, ArffFormat.BIAS5)+1;
 		result = InstanceUtility.removeAttribs(header, ArffFormat.YEAR_MONTH_INDEX + ","+removeFromIndex+"-"
@@ -414,9 +415,9 @@ public class BackTest {
 	 * @return
 	 * @throws Exception
 	 */
-	protected  DataInstances getBacktestInstances(BaseClassifier clModel,String splitMark,String policy)
+	protected  BaseInstances getBacktestInstances(BaseClassifier clModel,String splitMark,String policy)
 			throws Exception {
-		DataInstances fullSetData;
+		BaseInstances fullSetData;
 		// 根据模型来决定是否要使用有计算字段的ARFF
 		String arffFile=null;
 		if (clModel.m_noCaculationAttrib==true){
@@ -480,9 +481,9 @@ public class BackTest {
 
 
 	//合并格式，子类中可覆盖
-	protected  DataInstances mergeResultWithData(DataInstances resultData,DataInstances referenceData,String dataToAdd,int format) throws Exception{
+	protected  BaseInstances mergeResultWithData(BaseInstances resultData,BaseInstances referenceData,String dataToAdd,int format) throws Exception{
 		//读取磁盘上预先保存的左侧数据
-		DataInstances left=null;
+		BaseInstances left=null;
 		
 //		if (format==ArffFormat.LEGACY_FORMAT){ //LEGACY 有少量模型尚使用原有格式作为结果对比
 //			left=FileUtility.loadDataFromFile(C_ROOT_DIRECTORY+"AllTransaction20052016-left.arff");
@@ -492,7 +493,7 @@ public class BackTest {
 
 		left=FileUtility.loadDataFromFile(C_ROOT_DIRECTORY+ArffFormat.TRANSACTION_ARFF_PREFIX+"-left.arff");
 		MergeClassifyResults merge=new MergeClassifyResults(shouyilv_thresholds, winrate_thresholds);
-		DataInstances mergedResult =merge.mergeResults(resultData, referenceData,dataToAdd, left);
+		BaseInstances mergedResult =merge.mergeResults(resultData, referenceData,dataToAdd, left);
 
 		//返回结果之前需要按TradeDate重新排序
 		int tradeDateIndex=InstanceUtility.findATTPosition(mergedResult, ArffFormat.TRADE_DATE);
@@ -507,24 +508,24 @@ public class BackTest {
 
 
 
-	private void saveBacktestResultFile(DataInstances result,String classiferName) throws IOException{
+	private void saveBacktestResultFile(BaseInstances result,String classiferName) throws IOException{
 		FileUtility.SaveDataIntoFile(result, BACKTEST_RESULT_DIR+"回测结果-"+ classiferName+".arff" );
 	}
-	protected DataInstances loadBackTestResultFromFile(String classiferName) throws Exception{
-		DataInstances result=FileUtility.loadDataFromFile(BACKTEST_RESULT_DIR+"回测结果-"+ classiferName+".arff" );
+	protected BaseInstances loadBackTestResultFromFile(String classiferName) throws Exception{
+		BaseInstances result=FileUtility.loadDataFromFile(BACKTEST_RESULT_DIR+"回测结果-"+ classiferName+".arff" );
 		return result;
 	}
 
-	protected void saveSelectedFileForMarkets(DataInstances fullOutput,String classiferName) throws Exception{
+	protected void saveSelectedFileForMarkets(BaseInstances fullOutput,String classiferName) throws Exception{
 		//输出全市场概况
-		DataAttribute shouyilvAttribute=fullOutput.attribute(ArffFormat.SHOUYILV);
+		WekaAttribute shouyilvAttribute=(WekaAttribute)fullOutput.attribute(ArffFormat.SHOUYILV);
 		System.out.println("number of records for full market="+fullOutput.numInstances());
 		System.out.println("shouyilv average for full market="+FormatUtility.formatPercent(fullOutput.meanOrMode(shouyilvAttribute),2,2));
 		
 		//输出全市场选股结果
 		int pos = InstanceUtility.findATTPosition(fullOutput,ArffFormat.RESULT_SELECTED);
-		DataInstances fullMarketSelected=InstanceUtility.getInstancesSubset(fullOutput, InstanceUtility.WEKA_ATT_PREFIX +pos+" = 1");
-		shouyilvAttribute=fullMarketSelected.attribute(ArffFormat.SHOUYILV);
+		BaseInstances fullMarketSelected=InstanceUtility.getInstancesSubset(fullOutput, InstanceUtility.WEKA_ATT_PREFIX +pos+" = 1");
+		shouyilvAttribute=(WekaAttribute)fullMarketSelected.attribute(ArffFormat.SHOUYILV);
 		System.out.println("selected shouyilv average for full market ="+FormatUtility.formatPercent(fullMarketSelected.meanOrMode(shouyilvAttribute),2,2)+" count="+fullMarketSelected.numInstances());
 		FileUtility.saveCSVFile(fullMarketSelected, BACKTEST_RESULT_DIR+"选股-"+ classiferName+"-full" + RESULT_EXTENSION );
 

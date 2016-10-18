@@ -8,54 +8,57 @@ import weka.filters.unsupervised.attribute.NumericToNominal;
 import weka.filters.unsupervised.attribute.Remove;
 import weka.filters.unsupervised.instance.SubsetByExpression;
 import yueyueGo.ArffFormat;
-import yueyueGo.databeans.DataAttribute;
-import yueyueGo.databeans.DataInstance;
-import yueyueGo.databeans.DataInstances;
+import yueyueGo.databeans.BaseAttribute;
+import yueyueGo.databeans.BaseInstance;
+import yueyueGo.databeans.BaseInstances;
+import yueyueGo.databeans.WekaAttribute;
+import yueyueGo.databeans.WekaInstance;
+import yueyueGo.databeans.WekaInstances;
 
 public class InstanceUtility {
 	public static final String WEKA_ATT_PREFIX = "ATT";
 
 	// 转换numeric为nominal
-	public static DataInstances numToNominal(DataInstances data, String attribPos)
+	public static BaseInstances numToNominal(BaseInstances data, String attribPos)
 			throws Exception {
 		String[] options = new String[2];
 		options[0] = "-R"; // "range"
 		options[1] = attribPos; // attribute position
 		NumericToNominal convert = new NumericToNominal();
 		convert.setOptions(options);
-		Instances wdata=data.getInternalStore();
+		Instances wdata=WekaInstances.convertToWekaInstances(data);
 		convert.setInputFormat(wdata);
 		Instances newData = Filter.useFilter(wdata, convert); // apply filter
-		return new DataInstances(newData);
+		return new WekaInstances(newData);
 	}
 	
 	// 转换Nominal为String
-	public static DataInstances NominalToString(DataInstances data, String attribPos)
+	public static BaseInstances NominalToString(BaseInstances data, String attribPos)
 			throws Exception {
 		String[] options = new String[2];
 		options[0] = "-C"; // "range"
 		options[1] = attribPos; // attribute position
 		NominalToString convert = new NominalToString();
 		convert.setOptions(options);
-		Instances wdata=data.getInternalStore();
+		Instances wdata=WekaInstances.convertToWekaInstances(data);
 		convert.setInputFormat(wdata);
 		Instances newData = Filter.useFilter(wdata, convert); // apply filter
-		return new DataInstances(newData);
+		return new WekaInstances(newData);
 	}
 	
 	
 	//删除指定的列（此处的index是从1开始）	
-	public static DataInstances removeAttribs(DataInstances data, String attribPos) throws Exception{
+	public static BaseInstances removeAttribs(BaseInstances data, String attribPos) throws Exception{
 		return removeAttribs(data,attribPos,false);
 	}
 	
 	//保留指定的列，删除其他列（此处的index是从1开始）	
-	public static DataInstances filterAttribs(DataInstances data, String attribPos) throws Exception{
+	public static BaseInstances filterAttribs(BaseInstances data, String attribPos) throws Exception{
 		return removeAttribs(data,attribPos,true);
 	}
 	
 	// 实际处理的方法
-	private static DataInstances removeAttribs(DataInstances data, String attribPos, boolean invert)
+	private static BaseInstances removeAttribs(BaseInstances data, String attribPos, boolean invert)
 			throws Exception {
 		String[] options = new String[2];
 		options[0] = "-R"; // "range"
@@ -63,15 +66,15 @@ public class InstanceUtility {
 		Remove remove = new Remove(); // new instance of filter
 		remove.setOptions(options); // set options
 		remove.setInvertSelection(invert);
-		Instances wdata=data.getInternalStore();
+		Instances wdata=WekaInstances.convertToWekaInstances(data);
 		remove.setInputFormat(wdata); // inform filter about dataset **AFTER** setting options
 		Instances newData = Filter.useFilter(wdata, remove); // apply filter
-		return new DataInstances(newData);
+		return new WekaInstances(newData);
 	}
 	
 	
 	// 根据给定公式，获取数据集的子集
-	public static DataInstances getInstancesSubset(DataInstances data, String expression)
+	public static BaseInstances getInstancesSubset(BaseInstances data, String expression)
 			throws Exception {
 		//System.out.println(" get Instances subset using expression: "+expression);
 		try {
@@ -80,10 +83,10 @@ public class InstanceUtility {
 			options[0] = "-E"; // "range"
 			options[1] = expression; // attribute position
 			subset.setOptions(options);
-			Instances wdata=data.getInternalStore();
+			Instances wdata=WekaInstances.convertToWekaInstances(data);
 			subset.setInputFormat(wdata);
 			Instances output = Filter.useFilter(wdata, subset);
-			return new DataInstances(output);
+			return new WekaInstances(output);
 		}catch(Exception e){
 			System.err.println("error when getting subset using expression :"+expression);
 			throw e;
@@ -94,16 +97,16 @@ public class InstanceUtility {
 	
 	//在position的位置插入新的属性 （position从0开始） 
 	//这个方法会改变原有的instances。
-	public static DataInstances AddAttribute(DataInstances data, String attributeName,
+	public static BaseInstances AddAttribute(BaseInstances data, String attributeName,
 			int position) {
 //		Instances newData = new Instances(data);
-		data.insertAttributeAt(new DataAttribute(attributeName), position);
+		data.insertAttributeAt(new WekaAttribute(attributeName), position);
 		return data;
 	}
 	
 	//在position的位置插入新的属性 （position从0开始） 
 	//这个方法会改变原有的instances。
-	public static DataInstances AddAttributeWithValue(DataInstances data, String attributeName,String type,String value) throws Exception {
+	public static BaseInstances AddAttributeWithValue(BaseInstances data, String attributeName,String type,String value) throws Exception {
 //		AddUserFields.AttributeSpec aSpec=new AddUserFields.AttributeSpec();
 //		aSpec.setName(attributeName);
 //		aSpec.setType(type);
@@ -117,10 +120,10 @@ public class InstanceUtility {
 		options[0] = "-A"; 
 		options[1] = attributeName+"@"+type+"@"+value; 
 		filter.setOptions(options);
-		Instances wdata=data.getInternalStore();
+		Instances wdata=WekaInstances.convertToWekaInstances(data);
 		filter.setInputFormat(wdata);
 		Instances output=Filter.useFilter(wdata, filter);
-		return new DataInstances(output);
+		return new WekaInstances(output);
 		
 	}
 
@@ -128,14 +131,14 @@ public class InstanceUtility {
 
 	
 	// 将给定记录集中属于特定指数的数据筛选出来
-	public static DataInstances filterDataForIndex(DataInstances origin, String indexName) throws Exception{
+	public static BaseInstances filterDataForIndex(BaseInstances origin, String indexName) throws Exception{
 		//找出所属指数的位置
 		int pos = findATTPosition(origin,indexName);
 		return getInstancesSubset(origin,WEKA_ATT_PREFIX+pos+" is '"+ ArffFormat.VALUE_YES+"'");
 	}
 	
 	// 找到指定数据集中属性所处位置（从1开始）
-	public static int findATTPosition(DataInstances origin,String attName) {
+	public static int findATTPosition(BaseInstances origin,String attName) {
 		int pos=-1;
 		for (int i=0;i<origin.numAttributes();i++){
 			if (origin.attribute(i).name().equals(attName)){
@@ -153,10 +156,10 @@ public class InstanceUtility {
 	 * @param endIndex
 	 * @throws IllegalStateException
 	 */
-	public static void copyToNewInstance(DataInstance leftCurr, DataInstance newData,
+	public static void copyToNewInstance(BaseInstance leftCurr, BaseInstance newData,
 			int srcStartIndex, int srcEndIndex,int targetStartIndex) throws IllegalStateException {
 		for (int n = srcStartIndex; n <= srcEndIndex; n++) { 
-			DataAttribute att = leftCurr.attribute(n);
+			WekaAttribute att = (WekaAttribute)leftCurr.attribute(n);
 			if (att != null) {
 				if (att.isNominal()) {
 					String label = leftCurr.stringValue(att);
@@ -180,33 +183,33 @@ public class InstanceUtility {
 	 * read all data from input , add them to the output instances using output format
 	 * output instances will be changed in this method!
 	 */
-	public static void calibrateAttributes(DataInstances input,
-			DataInstances output) throws Exception, IllegalStateException {
+	public static void calibrateAttributes(BaseInstances input,
+			BaseInstances output) throws Exception, IllegalStateException {
 		InstanceUtility.compareInstancesFormat(input,output);
 			
 		System.out.println("start to calibrate Attributes");	
 		
 		for (int m=0; m<input.numInstances();m++){
-			DataInstance copyTo=new DataInstance(output.numAttributes());
+			WekaInstance copyTo=new WekaInstance(output.numAttributes());
 			copyTo.setDataset(output);
-			DataInstance copyFrom=input.instance(m);
+			BaseInstance copyFrom=input.instance(m);
 			fullCopyInstance(copyFrom,copyTo);
 			output.add(copyTo);
 		}
 	}
 
 	//perform full copy(with String and nominal attributes) from copyFrom to CopyTo
-	public static void fullCopyInstance(DataInstance copyFrom,DataInstance copyTo)	throws Exception {
+	public static void fullCopyInstance(BaseInstance copyFrom,BaseInstance copyTo)	throws Exception {
 		for (int n = 0; n < copyFrom.numAttributes() ; n++) { 
-			DataAttribute copyFromAtt = copyFrom.attribute(n);
-			DataAttribute copyToAtt=copyTo.attribute(n);
+			WekaAttribute copyFromAtt =(WekaAttribute) copyFrom.attribute(n);
+			WekaAttribute copyToAtt=(WekaAttribute)copyTo.attribute(n);
 			fullCopyAttribute(copyFrom, copyTo, copyFromAtt, copyToAtt);
 		}
 	}
 
 	//perform full copy for one Attribute.
-	public static void fullCopyAttribute(DataInstance copyFrom, DataInstance copyTo,
-			DataAttribute copyFromAtt, DataAttribute copyToAtt) throws Exception {
+	public static void fullCopyAttribute(BaseInstance copyFrom, BaseInstance copyTo,
+			BaseAttribute copyFromAtt, BaseAttribute copyToAtt) throws Exception {
 		String copyFromAttName=copyFromAtt.name();
 		String copyToAttName=copyToAtt.name();
 
@@ -247,13 +250,13 @@ public class InstanceUtility {
 	 * @return
 	 * @throws IllegalStateException
 	 */
-	public static DataInstances mergeTwoInstances(DataInstances extData,
-			DataInstances extDataSecond) throws IllegalStateException {
+	public static BaseInstances mergeTwoInstances(BaseInstances extData,
+			BaseInstances extDataSecond) throws IllegalStateException {
 		//如果不是用这种copy的方式和setDataSet的方式，String和nominal数据会全乱掉。
-		DataInstance oldRow=null;
+		BaseInstance oldRow=null;
 		int colSize=extData.numAttributes()-1;
 		for (int i=0;i<extDataSecond.numInstances();i++){
-			DataInstance newRow=new DataInstance(extData.numAttributes());
+			WekaInstance newRow=new WekaInstance(extData.numAttributes());
 			newRow.setDataset(extData);
 			oldRow=extDataSecond.instance(i);
 			copyToNewInstance(oldRow,newRow,0,colSize,0);
@@ -267,7 +270,7 @@ public class InstanceUtility {
 	 * @param test
 	 * @param header
 	 */
-	public static String compareInstancesFormat(DataInstances test, DataInstances header) {
+	public static String compareInstancesFormat(BaseInstances test, BaseInstances header) {
 		String result=header.equalHeadersMsg(test);
 		if (result==null){
 			System.out.println("model and testing data structure compared,everything is just the same");
@@ -276,14 +279,14 @@ public class InstanceUtility {
 	}
 
 	//如果输入instances中的包含有string[]所定义的attributes，将其保留，将其他的属性删除。
-	public static DataInstances keepAttributes(DataInstances incomingData, String[] attributeToKeep) throws Exception{
+	public static BaseInstances keepAttributes(BaseInstances incomingData, String[] attributeToKeep) throws Exception{
 		String saveString=InstanceUtility.returnAttribsPosition(incomingData,attributeToKeep);
-		DataInstances result = filterAttribs(incomingData,saveString);
+		BaseInstances result = filterAttribs(incomingData,saveString);
 		return result;
 	}
 
 	//如果输入instances中的包含有string[]所定义的attributes，将其删除，将其他的属性保留。
-	public static DataInstances removeAttribs(DataInstances incomingData, String[] attributeToRemove) throws Exception{
+	public static BaseInstances removeAttribs(BaseInstances incomingData, String[] attributeToRemove) throws Exception{
 		String removeString=InstanceUtility.returnAttribsPosition(incomingData,attributeToRemove);
 		if (removeString==null){
 			System.out.println("Warning! found nothing to remove from the attributesToRemove, returning the original dataset");
@@ -294,9 +297,9 @@ public class InstanceUtility {
 	}
 
 	//返回给定数据集里与searchAttribues内同名字段的位置字符串（从1开始），这主要是为filter使用
-	public static String returnAttribsPosition(DataInstances data, String[] searchAttributes){
+	public static String returnAttribsPosition(BaseInstances data, String[] searchAttributes){
 		String nominalAttribPosition=null;
-		DataAttribute incomingAttribue=null;
+		BaseAttribute incomingAttribue=null;
 		for (int i = 0; i < searchAttributes.length; i++) {
 			incomingAttribue=data.attribute(searchAttributes[i]);
 			if (incomingAttribue!=null){

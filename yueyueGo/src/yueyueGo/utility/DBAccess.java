@@ -2,7 +2,8 @@ package yueyueGo.utility;
 
 import weka.experiment.InstanceQuery;
 import yueyueGo.ArffFormat;
-import yueyueGo.databeans.DataInstances;
+import yueyueGo.databeans.BaseInstances;
+import yueyueGo.databeans.WekaInstances;
 
 public class DBAccess  {
 	public final static String URL = "jdbc:mysql://uts.simu800.com/develop?characterEncoding=utf8&autoReconnect=true";
@@ -45,7 +46,7 @@ public class DBAccess  {
 		return queryData;
 	}
 	
-	public static DataInstances LoadDataFromDB(int format) throws Exception{
+	public static BaseInstances LoadDataFromDB(int format) throws Exception{
 
 		String[] validateFormat=null;
 		switch (format) {
@@ -65,7 +66,7 @@ public class DBAccess  {
 		query.setPassword(PASSWORD);
 		String queryData=generateQueryData(format);
 		query.setQuery(queryData); 
-		DataInstances data = new DataInstances(query.retrieveInstances()); 
+		BaseInstances data = new WekaInstances(query.retrieveInstances()); 
 
 
 		//读入数据后最后一行加上为空的收益率

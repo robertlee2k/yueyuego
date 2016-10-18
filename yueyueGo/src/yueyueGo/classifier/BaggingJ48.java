@@ -5,7 +5,7 @@ import weka.classifiers.trees.J48;
 import yueyueGo.ModelStore;
 import yueyueGo.NominalClassifier;
 import yueyueGo.ParrallelizedRunning;
-import yueyueGo.databeans.DataInstances;
+import yueyueGo.databeans.BaseInstances;
 import yueyueGo.utility.ClassifyUtility;
 import yueyueGo.utility.FormatUtility;
 
@@ -100,7 +100,7 @@ public class BaggingJ48 extends NominalClassifier implements ParrallelizedRunnin
 
 	
 	@Override
-	protected Classifier buildModel(DataInstances train) throws Exception {
+	protected Classifier buildModel(BaseInstances train) throws Exception {
  
 		
 		//设置基础的m5p classifier参数

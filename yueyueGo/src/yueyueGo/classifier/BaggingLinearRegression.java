@@ -6,7 +6,7 @@ import weka.core.SelectedTag;
 import yueyueGo.ContinousClassifier;
 import yueyueGo.ModelStore;
 import yueyueGo.ParrallelizedRunning;
-import yueyueGo.databeans.DataInstances;
+import yueyueGo.databeans.BaseInstances;
 import yueyueGo.utility.ClassifyUtility;
 
 
@@ -78,7 +78,7 @@ public class BaggingLinearRegression extends ContinousClassifier implements Parr
 
 
 	@Override
-	protected Classifier buildModel(DataInstances train) throws Exception {
+	protected Classifier buildModel(BaseInstances train) throws Exception {
 		
 		LinearRegression model=new LinearRegression();
 		int count=train.numInstances()/divided;

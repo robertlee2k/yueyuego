@@ -2,19 +2,20 @@ package yueyueGo.fullModel;
 
 import weka.experiment.InstanceQuery;
 import yueyueGo.ArffFormat;
-import yueyueGo.databeans.DataInstances;
+import yueyueGo.databeans.BaseInstances;
+import yueyueGo.databeans.WekaInstances;
 import yueyueGo.utility.DBAccess;
 import yueyueGo.utility.InstanceUtility;
 // 全交易的非均线模型
 public class DBAccessFullModel extends DBAccess {
 	
 	//取最新交易日的数据预测
-	public static DataInstances LoadFullModelDataFromDB() throws Exception{
+	public static BaseInstances LoadFullModelDataFromDB() throws Exception{
 		return LoadFullModelDataFromDB(null);
 	}
 	
 	//如果传入的参数 dateString==null; 则取数据库中的最新数据，否则取相应交易日的数据
-	protected static DataInstances LoadFullModelDataFromDB(String dateString) throws Exception{
+	protected static BaseInstances LoadFullModelDataFromDB(String dateString) throws Exception{
 		String[] validateFormat=ArffFormatFullModel.DAILY_DATA_TO_PREDICT_FULL_MODEL;
 
 		//load data from database that needs predicting
@@ -24,7 +25,7 @@ public class DBAccessFullModel extends DBAccess {
 		query.setPassword(PASSWORD);
 		String queryData=generateFullModelQueryData(dateString);
 		query.setQuery(queryData); 
-		DataInstances data = new DataInstances(query.retrieveInstances());
+		BaseInstances data = new WekaInstances(query.retrieveInstances());
 
 		
 		//读入数据后最后一行加上为空的收益率

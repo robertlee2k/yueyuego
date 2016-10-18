@@ -1,9 +1,11 @@
 package yueyueGo.utility;
 
 import yueyueGo.ArffFormat;
-import yueyueGo.databeans.DataAttribute;
-import yueyueGo.databeans.DataInstance;
-import yueyueGo.databeans.DataInstances;
+import yueyueGo.databeans.BaseInstance;
+import yueyueGo.databeans.BaseInstances;
+import yueyueGo.databeans.WekaAttribute;
+import yueyueGo.databeans.WekaInstance;
+import yueyueGo.databeans.WekaInstances;
 
 public class MergeClassifyResults {
 	private  double[] shouyilv_thresholds; //对于胜率优先算法的收益率筛选阀值
@@ -24,38 +26,38 @@ public class MergeClassifyResults {
 		 * @throws IllegalStateException
 		 * @throws Exception
 		 */
-		public DataInstances mergeResults(DataInstances resultData,DataInstances referenceData, String dataToAdd, DataInstances left)
+		public BaseInstances mergeResults(BaseInstances resultData,BaseInstances referenceData, String dataToAdd, BaseInstances left)
 				throws IllegalStateException, Exception {
 			System.out.println("incoming resultData size, row="+resultData.numInstances()+" column="+resultData.numAttributes());
 			System.out.println("incoming referenceData size, row="+referenceData.numInstances()+" column="+referenceData.numAttributes());
 			System.out.println("Left data loaded, row="+left.numInstances()+" column="+left.numAttributes());
 	
 		    // 创建输出结果
-		    DataInstances mergedResult = new DataInstances(left, 0);
+		    BaseInstances mergedResult = new WekaInstances(left, 0);
 		    mergedResult=InstanceUtility.AddAttribute(mergedResult,ArffFormat.RESULT_PREDICTED_PROFIT, mergedResult.numAttributes());
 		    mergedResult=InstanceUtility.AddAttribute(mergedResult,ArffFormat.RESULT_PREDICTED_WIN_RATE, mergedResult.numAttributes());
 		    mergedResult=InstanceUtility.AddAttribute(mergedResult,ArffFormat.RESULT_SELECTED, mergedResult.numAttributes());
 			
 	
-		    DataInstance leftCurr;
-			DataInstance resultCurr;
-			DataInstance referenceCurr;
-			DataInstance newData;
+		    BaseInstance leftCurr;
+			BaseInstance resultCurr;
+			BaseInstance referenceCurr;
+			WekaInstance newData;
 			
 			//左侧冗余信息文件属性
-			DataAttribute leftMA=left.attribute(ArffFormat.SELECTED_AVG_LINE);
-			DataAttribute shouyilvAtt=left.attribute(ArffFormat.SHOUYILV);	
-			DataAttribute leftBias5=left.attribute(ArffFormat.BIAS5);
+			WekaAttribute leftMA=(WekaAttribute)left.attribute(ArffFormat.SELECTED_AVG_LINE);
+			WekaAttribute shouyilvAtt=(WekaAttribute)left.attribute(ArffFormat.SHOUYILV);	
+			WekaAttribute leftBias5=(WekaAttribute)left.attribute(ArffFormat.BIAS5);
 			
 			//结果文件属性
-		    DataAttribute resultMA=resultData.attribute(ArffFormat.SELECTED_AVG_LINE);	
-			DataAttribute resultBias5=resultData.attribute(ArffFormat.BIAS5);
-			DataAttribute resultSelectedAtt=resultData.attribute(ArffFormat.RESULT_SELECTED);
+		    WekaAttribute resultMA=(WekaAttribute)resultData.attribute(ArffFormat.SELECTED_AVG_LINE);	
+			WekaAttribute resultBias5=(WekaAttribute)resultData.attribute(ArffFormat.BIAS5);
+			WekaAttribute resultSelectedAtt=(WekaAttribute)resultData.attribute(ArffFormat.RESULT_SELECTED);
 			
 			//输出文件的属性
-			DataAttribute outputSelectedAtt=mergedResult.attribute(ArffFormat.RESULT_SELECTED);
-			DataAttribute outputPredictAtt=mergedResult.attribute(ArffFormat.RESULT_PREDICTED_PROFIT);
-			DataAttribute outputWinrateAtt=mergedResult.attribute(ArffFormat.RESULT_PREDICTED_WIN_RATE);
+			WekaAttribute outputSelectedAtt=(WekaAttribute)mergedResult.attribute(ArffFormat.RESULT_SELECTED);
+			WekaAttribute outputPredictAtt=(WekaAttribute)mergedResult.attribute(ArffFormat.RESULT_PREDICTED_PROFIT);
+			WekaAttribute outputWinrateAtt=(WekaAttribute)mergedResult.attribute(ArffFormat.RESULT_PREDICTED_WIN_RATE);
 	//		Attribute outputMAAtt=mergedResult.attribute(ArffFormat.SELECTED_AVG_LINE);
 			
 			//传入的结果集result不是排序的,而left的数据是按tradeDate日期排序的， 所以都先按ID排序。
@@ -104,7 +106,7 @@ public class MergeClassifyResults {
 							referenceCurr=referenceData.instance(referenceIndex);
 							idInReference=referenceCurr.value(0);
 						}else { //当前ID比result的ID小，需要向后找，但向后找到最后一条也没找到
-							referenceCurr=new DataInstance(referenceData.numAttributes());
+							referenceCurr=new WekaInstance(referenceData.numAttributes());
 							referenceIndex=oldIndex; //这一条设为空，index恢复原状
 							break;
 						}
@@ -115,7 +117,7 @@ public class MergeClassifyResults {
 							referenceCurr=referenceData.instance(referenceIndex);
 							idInReference=referenceCurr.value(0);
 						}else {  //当前ID比result的ID大，需要向前找，但向前找到第一条也没找到
-							referenceCurr=new DataInstance(referenceData.numAttributes());
+							referenceCurr=new WekaInstance(referenceData.numAttributes());
 							referenceIndex=oldIndex; //这一条设为空，index恢复原状
 							break;
 						}
@@ -123,7 +125,7 @@ public class MergeClassifyResults {
 					
 					//接下来做冗余字段的数据校验
 					if ( ArffFormat.checkSumBeforeMerge(leftCurr, resultCurr, leftMA, resultMA,leftBias5, resultBias5)) {
-						newData=new DataInstance(mergedResult.numAttributes());
+						newData=new WekaInstance(mergedResult.numAttributes());
 						newData.setDataset(mergedResult);
 						int srcStartIndex=0;
 						int srcEndIndex=leftCurr.numAttributes()-1;

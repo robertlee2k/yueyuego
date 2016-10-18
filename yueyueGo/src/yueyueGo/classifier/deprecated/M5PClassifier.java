@@ -3,7 +3,8 @@ package yueyueGo.classifier.deprecated;
 import weka.classifiers.Classifier;
 import weka.classifiers.trees.M5P;
 import yueyueGo.ContinousClassifier;
-import yueyueGo.databeans.DataInstances;
+import yueyueGo.databeans.BaseInstances;
+import yueyueGo.databeans.WekaInstances;
 import yueyueGo.utility.ClassifyUtility;
 
 
@@ -144,12 +145,12 @@ public class M5PClassifier extends ContinousClassifier {
 
 
 	@Override
-	protected Classifier buildModel(DataInstances train) throws Exception {
+	protected Classifier buildModel(BaseInstances train) throws Exception {
 		
 	
 		M5P model=ClassifyUtility.prepareM5P(train.numInstances(),leafMinObjNum,divided);
 
-		model.buildClassifier(train.getInternalStore());
+		model.buildClassifier(WekaInstances.convertToWekaInstances(train));
 		
 
 		return model;
