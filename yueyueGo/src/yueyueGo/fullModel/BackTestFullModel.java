@@ -7,6 +7,7 @@ import yueyueGo.BackTest;
 import yueyueGo.BaseClassifier;
 import yueyueGo.EnvConstants;
 import yueyueGo.databeans.BaseInstances;
+import yueyueGo.fullModel.classifier.AdaboostFullModel;
 import yueyueGo.fullModel.classifier.BaggingM5PFullModel;
 import yueyueGo.fullModel.classifier.MyNNFullModel;
 import yueyueGo.utility.AppContext;
@@ -31,11 +32,14 @@ public class BackTestFullModel extends BackTest {
 		winrate_thresholds=new double[] {0.5};
 		
 		splitYear=new String[] {
-//			"2008","2009","2010","2011","2012","2013","2014","2015","2016"
-			"200801","200802","200803","200804","200805","200806","200807","200808","200809","200810","200811","200812","200901","200902","200903","200904","200905","200906","200907","200908","200909","200910","200911","200912","201001","201002","201003","201004","201005","201006","201007","201008","201009","201010","201011","201012","201101","201102","201103","201104","201105","201106","201107","201108","201109","201110","201111","201112","201201","201202","201203","201204","201205","201206","201207","201208","201209","201210","201211","201212","201301","201302","201303","201304","201305","201306","201307","201308","201309","201310","201311","201312","201401","201402","201403","201404","201405","201406","201407","201408","201409","201410","201411","201412","201501","201502","201503","201504","201505","201506","201507","201508","201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607","201608","201609"
-//			"201607"
-			//为半年度模型使用		
-//			"200807","200907","201007","201107","201207","201307","201407","201507","201607"
+				//为年度模型使用
+//				  "2008","2009","2010","2011","2012","2013","2014","2015","2016",
+				//为半年度模型使用		
+				"200807","200907","201007","201107","201207","201307","201407","201507","201607"
+				//为月度模型使用		
+//				"200801","200802","200803","200804","200805","200806","200807","200808","200809","200810","200811","200812","200901","200902","200903","200904","200905","200906","200907","200908","200909","200910","200911","200912","201001","201002","201003","201004","201005","201006","201007","201008","201009","201010","201011","201012","201101","201102","201103","201104","201105","201106","201107","201108","201109","201110","201111","201112","201201","201202","201203","201204","201205","201206","201207","201208","201209","201210","201211","201212","201301","201302","201303","201304","201305","201306","201307","201308","201309","201310","201311","201312","201401","201402","201403","201404","201405","201406","201407","201408","201409","201410","201411","201412","201501","201502","201503","201504","201505","201506","201507","201508","201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607","201608","201609"
+				//生成预测所使用半年度模型		
+//				"201607"	
 		};
 	}
 
@@ -46,13 +50,16 @@ public class BackTestFullModel extends BackTest {
 			fullModelWorker.init();
 			
 			//短线模型的历史回测
-//			fullModelWorker.callFullModelTestBack();
-
+			fullModelWorker.callFullModelTestBack();
+			
+			//短线模型刷新最新月评估数据
+			fullModelWorker.callRefreshFullModelUseLatestData();
+			
 			//短线模型生成初始全量数据
 //			UpdateHistoryArffFullModel.createFullModelInstances();
 			
 			//刷新增量数据
-			UpdateHistoryArffFullModel.callRefreshInstancesFullModel();
+//			UpdateHistoryArffFullModel.callRefreshInstancesFullModel();
 			
 			//短线模型合并新的属性
 //			UpdateHistoryArffFullModel.callMergeExtDataForFullModel();			
@@ -63,7 +70,36 @@ public class BackTestFullModel extends BackTest {
 		}
 	}
 	
-	
+	/**
+	 * 根据最新这个月的增量数据刷新模型
+	 * @throws Exception
+	 */
+	protected void callRefreshFullModelUseLatestData() throws Exception{
+		BaseClassifier model=null;
+		splitYear=new String[] {"201609"};
+		RUNNING_THREADS=5;
+		
+		//逐次刷新数据
+		model=new AdaboostFullModel();
+		model.m_skipTrainInBacktest=true;
+		model.m_skipEvalInBacktest=false;
+		testBackward(model);
+		
+		model=new BaggingM5PFullModel();
+		model.m_skipTrainInBacktest=true;
+		model.m_skipEvalInBacktest=false;
+		testBackward(model);
+		
+		model=new MyNNFullModel();
+		model.m_skipTrainInBacktest=true;
+		model.m_skipEvalInBacktest=false;
+		testBackward(model);
+
+//		model=new BaggingRegressionFullModel();
+//		model.m_skipTrainInBacktest=true;
+//		model.m_skipEvalInBacktest=false;
+//		testBackward(model);
+	}
 	/**
 	 * @throws Exception
 	 * @throws IOException
@@ -71,17 +107,17 @@ public class BackTestFullModel extends BackTest {
 	protected void callFullModelTestBack() throws Exception, IOException {
 		//按二分类器回测历史数据
 //		BaggingJ48FullModel nModel=new BaggingJ48FullModel();
-//		AdaboostFullModel nModel=new AdaboostFullModel();
+		AdaboostFullModel nModel=new AdaboostFullModel();
 //		MLPABFullModel nModel=new MLPABFullModel(); 
-		MyNNFullModel nModel=new MyNNFullModel();
+//		MyNNFullModel nModel=new MyNNFullModel();
 		if (applyToMaModelInTestBack==true){//用fullModel模型来测试均线模型时不用重新build和评估
 			nModel.m_skipTrainInBacktest=true;
 			nModel.m_skipEvalInBacktest=true;
 		}	
 		
-//		Instances nominalResult=testBackward(nModel);
+		BaseInstances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
-		BaseInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
+//		BaseInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 
 		//按连续分类器回测历史数据
 		BaggingM5PFullModel cModel=new BaggingM5PFullModel();
@@ -92,7 +128,7 @@ public class BackTestFullModel extends BackTest {
 
 		BaseInstances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
-//		Instances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
+//		BaseInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 		
 		//统一输出统计结果
 		nModel.outputClassifySummary();

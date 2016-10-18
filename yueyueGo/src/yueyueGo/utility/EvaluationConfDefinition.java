@@ -42,7 +42,7 @@ public class EvaluationConfDefinition implements Serializable{
 		}else if(classifierName.equals(ClassifyUtility.BAGGING_M5P_FULLMODEL)) {
 			SAMPLE_LOWER_LIMIT = new double[] {0.02}; // 各条均线选择样本的下限 
 			SAMPLE_UPPER_LIMIT = new double[]  {0.04};
-		}else if (classifierName.equals(ClassifyUtility.BAGGING_J48_FULLMODEL)){
+		}else if (classifierName.equals(ClassifyUtility.BAGGING_REGRESSION_FULLMODEL)){
 			SAMPLE_LOWER_LIMIT =new double[] { 0.03}; // 各条均线选择样本的下限
 			SAMPLE_UPPER_LIMIT =new double[] { 0.05}; // 各条均线选择样本的上限
 		}else if (classifierName.equals(ClassifyUtility.ADABOOST_FULLMODEL)){

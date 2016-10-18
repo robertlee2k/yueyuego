@@ -16,7 +16,7 @@ public class AdaboostFullModel extends AdaboostClassifier {
 	@Override
 	protected void initializeParams() {
 		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = true;
+		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{""};
 		modelArffFormat=ArffFormatFullModel.FULLMODEL_FORMAT; //这个模型缺省是为FULLMODEL用的格式
 		
@@ -25,9 +25,8 @@ public class AdaboostFullModel extends AdaboostClassifier {
 		boost_iteration=10; 	//boost特有参数
 		
 		classifierName=ClassifyUtility.ADABOOST_FULLMODEL;
-//		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
 		
-		m_modelEvalFileShareMode=ModelStore.YEAR_SHARED_MODEL_AND_EVAL; //覆盖父类，设定模型和评估文件的共用模式
+		m_modelEvalFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 		
 		m_noCaculationAttrib=false; //使用计算字段
 

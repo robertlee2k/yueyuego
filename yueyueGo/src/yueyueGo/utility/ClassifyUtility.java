@@ -26,6 +26,7 @@ public class ClassifyUtility {
 	public static final String BAGGING_M5P_FULLMODEL="BaggingM5PABFullModel";
 	public static final String BAGGING_J48_FULLMODEL="BaggingJ48ABFullModel";
 	public static final String ADABOOST_FULLMODEL="adaboostFullModel";
+	public static final String BAGGING_REGRESSION_FULLMODEL="BaggingRegessionFullModel";
 	
 
 		//设置M5P的相关参数
