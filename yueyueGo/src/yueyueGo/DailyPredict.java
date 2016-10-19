@@ -168,14 +168,15 @@ public class DailyPredict {
 		GeneralInstances left=DataIOHandler.getSuppier().loadDataFromFile(getLeftArffFileName(nModel)); //获取刚生成的左侧文件（主要存了CODE）
 		MergeClassifyResults merge=new MergeClassifyResults(this.shouyilv_thresholds, this.winrate_thresholds);
 		GeneralInstances nMergedOutput=merge.mergeResults(nInstances,cInstances,ArffFormat.RESULT_PREDICTED_PROFIT,left);
-		nMergedOutput=InstanceHandler.getHandler().removeAttribs(nMergedOutput, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
+		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(nMergedOutput);
+		nMergedOutput=instanceProcessor.removeAttribs(nMergedOutput, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
 		DataIOHandler.getSaver().saveCSVFile(nMergedOutput, PREDICT_RESULT_DIR+ "Merged Selected Result-"+nModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv");
 		nMergedOutput=null;
 		System.out.println(nModel.getIdentifyName()+"----------prediction ends---------");
 		//以连续分类器为主，合并二分类器
 		System.out.println("-----now output combined predictions----------"+cModel.getIdentifyName()+" combined with："+nModel.getIdentifyName());
 		GeneralInstances cMergedOutput=merge.mergeResults(cInstances,nInstances,ArffFormat.RESULT_PREDICTED_WIN_RATE,left);
-		cMergedOutput=InstanceHandler.getHandler().removeAttribs(cMergedOutput, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
+		cMergedOutput=instanceProcessor.removeAttribs(cMergedOutput, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
 		DataIOHandler.getSaver().saveCSVFile(cMergedOutput, PREDICT_RESULT_DIR+ "Merged Selected Result-"+cModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv");
 		cMergedOutput=null;
 		System.out.println(cModel.getIdentifyName()+"----------prediction ends--------");
@@ -205,7 +206,8 @@ public class DailyPredict {
 
 		MergeClassifyResults merge=new MergeClassifyResults(shouyilv_thresholds, winrate_thresholds);
 		GeneralInstances mergedOutput=merge.mergeResults(cInstances,nInstances,ArffFormat.RESULT_PREDICTED_WIN_RATE,left);
-		mergedOutput=InstanceHandler.getHandler().removeAttribs(mergedOutput, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
+		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(mergedOutput);
+		mergedOutput=instanceProcessor.removeAttribs(mergedOutput, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
 		DataIOHandler.getSaver().saveCSVFile(mergedOutput, PREDICT_RESULT_DIR+ "FullModel Selected Result-"+cFullModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv");
 
 	}
@@ -255,10 +257,11 @@ public class DailyPredict {
 			}
 			//保留DAILY RESULT的LEFT部分在磁盘上，主要为了保存股票代码
 			GeneralInstances left = new DataInstances(dailyData);
-			left=InstanceHandler.getHandler().keepAttributes(dailyData, ArffFormat.DAILY_PREDICT_RESULT_LEFT);
+			BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(left);
+			left=instanceProcessor.keepAttributes(dailyData, ArffFormat.DAILY_PREDICT_RESULT_LEFT);
 			//将LEFT中的CODE加上=""，避免输出格式中前导零消失。
 			int codeIndex=BaseInstanceProcessor.findATTPosition(left,ArffFormat.CODE);
-			left=InstanceHandler.getHandler().NominalToString(left, String.valueOf(codeIndex));
+			left=instanceProcessor.NominalToString(left, String.valueOf(codeIndex));
 			codeIndex-=1;  //以下的index是从0开始
 			for (int i=0;i<left.size();i++){
 				GeneralInstance originInstance=left.instance(i);
@@ -269,7 +272,8 @@ public class DailyPredict {
 			DataIOHandler.getSaver().SaveDataIntoFile(left,  getLeftArffFileName(clModel));
 
 			//去掉多读入的CODE部分
-			dailyData=InstanceHandler.getHandler().removeAttribs(dailyData, new String[]{ArffFormat.CODE});
+			instanceProcessor=InstanceHandler.getHandler(dailyData);
+			dailyData=instanceProcessor.removeAttribs(dailyData, new String[]{ArffFormat.CODE});
 			//将结果放入缓存
 			this.cached_daily_data.put(cacheKey, dailyData);
 		}
@@ -315,7 +319,8 @@ public class DailyPredict {
 			String expression=null;
 			if (maIndex>0){// 均线策略
 				expression=WekaInstanceProcessor.WEKA_ATT_PREFIX+ maIndex+" is '"+ clModel.m_policySubGroup[j] + "'";
-				newData = InstanceHandler.getHandler().getInstancesSubset(fullData, expression);
+				BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullData);
+				newData = instanceProcessor.getInstancesSubset(fullData, expression);
 			}else{ //短线策略（fullmodel)				
 				newData=fullData;
 			}
@@ -341,16 +346,17 @@ public class DailyPredict {
 			if (result == null) {// initialize result instances
 				// remove unnecessary data,leave 均线策略 & code alone
 				GeneralInstances header = new DataInstances(newData, 0);
-				result=InstanceHandler.getHandler().keepAttributes(header, ArffFormat.DAILY_PREDICT_RESULT_LEFT);
+				BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(header);
+				result=instanceProcessor.keepAttributes(header, ArffFormat.DAILY_PREDICT_RESULT_LEFT);
 
 				if (clModel instanceof NominalClassifier ){
-					result = InstanceHandler.getHandler().AddAttribute(result, ArffFormat.RESULT_PREDICTED_WIN_RATE,
+					result = instanceProcessor.AddAttribute(result, ArffFormat.RESULT_PREDICTED_WIN_RATE,
 							result.numAttributes());
 				}else{
-					result = InstanceHandler.getHandler().AddAttribute(result, ArffFormat.RESULT_PREDICTED_PROFIT,
+					result = instanceProcessor.AddAttribute(result, ArffFormat.RESULT_PREDICTED_PROFIT,
 							result.numAttributes());
 				}
-				result = InstanceHandler.getHandler().AddAttribute(result, ArffFormat.RESULT_SELECTED,
+				result = instanceProcessor.AddAttribute(result, ArffFormat.RESULT_SELECTED,
 						result.numAttributes());
 
 			}
@@ -384,11 +390,11 @@ public class DailyPredict {
 
 		//与本地格式数据比较，这地方基本上会有nominal数据的label不一致，临时处理办法就是先替换掉
 		GeneralInstances outputData = getDailyPredictDataFormat(formatType);
+		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(outputData);
+		outputData=instanceProcessor.removeAttribs(outputData, ArffFormat.YEAR_MONTH_INDEX);
 
-		outputData=InstanceHandler.getHandler().removeAttribs(outputData, ArffFormat.YEAR_MONTH_INDEX);
-
-
-		InstanceHandler.getHandler().calibrateAttributes(incomingData, outputData);
+		instanceProcessor=InstanceHandler.getHandler(incomingData);
+		instanceProcessor.calibrateAttributes(incomingData, outputData);
 		return outputData;
 	}
 
@@ -433,7 +439,8 @@ public class DailyPredict {
 
 		GeneralInstances outputData=DataIOHandler.getSuppier().loadDataFromFile(PREDICT_WORK_DIR+formatFile); //C_ROOT_DIRECTORY+
 		if (formatType==ArffFormat.LEGACY_FORMAT){//如果是原有模式，去掉扩展字段
-			outputData=InstanceHandler.getHandler().removeAttribs(outputData, ArffFormat.EXT_ARFF_COLUMNS);
+			BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(outputData);
+			outputData=instanceProcessor.removeAttribs(outputData, ArffFormat.EXT_ARFF_COLUMNS);
 		}
 		return outputData;
 	}

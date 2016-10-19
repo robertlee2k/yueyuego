@@ -62,8 +62,9 @@ public class UpdateHistoryArffFile {
 		String file4=AppContext.getC_ROOT_DIRECTORY()+"\\sourceData\\波动率\\onceyield_hv_update_2016.txt";
 		extData2 = mergeExtDataFromTwoFiles(file3, file4,ArffFormat.EXT_ARFF_FILE_FORMAT);
 		System.out.println("NewGroup data 2 loaded. number="+extData2.numInstances());
-	
-		extData=InstanceHandler.getHandler().mergeTwoInstances(extData, extData2);
+		
+		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(extData);
+		extData=instanceProcessor.mergeTwoInstances(extData, extData2);
 		System.out.println("NewGroup data merged and loaded. number="+extData.numInstances());
 	
 		//加载原始arff文件
@@ -110,7 +111,8 @@ public class UpdateHistoryArffFile {
 	
 		//处理各种nominal字段
 		GeneralInstances fullData=DataIOHandler.getSuppier().loadDataFromFile(AppContext.getC_ROOT_DIRECTORY()+"fullTranFormat.arff");
-		InstanceHandler.getHandler().calibrateAttributes(rawData, fullData);
+		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(rawData);
+		instanceProcessor.calibrateAttributes(rawData, fullData);
 		rawData=null; //试图释放内存
 	
 		//获取tradeDateIndex （从1开始）， 并按其排序
@@ -123,7 +125,7 @@ public class UpdateHistoryArffFile {
 	
 		//取出前半年的旧数据和当年的新数据作为验证的sample数据
 		String splitSampleClause = "( ATT" + ArffFormat.YEAR_MONTH_INDEX + " >= 201506) and ( ATT" + ArffFormat.YEAR_MONTH_INDEX+ " <= 201612) ";
-		GeneralInstances sampleData=InstanceHandler.getHandler().getInstancesSubset(fullData, splitSampleClause);
+		GeneralInstances sampleData=instanceProcessor.getInstancesSubset(fullData, splitSampleClause);
 		DataIOHandler.getSaver().SaveDataIntoFile(sampleData, arffFileName+"-sample.arff");
 		System.out.println("sample arff file saved. ");
 		sampleData=null;//试图释放内存
@@ -144,7 +146,8 @@ public class UpdateHistoryArffFile {
 		//将股票代码，交易日期之类的字段变换为String格式
 		String[] attsConvertToString=new String[]{ArffFormat.TRADE_DATE,ArffFormat.CODE,ArffFormat.SELL_DATE,ArffFormat.DATA_DATE};
 		String posString=BaseInstanceProcessor.returnAttribsPosition(fullData,attsConvertToString);
-		fullData=InstanceHandler.getHandler().NominalToString(fullData, posString);
+		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullData);
+		fullData=instanceProcessor.NominalToString(fullData, posString);
 
 		System.out.println("finish  loading original File row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
 
@@ -153,8 +156,9 @@ public class UpdateHistoryArffFile {
 		
 
 		//将原始文件里不属于该时间段的数据过滤出来（相当于把属于该段时间的原有数据删除）
+		//TODO ATT should be processed
 		String splitCurrentYearClause = "( ATT" + ArffFormat.YEAR_MONTH_INDEX + " < " + startYearMonth+ ") or ( ATT" + ArffFormat.YEAR_MONTH_INDEX+ " > " + endYearMonth + ") ";
-		fullData=InstanceHandler.getHandler().getInstancesSubset(fullData, splitCurrentYearClause);
+		fullData=instanceProcessor.getInstancesSubset(fullData, splitCurrentYearClause);
 
 		int filteredNumber=fullData.numInstances() ;
 		System.out.println("number of rows removed = "+ (originInstancesNum-filteredNumber));
@@ -168,7 +172,7 @@ public class UpdateHistoryArffFile {
 			System.err.println("attention!!  No records have been retrieved from the new file. ");
 		}
 
-		InstanceHandler.getHandler().calibrateAttributes(newData,fullData);
+		instanceProcessor.calibrateAttributes(newData,fullData);
 
 		System.out.println("number of refreshed dataset = "+fullData.numInstances());
 
@@ -181,8 +185,10 @@ public class UpdateHistoryArffFile {
 		System.out.println("refreshed arff file saved. ");
 
 		//取出最后一年的数据作为验证的sample数据
+		//TODO ATT should be processed
 		String splitSampleClause = "( ATT" + ArffFormat.YEAR_MONTH_INDEX + " >= " + endYearMonth.subSequence(0, 4) + "01) and ( ATT" + ArffFormat.YEAR_MONTH_INDEX+ " <= "	+ endYearMonth + ") ";
-		GeneralInstances sampleData=InstanceHandler.getHandler().getInstancesSubset(fullData, splitSampleClause);
+
+		GeneralInstances sampleData=instanceProcessor.getInstancesSubset(fullData, splitSampleClause);
 		DataIOHandler.getSaver().SaveDataIntoFile(sampleData, originFilePrefix+"-sample.arff");
 	}
 
@@ -228,12 +234,13 @@ public class UpdateHistoryArffFile {
 		String splitSampleClause = "( ATT" + ArffFormat.YEAR_MONTH_INDEX + " >= " + startYearMonth + ") and ( ATT" + ArffFormat.YEAR_MONTH_INDEX+ " <= "	+ endYearMonth + ") ";
 		System.out.println("start to compare refreshed data, try to get sample data using clause: "+splitSampleClause);
 		GeneralInstances originData=DataIOHandler.getSuppier().loadDataFromFile(filePrefix+"-origin.arff");
-		originData=InstanceHandler.getHandler().getInstancesSubset(originData, splitSampleClause);
+		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(originData);
+		originData=instanceProcessor.getInstancesSubset(originData, splitSampleClause);
 
 		int originDataSize=originData.numInstances();
 		System.out.println("loaded original file into memory, number= "+originDataSize);
 		GeneralInstances refreshedData=DataIOHandler.getSuppier().loadDataFromFile(filePrefix+".arff");
-		refreshedData=InstanceHandler.getHandler().getInstancesSubset(refreshedData, splitSampleClause);
+		refreshedData=instanceProcessor.getInstancesSubset(refreshedData, splitSampleClause);
 
 		int refreshedDataSize=refreshedData.numInstances();
 		System.out.println("loaded refreshed file into memory, number= "+refreshedDataSize);
@@ -261,7 +268,7 @@ public class UpdateHistoryArffFile {
 		String lastDate=null;
 		String lastCode=null;
 
-
+		
 		while (cursor<refreshedDataSize){
 
 
@@ -276,8 +283,9 @@ public class UpdateHistoryArffFile {
 				lastCode=code;
 			}
 
-			originDailyData=InstanceHandler.getHandler().getInstancesSubset(originData, "(ATT"+tradeDateIndex +" is '"+ tradeDate+"') and (ATT"+codeIndex+" is '"+code+"')");
-			refreshedDailyData=InstanceHandler.getHandler().getInstancesSubset(refreshedData, "(ATT"+tradeDateIndex +" is '"+ tradeDate+"') and (ATT"+codeIndex+" is '"+code+"')");
+			//TODO ATT should be replaced
+			originDailyData=instanceProcessor.getInstancesSubset(originData, "(ATT"+tradeDateIndex +" is '"+ tradeDate+"') and (ATT"+codeIndex+" is '"+code+"')");
+			refreshedDailyData=instanceProcessor.getInstancesSubset(refreshedData, "(ATT"+tradeDateIndex +" is '"+ tradeDate+"') and (ATT"+codeIndex+" is '"+code+"')");
 
 			int refreshedDailyDataSize=refreshedDailyData.numInstances();
 			int originDailyDataSize=originDailyData.numInstances();
@@ -544,8 +552,8 @@ public class UpdateHistoryArffFile {
 		GeneralInstances extData=DataIOHandler.getSuppier().loadDataFromExtCSVFile(firstFile,verifyFormat);
 		GeneralInstances extDataSecond=DataIOHandler.getSuppier().loadDataFromExtCSVFile(secondFile,verifyFormat);
 
-
-		return InstanceHandler.getHandler().mergeTwoInstances(extData, extDataSecond);
+		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(extData);
+		return instanceProcessor.mergeTwoInstances(extData, extDataSecond);
 	}
 
 
@@ -644,17 +652,18 @@ public class UpdateHistoryArffFile {
 		String sourceFilePrefix=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\full4group\\test_onceyield_group4allhis";
 		GeneralInstances fullData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2005-2006.txt");
 		GeneralInstances addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2007-2008.txt");
-		fullData=InstanceHandler.getHandler().mergeTwoInstances(fullData, addData);
+		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullData);
+		fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
 		System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
 		addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2009-2010.txt");
-		fullData=InstanceHandler.getHandler().mergeTwoInstances(fullData, addData);
+		fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
 		System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
 
 		int startYear=2011;
 		int endYear=2016;
 		for (int i=startYear;i<=endYear;i++){
 			addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+i+".txt");
-			fullData=InstanceHandler.getHandler().mergeTwoInstances(fullData, addData);
+			fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
 			System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
 		}
 		return fullData;

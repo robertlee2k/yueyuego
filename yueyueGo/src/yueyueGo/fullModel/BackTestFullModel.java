@@ -180,7 +180,7 @@ public class BackTestFullModel extends BackTest {
 		fullSetData = DataIOHandler.getSuppier().loadDataFromFile( arffFullFileName);
 		if (applyToMaModelInTestBack==true){//用fullModel模型来测试均线模型时加载均线模型的arff
 			int pos = BaseInstanceProcessor.findATTPosition(fullSetData,ArffFormat.SELECTED_AVG_LINE);
-			fullSetData = InstanceHandler.getHandler().removeAttribs(fullSetData,""+pos );
+			fullSetData = InstanceHandler.getHandler(fullSetData).removeAttribs(fullSetData,""+pos );
 		}
 		System.out.println("finish loading fullset Data. row : "+fullSetData.numInstances() + " column:"+ fullSetData.numAttributes());
 		return fullSetData;
@@ -245,11 +245,12 @@ public class BackTestFullModel extends BackTest {
 		mergedResult.sort(tradeDateIndex-1);
 		// 给mergedResult瘦身。 2=yearmonth, 6=datadate,7=positive,8=bias
 		String[] attributeToRemove=new String[]{ArffFormat.YEAR_MONTH,ArffFormat.DATA_DATE,ArffFormat.IS_POSITIVE,ArffFormat.BIAS5};
-		mergedResult=InstanceHandler.getHandler().removeAttribs(mergedResult, attributeToRemove);
+		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(mergedResult);
+		mergedResult=instanceProcessor.removeAttribs(mergedResult, attributeToRemove);
 		
 		if (applyToMaModelInTestBack==false){
 			//插入一列“均线策略”为计算程序使用
-			mergedResult=InstanceHandler.getHandler().AddAttributeWithValue(mergedResult, ArffFormat.SELECTED_AVG_LINE,"numeric","0");
+			mergedResult=instanceProcessor.AddAttributeWithValue(mergedResult, ArffFormat.SELECTED_AVG_LINE,"numeric","0");
 		}
 		return mergedResult;
 

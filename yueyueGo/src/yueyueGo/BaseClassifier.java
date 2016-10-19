@@ -323,14 +323,15 @@ public abstract class BaseClassifier implements Serializable{
 		// There is additional ID attribute in test instances, so we should save it and remove before doing prediction
 		double[] ids=test.attributeToDoubleArray(ArffFormat.ID_POSITION - 1);  
 		//删除已保存的ID 列，让待分类数据与模型数据一致 （此处的index是从1开始）
-		test=InstanceHandler.getHandler().removeAttribs(test,  Integer.toString(ArffFormat.ID_POSITION));
+		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(test);
+		test=instanceProcessor.removeAttribs(test,  Integer.toString(ArffFormat.ID_POSITION));
 		//验证数据格式是否一致
 		String verify=verifyDataFormat(test, header);
 		if (verify!=null){
 			System.err.println("attention! model and testing data structure is not the same. Here is the difference: "+verify);
 			//如果不一致，试着Calibrate一下。
 			DataInstances outTemp=new DataInstances(header,0);
-			InstanceHandler.getHandler().calibrateAttributes(test, outTemp);
+			instanceProcessor.calibrateAttributes(test, outTemp);
 			test=outTemp;
 			//再比一次
 			BaseInstanceProcessor.compareInstancesFormat(test, header);

@@ -37,9 +37,10 @@ public class MergeClassifyResults {
 	
 		    // 创建输出结果
 		    GeneralInstances mergedResult = new DataInstances(left, 0);
-		    mergedResult=InstanceHandler.getHandler().AddAttribute(mergedResult,ArffFormat.RESULT_PREDICTED_PROFIT, mergedResult.numAttributes());
-		    mergedResult=InstanceHandler.getHandler().AddAttribute(mergedResult,ArffFormat.RESULT_PREDICTED_WIN_RATE, mergedResult.numAttributes());
-		    mergedResult=InstanceHandler.getHandler().AddAttribute(mergedResult,ArffFormat.RESULT_SELECTED, mergedResult.numAttributes());
+		    BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(mergedResult);
+		    mergedResult=instanceProcessor.AddAttribute(mergedResult,ArffFormat.RESULT_PREDICTED_PROFIT, mergedResult.numAttributes());
+		    mergedResult=instanceProcessor.AddAttribute(mergedResult,ArffFormat.RESULT_PREDICTED_WIN_RATE, mergedResult.numAttributes());
+		    mergedResult=instanceProcessor.AddAttribute(mergedResult,ArffFormat.RESULT_SELECTED, mergedResult.numAttributes());
 			
 	
 		    GeneralInstance leftCurr;

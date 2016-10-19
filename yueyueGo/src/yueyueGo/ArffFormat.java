@@ -217,7 +217,7 @@ public class ArffFormat {
 	// 从All Transaction Data中删除无关字段 (tradeDate到均线策略之前）
 	protected static GeneralInstances prepareTransData(GeneralInstances allData)
 			throws Exception {
-		GeneralInstances result = InstanceHandler.getHandler().removeAttribs(allData,TRANS_DATA_NOT_SAVED_IN_ARFF);// "3-9");
+		GeneralInstances result = InstanceHandler.getHandler(allData).removeAttribs(allData,TRANS_DATA_NOT_SAVED_IN_ARFF);// "3-9");
 		return result;
 	}
 
@@ -230,7 +230,7 @@ public class ArffFormat {
 	// 此方法从All Transaction Data中保留计算收益率的相关字段，以及最后的收益率，删除其他计算字段
 	protected static GeneralInstances getTransLeftPartFromAllTransaction(GeneralInstances allData)
 			throws Exception {
-		return InstanceHandler.getHandler().keepAttributes(allData,TRANS_DATA_LEFT_PART);
+		return InstanceHandler.getHandler(allData).keepAttributes(allData,TRANS_DATA_LEFT_PART);
 	}
 	
 	// 为原始的Arff文件加上计算属性

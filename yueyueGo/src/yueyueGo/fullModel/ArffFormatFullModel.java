@@ -108,14 +108,14 @@ public class ArffFormatFullModel extends ArffFormat {
 	protected static GeneralInstances getTransLeftPartForFullModel(GeneralInstances allData)
 			throws Exception {
 		String saveString=BaseInstanceProcessor.returnAttribsPosition(allData,FULL_MODEL_DATA_LEFT_PART);
-		GeneralInstances result = InstanceHandler.getHandler().filterAttribs(allData,saveString);
+		GeneralInstances result = InstanceHandler.getHandler(allData).filterAttribs(allData,saveString);
 		return result;
 	}
 	
 	// 从All Transaction Data中删除无关字段 (tradeDate到均线策略之前）
 	protected static GeneralInstances prepareTransDataForFullModel(GeneralInstances allData)
 			throws Exception {
-		GeneralInstances result = InstanceHandler.getHandler().removeAttribs(allData,FULL_MODEL_DATA_NOT_SAVED_IN_ARFF);
+		GeneralInstances result = InstanceHandler.getHandler(allData).removeAttribs(allData,FULL_MODEL_DATA_NOT_SAVED_IN_ARFF);
 		return result;
 	}
 }
