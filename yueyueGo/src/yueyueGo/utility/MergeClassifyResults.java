@@ -1,11 +1,13 @@
 package yueyueGo.utility;
 
 import yueyueGo.ArffFormat;
+import yueyueGo.dataProcessor.BaseInstanceProcessor;
+import yueyueGo.dataProcessor.InstanceHandler;
+import yueyueGo.databeans.DataInstance;
+import yueyueGo.databeans.DataInstances;
 import yueyueGo.databeans.GeneralAttribute;
 import yueyueGo.databeans.GeneralInstance;
 import yueyueGo.databeans.GeneralInstances;
-import yueyueGo.databeans.DataInstance;
-import yueyueGo.databeans.DataInstances;
 
 
 public class MergeClassifyResults {
@@ -35,9 +37,9 @@ public class MergeClassifyResults {
 	
 		    // 创建输出结果
 		    GeneralInstances mergedResult = new DataInstances(left, 0);
-		    mergedResult=InstanceUtility.AddAttribute(mergedResult,ArffFormat.RESULT_PREDICTED_PROFIT, mergedResult.numAttributes());
-		    mergedResult=InstanceUtility.AddAttribute(mergedResult,ArffFormat.RESULT_PREDICTED_WIN_RATE, mergedResult.numAttributes());
-		    mergedResult=InstanceUtility.AddAttribute(mergedResult,ArffFormat.RESULT_SELECTED, mergedResult.numAttributes());
+		    mergedResult=InstanceHandler.getHandler().AddAttribute(mergedResult,ArffFormat.RESULT_PREDICTED_PROFIT, mergedResult.numAttributes());
+		    mergedResult=InstanceHandler.getHandler().AddAttribute(mergedResult,ArffFormat.RESULT_PREDICTED_WIN_RATE, mergedResult.numAttributes());
+		    mergedResult=InstanceHandler.getHandler().AddAttribute(mergedResult,ArffFormat.RESULT_SELECTED, mergedResult.numAttributes());
 			
 	
 		    GeneralInstance leftCurr;
@@ -131,7 +133,7 @@ public class MergeClassifyResults {
 						int srcStartIndex=0;
 						int srcEndIndex=leftCurr.numAttributes()-1;
 						int targetStartIndex=0;
-						InstanceUtility.copyToNewInstance(leftCurr, newData, srcStartIndex, srcEndIndex,targetStartIndex);
+						BaseInstanceProcessor.copyToNewInstance(leftCurr, newData, srcStartIndex, srcEndIndex,targetStartIndex);
 	
 						//根据传入的参数判断需要当前有什么，需要补充的数据是什么
 						double profit;

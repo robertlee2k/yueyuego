@@ -2,31 +2,31 @@ package yueyueGo.datasource;
 
 
 public class DataIOHandler {
-	private static GeneralDataSupplier supplier = null;
-	private static GeneralDataSaver saver = null;
+	private static WekaDataSupplier weka_supplier = null;
+	private static WekaDataSaver weka_saver = null;
 	
     public static GeneralDataSupplier getSuppier() {
-       if(supplier == null) {
+       if(weka_supplier == null) {
     	   Object obj=new Object();
     	   synchronized (obj) {
-    		   if(supplier == null){
-    			   supplier = new WekaDataSupplier();
+    		   if(weka_supplier == null){
+    			   weka_supplier = new WekaDataSupplier();
     		   }
     	   }
 		}
-       return supplier;
+       return weka_supplier;
     }
 
 	public static GeneralDataSaver getSaver(){
-	      if(saver == null) {
+	      if(weka_saver == null) {
 	    	   Object obj=new Object();
 	    	   synchronized (obj) {
-	    		   if(saver == null){
-	    			   saver = new WekaDataSaver();
+	    		   if(weka_saver == null){
+	    			   weka_saver = new WekaDataSaver();
 	    		   }
 	    	   }
 			}
-	       return saver;
+	       return weka_saver;
 	}
 
 }

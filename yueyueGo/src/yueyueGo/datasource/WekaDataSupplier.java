@@ -6,10 +6,10 @@ import weka.core.converters.CSVLoader;
 import weka.core.converters.ConverterUtils.DataSource;
 import weka.experiment.InstanceQuery;
 import yueyueGo.ArffFormat;
+import yueyueGo.dataProcessor.InstanceHandler;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaInstances;
 import yueyueGo.fullModel.ArffFormatFullModel;
-import yueyueGo.utility.InstanceUtility;
 
 public class WekaDataSupplier implements GeneralDataSupplier {
 
@@ -72,11 +72,11 @@ public class WekaDataSupplier implements GeneralDataSupplier {
 			
 			//数据先作为String全部读进来之后再看怎么转nominal，否则直接加载， nominal的值的顺序会和文件顺序有关，造成数据不对
 			String nominalAttribString=ArffFormat.findNominalAttribs(datasrc);
-			datasrc=InstanceUtility.numToNominal(datasrc, nominalAttribString);
+			datasrc= InstanceHandler.getHandler().numToNominal(datasrc, nominalAttribString);
 			// I do the following according to a saying from the weka forum:
 			//"You can't add a value to a nominal attribute once it has been created. 
 			//If you want to do this, you need to use a string attribute instead."
-			datasrc=InstanceUtility.NominalToString(datasrc, nominalAttribString);
+			datasrc=InstanceHandler.getHandler().NominalToString(datasrc, nominalAttribString);
 			
 			return datasrc;
 		}
@@ -105,12 +105,12 @@ public class WekaDataSupplier implements GeneralDataSupplier {
 	
 		
 		//读入数据后最后一行加上为空的收益率
-		data = InstanceUtility.AddAttribute(data, ArffFormat.SHOUYILV,data.numAttributes());
+		data = InstanceHandler.getHandler().AddAttribute(data, ArffFormat.SHOUYILV,data.numAttributes());
 		// 对读入的数据字段名称校验 确保其顺序完全和内部训练的arff格式一致
 		data=ArffFormat.validateAttributeNames(data,validateFormat);
 		//全部读进来之后再转nominal，这里读入的数据可能只是子集，所以nominal的index值会不对，所以后续会用calibrateAttributes处理
 		String nominalAttribString=ArffFormat.findNominalAttribs(data);
-		data=InstanceUtility.numToNominal(data, nominalAttribString);//"2,48-56");
+		data=InstanceHandler.getHandler().numToNominal(data, nominalAttribString);//"2,48-56");
 	
 	
 		data.setClassIndex(data.numAttributes()-1);
@@ -204,12 +204,12 @@ public class WekaDataSupplier implements GeneralDataSupplier {
 	
 	
 		//读入数据后最后一行加上为空的收益率
-		data = InstanceUtility.AddAttribute(data, ArffFormat.SHOUYILV,data.numAttributes());
+		data = InstanceHandler.getHandler().AddAttribute(data, ArffFormat.SHOUYILV,data.numAttributes());
 		// 对读入的数据字段名称校验 确保其顺序完全和内部训练的arff格式一致
 		data=ArffFormat.validateAttributeNames(data,validateFormat);
 		//全部读进来之后再转nominal，这里读入的数据可能只是子集，所以nominal的index值会不对，所以后续会用calibrateAttributes处理
 		String nominalAttribString=ArffFormat.findNominalAttribs(data);
-		data=InstanceUtility.numToNominal(data, nominalAttribString);//"2,48-56");
+		data=InstanceHandler.getHandler().numToNominal(data, nominalAttribString);//"2,48-56");
 	
 	
 		data.setClassIndex(data.numAttributes()-1);

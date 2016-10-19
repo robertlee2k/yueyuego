@@ -3,6 +3,7 @@ package yueyueGo.utility;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import yueyueGo.ArffFormat;
+import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.databeans.GeneralInstances;
 
 public class EvaluationBenchmark {
@@ -43,12 +44,12 @@ public class EvaluationBenchmark {
 		if (isNominal){
 //			pos=InstanceUtility.findATTPosition(trainData, ArffFormat.IS_POSITIVE);
 //			this.train_tp_fp_ratio=calculateTpFpRatio(trainData.attributeToDoubleArray(pos - 1));
-			pos=InstanceUtility.findATTPosition(evalData, ArffFormat.IS_POSITIVE);
+			pos=BaseInstanceProcessor.findATTPosition(evalData, ArffFormat.IS_POSITIVE);
 			this.eval_tp_fp_ratio=calculateTpFpRatio(evalData.attributeToDoubleArray(pos - 1));
 		}else{
 //			pos=InstanceUtility.findATTPosition(trainData, ArffFormat.SHOUYILV);
 //			this.train_avg_shouyilv=calculateAvgShouyilv(trainData.attributeToDoubleArray(pos - 1));
-			pos=InstanceUtility.findATTPosition(evalData, ArffFormat.SHOUYILV);
+			pos=BaseInstanceProcessor.findATTPosition(evalData, ArffFormat.SHOUYILV);
 			double[] data=evalData.attributeToDoubleArray(pos - 1);
 			this.eval_tp_fp_ratio=calculateTpFpRatioForNemeric(data,0);
 			this.eval_avg_shouyilv=calculateAvgShouyilv(data);

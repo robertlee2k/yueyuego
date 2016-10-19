@@ -6,6 +6,8 @@ import yueyueGo.ArffFormat;
 import yueyueGo.BackTest;
 import yueyueGo.BaseClassifier;
 import yueyueGo.EnvConstants;
+import yueyueGo.dataProcessor.BaseInstanceProcessor;
+import yueyueGo.dataProcessor.InstanceHandler;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.datasource.DataIOHandler;
 import yueyueGo.fullModel.classifier.AdaboostFullModel;
@@ -13,7 +15,6 @@ import yueyueGo.fullModel.classifier.BaggingM5PFullModel;
 import yueyueGo.fullModel.classifier.BaggingRegressionFullModel;
 import yueyueGo.fullModel.classifier.MyNNFullModel;
 import yueyueGo.utility.AppContext;
-import yueyueGo.utility.InstanceUtility;
 import yueyueGo.utility.MergeClassifyResults;
 
 public class BackTestFullModel extends BackTest {
@@ -51,7 +52,7 @@ public class BackTestFullModel extends BackTest {
 			fullModelWorker.init();
 			
 			//短线模型的历史回测
-			fullModelWorker.callFullModelTestBack();
+//			fullModelWorker.callFullModelTestBack();
 			
 			//短线模型刷新最新月评估数据
 //			fullModelWorker.callRefreshFullModelUseLatestData();
@@ -60,7 +61,7 @@ public class BackTestFullModel extends BackTest {
 //			UpdateHistoryArffFullModel.createFullModelInstances();
 			
 			//刷新增量数据
-//			UpdateHistoryArffFullModel.callRefreshInstancesFullModel();
+			UpdateHistoryArffFullModel.callRefreshInstancesFullModel();
 			
 			//短线模型合并新的属性
 //			UpdateHistoryArffFullModel.callMergeExtDataForFullModel();			
@@ -178,8 +179,8 @@ public class BackTestFullModel extends BackTest {
 		System.out.println("start to load File for fullset from File: "+ arffFullFileName  );
 		fullSetData = DataIOHandler.getSuppier().loadDataFromFile( arffFullFileName);
 		if (applyToMaModelInTestBack==true){//用fullModel模型来测试均线模型时加载均线模型的arff
-			int pos = InstanceUtility.findATTPosition(fullSetData,ArffFormat.SELECTED_AVG_LINE);
-			fullSetData = InstanceUtility.removeAttribs(fullSetData,""+pos );
+			int pos = BaseInstanceProcessor.findATTPosition(fullSetData,ArffFormat.SELECTED_AVG_LINE);
+			fullSetData = InstanceHandler.getHandler().removeAttribs(fullSetData,""+pos );
 		}
 		System.out.println("finish loading fullset Data. row : "+fullSetData.numInstances() + " column:"+ fullSetData.numAttributes());
 		return fullSetData;
@@ -240,15 +241,15 @@ public class BackTestFullModel extends BackTest {
 		GeneralInstances mergedResult = merge.mergeResults(resultData, referenceData,dataToAdd, left);
 		
 		//返回结果之前需要按TradeDate重新排序
-		int tradeDateIndex=InstanceUtility.findATTPosition(mergedResult, ArffFormat.TRADE_DATE);
+		int tradeDateIndex=BaseInstanceProcessor.findATTPosition(mergedResult, ArffFormat.TRADE_DATE);
 		mergedResult.sort(tradeDateIndex-1);
 		// 给mergedResult瘦身。 2=yearmonth, 6=datadate,7=positive,8=bias
 		String[] attributeToRemove=new String[]{ArffFormat.YEAR_MONTH,ArffFormat.DATA_DATE,ArffFormat.IS_POSITIVE,ArffFormat.BIAS5};
-		mergedResult=InstanceUtility.removeAttribs(mergedResult, attributeToRemove);
+		mergedResult=InstanceHandler.getHandler().removeAttribs(mergedResult, attributeToRemove);
 		
 		if (applyToMaModelInTestBack==false){
 			//插入一列“均线策略”为计算程序使用
-			mergedResult=InstanceUtility.AddAttributeWithValue(mergedResult, ArffFormat.SELECTED_AVG_LINE,"numeric","0");
+			mergedResult=InstanceHandler.getHandler().AddAttributeWithValue(mergedResult, ArffFormat.SELECTED_AVG_LINE,"numeric","0");
 		}
 		return mergedResult;
 

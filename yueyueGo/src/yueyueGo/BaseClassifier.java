@@ -6,11 +6,13 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import weka.classifiers.Classifier;
 import weka.core.SerializedObject;
+import yueyueGo.dataProcessor.BaseInstanceProcessor;
+import yueyueGo.dataProcessor.InstanceHandler;
+import yueyueGo.databeans.DataInstance;
+import yueyueGo.databeans.DataInstances;
 import yueyueGo.databeans.GeneralAttribute;
 import yueyueGo.databeans.GeneralInstance;
 import yueyueGo.databeans.GeneralInstances;
-import yueyueGo.databeans.DataInstance;
-import yueyueGo.databeans.DataInstances;
 import yueyueGo.utility.AppContext;
 import yueyueGo.utility.ClassifySummaries;
 import yueyueGo.utility.EvaluationBenchmark;
@@ -18,7 +20,6 @@ import yueyueGo.utility.EvaluationConfDefinition;
 import yueyueGo.utility.EvaluationParams;
 import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.FormatUtility;
-import yueyueGo.utility.InstanceUtility;
 import yueyueGo.utility.NumericThresholdCurve;
 import yueyueGo.utility.ThresholdData;
 
@@ -322,17 +323,17 @@ public abstract class BaseClassifier implements Serializable{
 		// There is additional ID attribute in test instances, so we should save it and remove before doing prediction
 		double[] ids=test.attributeToDoubleArray(ArffFormat.ID_POSITION - 1);  
 		//删除已保存的ID 列，让待分类数据与模型数据一致 （此处的index是从1开始）
-		test=InstanceUtility.removeAttribs(test,  Integer.toString(ArffFormat.ID_POSITION));
+		test=InstanceHandler.getHandler().removeAttribs(test,  Integer.toString(ArffFormat.ID_POSITION));
 		//验证数据格式是否一致
 		String verify=verifyDataFormat(test, header);
 		if (verify!=null){
 			System.err.println("attention! model and testing data structure is not the same. Here is the difference: "+verify);
 			//如果不一致，试着Calibrate一下。
 			DataInstances outTemp=new DataInstances(header,0);
-			InstanceUtility.calibrateAttributes(test, outTemp);
+			InstanceHandler.getHandler().calibrateAttributes(test, outTemp);
 			test=outTemp;
 			//再比一次
-			InstanceUtility.compareInstancesFormat(test, header);
+			BaseInstanceProcessor.compareInstancesFormat(test, header);
 		}
 		
 		//开始用分类模型和阀值进行预测
@@ -440,7 +441,7 @@ public abstract class BaseClassifier implements Serializable{
 //		if (modelArffFormat==ArffFormat.LEGACY_FORMAT){
 //			header=ArffFormat.renameOldArffName(header);
 //		}
-		return InstanceUtility.compareInstancesFormat(test, header);
+		return BaseInstanceProcessor.compareInstancesFormat(test, header);
 	}
 
 	//初始化回测创建模型时使用的modelStore对象（这里严格按yearsplit和policysplit分割处理）

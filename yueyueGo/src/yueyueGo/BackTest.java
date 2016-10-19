@@ -32,9 +32,12 @@ import yueyueGo.classifier.AdaboostClassifier;
 import yueyueGo.classifier.BaggingLinearRegression;
 import yueyueGo.classifier.BaggingM5P;
 import yueyueGo.classifier.MyNNClassifier;
+import yueyueGo.dataProcessor.BaseInstanceProcessor;
+import yueyueGo.dataProcessor.InstanceHandler;
+import yueyueGo.dataProcessor.WekaInstanceProcessor;
+import yueyueGo.databeans.DataInstances;
 import yueyueGo.databeans.GeneralAttribute;
 import yueyueGo.databeans.GeneralInstances;
-import yueyueGo.databeans.DataInstances;
 import yueyueGo.datasource.DataIOHandler;
 import yueyueGo.utility.AppContext;
 import yueyueGo.utility.BlockedThreadPoolExecutor;
@@ -42,7 +45,6 @@ import yueyueGo.utility.ClassifySummaries;
 import yueyueGo.utility.ClassifyUtility;
 import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.FormatUtility;
-import yueyueGo.utility.InstanceUtility;
 import yueyueGo.utility.MergeClassifyResults;
 
 public class BackTest {
@@ -72,7 +74,7 @@ public class BackTest {
 		BACKTEST_RESULT_DIR=AppContext.getBACKTEST_RESULT_DIR();
 		
 
-		RUNNING_THREADS=20;
+		RUNNING_THREADS=5;
 
 		shouyilv_thresholds=new double[] {0.005,0.005,0.01,0.03,0.03};//{0.01,0.02,0.03,0.03,0.04};//{0,0,0,0,0};//{-100,-100,-100,-100,-100};
 		winrate_thresholds=new double[] {0.45,0.45,0.45,0.35,0.25};//{0.5,0.5,0.5,0.5,0.5};//{0,0,0,0,0};//{0.3,0.3,0.3,0.3,0.3};
@@ -249,7 +251,7 @@ public class BackTest {
 				if (result == null) {// initialize result instances
 					result = prepareResultInstances(clModel, fullSetData);
 				}
-				int policyIndex=InstanceUtility.findATTPosition(fullSetData, ArffFormat.SELECTED_AVG_LINE);
+				int policyIndex=BaseInstanceProcessor.findATTPosition(fullSetData, ArffFormat.SELECTED_AVG_LINE);
 				String splitTrainClause = getSplitClause(policyIndex,splitTrainYearClause,policy);
 				String splitEvalClause =  getSplitClause(policyIndex,splitEvalYearClause,policy);;
 				String splitTestClause =  getSplitClause(policyIndex,splitTestYearClause, policy);
@@ -257,7 +259,7 @@ public class BackTest {
 				GeneralInstances trainingData = null;
 				if (clModel.m_skipTrainInBacktest == false ){ //如果需要训练模型，则取训练数据 
 					System.out.println("start to split training set from data: "+ splitTrainClause);
-					trainingData=InstanceUtility.getInstancesSubset(fullSetData,splitTrainClause);
+					trainingData=InstanceHandler.getHandler().getInstancesSubset(fullSetData,splitTrainClause);
 					int trainingDataSize=trainingData.numInstances();
 					if (trainingDataSize>EnvConstants.TRAINING_DATA_LIMIT){
 						trainingData=new DataInstances(trainingData,trainingDataSize-EnvConstants.TRAINING_DATA_LIMIT,EnvConstants.TRAINING_DATA_LIMIT);
@@ -266,7 +268,7 @@ public class BackTest {
 					if (clModel instanceof NominalClassifier ){
 						trainingData=((NominalClassifier)clModel).processDataForNominalClassifier(trainingData,false);
 					}
-					trainingData = InstanceUtility.removeAttribs(trainingData,  Integer.toString(ArffFormat.ID_POSITION)+","+ArffFormat.YEAR_MONTH_INDEX);
+					trainingData = InstanceHandler.getHandler().removeAttribs(trainingData,  Integer.toString(ArffFormat.ID_POSITION)+","+ArffFormat.YEAR_MONTH_INDEX);
 
 					System.out.println(" training data size , row : "
 							+ trainingData.numInstances() + " column: "
@@ -276,12 +278,12 @@ public class BackTest {
 				GeneralInstances evaluationData = null;
 				if (clModel.m_skipEvalInBacktest==false || clModel.m_skipTrainInBacktest == false  ){//如果需要评估模型，则取评估数据（训练时缺省要做一次评估）
 					System.out.println("start to split evaluation set from  data: "+ splitEvalClause);
-					evaluationData=InstanceUtility.getInstancesSubset(fullSetData,splitEvalClause);
+					evaluationData=InstanceHandler.getHandler().getInstancesSubset(fullSetData,splitEvalClause);
 					//对于二分类器，这里要把输入的收益率转换为分类变量
 					if (clModel instanceof NominalClassifier ){
 						evaluationData=((NominalClassifier)clModel).processDataForNominalClassifier(evaluationData,false);
 					}
-					evaluationData = InstanceUtility.removeAttribs(evaluationData,  Integer.toString(ArffFormat.ID_POSITION)+","+ArffFormat.YEAR_MONTH_INDEX);
+					evaluationData = InstanceHandler.getHandler().removeAttribs(evaluationData,  Integer.toString(ArffFormat.ID_POSITION)+","+ArffFormat.YEAR_MONTH_INDEX);
 					System.out.println(" evaluation data size , row : "
 							+ evaluationData.numInstances() + " column: "
 							+ evaluationData.numAttributes());
@@ -291,10 +293,9 @@ public class BackTest {
 				GeneralInstances testingData = null;				
 				// prepare testing data
 				System.out.println("start to split testing set: "+ splitTestClause);
-				testingData = InstanceUtility
-						.getInstancesSubset(fullSetData, splitTestClause);
+				testingData = InstanceHandler.getHandler().getInstancesSubset(fullSetData, splitTestClause);
 				//处理testingData
-				testingData = InstanceUtility.removeAttribs(testingData, ArffFormat.YEAR_MONTH_INDEX);
+				testingData = InstanceHandler.getHandler().removeAttribs(testingData, ArffFormat.YEAR_MONTH_INDEX);
 
 				//对于二分类器，这里要把输入的收益率转换为分类变量
 				if (clModel instanceof NominalClassifier ){
@@ -367,7 +368,7 @@ public class BackTest {
 			}  
 			//将所有线程的result合并
 			for (GeneralInstances temp : threadResult) {
-			  result=InstanceUtility.mergeTwoInstances(result, temp);
+			  result=InstanceHandler.getHandler().mergeTwoInstances(result, temp);
 			}
 			
 			threadResult.removeAllElements(); //释放内存
@@ -394,17 +395,17 @@ public class BackTest {
 		GeneralInstances result;
 		DataInstances header = new DataInstances(fullSetData, 0);
 		// 去除不必要的字段，保留ID（第1），均线策略（第3）、bias5（第4）、收益率（最后一列）、增加预测值、是否被选择。
-		int removeFromIndex=InstanceUtility.findATTPosition(fullSetData, ArffFormat.BIAS5)+1;
-		result = InstanceUtility.removeAttribs(header, ArffFormat.YEAR_MONTH_INDEX + ","+removeFromIndex+"-"
+		int removeFromIndex=BaseInstanceProcessor.findATTPosition(fullSetData, ArffFormat.BIAS5)+1;
+		result = InstanceHandler.getHandler().removeAttribs(header, ArffFormat.YEAR_MONTH_INDEX + ","+removeFromIndex+"-"
 				+ (header.numAttributes() - 1));
 		if (clModel instanceof NominalClassifier ){
-			result = InstanceUtility.AddAttribute(result, ArffFormat.RESULT_PREDICTED_WIN_RATE,
+			result = InstanceHandler.getHandler().AddAttribute(result, ArffFormat.RESULT_PREDICTED_WIN_RATE,
 					result.numAttributes());
 		}else{
-			result = InstanceUtility.AddAttribute(result, ArffFormat.RESULT_PREDICTED_PROFIT,
+			result = InstanceHandler.getHandler().AddAttribute(result, ArffFormat.RESULT_PREDICTED_PROFIT,
 					result.numAttributes());
 		}
-		result = InstanceUtility.AddAttribute(result, ArffFormat.RESULT_SELECTED,
+		result = InstanceHandler.getHandler().AddAttribute(result, ArffFormat.RESULT_SELECTED,
 				result.numAttributes());
 		return result;
 		
@@ -444,7 +445,7 @@ public class BackTest {
 	protected final String[] splitYearClause(String a_yearSplit) {
 		String lastYearSplit=ClassifyUtility.getLastYearSplit(a_yearSplit);
 		String[] splitYearClauses=new String[3];
-		String attPos = "ATT" + ArffFormat.YEAR_MONTH_INDEX;
+		String attPos = WekaInstanceProcessor.WEKA_ATT_PREFIX + ArffFormat.YEAR_MONTH_INDEX;
 		if (lastYearSplit.length() == 6) { // 按月分割时
 			splitYearClauses[0] = "(" + attPos + " < "
 					+ lastYearSplit + ") ";
@@ -497,12 +498,12 @@ public class BackTest {
 		GeneralInstances mergedResult =merge.mergeResults(resultData, referenceData,dataToAdd, left);
 
 		//返回结果之前需要按TradeDate重新排序
-		int tradeDateIndex=InstanceUtility.findATTPosition(mergedResult, ArffFormat.TRADE_DATE);
+		int tradeDateIndex=BaseInstanceProcessor.findATTPosition(mergedResult, ArffFormat.TRADE_DATE);
 		mergedResult.sort(tradeDateIndex-1);
 		
 		// 给mergedResult瘦身。 2=yearmonth, 6=datadate,7=positive,8=bias
 		String[] attributeToRemove=new String[]{ArffFormat.YEAR_MONTH,ArffFormat.DATA_DATE,ArffFormat.IS_POSITIVE,ArffFormat.BIAS5};
-		mergedResult=InstanceUtility.removeAttribs(mergedResult, attributeToRemove);
+		mergedResult=InstanceHandler.getHandler().removeAttribs(mergedResult, attributeToRemove);
 
 		return mergedResult;
 	}
@@ -524,8 +525,8 @@ public class BackTest {
 		System.out.println("shouyilv average for full market="+FormatUtility.formatPercent(fullOutput.meanOrMode(shouyilvAttribute),2,2));
 		
 		//输出全市场选股结果
-		int pos = InstanceUtility.findATTPosition(fullOutput,ArffFormat.RESULT_SELECTED);
-		GeneralInstances fullMarketSelected=InstanceUtility.getInstancesSubset(fullOutput, InstanceUtility.WEKA_ATT_PREFIX +pos+" = 1");
+		int pos = BaseInstanceProcessor.findATTPosition(fullOutput,ArffFormat.RESULT_SELECTED);
+		GeneralInstances fullMarketSelected=InstanceHandler.getHandler().getInstancesSubset(fullOutput, WekaInstanceProcessor.WEKA_ATT_PREFIX +pos+" = 1");
 		shouyilvAttribute=fullMarketSelected.attribute(ArffFormat.SHOUYILV);
 		System.out.println("selected shouyilv average for full market ="+FormatUtility.formatPercent(fullMarketSelected.meanOrMode(shouyilvAttribute),2,2)+" count="+fullMarketSelected.numInstances());
 		DataIOHandler.getSaver().saveCSVFile(fullMarketSelected, BACKTEST_RESULT_DIR+"选股-"+ classiferName+"-full" + RESULT_EXTENSION );

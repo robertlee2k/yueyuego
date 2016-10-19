@@ -6,17 +6,17 @@ import weka.classifiers.Classifier;
 import weka.classifiers.evaluation.EvaluationUtils;
 import weka.classifiers.evaluation.Prediction;
 import weka.classifiers.evaluation.ThresholdCurve;
-import yueyueGo.databeans.GeneralAttribute;
-import yueyueGo.databeans.GeneralInstance;
-import yueyueGo.databeans.GeneralInstances;
+import yueyueGo.dataProcessor.InstanceHandler;
 import yueyueGo.databeans.DataAttribute;
 import yueyueGo.databeans.DataInstance;
 import yueyueGo.databeans.DataInstances;
+import yueyueGo.databeans.GeneralAttribute;
+import yueyueGo.databeans.GeneralInstance;
+import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaAttribute;
 import yueyueGo.databeans.WekaInstance;
 import yueyueGo.databeans.WekaInstances;
 import yueyueGo.utility.FormatUtility;
-import yueyueGo.utility.InstanceUtility;
 
 public abstract class NominalClassifier extends BaseClassifier{
 	/**
@@ -92,7 +92,7 @@ public abstract class NominalClassifier extends BaseClassifier{
 			}
 		}
 		//删除shouyilv
-		inData=InstanceUtility.removeAttribs(inData, ""+inData.numAttributes());
+		inData=InstanceHandler.getHandler().removeAttribs(inData, ""+inData.numAttributes());
 		//设置新属性的位置
 		inData.setClassIndex(inData.numAttributes()-1);
 		System.out.println("class value replaced for nominal classifier. where m_positiveLine= "+m_positiveLine);

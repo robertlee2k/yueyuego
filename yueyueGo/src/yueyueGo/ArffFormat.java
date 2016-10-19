@@ -1,13 +1,14 @@
 package yueyueGo;
 
-import yueyueGo.databeans.GeneralAttribute;
-import yueyueGo.databeans.GeneralInstance;
-import yueyueGo.databeans.GeneralInstances;
+import yueyueGo.dataProcessor.BaseInstanceProcessor;
+import yueyueGo.dataProcessor.InstanceHandler;
 import yueyueGo.databeans.DataAttribute;
 import yueyueGo.databeans.DataInstance;
 import yueyueGo.databeans.DataInstances;
+import yueyueGo.databeans.GeneralAttribute;
+import yueyueGo.databeans.GeneralInstance;
+import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.utility.FormatUtility;
-import yueyueGo.utility.InstanceUtility;
 
 public class ArffFormat {
 	public static final int LEGACY_FORMAT=-1;
@@ -210,13 +211,13 @@ public class ArffFormat {
 	
 	//返回给定数据集里与NOMINAL_ATTRIBS同名字段的位置字符串（从1开始），这主要是为filter使用
 	public static String findNominalAttribs(GeneralInstances data){
-		return InstanceUtility.returnAttribsPosition(data,NOMINAL_ATTRIBS);
+		return BaseInstanceProcessor.returnAttribsPosition(data,NOMINAL_ATTRIBS);
 	}
 	
 	// 从All Transaction Data中删除无关字段 (tradeDate到均线策略之前）
 	protected static GeneralInstances prepareTransData(GeneralInstances allData)
 			throws Exception {
-		GeneralInstances result = InstanceUtility.removeAttribs(allData,TRANS_DATA_NOT_SAVED_IN_ARFF);// "3-9");
+		GeneralInstances result = InstanceHandler.getHandler().removeAttribs(allData,TRANS_DATA_NOT_SAVED_IN_ARFF);// "3-9");
 		return result;
 	}
 
@@ -229,7 +230,7 @@ public class ArffFormat {
 	// 此方法从All Transaction Data中保留计算收益率的相关字段，以及最后的收益率，删除其他计算字段
 	protected static GeneralInstances getTransLeftPartFromAllTransaction(GeneralInstances allData)
 			throws Exception {
-		return InstanceUtility.keepAttributes(allData,TRANS_DATA_LEFT_PART);
+		return InstanceHandler.getHandler().keepAttributes(allData,TRANS_DATA_LEFT_PART);
 	}
 	
 	// 为原始的Arff文件加上计算属性
@@ -273,7 +274,7 @@ public class ArffFormat {
 			for (int n = 0; n < data.numAttributes() - 1; n++) {
 				GeneralAttribute att = data.attribute(n);
 				GeneralAttribute newRowAtt=result.attribute(n);
-				InstanceUtility.fullCopyAttribute(oneRow, newRow, att, newRowAtt);
+				BaseInstanceProcessor.fullCopyAttribute(oneRow, newRow, att, newRowAtt);
 //				if (att != null) {
 //					if (att.isNominal()) {
 //						String label = oneRow.stringValue(att);
