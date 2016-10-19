@@ -1,7 +1,7 @@
 package yueyueGo.fullModel;
 
 import yueyueGo.ArffFormat;
-import yueyueGo.databeans.BaseInstances;
+import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.InstanceUtility;
 
@@ -104,17 +104,17 @@ public class ArffFormatFullModel extends ArffFormat {
 		
 
 	// 此方法从All Transaction Data中保留计算收益率的相关字段，以及最后的收益率，删除其他计算字段
-	protected static BaseInstances getTransLeftPartForFullModel(BaseInstances allData)
+	protected static GeneralInstances getTransLeftPartForFullModel(GeneralInstances allData)
 			throws Exception {
 		String saveString=InstanceUtility.returnAttribsPosition(allData,FULL_MODEL_DATA_LEFT_PART);
-		BaseInstances result = InstanceUtility.filterAttribs(allData,saveString);
+		GeneralInstances result = InstanceUtility.filterAttribs(allData,saveString);
 		return result;
 	}
 	
 	// 从All Transaction Data中删除无关字段 (tradeDate到均线策略之前）
-	protected static BaseInstances prepareTransDataForFullModel(BaseInstances allData)
+	protected static GeneralInstances prepareTransDataForFullModel(GeneralInstances allData)
 			throws Exception {
-		BaseInstances result = InstanceUtility.removeAttribs(allData,FULL_MODEL_DATA_NOT_SAVED_IN_ARFF);
+		GeneralInstances result = InstanceUtility.removeAttribs(allData,FULL_MODEL_DATA_NOT_SAVED_IN_ARFF);
 		return result;
 	}
 }

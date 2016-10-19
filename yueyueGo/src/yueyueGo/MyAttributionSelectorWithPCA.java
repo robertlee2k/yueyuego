@@ -2,7 +2,7 @@ package yueyueGo;
 
 import weka.attributeSelection.Ranker;
 import weka.classifiers.meta.AttributeSelectedClassifier;
-import yueyueGo.databeans.BaseInstances;
+import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaInstances;
 
 public class MyAttributionSelectorWithPCA extends AttributeSelectedClassifier {
@@ -24,7 +24,7 @@ public class MyAttributionSelectorWithPCA extends AttributeSelectedClassifier {
 //		MyPrincipalComponents pca =(MyPrincipalComponents)getEvaluator();
 //		return pca.prepareTrainingData(data);
 //	}
-	 public void buildClassifier(BaseInstances data) throws Exception {
+	 public void buildClassifier(GeneralInstances data) throws Exception {
 		 super.buildClassifier(WekaInstances.convertToWekaInstances(data));
 		 releasePCAData();
 	 }

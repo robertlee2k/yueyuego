@@ -1,8 +1,8 @@
 package yueyueGo.databeans;
 
-public interface BaseAttribute {
+public interface GeneralAttribute {
 
-	public abstract BaseAttribute copy();
+	public abstract GeneralAttribute copy();
 
 	public abstract String equalsMsg(Object arg0);
 

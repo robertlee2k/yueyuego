@@ -1,9 +1,9 @@
 package yueyueGo.utility;
 
 import yueyueGo.ArffFormat;
-import yueyueGo.databeans.BaseAttribute;
-import yueyueGo.databeans.BaseInstance;
-import yueyueGo.databeans.BaseInstances;
+import yueyueGo.databeans.GeneralAttribute;
+import yueyueGo.databeans.GeneralInstance;
+import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.DataInstance;
 import yueyueGo.databeans.DataInstances;
 
@@ -27,38 +27,38 @@ public class MergeClassifyResults {
 		 * @throws IllegalStateException
 		 * @throws Exception
 		 */
-		public BaseInstances mergeResults(BaseInstances resultData,BaseInstances referenceData, String dataToAdd, BaseInstances left)
+		public GeneralInstances mergeResults(GeneralInstances resultData,GeneralInstances referenceData, String dataToAdd, GeneralInstances left)
 				throws IllegalStateException, Exception {
 			System.out.println("incoming resultData size, row="+resultData.numInstances()+" column="+resultData.numAttributes());
 			System.out.println("incoming referenceData size, row="+referenceData.numInstances()+" column="+referenceData.numAttributes());
 			System.out.println("Left data loaded, row="+left.numInstances()+" column="+left.numAttributes());
 	
 		    // 创建输出结果
-		    BaseInstances mergedResult = new DataInstances(left, 0);
+		    GeneralInstances mergedResult = new DataInstances(left, 0);
 		    mergedResult=InstanceUtility.AddAttribute(mergedResult,ArffFormat.RESULT_PREDICTED_PROFIT, mergedResult.numAttributes());
 		    mergedResult=InstanceUtility.AddAttribute(mergedResult,ArffFormat.RESULT_PREDICTED_WIN_RATE, mergedResult.numAttributes());
 		    mergedResult=InstanceUtility.AddAttribute(mergedResult,ArffFormat.RESULT_SELECTED, mergedResult.numAttributes());
 			
 	
-		    BaseInstance leftCurr;
-			BaseInstance resultCurr;
-			BaseInstance referenceCurr;
+		    GeneralInstance leftCurr;
+			GeneralInstance resultCurr;
+			GeneralInstance referenceCurr;
 			DataInstance newData;
 			
 			//左侧冗余信息文件属性
-			BaseAttribute leftMA=left.attribute(ArffFormat.SELECTED_AVG_LINE);
-			BaseAttribute shouyilvAtt=left.attribute(ArffFormat.SHOUYILV);	
-			BaseAttribute leftBias5=left.attribute(ArffFormat.BIAS5);
+			GeneralAttribute leftMA=left.attribute(ArffFormat.SELECTED_AVG_LINE);
+			GeneralAttribute shouyilvAtt=left.attribute(ArffFormat.SHOUYILV);	
+			GeneralAttribute leftBias5=left.attribute(ArffFormat.BIAS5);
 			
 			//结果文件属性
-			BaseAttribute resultMA=resultData.attribute(ArffFormat.SELECTED_AVG_LINE);	
-			BaseAttribute resultBias5=resultData.attribute(ArffFormat.BIAS5);
-			BaseAttribute resultSelectedAtt=resultData.attribute(ArffFormat.RESULT_SELECTED);
+			GeneralAttribute resultMA=resultData.attribute(ArffFormat.SELECTED_AVG_LINE);	
+			GeneralAttribute resultBias5=resultData.attribute(ArffFormat.BIAS5);
+			GeneralAttribute resultSelectedAtt=resultData.attribute(ArffFormat.RESULT_SELECTED);
 			
 			//输出文件的属性
-			BaseAttribute outputSelectedAtt=mergedResult.attribute(ArffFormat.RESULT_SELECTED);
-			BaseAttribute outputPredictAtt=mergedResult.attribute(ArffFormat.RESULT_PREDICTED_PROFIT);
-			BaseAttribute outputWinrateAtt=mergedResult.attribute(ArffFormat.RESULT_PREDICTED_WIN_RATE);
+			GeneralAttribute outputSelectedAtt=mergedResult.attribute(ArffFormat.RESULT_SELECTED);
+			GeneralAttribute outputPredictAtt=mergedResult.attribute(ArffFormat.RESULT_PREDICTED_PROFIT);
+			GeneralAttribute outputWinrateAtt=mergedResult.attribute(ArffFormat.RESULT_PREDICTED_WIN_RATE);
 	//		Attribute outputMAAtt=mergedResult.attribute(ArffFormat.SELECTED_AVG_LINE);
 			
 			//传入的结果集result不是排序的,而left的数据是按tradeDate日期排序的， 所以都先按ID排序。

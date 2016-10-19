@@ -6,13 +6,13 @@ import yueyueGo.ArffFormat;
 import yueyueGo.BackTest;
 import yueyueGo.BaseClassifier;
 import yueyueGo.EnvConstants;
-import yueyueGo.databeans.BaseInstances;
+import yueyueGo.databeans.GeneralInstances;
+import yueyueGo.datasource.DataIOHandler;
 import yueyueGo.fullModel.classifier.AdaboostFullModel;
 import yueyueGo.fullModel.classifier.BaggingM5PFullModel;
 import yueyueGo.fullModel.classifier.BaggingRegressionFullModel;
 import yueyueGo.fullModel.classifier.MyNNFullModel;
 import yueyueGo.utility.AppContext;
-import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.InstanceUtility;
 import yueyueGo.utility.MergeClassifyResults;
 
@@ -116,7 +116,7 @@ public class BackTestFullModel extends BackTest {
 			nModel.m_skipEvalInBacktest=true;
 		}	
 		
-		BaseInstances nominalResult=testBackward(nModel);
+		GeneralInstances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
 //		BaseInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 
@@ -128,7 +128,7 @@ public class BackTestFullModel extends BackTest {
 			cModel.m_skipEvalInBacktest=true;
 		}
 
-		BaseInstances continuousResult=testBackward(cModel);
+		GeneralInstances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
 //		BaseInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 		
@@ -138,10 +138,10 @@ public class BackTestFullModel extends BackTest {
 
 		//输出用于计算收益率的CSV文件
 		System.out.println("-----now output continuous predictions----------"+cModel.getIdentifyName());
-		BaseInstances m5pOutput=mergeResultWithData(continuousResult,nominalResult,ArffFormat.RESULT_PREDICTED_WIN_RATE,cModel.getModelArffFormat());
+		GeneralInstances m5pOutput=mergeResultWithData(continuousResult,nominalResult,ArffFormat.RESULT_PREDICTED_WIN_RATE,cModel.getModelArffFormat());
 		saveSelectedFileForMarkets(m5pOutput,cModel.getIdentifyName());
 		System.out.println("-----now output nominal predictions----------"+nModel.getIdentifyName());
-		BaseInstances mlpOutput=mergeResultWithData(nominalResult,continuousResult,ArffFormat.RESULT_PREDICTED_PROFIT,nModel.getModelArffFormat());
+		GeneralInstances mlpOutput=mergeResultWithData(nominalResult,continuousResult,ArffFormat.RESULT_PREDICTED_PROFIT,nModel.getModelArffFormat());
 		saveSelectedFileForMarkets(mlpOutput,nModel.getIdentifyName());
 		System.out.println("-----end of test backward------");
 	}
@@ -165,7 +165,7 @@ public class BackTestFullModel extends BackTest {
 	 * @throws Exception
 	 */
 	@Override
-	protected BaseInstances getBacktestInstances(BaseClassifier clModel,String splitMark,String policy)
+	protected GeneralInstances getBacktestInstances(BaseClassifier clModel,String splitMark,String policy)
 			throws Exception {
 
 		String arffFullFileName = null;
@@ -174,9 +174,9 @@ public class BackTestFullModel extends BackTest {
 		}else{
 			arffFullFileName=getFullModelArffFileName(clModel);
 		}
-		BaseInstances fullSetData;
+		GeneralInstances fullSetData;
 		System.out.println("start to load File for fullset from File: "+ arffFullFileName  );
-		fullSetData = FileUtility.loadDataFromFile( arffFullFileName);
+		fullSetData = DataIOHandler.getSuppier().loadDataFromFile( arffFullFileName);
 		if (applyToMaModelInTestBack==true){//用fullModel模型来测试均线模型时加载均线模型的arff
 			int pos = InstanceUtility.findATTPosition(fullSetData,ArffFormat.SELECTED_AVG_LINE);
 			fullSetData = InstanceUtility.removeAttribs(fullSetData,""+pos );
@@ -227,17 +227,17 @@ public class BackTestFullModel extends BackTest {
 
 
 	
-	protected BaseInstances mergeResultWithData(BaseInstances resultData,BaseInstances referenceData,String dataToAdd,int format) throws Exception{
-		BaseInstances left=null;		
+	protected GeneralInstances mergeResultWithData(GeneralInstances resultData,GeneralInstances referenceData,String dataToAdd,int format) throws Exception{
+		GeneralInstances left=null;		
 		//读取磁盘上预先保存的左侧数据
 		if (applyToMaModelInTestBack==true){
-			left=FileUtility.loadDataFromFile(EnvConstants.AVG_LINE_ROOT_DIR+ArffFormat.TRANSACTION_ARFF_PREFIX+"-left.arff");
+			left=DataIOHandler.getSuppier().loadDataFromFile(EnvConstants.AVG_LINE_ROOT_DIR+ArffFormat.TRANSACTION_ARFF_PREFIX+"-left.arff");
 		}else{
-			left=FileUtility.loadDataFromFile(C_ROOT_DIRECTORY+ArffFormatFullModel.FULL_MODEL_ARFF_PREFIX+"-left.arff");
+			left=DataIOHandler.getSuppier().loadDataFromFile(C_ROOT_DIRECTORY+ArffFormatFullModel.FULL_MODEL_ARFF_PREFIX+"-left.arff");
 		}
 		
 		MergeClassifyResults merge=new MergeClassifyResults(shouyilv_thresholds, winrate_thresholds);
-		BaseInstances mergedResult = merge.mergeResults(resultData, referenceData,dataToAdd, left);
+		GeneralInstances mergedResult = merge.mergeResults(resultData, referenceData,dataToAdd, left);
 		
 		//返回结果之前需要按TradeDate重新排序
 		int tradeDateIndex=InstanceUtility.findATTPosition(mergedResult, ArffFormat.TRADE_DATE);

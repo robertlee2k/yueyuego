@@ -7,7 +7,7 @@ import weka.classifiers.trees.J48;
 import weka.classifiers.trees.M5P;
 import yueyueGo.EnvConstants;
 import yueyueGo.MyAttributionSelectorWithPCA;
-import yueyueGo.databeans.BaseInstances;
+import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaInstances;
 
 // 设置一些基础分类器属性的方法组
@@ -108,7 +108,7 @@ public class ClassifyUtility {
 	}
 
 	//直接bagging不使用PCA
-	public static Classifier buildBaggingWithoutPCA(BaseInstances train,Classifier model,int bagging_iteration, int bagging_samplePercent) throws Exception {
+	public static Classifier buildBaggingWithoutPCA(GeneralInstances train,Classifier model,int bagging_iteration, int bagging_samplePercent) throws Exception {
 		
 	
 		Bagging bagger=createBaggingRunner(train.numInstances(), train.numAttributes(),bagging_iteration,bagging_samplePercent);
@@ -121,7 +121,7 @@ public class ClassifyUtility {
 	
 	
 	//bagging 内的每个模型自己有单独的PCA
-	public static Classifier buildBaggingWithMultiPCA(BaseInstances train,Classifier model,int bagging_iteration, int bagging_samplePercent) throws Exception {
+	public static Classifier buildBaggingWithMultiPCA(GeneralInstances train,Classifier model,int bagging_iteration, int bagging_samplePercent) throws Exception {
 		
 		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();
 		classifier.setDebug(true);
@@ -139,7 +139,7 @@ public class ClassifyUtility {
 
 
 	//bagging 之前使用PCA，bagging大家用同一的
-	public static  Classifier buildBaggingWithSinglePCA(BaseInstances train,Classifier model,int bagging_iteration, int bagging_samplePercent) throws Exception {
+	public static  Classifier buildBaggingWithSinglePCA(GeneralInstances train,Classifier model,int bagging_iteration, int bagging_samplePercent) throws Exception {
 	
 	    // set up the bagger and build the classifier
 		Bagging bagger=createBaggingRunner(train.numInstances(), train.numAttributes(),bagging_iteration,bagging_samplePercent);
@@ -168,7 +168,7 @@ public class ClassifyUtility {
 	 *      3. 同等情况下，我希望尝试多一层（node数大于输入层数量2倍时多分一层）
 	 * @return
 	 */
-	public static String estimateHiddenLayerNodes(BaseInstances train, boolean usePCA){
+	public static String estimateHiddenLayerNodes(GeneralInstances train, boolean usePCA){
 		int instanceNum=train.numInstances();
 		double upperLimit=(double)instanceNum/10;
 		int inputNodeNum=train.numAttributes();
@@ -224,7 +224,7 @@ public class ClassifyUtility {
 	}
 
 	//评估时输出confusionMatrix
-	public static Evaluation getConfusionMatrix(BaseInstances trainData,BaseInstances evalData, Classifier model,boolean isNominal)
+	public static Evaluation getConfusionMatrix(GeneralInstances trainData,GeneralInstances evalData, Classifier model,boolean isNominal)
 			throws Exception {
 	
 		System.out.println("evluation with full incoming dataset, size: "+evalData.numInstances());

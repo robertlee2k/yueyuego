@@ -5,11 +5,10 @@ import java.io.Serializable;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import weka.classifiers.Classifier;
-import weka.classifiers.evaluation.ThresholdCurve;
 import weka.core.SerializedObject;
-import yueyueGo.databeans.BaseAttribute;
-import yueyueGo.databeans.BaseInstance;
-import yueyueGo.databeans.BaseInstances;
+import yueyueGo.databeans.GeneralAttribute;
+import yueyueGo.databeans.GeneralInstance;
+import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.DataInstance;
 import yueyueGo.databeans.DataInstances;
 import yueyueGo.utility.AppContext;
@@ -20,6 +19,7 @@ import yueyueGo.utility.EvaluationParams;
 import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.InstanceUtility;
+import yueyueGo.utility.NumericThresholdCurve;
 import yueyueGo.utility.ThresholdData;
 
 /**
@@ -77,9 +77,9 @@ public abstract class BaseClassifier implements Serializable{
 	
 	//一系列需要子类实现的抽象方法
 	protected abstract void initializeParams();
-	protected abstract Classifier buildModel(BaseInstances trainData) throws Exception;
-	protected abstract BaseInstances getROCInstances(BaseInstances evalData, Classifier model) throws Exception; 
-	protected abstract double classify(Classifier model,BaseInstance curr) throws Exception ;
+	protected abstract Classifier buildModel(GeneralInstances trainData) throws Exception;
+	protected abstract GeneralInstances getROCInstances(GeneralInstances evalData, Classifier model) throws Exception; 
+	protected abstract double classify(Classifier model,GeneralInstance curr) throws Exception ;
 	
 	//可以在子类中被覆盖
 	protected void initEvaluationConfDefinition(){
@@ -101,7 +101,7 @@ public abstract class BaseClassifier implements Serializable{
 		return this.m_evalConf.getEvaluationInstance(pos);
 	}
 	
-	public Classifier trainData(BaseInstances train) throws Exception {
+	public Classifier trainData(GeneralInstances train) throws Exception {
 		Classifier model=buildModel(train);
 		// save model + header
 		m_modelStore.setModel(model);
@@ -114,12 +114,12 @@ public abstract class BaseClassifier implements Serializable{
 
 	
 	//评估模型
-	public void evaluateModel(BaseInstances evalData,String policySplit) throws Exception{
+	public void evaluateModel(GeneralInstances evalData,String policySplit) throws Exception{
 
 		
 		Classifier model =m_modelStore.loadModelFromFile();
-		BaseInstances header =m_modelStore.getModelFormat();
-		BaseInstances evalFormat=new DataInstances(evalData,0);
+		GeneralInstances header =m_modelStore.getModelFormat();
+		GeneralInstances evalFormat=new DataInstances(evalData,0);
 		//验证评估数据格式是否一致
 		String verify=verifyDataFormat(evalFormat, header);
 		if (verify!=null){
@@ -148,10 +148,10 @@ public abstract class BaseClassifier implements Serializable{
 	}
 	
 	//具体的模型评估方法
-	private ThresholdData doModelEvaluation(EvaluationBenchmark benchmark ,BaseInstances evalData,Classifier model,EvaluationParams evalParams)
+	private ThresholdData doModelEvaluation(EvaluationBenchmark benchmark ,GeneralInstances evalData,Classifier model,EvaluationParams evalParams)
 			throws Exception {
 
-		BaseInstances result = getROCInstances(evalData, model);
+		GeneralInstances result = getROCInstances(evalData, model);
 //		FileUtility.SaveDataIntoFile(result, this.WORK_PATH+"\\ROCresult.arff");
 		int round=1;
 
@@ -180,15 +180,15 @@ public abstract class BaseClassifier implements Serializable{
 	}
 	
 	//无法根据liftup获取阀值时，缺省用最小的sampleSize处阀值
-	private ThresholdData computeDefaultThresholds(EvaluationParams evalParams, BaseInstances result){
+	private ThresholdData computeDefaultThresholds(EvaluationParams evalParams, GeneralInstances result){
 		double sample_limit=evalParams.getLower_limit(); 
 		double sampleSize;
 		double threshold=-100;
-		BaseAttribute att_threshold = result.attribute(ThresholdCurve.THRESHOLD_NAME);
-		BaseAttribute att_samplesize = result.attribute(ThresholdCurve.SAMPLE_SIZE_NAME);
+		GeneralAttribute att_threshold = result.attribute(NumericThresholdCurve.THRESHOLD_NAME);
+		GeneralAttribute att_samplesize = result.attribute(NumericThresholdCurve.SAMPLE_SIZE_NAME);
 
 		for (int i = 0; i < result.numInstances(); i++) {
-			BaseInstance curr = result.instance(i);
+			GeneralInstance curr = result.instance(i);
 			sampleSize = curr.value(att_samplesize); // to get sample range
 			if (FormatUtility.compareDouble(sampleSize,sample_limit)==0) {
 				threshold = curr.value(att_threshold);
@@ -217,7 +217,7 @@ public abstract class BaseClassifier implements Serializable{
 	}
 	
 	//具体的模型阀值计算方法，找不到阀值的时候返回null对象
-	private ThresholdData computeThresholds(double tp_fp_ratio,EvaluationParams evalParams, BaseInstances result) {
+	private ThresholdData computeThresholds(double tp_fp_ratio,EvaluationParams evalParams, GeneralInstances result) {
 
 		double sample_limit=evalParams.getLower_limit(); 
 		double sample_upper=evalParams.getUpper_limit();
@@ -234,15 +234,15 @@ public abstract class BaseClassifier implements Serializable{
 		double fp = 0.0;
 		double final_tp=0.0;
 		double final_fp=0.0;
-		BaseAttribute att_tp = result.attribute(ThresholdCurve.TRUE_POS_NAME);
-		BaseAttribute att_fp = result.attribute(ThresholdCurve.FALSE_POS_NAME);
-		BaseAttribute att_lift = result.attribute(ThresholdCurve.LIFT_NAME);
-		BaseAttribute att_threshold = result.attribute(ThresholdCurve.THRESHOLD_NAME);
-		BaseAttribute att_samplesize = result.attribute(ThresholdCurve.SAMPLE_SIZE_NAME);
+		GeneralAttribute att_tp = result.attribute(NumericThresholdCurve.TRUE_POS_NAME);
+		GeneralAttribute att_fp = result.attribute(NumericThresholdCurve.FALSE_POS_NAME);
+		GeneralAttribute att_lift = result.attribute(NumericThresholdCurve.LIFT_NAME);
+		GeneralAttribute att_threshold = result.attribute(NumericThresholdCurve.THRESHOLD_NAME);
+		GeneralAttribute att_samplesize = result.attribute(NumericThresholdCurve.SAMPLE_SIZE_NAME);
 
 
 		for (int i = 0; i < result.numInstances(); i++) {
-			BaseInstance curr = result.instance(i);
+			GeneralInstance curr = result.instance(i);
 			sampleSize = curr.value(att_samplesize); // to get sample range
 			if (sampleSize >= sample_limit && sampleSize <=sample_upper) {
 				tp = curr.value(att_tp);
@@ -300,13 +300,13 @@ public abstract class BaseClassifier implements Serializable{
 
 	//为每日预测用，这时候没有yearSplit （policySplit是存在的）
 	// result parameter will be changed in this method!
-	public void predictData(BaseInstances test, BaseInstances result,String policySplit) throws Exception {
+	public void predictData(GeneralInstances test, GeneralInstances result,String policySplit) throws Exception {
 		predictData(test, result,"",policySplit);
 	}
 	
 	//为回测历史数据使用
 	// result parameter will be changed in this method!
-	public  void predictData(BaseInstances test, BaseInstances result,String yearSplit,String policySplit)
+	public  void predictData(GeneralInstances test, GeneralInstances result,String yearSplit,String policySplit)
 			throws Exception {
 
 		
@@ -318,7 +318,7 @@ public abstract class BaseClassifier implements Serializable{
 
 		// read classify model and header
 		Classifier model =m_modelStore.loadModelFromFile();
-		BaseInstances header =m_modelStore.getModelFormat();
+		GeneralInstances header =m_modelStore.getModelFormat();
 		// There is additional ID attribute in test instances, so we should save it and remove before doing prediction
 		double[] ids=test.attributeToDoubleArray(ArffFormat.ID_POSITION - 1);  
 		//删除已保存的ID 列，让待分类数据与模型数据一致 （此处的index是从1开始）
@@ -348,7 +348,7 @@ public abstract class BaseClassifier implements Serializable{
 		
 		
 		for (int i = 0; i < testInstancesNum; i++) {
-			BaseInstance curr = test.instance(i);
+			GeneralInstance curr = test.instance(i);
 			double pred=classify(model,curr);  //调用子类的分类函数
 			DataInstance inst = new DataInstance(result.numAttributes());
 			inst.setDataset(result);
@@ -356,7 +356,7 @@ public abstract class BaseClassifier implements Serializable{
 			inst.setValue(ArffFormat.ID_POSITION - 1, ids[i]);
 			for (int n = 1; n < inst.numAttributes() - 3; n++) { // ignore the
 																	// first ID.
-				BaseAttribute att = test.attribute(inst.attribute(n).name());
+				GeneralAttribute att = test.attribute(inst.attribute(n).name());
 				// original attribute is also present in the current data set
 				if (att != null) {
 					if (att.isNominal()) {
@@ -435,7 +435,7 @@ public abstract class BaseClassifier implements Serializable{
 	}
 
 	
-	protected String verifyDataFormat(BaseInstances test, BaseInstances header) throws Exception {
+	protected String verifyDataFormat(GeneralInstances test, GeneralInstances header) throws Exception {
 //		//在使用旧格式时，如果有使用旧字段名的模型，试着将其改名后使用
 //		if (modelArffFormat==ArffFormat.LEGACY_FORMAT){
 //			header=ArffFormat.renameOldArffName(header);

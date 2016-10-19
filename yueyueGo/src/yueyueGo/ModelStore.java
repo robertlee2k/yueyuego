@@ -6,10 +6,9 @@ import java.util.Vector;
 import weka.classifiers.Classifier;
 import weka.core.Instances;
 import weka.core.SerializationHelper;
-import yueyueGo.databeans.BaseInstances;
+import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.DataInstances;
-import yueyueGo.databeans.WekaInstances;
-//import yueyueGo.databeans.WekaInstances;
+
 import yueyueGo.utility.FileUtility;
 
 public class ModelStore {
@@ -26,7 +25,7 @@ public class ModelStore {
 	protected String m_modelFileName;
 	protected String m_evalFileName;
 	protected Classifier m_model;
-	protected BaseInstances m_modelFormat;
+	protected GeneralInstances m_modelFormat;
 
 	
 
@@ -117,10 +116,10 @@ public class ModelStore {
 		this.m_model = model;
 	}
 
-	public void setModelFormat(BaseInstances modelFormat) {
+	public void setModelFormat(GeneralInstances modelFormat) {
 		this.m_modelFormat = modelFormat;
 	}
-	public BaseInstances getModelFormat() {
+	public GeneralInstances getModelFormat() {
 		return m_modelFormat;
 	}
 	
@@ -150,11 +149,11 @@ public class ModelStore {
 			Classifier model = (Classifier) v.get(0);
 			
 			Object savedHeaderObject=v.get(1);
-			BaseInstances header =null;
+			GeneralInstances header =null;
 			if (savedHeaderObject instanceof DataInstances){
 				header=(DataInstances)savedHeaderObject;
 			}else{ //TODO  interface化之前的旧模型的legacy数据强转为Instances
-				header=new WekaInstances((Instances)savedHeaderObject);
+				header=new DataInstances((Instances)savedHeaderObject);
 			}
 			System.out.println("Classifier Model and Format Loaded from: "+ modelFileName);
 			m_model=model;

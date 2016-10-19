@@ -3,22 +3,22 @@ package yueyueGo;
 import java.util.concurrent.Callable;
 
 import weka.classifiers.Classifier;
-import yueyueGo.databeans.BaseInstances;
+import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.utility.ClassifyUtility;
 
 public class ProcessFlowExecutor implements Callable<String> {
 	private BaseClassifier clModel;
-	private BaseInstances result;
+	private GeneralInstances result;
 	private String yearSplit;
 	private String policySplit;
-	private BaseInstances trainingData;
-	private BaseInstances evalData;
-	private BaseInstances testingData;
+	private GeneralInstances trainingData;
+	private GeneralInstances evalData;
+	private GeneralInstances testingData;
 	
 	public ProcessFlowExecutor(BaseClassifier a_clModel,
-			 BaseInstances a_result, String a_yearSplit,
-			String a_policySplit,BaseInstances a_trainingData,
-			BaseInstances a_evalData, BaseInstances a_testingData){
+			 GeneralInstances a_result, String a_yearSplit,
+			String a_policySplit,GeneralInstances a_trainingData,
+			GeneralInstances a_evalData, GeneralInstances a_testingData){
 		clModel=a_clModel;
 		result=a_result;
 		yearSplit=a_yearSplit;

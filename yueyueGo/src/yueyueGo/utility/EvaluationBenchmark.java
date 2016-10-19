@@ -3,7 +3,7 @@ package yueyueGo.utility;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import yueyueGo.ArffFormat;
-import yueyueGo.databeans.BaseInstances;
+import yueyueGo.databeans.GeneralInstances;
 
 public class EvaluationBenchmark {
 	static public final int POSITIVE=1;
@@ -37,7 +37,7 @@ public class EvaluationBenchmark {
 
 	
 
-	public EvaluationBenchmark(BaseInstances evalData, boolean isNominal) {
+	public EvaluationBenchmark(GeneralInstances evalData, boolean isNominal) {
 		this.nominalClass=isNominal;
 		int pos=-1;
 		if (isNominal){

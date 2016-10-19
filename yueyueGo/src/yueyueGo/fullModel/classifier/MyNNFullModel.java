@@ -4,7 +4,7 @@ import weka.classifiers.Classifier;
 import yueyueGo.EnvConstants;
 import yueyueGo.ModelStore;
 import yueyueGo.classifier.MyNNClassifier;
-import yueyueGo.databeans.BaseInstances;
+import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaInstances;
 import yueyueGo.fullModel.ArffFormatFullModel;
 import yueyueGo.utility.ClassifyUtility;
@@ -48,7 +48,7 @@ public class MyNNFullModel extends MyNNClassifier {
 	}
 		
 	@Override
-	protected Classifier buildModel(BaseInstances train) throws Exception {
+	protected Classifier buildModel(GeneralInstances train) throws Exception {
 
 //		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();
 

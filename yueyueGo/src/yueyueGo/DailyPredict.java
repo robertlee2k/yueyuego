@@ -6,18 +6,16 @@ import yueyueGo.classifier.AdaboostClassifier;
 import yueyueGo.classifier.BaggingLinearRegression;
 import yueyueGo.classifier.BaggingM5P;
 import yueyueGo.classifier.MyNNClassifier;
-import yueyueGo.databeans.BaseInstance;
-import yueyueGo.databeans.BaseInstances;
+import yueyueGo.databeans.GeneralInstance;
+import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.DataInstances;
+import yueyueGo.datasource.DataIOHandler;
 import yueyueGo.fullModel.ArffFormatFullModel;
-import yueyueGo.fullModel.DBAccessFullModel;
 import yueyueGo.fullModel.classifier.BaggingM5PFullModel;
 import yueyueGo.fullModel.classifier.MyNNFullModel;
 import yueyueGo.utility.AppContext;
 import yueyueGo.utility.ClassifySummaries;
 import yueyueGo.utility.ClassifyUtility;
-import yueyueGo.utility.DBAccess;
-import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.InstanceUtility;
 import yueyueGo.utility.MergeClassifyResults;
@@ -30,7 +28,7 @@ public class DailyPredict {
 	private HashMap<String, PredictModelData> PREDICT_MODELS;
 	private double[] shouyilv_thresholds; //对于胜率优先算法的收益率筛选阀值
 	private double[] winrate_thresholds; //对于收益率优先算法的胜率筛选阀值
-	private HashMap<String, BaseInstances> cached_daily_data=new HashMap<String, BaseInstances>(); //从数据库里加载的每日预测数据
+	private HashMap<String, GeneralInstances> cached_daily_data=new HashMap<String, GeneralInstances>(); //从数据库里加载的每日预测数据
 
 	private void definePredictModels(String type){
 		PREDICT_MODELS=new HashMap<String, PredictModelData>();
@@ -125,19 +123,19 @@ public class DailyPredict {
 
 		//新格式的bagging线性回归预测
 		BaggingLinearRegression lBagModel=new BaggingLinearRegression();
-		BaseInstances linearInstances=predictWithDB(lBagModel);
+		GeneralInstances linearInstances=predictWithDB(lBagModel);
 		
 		//新格式的神经网络预测
 		MyNNClassifier nnModel=new MyNNClassifier();
-		BaseInstances nnInstances=predictWithDB(nnModel);
+		GeneralInstances nnInstances=predictWithDB(nnModel);
 		
 		//新格式的bagging m5p预测
 		BaggingM5P cBagModel=new BaggingM5P();
-		BaseInstances baggingInstances=predictWithDB(cBagModel);
+		GeneralInstances baggingInstances=predictWithDB(cBagModel);
 
 		//Adaboost
 		AdaboostClassifier adaModel=new AdaboostClassifier();
-		BaseInstances adaboostInstances=predictWithDB(adaModel);		
+		GeneralInstances adaboostInstances=predictWithDB(adaModel);		
 
 		System.out.println("***************** now output prediction results************************");
 		lBagModel.outputClassifySummary();
@@ -160,23 +158,23 @@ public class DailyPredict {
 	 * @throws Exception
 	 */
 	public void combinePreditions(BaseClassifier cModel,
-			BaseInstances cInstances, BaseClassifier nModel,
-			BaseInstances nInstances) throws Exception {
+			GeneralInstances cInstances, BaseClassifier nModel,
+			GeneralInstances nInstances) throws Exception {
 		//以二分类器为主，合并连续分类器
 		System.out.println("");
 		System.out.println("-----now output combined predictions----------"+nModel.getIdentifyName()+" combined with："+cModel.getIdentifyName());
-		BaseInstances left=FileUtility.loadDataFromFile(getLeftArffFileName(nModel)); //获取刚生成的左侧文件（主要存了CODE）
+		GeneralInstances left=DataIOHandler.getSuppier().loadDataFromFile(getLeftArffFileName(nModel)); //获取刚生成的左侧文件（主要存了CODE）
 		MergeClassifyResults merge=new MergeClassifyResults(this.shouyilv_thresholds, this.winrate_thresholds);
-		BaseInstances nMergedOutput=merge.mergeResults(nInstances,cInstances,ArffFormat.RESULT_PREDICTED_PROFIT,left);
+		GeneralInstances nMergedOutput=merge.mergeResults(nInstances,cInstances,ArffFormat.RESULT_PREDICTED_PROFIT,left);
 		nMergedOutput=InstanceUtility.removeAttribs(nMergedOutput, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
-		FileUtility.saveCSVFile(nMergedOutput, PREDICT_RESULT_DIR+ "Merged Selected Result-"+nModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv");
+		DataIOHandler.getSaver().saveCSVFile(nMergedOutput, PREDICT_RESULT_DIR+ "Merged Selected Result-"+nModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv");
 		nMergedOutput=null;
 		System.out.println(nModel.getIdentifyName()+"----------prediction ends---------");
 		//以连续分类器为主，合并二分类器
 		System.out.println("-----now output combined predictions----------"+cModel.getIdentifyName()+" combined with："+nModel.getIdentifyName());
-		BaseInstances cMergedOutput=merge.mergeResults(cInstances,nInstances,ArffFormat.RESULT_PREDICTED_WIN_RATE,left);
+		GeneralInstances cMergedOutput=merge.mergeResults(cInstances,nInstances,ArffFormat.RESULT_PREDICTED_WIN_RATE,left);
 		cMergedOutput=InstanceUtility.removeAttribs(cMergedOutput, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
-		FileUtility.saveCSVFile(cMergedOutput, PREDICT_RESULT_DIR+ "Merged Selected Result-"+cModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv");
+		DataIOHandler.getSaver().saveCSVFile(cMergedOutput, PREDICT_RESULT_DIR+ "Merged Selected Result-"+cModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv");
 		cMergedOutput=null;
 		System.out.println(cModel.getIdentifyName()+"----------prediction ends--------");
 	}
@@ -189,24 +187,24 @@ public class DailyPredict {
 
 		//BaggingM5P
 		BaggingM5PFullModel cFullModel=new BaggingM5PFullModel();
-		BaseInstances cInstances=predictWithDB(cFullModel);		
+		GeneralInstances cInstances=predictWithDB(cFullModel);		
 
 		//BaggingJ48
 //		BaggingJ48FullModel nFullModel=new BaggingJ48FullModel();
 		MyNNFullModel nFullModel= new MyNNFullModel(); 
-		BaseInstances nInstances=predictWithDB(nFullModel);		
+		GeneralInstances nInstances=predictWithDB(nFullModel);		
 
 		cFullModel.outputClassifySummary();
 		nFullModel.outputClassifySummary();
 
 		//合并baggingJ48和baggingM5P
 		System.out.println("-----now output combined predictions----------"+cFullModel.getIdentifyName());
-		BaseInstances left=FileUtility.loadDataFromFile(getLeftArffFileName(cFullModel)); //获取刚生成的左侧文件（主要存了CODE）
+		GeneralInstances left=DataIOHandler.getSuppier().loadDataFromFile(getLeftArffFileName(cFullModel)); //获取刚生成的左侧文件（主要存了CODE）
 
 		MergeClassifyResults merge=new MergeClassifyResults(shouyilv_thresholds, winrate_thresholds);
-		BaseInstances mergedOutput=merge.mergeResults(cInstances,nInstances,ArffFormat.RESULT_PREDICTED_WIN_RATE,left);
+		GeneralInstances mergedOutput=merge.mergeResults(cInstances,nInstances,ArffFormat.RESULT_PREDICTED_WIN_RATE,left);
 		mergedOutput=InstanceUtility.removeAttribs(mergedOutput, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
-		FileUtility.saveCSVFile(mergedOutput, PREDICT_RESULT_DIR+ "FullModel Selected Result-"+cFullModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv");
+		DataIOHandler.getSaver().saveCSVFile(mergedOutput, PREDICT_RESULT_DIR+ "FullModel Selected Result-"+cFullModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv");
 
 	}
 
@@ -231,10 +229,10 @@ public class DailyPredict {
 
 
 	//直接访问数据库预测每天的自选股数据，不单独保存每个模型的选股
-	private BaseInstances predictWithDB(BaseClassifier clModel) throws Exception {
+	private GeneralInstances predictWithDB(BaseClassifier clModel) throws Exception {
 		int dataFormat=clModel.getModelArffFormat();
 	
-		BaseInstances dailyData = null;
+		GeneralInstances dailyData = null;
 		//试着从缓存里加载
 		String cacheKey=String.valueOf(dataFormat);
 		dailyData=this.cached_daily_data.get(cacheKey);
@@ -242,31 +240,31 @@ public class DailyPredict {
 		if(dailyData==null){ //缓存中没有，需要从数据库里加载
 			switch (dataFormat){
 			case ArffFormat.LEGACY_FORMAT:
-				dailyData=DBAccess.LoadDataFromDB(dataFormat);
+				dailyData=DataIOHandler.getSuppier().LoadDataFromDB(dataFormat);
 				break;
 			case ArffFormat.EXT_FORMAT:
-				dailyData=DBAccess.LoadDataFromDB(dataFormat);
+				dailyData=DataIOHandler.getSuppier().LoadDataFromDB(dataFormat);
 				break;
 			case ArffFormatFullModel.FULLMODEL_FORMAT:
-				dailyData = DBAccessFullModel.LoadFullModelDataFromDB();
+				dailyData = DataIOHandler.getSuppier().LoadFullModelDataFromDB();
 				break;			
 			default:
 				throw new Exception("invalid arffFormat type");
 			}
 			//保留DAILY RESULT的LEFT部分在磁盘上，主要为了保存股票代码
-			BaseInstances left = new DataInstances(dailyData);
+			GeneralInstances left = new DataInstances(dailyData);
 			left=InstanceUtility.keepAttributes(dailyData, ArffFormat.DAILY_PREDICT_RESULT_LEFT);
 			//将LEFT中的CODE加上=""，避免输出格式中前导零消失。
 			int codeIndex=InstanceUtility.findATTPosition(left,ArffFormat.CODE);
 			left=InstanceUtility.NominalToString(left, String.valueOf(codeIndex));
 			codeIndex-=1;  //以下的index是从0开始
 			for (int i=0;i<left.size();i++){
-				BaseInstance originInstance=left.instance(i);
+				GeneralInstance originInstance=left.instance(i);
 				String originValue=originInstance.stringValue(codeIndex);
 				originInstance.setValue(codeIndex, " "+originValue);
 			}
 			
-			FileUtility.SaveDataIntoFile(left,  getLeftArffFileName(clModel));
+			DataIOHandler.getSaver().SaveDataIntoFile(left,  getLeftArffFileName(clModel));
 
 			//去掉多读入的CODE部分
 			dailyData=InstanceUtility.removeAttribs(dailyData, new String[]{ArffFormat.CODE});
@@ -274,7 +272,7 @@ public class DailyPredict {
 			this.cached_daily_data.put(cacheKey, dailyData);
 		}
 		
-		BaseInstances result=predict(clModel,  dailyData);
+		GeneralInstances result=predict(clModel,  dailyData);
 
 		return result;
 	}
@@ -282,18 +280,18 @@ public class DailyPredict {
 
 	//用模型预测数据
 
-	private  BaseInstances predict(BaseClassifier clModel, BaseInstances inData) throws Exception {
+	private  GeneralInstances predict(BaseClassifier clModel, GeneralInstances inData) throws Exception {
 		System.out.println("predict using classifier : "+clModel.getIdentifyName()+" @ prediction work path :"+PREDICT_WORK_DIR);
 		System.out.println("-----------------------------");
 		
-		BaseInstances newData = null;
-		BaseInstances result = null;
+		GeneralInstances newData = null;
+		GeneralInstances result = null;
 
 		//创建存储评估结果的数据容器
 		ClassifySummaries modelSummaries=new ClassifySummaries(clModel.getIdentifyName(),true);
 		clModel.setClassifySummaries(modelSummaries);
 
-		BaseInstances fullData=calibrateAttributesForDailyData(inData,clModel.getModelArffFormat());
+		GeneralInstances fullData=calibrateAttributesForDailyData(inData,clModel.getModelArffFormat());
 
 		//如果模型需要计算字段，则把计算字段加上
 		if (clModel.m_noCaculationAttrib==false){
@@ -340,7 +338,7 @@ public class DailyPredict {
 			System.out.println(" new data size , row : "+ newData.numInstances() + " column: "	+ newData.numAttributes());
 			if (result == null) {// initialize result instances
 				// remove unnecessary data,leave 均线策略 & code alone
-				BaseInstances header = new DataInstances(newData, 0);
+				GeneralInstances header = new DataInstances(newData, 0);
 				result=InstanceUtility.keepAttributes(header, ArffFormat.DAILY_PREDICT_RESULT_LEFT);
 
 				if (clModel instanceof NominalClassifier ){
@@ -380,10 +378,10 @@ public class DailyPredict {
 	}
 	
 	//这是对增量数据nominal label的处理 （因为增量数据中的nominal数据，label会可能不全）
-	private static BaseInstances calibrateAttributesForDailyData(BaseInstances incomingData,int formatType) throws Exception {
+	private static GeneralInstances calibrateAttributesForDailyData(GeneralInstances incomingData,int formatType) throws Exception {
 
 		//与本地格式数据比较，这地方基本上会有nominal数据的label不一致，临时处理办法就是先替换掉
-		BaseInstances outputData = getDailyPredictDataFormat(formatType);
+		GeneralInstances outputData = getDailyPredictDataFormat(formatType);
 
 		outputData=InstanceUtility.removeAttribs(outputData, ArffFormat.YEAR_MONTH_INDEX);
 
@@ -414,7 +412,7 @@ public class DailyPredict {
 	 * @return
 	 * @throws Exception
 	 */
-	protected static BaseInstances getDailyPredictDataFormat(int formatType)
+	protected static GeneralInstances getDailyPredictDataFormat(int formatType)
 			throws Exception {
 		String formatFile=null;
 		switch (formatType) {
@@ -431,7 +429,7 @@ public class DailyPredict {
 			throw new Exception("invalid arffFormat type");
 		}
 
-		BaseInstances outputData=FileUtility.loadDataFromFile(PREDICT_WORK_DIR+formatFile); //C_ROOT_DIRECTORY+
+		GeneralInstances outputData=DataIOHandler.getSuppier().loadDataFromFile(PREDICT_WORK_DIR+formatFile); //C_ROOT_DIRECTORY+
 		if (formatType==ArffFormat.LEGACY_FORMAT){//如果是原有模式，去掉扩展字段
 			outputData=InstanceUtility.removeAttribs(outputData, ArffFormat.EXT_ARFF_COLUMNS);
 		}

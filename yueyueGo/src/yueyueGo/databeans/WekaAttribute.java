@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import weka.core.Attribute;
 
 
-public class WekaAttribute  implements Serializable, BaseAttribute{
+public class WekaAttribute  implements Serializable, GeneralAttribute{
 	/**
 	 * 
 	 */

@@ -8,7 +8,7 @@ import weka.core.DenseInstance;
 import weka.core.Instance;
 
 
-public class WekaInstance implements Serializable, BaseInstance{
+public class WekaInstance implements Serializable, GeneralInstance{
 	/**
 	 * 
 	 */
@@ -72,7 +72,7 @@ public class WekaInstance implements Serializable, BaseInstance{
 	 * @see yueyueGo.databeans.BaseInstance#dataset()
 	 */
 	@Override
-	public BaseInstances dataset() {
+	public GeneralInstances dataset() {
 		return new WekaInstances(instance.dataset());
 	}
 
@@ -121,7 +121,7 @@ public class WekaInstance implements Serializable, BaseInstance{
 	 * @see yueyueGo.databeans.BaseInstance#setDataset(yueyueGo.databeans.BaseInstances)
 	 */
 	@Override
-	public final void setDataset(BaseInstances instances) {
+	public final void setDataset(GeneralInstances instances) {
 		instance.setDataset(((WekaInstances)instances).getInternalWekaInstances());
 	}
 
@@ -129,7 +129,7 @@ public class WekaInstance implements Serializable, BaseInstance{
 	 * @see yueyueGo.databeans.BaseInstance#setValue(yueyueGo.databeans.DataAttribute, double)
 	 */
 	@Override
-	public final void setValue(BaseAttribute att, double value) {
+	public final void setValue(GeneralAttribute att, double value) {
 		instance.setValue(((WekaAttribute)att).getInteranalWekaAttribute(), value);
 	}
 
@@ -137,7 +137,7 @@ public class WekaInstance implements Serializable, BaseInstance{
 	 * @see yueyueGo.databeans.BaseInstance#setValue(yueyueGo.databeans.DataAttribute, java.lang.String)
 	 */
 	@Override
-	public final void setValue(BaseAttribute att, String value) {
+	public final void setValue(GeneralAttribute att, String value) {
 		instance.setValue(((WekaAttribute)att).getInteranalWekaAttribute(), value);
 	}
 
@@ -162,7 +162,7 @@ public class WekaInstance implements Serializable, BaseInstance{
 	 * @see yueyueGo.databeans.BaseInstance#stringValue(yueyueGo.databeans.DataAttribute)
 	 */
 	@Override
-	public final String stringValue(BaseAttribute att) {
+	public final String stringValue(GeneralAttribute att) {
 		return instance.stringValue(((WekaAttribute)att).getInteranalWekaAttribute());
 	}
 
@@ -186,7 +186,7 @@ public class WekaInstance implements Serializable, BaseInstance{
 	 * @see yueyueGo.databeans.BaseInstance#value(yueyueGo.databeans.DataAttribute)
 	 */
 	@Override
-	public double value(BaseAttribute att) {
+	public double value(GeneralAttribute att) {
 		return instance.value(((WekaAttribute)att).getInteranalWekaAttribute());
 	}
 
@@ -201,7 +201,7 @@ public class WekaInstance implements Serializable, BaseInstance{
 	 * @param data
 	 * @throws RuntimeException
 	 */
-	public static DenseInstance convertToWekaInstance(BaseInstance data)
+	public static DenseInstance convertToWekaInstance(GeneralInstance data)
 			throws RuntimeException {
 		if (data instanceof WekaInstance){
 			DenseInstance wekaData=	((WekaInstance)data).getInternalDenseInstance();

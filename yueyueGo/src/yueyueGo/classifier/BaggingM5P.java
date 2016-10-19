@@ -5,7 +5,7 @@ import weka.classifiers.trees.M5P;
 import yueyueGo.ContinousClassifier;
 import yueyueGo.ModelStore;
 import yueyueGo.ParrallelizedRunning;
-import yueyueGo.databeans.BaseInstances;
+import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.utility.ClassifyUtility;
 
 
@@ -140,7 +140,7 @@ public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunn
 
 
 	@Override
-	protected Classifier buildModel(BaseInstances train) throws Exception {
+	protected Classifier buildModel(GeneralInstances train) throws Exception {
 		//设置基础的m5p classifier参数
 		M5P model=ClassifyUtility.prepareM5P(train.numInstances(),leafMinObjNum,divided);
 

@@ -6,9 +6,9 @@ import java.io.IOException;
 
 import yueyueGo.ArffFormat;
 import yueyueGo.UpdateHistoryArffFile;
-import yueyueGo.databeans.BaseInstances;
+import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaInstances;
-import yueyueGo.utility.FileUtility;
+import yueyueGo.datasource.DataIOHandler;
 import yueyueGo.utility.InstanceUtility;
 import yueyueGo.utility.AppContext;
 
@@ -22,7 +22,7 @@ public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 		String originFilePrefix=AppContext.getC_ROOT_DIRECTORY()+ArffFormatFullModel.FULL_MODEL_ARFF_PREFIX;
 		
 		String newDataFileName=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group5\\onceyield_group5all_optional20160801_20160930.txt";		
-		BaseInstances newData = loadDataFromFullModelCSVFile(newDataFileName);
+		GeneralInstances newData = loadDataFromFullModelCSVFile(newDataFileName);
 		//刷新的Arff文件
 		refreshArffFile(startYearMonth,endYearMonth,originFilePrefix,newData);
 		//为原始的历史文件Arff添加计算变量，并分拆。
@@ -38,13 +38,13 @@ public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 	protected static void callCreateFullModelInstances() throws Exception {
 
 		String arffFileName=AppContext.getC_ROOT_DIRECTORY()+ArffFormatFullModel.FULL_MODEL_ARFF_PREFIX;
-		BaseInstances rawData = mergeSrcFullModelFiles();
+		GeneralInstances rawData = mergeSrcFullModelFiles();
 		
 		//处理所有的日期字段，并插入yearmonth
 		processDateColumns(rawData);
 
 		//处理各种nominal字段
-		BaseInstances fullData=FileUtility.loadDataFromFile(AppContext.getC_ROOT_DIRECTORY()+"fullModelFormat.arff");
+		GeneralInstances fullData=DataIOHandler.getSuppier().loadDataFromFile(AppContext.getC_ROOT_DIRECTORY()+"fullModelFormat.arff");
 		InstanceUtility.calibrateAttributes(rawData, fullData);
 		rawData=null; //试图释放内存
 		
@@ -53,13 +53,13 @@ public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 		fullData.sort(tradeDateIndex-1);
 
 		System.out.println("FULLMODEL...trans arff file sorted, start to save.... number of rows="+fullData.numInstances());
-		FileUtility.SaveDataIntoFile(fullData, arffFileName+".arff");
+		DataIOHandler.getSaver().SaveDataIntoFile(fullData, arffFileName+".arff");
 		System.out.println("FULLMODEL...trans arff file saved. ");
 		
 		//取出前半年的旧数据和当年的新数据作为验证的sample数据
 		String splitSampleClause = "( ATT" + ArffFormatFullModel.YEAR_MONTH_INDEX + " >= 201506) and ( ATT" + ArffFormatFullModel.YEAR_MONTH_INDEX+ " <= 201612) ";
-		BaseInstances sampleData=InstanceUtility.getInstancesSubset(fullData, splitSampleClause);
-		FileUtility.SaveDataIntoFile(sampleData, arffFileName+"-sample.arff");
+		GeneralInstances sampleData=InstanceUtility.getInstancesSubset(fullData, splitSampleClause);
+		DataIOHandler.getSaver().SaveDataIntoFile(sampleData, arffFileName+"-sample.arff");
 		System.out.println("FULLMODEL...sample arff file saved. ");
 		sampleData=null;//试图释放内存
 		
@@ -71,8 +71,8 @@ public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 	protected static void callMergeExtDataForFullModel() throws Exception{
 		String file1=null;
 		String file2=null;
-		BaseInstances extData=null;
-		BaseInstances extData2=null;
+		GeneralInstances extData=null;
+		GeneralInstances extData2=null;
 	
 		file1=AppContext.getC_ROOT_DIRECTORY()+"\\sourceData\\自选股第五组增量\\onceyield_optional_hv_update_2005_2008.txt";
 		file2=AppContext.getC_ROOT_DIRECTORY()+"\\sourceData\\自选股第五组增量\\onceyield_optional_hv_update_2009_2012.txt";
@@ -89,7 +89,7 @@ public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 	
 		//加载原始arff文件
 		String originFileName=AppContext.getC_ROOT_DIRECTORY()+ArffFormatFullModel.FULL_MODEL_ARFF_PREFIX;
-		BaseInstances fullData = FileUtility.loadDataFromFile(originFileName+"-origin.arff");
+		GeneralInstances fullData = DataIOHandler.getSuppier().loadDataFromFile(originFileName+"-origin.arff");
 	
 	
 		System.out.println("full trans data loaded. number="+fullData.numInstances());
@@ -100,7 +100,7 @@ public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 		System.out.println("all data sorted by id");
 	
 	
-		BaseInstances result=mergeTransactionWithExtension(fullData,extData,ArffFormatFullModel.FULL_MODEL_EXT_ARFF_COLUMNS,ArffFormatFullModel.FULL_MODEL_EXT_ARFF_CRC);
+		GeneralInstances result=mergeTransactionWithExtension(fullData,extData,ArffFormatFullModel.FULL_MODEL_EXT_ARFF_COLUMNS,ArffFormatFullModel.FULL_MODEL_EXT_ARFF_CRC);
 		System.out.println("NewGroup data processed. number="+result.numInstances()+" columns="+result.numAttributes());
 		extData=null;
 		fullData=null;
@@ -110,17 +110,17 @@ public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 		result.sort(tradeDateIndex-1);
 	
 		//保留原始的ext文件
-		FileUtility.SaveDataIntoFile(result, originFileName+".arff");
+		DataIOHandler.getSaver().SaveDataIntoFile(result, originFileName+".arff");
 		System.out.println("history Data File saved: "+originFileName+".arff");
 	
 		//生成相应的一套Arff文件
 		generateArffFileSetFullModel(originFileName,result);
 	}
 
-	private static BaseInstances mergeSrcFullModelFiles() throws Exception,	IllegalStateException {
+	private static GeneralInstances mergeSrcFullModelFiles() throws Exception,	IllegalStateException {
 		String sourceFilePrefix=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\自选股\\第四组自选股5天后卖出策略数据\\test_onceyield_group4allhis_optional";
-		BaseInstances fullData = loadDataFromFullModelCSVFile(sourceFilePrefix+"2005-2006.txt");
-		BaseInstances addData = null;
+		GeneralInstances fullData = loadDataFromFullModelCSVFile(sourceFilePrefix+"2005-2006.txt");
+		GeneralInstances addData = null;
 		int startYear=2007;
 		int endYear=2016;
 		for (int i=startYear;i<=endYear;i++){
@@ -146,33 +146,33 @@ public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 //	}
 	
 	private static void generateArffFileSetFullModel(String originFileName,
-			BaseInstances fullSetData) throws Exception, IOException {
+			GeneralInstances fullSetData) throws Exception, IOException {
 
 		// 存下用于计算收益率的数据
-		BaseInstances left=ArffFormatFullModel.getTransLeftPartForFullModel(fullSetData);
-		FileUtility.SaveDataIntoFile(left, originFileName+"-left.arff");
+		GeneralInstances left=ArffFormatFullModel.getTransLeftPartForFullModel(fullSetData);
+		DataIOHandler.getSaver().SaveDataIntoFile(left, originFileName+"-left.arff");
 		System.out.println("FULLMODEL...history Data left File saved: "+originFileName+"-left.arff"  );
 		left=null; //试图释放内存
 		
 		// 去除与训练无关的字段
-		BaseInstances result=ArffFormatFullModel.prepareTransDataForFullModel(fullSetData);
+		GeneralInstances result=ArffFormatFullModel.prepareTransDataForFullModel(fullSetData);
 		
 		//保存训练用的format，用于做日后的校验 
-		BaseInstances format=new WekaInstances(result,0);
-		FileUtility.SaveDataIntoFile(format, originFileName+"-format.arff");	
+		GeneralInstances format=new WekaInstances(result,0);
+		DataIOHandler.getSaver().SaveDataIntoFile(format, originFileName+"-format.arff");	
 		//保存不含计算字段的格式
-		FileUtility.SaveDataIntoFile(result, originFileName+"-short.arff");
+		DataIOHandler.getSaver().SaveDataIntoFile(result, originFileName+"-short.arff");
 		
 		//添加计算字段
 		result=ArffFormat.addCalculateAttribute(result);
-		FileUtility.SaveDataIntoFile(result, originFileName+"-new.arff");
+		DataIOHandler.getSaver().SaveDataIntoFile(result, originFileName+"-new.arff");
 		System.out.println("FULLMODEL...full Set Data File saved "  );
 
 	}
 	
 	// 从增量的fullmodel交易CSV文件中加载数据
-	private static BaseInstances loadDataFromFullModelCSVFile(String fileName) throws Exception{ 
-		return FileUtility.loadDataWithFormatFromCSVFile(fileName,ArffFormatFullModel.FULL_MODEL_DATA_FORMAT_NEW);
+	private static GeneralInstances loadDataFromFullModelCSVFile(String fileName) throws Exception{ 
+		return DataIOHandler.getSuppier().loadDataWithFormatFromCSVFile(fileName,ArffFormatFullModel.FULL_MODEL_DATA_FORMAT_NEW);
 	}
 	
 	
@@ -181,7 +181,7 @@ public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 	private static void processHistoryFileFullModel() throws Exception {
 		System.out.println("loading history file into memory "  );
 		String originFileName=AppContext.getC_ROOT_DIRECTORY()+ArffFormatFullModel.FULL_MODEL_ARFF_PREFIX;
-		BaseInstances fullSetData = FileUtility.loadDataFromFile(originFileName+".arff");
+		GeneralInstances fullSetData = DataIOHandler.getSuppier().loadDataFromFile(originFileName+".arff");
 		System.out.println("finish  loading fullset File  row : "+ fullSetData.numInstances() + " column:"+ fullSetData.numAttributes());
 		generateArffFileSetFullModel(originFileName, fullSetData);
 	}

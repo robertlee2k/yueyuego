@@ -7,7 +7,7 @@ import java.util.Enumeration;
 import weka.core.Attribute;
 import weka.core.Instances;
 
-public class WekaInstances implements Serializable, BaseInstances{
+public class WekaInstances implements Serializable, GeneralInstances{
 
 	/**
 	 * 
@@ -21,20 +21,20 @@ public class WekaInstances implements Serializable, BaseInstances{
 	}
 	
 	//根据输入Instance格式创建空的内部instance
-	public WekaInstances(BaseInstances instances,int size) {
+	public WekaInstances(GeneralInstances instances,int size) {
 		internalStore=new Instances(((WekaInstances)instances).getInternalWekaInstances(),size);
 	}
 	
-	public WekaInstances(BaseInstances data,int from, int to){
+	public WekaInstances(GeneralInstances data,int from, int to){
 		internalStore=new Instances(((WekaInstances)data).getInternalWekaInstances(),from,to);    
 	}
 	
 	//clone一个新的DataInstances
-	public WekaInstances(BaseInstances instances) {
+	public WekaInstances(GeneralInstances instances) {
 		internalStore=new Instances(((WekaInstances)instances).getInternalWekaInstances());
 	}
 	
-	public WekaInstances(String name,ArrayList<BaseAttribute> fvAttributes,int size){
+	public WekaInstances(String name,ArrayList<GeneralAttribute> fvAttributes,int size){
 		int length=fvAttributes.size();
 		ArrayList<Attribute> fvWekaAttributes=new ArrayList<Attribute> (length);
 		for (int i=0;i<length;i++){
@@ -54,7 +54,7 @@ public class WekaInstances implements Serializable, BaseInstances{
 	 * @see yueyueGo.databeans.BaseInstances#add(yueyueGo.databeans.DataInstance)
 	 */
 	@Override
-	public boolean add(BaseInstance instance) {
+	public boolean add(GeneralInstance instance) {
 		return internalStore.add(((WekaInstance)instance).getInternalDenseInstance());
 	}
 
@@ -99,7 +99,7 @@ public class WekaInstances implements Serializable, BaseInstances{
 	 * @see yueyueGo.databeans.BaseInstances#classAttribute()
 	 */
 	@Override
-	public BaseAttribute classAttribute() {
+	public GeneralAttribute classAttribute() {
 		return new WekaAttribute(internalStore.classAttribute());
 	}
 
@@ -115,10 +115,10 @@ public class WekaInstances implements Serializable, BaseInstances{
 	 * @see yueyueGo.databeans.BaseInstances#enumerateAttributes()
 	 */
 	@Override
-	public ArrayList<BaseAttribute> getAttributeList() {
+	public ArrayList<GeneralAttribute> getAttributeList() {
 		
 		Enumeration<Attribute> enu = internalStore.enumerateAttributes();
-		ArrayList<BaseAttribute> baseAttributes=new ArrayList<BaseAttribute>();
+		ArrayList<GeneralAttribute> baseAttributes=new ArrayList<GeneralAttribute>();
 		while (enu.hasMoreElements()) {
 			baseAttributes.add(new WekaAttribute((Attribute)enu.nextElement()));
 		}
@@ -127,12 +127,12 @@ public class WekaInstances implements Serializable, BaseInstances{
 
 
 
-	public boolean equalHeaders(BaseInstances dataset) {
+	public boolean equalHeaders(GeneralInstances dataset) {
 		return internalStore.equalHeaders(((WekaInstances)dataset).getInternalWekaInstances());
 	}
 
 
-	public String equalHeadersMsg(BaseInstances arg0) {
+	public String equalHeadersMsg(GeneralInstances arg0) {
 		return internalStore.equalHeadersMsg(((WekaInstances)arg0).getInternalWekaInstances());
 	}
 
@@ -140,7 +140,7 @@ public class WekaInstances implements Serializable, BaseInstances{
 	 * @see yueyueGo.databeans.BaseInstances#get(int)
 	 */
 	@Override
-	public BaseInstance get(int index) {
+	public GeneralInstance get(int index) {
 		return new WekaInstance(internalStore.get(index));
 	}
 
@@ -149,7 +149,7 @@ public class WekaInstances implements Serializable, BaseInstances{
 	 * @see yueyueGo.databeans.BaseInstances#insertAttributeAt(yueyueGo.databeans.DataAttribute, int)
 	 */
 	@Override
-	public void insertAttributeAt(BaseAttribute att, int arg1) {
+	public void insertAttributeAt(GeneralAttribute att, int arg1) {
 		internalStore.insertAttributeAt(((WekaAttribute)att).getInteranalWekaAttribute(), arg1);
 	}
 
@@ -166,7 +166,7 @@ public class WekaInstances implements Serializable, BaseInstances{
 	 * @see yueyueGo.databeans.BaseInstances#meanOrMode(yueyueGo.databeans.DataAttribute)
 	 */
 	@Override
-	public double meanOrMode(BaseAttribute att) {
+	public double meanOrMode(GeneralAttribute att) {
 		return internalStore.meanOrMode(((WekaAttribute)att).getInteranalWekaAttribute());
 	}
 
@@ -214,7 +214,7 @@ public class WekaInstances implements Serializable, BaseInstances{
 	 * @see yueyueGo.databeans.BaseInstances#remove(int)
 	 */
 	@Override
-	public BaseInstance remove(int index) {
+	public GeneralInstance remove(int index) {
 		return new WekaInstance(internalStore.remove(index));
 	}
 
@@ -222,7 +222,7 @@ public class WekaInstances implements Serializable, BaseInstances{
 	 * @see yueyueGo.databeans.BaseInstances#setClass(yueyueGo.databeans.DataAttribute)
 	 */
 	@Override
-	public void setClass(BaseAttribute att) {
+	public void setClass(GeneralAttribute att) {
 		internalStore.setClass(((WekaAttribute)att).getInteranalWekaAttribute());
 	}
 
@@ -246,7 +246,7 @@ public class WekaInstances implements Serializable, BaseInstances{
 	 * @see yueyueGo.databeans.BaseInstances#sort(yueyueGo.databeans.DataAttribute)
 	 */
 	@Override
-	public void sort(BaseAttribute att) {
+	public void sort(GeneralAttribute att) {
 		internalStore.sort(((WekaAttribute)att).getInteranalWekaAttribute());
 	}
 
@@ -262,7 +262,7 @@ public class WekaInstances implements Serializable, BaseInstances{
 	 * @param data
 	 * @throws RuntimeException
 	 */
-	public static Instances convertToWekaInstances(BaseInstances data)
+	public static Instances convertToWekaInstances(GeneralInstances data)
 			throws RuntimeException {
 		if (data instanceof WekaInstances){
 	    	Instances wekaData=	((WekaInstances)data).getInternalWekaInstances();

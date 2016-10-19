@@ -4,7 +4,7 @@ import weka.classifiers.Classifier;
 import weka.classifiers.functions.MultilayerPerceptron;
 import yueyueGo.ModelStore;
 import yueyueGo.NominalClassifier;
-import yueyueGo.databeans.BaseInstances;
+import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaInstances;
 
 //结论1： 5单元格的不可靠，偶然性因素太大， 应该在10-30单元格中间选择
@@ -94,7 +94,7 @@ public class MLPClassifier extends NominalClassifier {
 	}
 
 	@Override
-	protected Classifier buildModel(BaseInstances train) throws Exception {
+	protected Classifier buildModel(GeneralInstances train) throws Exception {
 
 		 
 		int minNumObj=train.numInstances()/300;

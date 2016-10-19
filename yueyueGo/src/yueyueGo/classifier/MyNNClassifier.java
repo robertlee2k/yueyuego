@@ -5,7 +5,7 @@ import yueyueGo.EnvConstants;
 import yueyueGo.ModelStore;
 import yueyueGo.NominalClassifier;
 import yueyueGo.ParrallelizedRunning;
-import yueyueGo.databeans.BaseInstances;
+import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaInstances;
 import yueyueGo.utility.ClassifyUtility;
 import ext.WekaNeuralNetwork;
@@ -58,7 +58,7 @@ public class MyNNClassifier extends NominalClassifier implements ParrallelizedRu
 	}
 		
 	@Override
-	protected Classifier buildModel(BaseInstances train) throws Exception {
+	protected Classifier buildModel(GeneralInstances train) throws Exception {
 
 //		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();
 
@@ -83,7 +83,7 @@ public class MyNNClassifier extends NominalClassifier implements ParrallelizedRu
 //		return classifier;
 	}
 	
-	protected String estimateHiddenLayer(BaseInstances trainingData){
+	protected String estimateHiddenLayer(GeneralInstances trainingData){
 		return ClassifyUtility.estimateHiddenLayerNodes(trainingData, false);
 	}
 	
