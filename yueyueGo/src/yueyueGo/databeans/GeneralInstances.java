@@ -32,7 +32,7 @@ public interface GeneralInstances {
 
 	public abstract double meanOrMode(GeneralAttribute att);
 
-	public abstract double meanOrMode(int arg0);
+	public abstract double meanOrMode(int index);
 
 	public abstract int numAttributes();
 

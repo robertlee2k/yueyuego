@@ -6,40 +6,53 @@ import yueyueGo.databeans.GeneralInstances;
 
 public abstract class BaseInstanceProcessor {
 
-
-
+	//如果string[]所定义的属性在将数据集中存在，将其删除（不存在的话不报错）
 	public abstract GeneralInstances removeAttribs(GeneralInstances incomingData, String[] attributeToRemove)
 			throws Exception;
-
-	public abstract GeneralInstances keepAttributes(GeneralInstances incomingData, String[] attributeToKeep)
+	
+	//删除数据集中指定位置的属性列集合
+	public abstract GeneralInstances removeAttribs(GeneralInstances data, String attribPos)
 			throws Exception;
-
-	public abstract GeneralInstances mergeTwoInstances(GeneralInstances extData, GeneralInstances extDataSecond)
-			throws IllegalStateException;
-
-	public abstract void calibrateAttributes(GeneralInstances input, GeneralInstances output)
-			throws Exception, IllegalStateException;
-
-	public abstract GeneralInstances filterDataForIndex(GeneralInstances origin, String indexName)
+	
+	//如果string[]所定义的属性在将数据集中存在，将其保留，将其他属性删除（不存在的话不报错）
+	public abstract GeneralInstances filterAttribs(GeneralInstances incomingData, String[] attributeToKeep)
 			throws Exception;
-
-	public abstract GeneralInstances AddAttributeWithValue(GeneralInstances data, String attributeName,
-			String type, String value) throws Exception;
-
-	public abstract GeneralInstances AddAttribute(GeneralInstances data, String attributeName, int position);
-
-	public abstract GeneralInstances getInstancesSubset(GeneralInstances data, String expression)
-			throws Exception;
-
+	
+	
+	//保留数据集中指定位置的属性列集合，将其他的属性删除
 	public abstract GeneralInstances filterAttribs(GeneralInstances data, String attribPos)
 			throws Exception;
 
-	public abstract GeneralInstances removeAttribs(GeneralInstances data, String attribPos)
+	
+	//将两个数据集合并为一个（纵向合并）
+	public abstract GeneralInstances mergeTwoInstances(GeneralInstances extData, GeneralInstances extDataSecond)
+			throws IllegalStateException;
+
+	//	从input中读取数据， 按照output的数据格式进行转换和校验，然后把数据输出到output中
+	//	* output instances will be changed in this method!
+	public abstract void calibrateAttributes(GeneralInstances input, GeneralInstances output)
+			throws Exception, IllegalStateException;
+
+	// 将给定记录集中名称为indexName的数据中等于1的数据筛选出来（这个主要用于筛选属于某种指数的数据）
+	public abstract GeneralInstances filterDataForIndex(GeneralInstances origin, String indexName)
+			throws Exception;
+	
+	//在数据集中插入新的属性 （缺省应该在倒数第二位上插入） 并返回新的数据集
+	public abstract GeneralInstances AddAttributeWithValue(GeneralInstances data, String attributeName,
+			String type, String value) throws Exception;
+
+	//在数据集的指定位置上插入新的属性 （position计数从0开始），并返回新的数据集
+	public abstract GeneralInstances AddAttribute(GeneralInstances data, String attributeName, int position);
+
+	// 根据给定表达式公式，获取数据集的子集并返回
+	public abstract GeneralInstances getInstancesSubset(GeneralInstances data, String expression)
 			throws Exception;
 
+	//将数据集中给定位置的枚举属性转为String类型（位置用,分割）
 	public abstract GeneralInstances NominalToString(GeneralInstances data, String attribPos)
 			throws Exception;
 
+	//将数据集中给定位置的数值属性转为枚举类型（位置用,分割）
 	public abstract GeneralInstances numToNominal(GeneralInstances data, String attribPos)
 			throws Exception;
 	

@@ -166,7 +166,7 @@ public class WekaInstanceProcessor extends BaseInstanceProcessor {
 
 	//如果输入instances中的包含有string[]所定义的attributes，将其保留，将其他的属性删除。
 	@Override
-	public GeneralInstances keepAttributes(GeneralInstances incomingData, String[] attributeToKeep) throws Exception{
+	public GeneralInstances filterAttribs(GeneralInstances incomingData, String[] attributeToKeep) throws Exception{
 		String saveString=returnAttribsPosition(incomingData,attributeToKeep);
 		GeneralInstances result = filterAttribs(incomingData,saveString);
 		return result;

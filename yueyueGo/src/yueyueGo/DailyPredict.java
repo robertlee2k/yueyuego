@@ -258,7 +258,7 @@ public class DailyPredict {
 			//保留DAILY RESULT的LEFT部分在磁盘上，主要为了保存股票代码
 			GeneralInstances left = new DataInstances(dailyData);
 			BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(left);
-			left=instanceProcessor.keepAttributes(dailyData, ArffFormat.DAILY_PREDICT_RESULT_LEFT);
+			left=instanceProcessor.filterAttribs(dailyData, ArffFormat.DAILY_PREDICT_RESULT_LEFT);
 			//将LEFT中的CODE加上=""，避免输出格式中前导零消失。
 			int codeIndex=BaseInstanceProcessor.findATTPosition(left,ArffFormat.CODE);
 			left=instanceProcessor.NominalToString(left, String.valueOf(codeIndex));
@@ -347,7 +347,7 @@ public class DailyPredict {
 				// remove unnecessary data,leave 均线策略 & code alone
 				GeneralInstances header = new DataInstances(newData, 0);
 				BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(header);
-				result=instanceProcessor.keepAttributes(header, ArffFormat.DAILY_PREDICT_RESULT_LEFT);
+				result=instanceProcessor.filterAttribs(header, ArffFormat.DAILY_PREDICT_RESULT_LEFT);
 
 				if (clModel instanceof NominalClassifier ){
 					result = instanceProcessor.AddAttribute(result, ArffFormat.RESULT_PREDICTED_WIN_RATE,

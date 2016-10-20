@@ -230,7 +230,7 @@ public class ArffFormat {
 	// 此方法从All Transaction Data中保留计算收益率的相关字段，以及最后的收益率，删除其他计算字段
 	protected static GeneralInstances getTransLeftPartFromAllTransaction(GeneralInstances allData)
 			throws Exception {
-		return InstanceHandler.getHandler(allData).keepAttributes(allData,TRANS_DATA_LEFT_PART);
+		return InstanceHandler.getHandler(allData).filterAttribs(allData,TRANS_DATA_LEFT_PART);
 	}
 	
 	// 为原始的Arff文件加上计算属性
