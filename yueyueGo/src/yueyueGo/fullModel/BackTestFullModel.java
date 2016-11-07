@@ -53,7 +53,7 @@ public class BackTestFullModel extends BackTest {
 			fullModelWorker.init();
 			
 			//短线模型的历史回测
-		fullModelWorker.callFullModelTestBack();
+			fullModelWorker.callFullModelTestBack();
 			
 			//短线模型刷新最新月评估数据
 //			fullModelWorker.callRefreshFullModelUseLatestData();
@@ -111,7 +111,6 @@ public class BackTestFullModel extends BackTest {
 		//按二分类器回测历史数据
 //		BaggingJ48FullModel nModel=new BaggingJ48FullModel();
 		AdaboostFullModel nModel=new AdaboostFullModel();
-//		MLPABFullModel nModel=new MLPABFullModel(); 
 //		MyNNFullModel nModel=new MyNNFullModel();
 		if (applyToMaModelInTestBack==true){//用fullModel模型来测试均线模型时不用重新build和评估
 			nModel.m_skipTrainInBacktest=true;
@@ -130,9 +129,9 @@ public class BackTestFullModel extends BackTest {
 			cModel.m_skipEvalInBacktest=true;
 		}
 
-//		GeneralInstances continuousResult=testBackward(cModel);
+		GeneralInstances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
-		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
+//		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 		
 		//统一输出统计结果
 		nModel.outputClassifySummary();
