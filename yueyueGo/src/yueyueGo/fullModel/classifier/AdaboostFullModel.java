@@ -16,7 +16,7 @@ public class AdaboostFullModel extends AdaboostClassifier {
 	@Override
 	protected void initializeParams() {
 		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = false;
+		m_skipEvalInBacktest = true;
 		m_policySubGroup = new String[]{""};
 		modelArffFormat=ArffFormatFullModel.FULLMODEL_FORMAT; //这个模型缺省是为FULLMODEL用的格式
 		
