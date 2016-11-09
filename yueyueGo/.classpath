@@ -7,5 +7,7 @@
 	<classpathentry exported="true" kind="lib" path="C:/trend/mtj-1.0-snapshot.jar"/>
 	<classpathentry exported="true" kind="lib" path="C:/trend/opencsv-2.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="C:/trend/weka.jar" sourcepath="C:/trend/weka-src.jar"/>
+	<classpathentry kind="lib" path="C:/trend/xxl-job-core-1.5.0-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="C:/trend/spring-context-3.2.3.RELEASE.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
