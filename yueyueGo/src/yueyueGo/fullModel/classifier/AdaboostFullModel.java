@@ -36,7 +36,10 @@ public class AdaboostFullModel extends AdaboostClassifier {
 	//TODO 此类可以在子类中被覆盖（通过把yearsplit的值做处理，实现临时多年使用一个模型）
 	public void locateModelStore(String yearSplit,String policySplit) {
 		int inputYear=Integer.parseInt(yearSplit.substring(0, 4));
-		String inputMonth=yearSplit.substring(4, 2);
+		String inputMonth="";
+		if (yearSplit.length()==6){
+			inputMonth=yearSplit.substring(4, 6);
+		}
 		// 临时用2011模型替代2012、2013年的模型
 		if (inputYear==2012 || inputYear==2013){
 			yearSplit="2011"+inputMonth;
