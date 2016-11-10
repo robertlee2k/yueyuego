@@ -31,7 +31,7 @@ public class BackTestFullModel extends BackTest {
 		RUNNING_THREADS=10;
 		
 		shouyilv_thresholds=new double[] {0.02};
-		winrate_thresholds=new double[] {0.6};
+		winrate_thresholds=new double[] {0.7};
 		
 		splitYear=new String[] {
 				//为年度模型使用
@@ -129,9 +129,9 @@ public class BackTestFullModel extends BackTest {
 			cModel.m_skipEvalInBacktest=true;
 		}
 
-		GeneralInstances continuousResult=testBackward(cModel);
+//		GeneralInstances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
-//		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
+		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 		
 		//统一输出统计结果
 		nModel.outputClassifySummary();
