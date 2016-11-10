@@ -41,7 +41,7 @@ public class ProcessFlowExecutor implements Callable<String> {
 		if (clModel.m_skipTrainInBacktest == false) {
 			
 			System.out.println("start to build model");
-			//初始化回测创建模型时使用的modelStore对象（这里严格按yearsplit和policysplit分割处理）
+			//初始化回测创建模型时使用的modelStore对象（按actualYearSplit和policysplit分割处理）
 			clModel.initModelStore(actualYearSplit,policySplit);
 			model=clModel.trainData(trainingData);
 			

@@ -60,11 +60,10 @@ public class ModelStore {
 			//评估文件按yearsplit和policySplit切割
 			evalFile=concatModeFilenameString(yearMonthSplit, policySplit, workFileFullPrefix, classifierName)+ModelStore.THRESHOLD_EXTENSION;;
 			String halfYearString="";
-			//模型文件按年处理，为特定年份下半年（2016）增加一个模型，提高准确度
+			//模型文件按半年建设模型，提高准确度
 			if (yearMonthSplit.length()==6){
 				convertedYear=yearMonthSplit.substring(0,4);
 				//为下半年增加一个模型，提高准确度
-//				int inputYear=Integer.parseInt(convertedYear);
 				int inputMonth=Integer.parseInt(yearMonthSplit.substring(4,6));
 				if (inputMonth>=7){
 					halfYearString="07";
