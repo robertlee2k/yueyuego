@@ -1,11 +1,11 @@
-package yueyueGo.ext.ml.test;
+package ext.amten.ml.test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import yueyueGo.ext.ml.NNParams;
-import yueyueGo.ext.ml.matrix.Matrix;
-import yueyueGo.ext.ml.matrix.MatrixUtils;
+import ext.amten.ml.NNParams;
+import ext.amten.ml.matrix.Matrix;
+import ext.amten.ml.matrix.MatrixUtils;
 
 /**
  * Created by Johannes Amtén on 2014-02-24.
@@ -44,7 +44,7 @@ public class NeuralNetworkTest {
         params.maxIterations = 10;
 
         long startTime = System.currentTimeMillis();
-        yueyueGo.ext.ml.NeuralNetwork nn = new yueyueGo.ext.ml.NeuralNetwork(params);
+        ext.amten.ml.NeuralNetwork nn = new ext.amten.ml.NeuralNetwork(params);
         nn.train(xTrain, yTrain);
         System.out.println("Training time: " + (System.currentTimeMillis() - startTime) / 1000.0 + "s");
 

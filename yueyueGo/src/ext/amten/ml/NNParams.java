@@ -1,4 +1,4 @@
-package yueyueGo.ext.ml;
+package ext.amten.ml;
 
 import java.io.Serializable;
 

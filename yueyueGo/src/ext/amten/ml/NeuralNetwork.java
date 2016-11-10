@@ -1,4 +1,4 @@
-package yueyueGo.ext.ml;
+package ext.amten.ml;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -13,9 +13,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import yueyueGo.ext.ml.matrix.Matrix;
-import yueyueGo.ext.ml.matrix.MatrixElement;
-import yueyueGo.ext.ml.matrix.MatrixUtils;
+import ext.amten.ml.matrix.Matrix;
+import ext.amten.ml.matrix.MatrixElement;
+import ext.amten.ml.matrix.MatrixUtils;
 
 /**
  * (Convolutional) Neural network implementation with dropout and rectified linear units.

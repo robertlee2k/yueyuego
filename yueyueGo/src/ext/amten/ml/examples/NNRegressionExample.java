@@ -1,8 +1,8 @@
-package yueyueGo.ext.ml.examples;
+package ext.amten.ml.examples;
 
-import yueyueGo.ext.ml.NNParams;
-import yueyueGo.ext.ml.matrix.Matrix;
-import yueyueGo.ext.ml.matrix.MatrixUtils;
+import ext.amten.ml.NNParams;
+import ext.amten.ml.matrix.Matrix;
+import ext.amten.ml.matrix.MatrixUtils;
 
 /**
  * Examples of using NeuralNetwork for regression.
@@ -39,7 +39,7 @@ public class NNRegressionExample {
         NNParams params = new NNParams();
 
         long startTime = System.currentTimeMillis();
-        yueyueGo.ext.ml.NeuralNetwork nn = new yueyueGo.ext.ml.NeuralNetwork(params);
+        ext.amten.ml.NeuralNetwork nn = new ext.amten.ml.NeuralNetwork(params);
         nn.train(xTrain, yTrain);
         System.out.println("\nTraining time: " + String.format("%.3g", (System.currentTimeMillis() - startTime) / 1000.0) + "s");
 

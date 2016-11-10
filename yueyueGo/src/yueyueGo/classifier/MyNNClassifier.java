@@ -1,5 +1,6 @@
 package yueyueGo.classifier;
 
+import ext.WekaNeuralNetwork;
 import weka.classifiers.Classifier;
 import yueyueGo.EnvConstants;
 import yueyueGo.ModelStore;
@@ -7,7 +8,6 @@ import yueyueGo.NominalClassifier;
 import yueyueGo.ParrallelizedRunning;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaInstances;
-import yueyueGo.ext.WekaNeuralNetwork;
 import yueyueGo.utility.ClassifyUtility;
 //20161010
 //===============================output summary===================================== for : myNNAB

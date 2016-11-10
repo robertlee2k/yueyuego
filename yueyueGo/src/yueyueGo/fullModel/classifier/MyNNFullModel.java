@@ -1,12 +1,12 @@
 package yueyueGo.fullModel.classifier;
 
+import ext.WekaNeuralNetwork;
 import weka.classifiers.Classifier;
 import yueyueGo.EnvConstants;
 import yueyueGo.ModelStore;
 import yueyueGo.classifier.MyNNClassifier;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaInstances;
-import yueyueGo.ext.WekaNeuralNetwork;
 import yueyueGo.fullModel.ArffFormatFullModel;
 import yueyueGo.utility.ClassifyUtility;
 

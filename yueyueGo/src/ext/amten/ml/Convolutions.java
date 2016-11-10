@@ -1,6 +1,6 @@
-package yueyueGo.ext.ml;
+package ext.amten.ml;
 
-import yueyueGo.ext.ml.matrix.Matrix;
+import ext.amten.ml.matrix.Matrix;
 
 /**
  * Helper class with calculations and matrix transformations pertaining to convolutions.

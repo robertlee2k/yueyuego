@@ -1,8 +1,8 @@
-package yueyueGo.ext.ml;
+package ext.amten.ml;
 
 import java.io.IOException;
 
-import yueyueGo.ext.ml.matrix.Matrix;
+import ext.amten.ml.matrix.Matrix;
 
 /**
  * Interface to be implemented by a class that loads training data from disk on-demand.
