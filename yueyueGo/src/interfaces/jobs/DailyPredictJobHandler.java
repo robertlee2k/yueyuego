@@ -6,6 +6,8 @@ import yueyueGo.DailyPredict;
 
 import com.xxl.job.core.handler.IJobHandler;
 import com.xxl.job.core.handler.annotation.JobHander;
+import com.xxl.job.core.model.ReturnT;
+import com.xxl.job.core.util.JobClientUtil;
 
 /**
  * 每日预测任务Handler（Bean模式）
@@ -22,7 +24,16 @@ public class DailyPredictJobHandler extends IJobHandler {
 	
 	@Override
 	public void execute(String... params) throws Exception {
-//		JobClientUtil.setJobExecutorParam(1,"201611071501120800","JXKJobHadler");
-		DailyPredict.main(null);
+		
+		String wholeMarketFile=DailyPredict.callFullModelPredict();
+		String maFile=DailyPredict.callDailyPredict();
+				
+		//均线
+		ReturnT<String> maFileId=JobClientUtil.uploadJobRealFile(maFile);
+		JobClientUtil.setJobExecutorParam(12,"201611091647330137",maFileId.getMsg());
+		
+		//短线
+		ReturnT<String> wholeMarketFileId=JobClientUtil.uploadJobRealFile(wholeMarketFile);
+		JobClientUtil.setJobExecutorParam(12,"201611101644540730",wholeMarketFileId.getMsg());
 	}
 }

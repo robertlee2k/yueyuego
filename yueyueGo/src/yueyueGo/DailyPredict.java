@@ -81,33 +81,8 @@ public class DailyPredict {
 
 	public static void main(String[] args) {
 		try {
-
-
-			DailyPredict worker =new DailyPredict();
-
-			//短线模型的每日预测
-			System.out.println("==================================================");
-			System.out.println("===============starting 短线模型预测===============");
-			System.out.println("==================================================");
-			AppContext.createContext(EnvConstants.FULL_MODEL_ROOT_DIR);
-			//预先初始化各种模型文件的位置
-			worker.definePredictModels(EnvConstants.FULL_MODEL_ROOT_DIR);
-			worker.shouyilv_thresholds=new double[] {0.03};
-			worker.winrate_thresholds=new double[] {0.5};
-			
-			worker.callFullModelPredict();
-
-			//用均线模型预测每日增量数据
-			System.out.println("==================================================");
-			System.out.println("===============starting 均线模型预测===============");
-			System.out.println("==================================================");
-			AppContext.clearContext();
-			AppContext.createContext(EnvConstants.AVG_LINE_ROOT_DIR);
-			//预先初始化各种模型文件的位置
-			worker.definePredictModels(EnvConstants.AVG_LINE_ROOT_DIR);
-			worker.shouyilv_thresholds=new double[] {0.005,0.005,0.01,0.03,0.03}; // {0.01,0.02,0.03,0.03,0.04};
-			worker.winrate_thresholds=new double[]  {0.45,0.45,0.45,0.35,0.25};  //{0.3,0.3,0.3,0.25,0.25};
-			worker.callDailyPredict();
+			callFullModelPredict();
+			callDailyPredict();
 
 		} catch (Exception e) {
 
@@ -119,8 +94,47 @@ public class DailyPredict {
 	/**
 	 * @throws Exception
 	 */
-	private void callDailyPredict() throws Exception {
+	public static String callDailyPredict() throws Exception {
+		DailyPredict worker = new DailyPredict();
+		//用均线模型预测每日增量数据
+		System.out.println("==================================================");
+		System.out.println("===============starting 均线模型预测===============");
+		System.out.println("==================================================");
+		AppContext.clearContext();
+		AppContext.createContext(EnvConstants.AVG_LINE_ROOT_DIR);
+		//预先初始化各种模型文件的位置
+		worker.definePredictModels(EnvConstants.AVG_LINE_ROOT_DIR);
+		worker.shouyilv_thresholds=new double[] {0.005,0.005,0.01,0.03,0.03}; // {0.01,0.02,0.03,0.03,0.04};
+		worker.winrate_thresholds=new double[]  {0.45,0.45,0.45,0.35,0.25};  //{0.3,0.3,0.3,0.25,0.25};
+		return worker.dailyPredict();
+	}
 
+
+	/**
+	 * @return
+	 * @throws Exception
+	 */
+	public static String callFullModelPredict() throws Exception {
+		DailyPredict worker =new DailyPredict();
+
+		//短线模型的每日预测
+		System.out.println("==================================================");
+		System.out.println("===============starting 短线模型预测===============");
+		System.out.println("==================================================");
+		AppContext.createContext(EnvConstants.FULL_MODEL_ROOT_DIR);
+		//预先初始化各种模型文件的位置
+		worker.definePredictModels(EnvConstants.FULL_MODEL_ROOT_DIR);
+		worker.shouyilv_thresholds=new double[] {0.03};
+		worker.winrate_thresholds=new double[] {0.5};
+		
+		return worker.fullModelPredict();
+	}
+
+
+	/**
+	 * @throws Exception
+	 */
+	private String dailyPredict() throws Exception {
 
 
 		//新格式的bagging线性回归预测
@@ -146,9 +160,11 @@ public class DailyPredict {
 		adaModel.outputClassifySummary();
 		System.out.println("***************** end of output prediction results************************");
 		
+		
 		combinePreditions(lBagModel, linearInstances, nnModel, nnInstances);
 		
-		combinePreditions(cBagModel, baggingInstances, adaModel, adaboostInstances);
+		String savedResultFile=combinePreditions(cBagModel, baggingInstances, adaModel, adaboostInstances);
+		return savedResultFile;
 	}
 
 
@@ -158,10 +174,13 @@ public class DailyPredict {
 	 * @param nModel 二分类器（预测胜率）
 	 * @param nInstances 二分类器结果
 	 * @throws Exception
+	 * return 合并的文件名称（暂时返回连续分类器的值）
 	 */
-	public void combinePreditions(BaseClassifier cModel,
+	public String combinePreditions(BaseClassifier cModel,
 			GeneralInstances cInstances, BaseClassifier nModel,
 			GeneralInstances nInstances) throws Exception {
+		
+		
 		//以二分类器为主，合并连续分类器
 		System.out.println("");
 		System.out.println("-----now output combined predictions----------"+nModel.getIdentifyName()+" combined with："+cModel.getIdentifyName());
@@ -170,23 +189,26 @@ public class DailyPredict {
 		GeneralInstances nMergedOutput=merge.mergeResults(nInstances,cInstances,ArffFormat.RESULT_PREDICTED_PROFIT,left);
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(nMergedOutput);
 		nMergedOutput=instanceProcessor.removeAttribs(nMergedOutput, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
-		DataIOHandler.getSaver().saveCSVFile(nMergedOutput, PREDICT_RESULT_DIR+ "Merged Selected Result-"+nModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv");
+		String savedNFileName=PREDICT_RESULT_DIR+ "Merged Selected Result-"+nModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv";
+		DataIOHandler.getSaver().saveCSVFile(nMergedOutput, savedNFileName);
 		nMergedOutput=null;
 		System.out.println(nModel.getIdentifyName()+"----------prediction ends---------");
 		//以连续分类器为主，合并二分类器
 		System.out.println("-----now output combined predictions----------"+cModel.getIdentifyName()+" combined with："+nModel.getIdentifyName());
 		GeneralInstances cMergedOutput=merge.mergeResults(cInstances,nInstances,ArffFormat.RESULT_PREDICTED_WIN_RATE,left);
 		cMergedOutput=instanceProcessor.removeAttribs(cMergedOutput, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
-		DataIOHandler.getSaver().saveCSVFile(cMergedOutput, PREDICT_RESULT_DIR+ "Merged Selected Result-"+cModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv");
+		String savedCFileName=PREDICT_RESULT_DIR+ "Merged Selected Result-"+cModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv";
+		DataIOHandler.getSaver().saveCSVFile(cMergedOutput, savedCFileName);
 		cMergedOutput=null;
 		System.out.println(cModel.getIdentifyName()+"----------prediction ends--------");
+		return savedCFileName;
 	}
 
 
 	/**
 	 * @throws Exception
 	 */
-	private void callFullModelPredict() throws Exception {
+	private String fullModelPredict() throws Exception {
 
 		//BaggingM5P
 		BaggingM5PFullModel cFullModel=new BaggingM5PFullModel();
@@ -208,8 +230,9 @@ public class DailyPredict {
 		GeneralInstances mergedOutput=merge.mergeResults(cInstances,nInstances,ArffFormat.RESULT_PREDICTED_WIN_RATE,left);
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(mergedOutput);
 		mergedOutput=instanceProcessor.removeAttribs(mergedOutput, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
-		DataIOHandler.getSaver().saveCSVFile(mergedOutput, PREDICT_RESULT_DIR+ "FullModel Selected Result-"+cFullModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv");
-
+		String savedCFileName=PREDICT_RESULT_DIR+ "FullModel Selected Result-"+cFullModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv";
+		DataIOHandler.getSaver().saveCSVFile(mergedOutput, savedCFileName);
+		return savedCFileName;
 	}
 
 
