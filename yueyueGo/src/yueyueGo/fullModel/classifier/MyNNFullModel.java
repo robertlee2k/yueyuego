@@ -6,9 +6,9 @@ import yueyueGo.ModelStore;
 import yueyueGo.classifier.MyNNClassifier;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaInstances;
+import yueyueGo.ext.WekaNeuralNetwork;
 import yueyueGo.fullModel.ArffFormatFullModel;
 import yueyueGo.utility.ClassifyUtility;
-import ext.WekaNeuralNetwork;
 
 //===============================output summary===================================== for : myNNFullModel
 //Monthly selected_TPR mean: 48.60% standard deviation=34.52% Skewness=-0.05 Kurtosis=-1.36

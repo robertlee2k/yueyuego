@@ -7,8 +7,8 @@ import yueyueGo.NominalClassifier;
 import yueyueGo.ParrallelizedRunning;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaInstances;
+import yueyueGo.ext.WekaNeuralNetwork;
 import yueyueGo.utility.ClassifyUtility;
-import ext.WekaNeuralNetwork;
 //20161010
 //===============================output summary===================================== for : myNNAB
 //Monthly selected_TPR mean: 22.93% standard deviation=27.49% Skewness=1.09 Kurtosis=0.18

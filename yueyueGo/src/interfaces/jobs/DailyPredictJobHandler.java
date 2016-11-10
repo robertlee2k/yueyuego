@@ -1,4 +1,4 @@
-package yueyueGo.jobs;
+package interfaces.jobs;
 
 import org.springframework.stereotype.Service;
 

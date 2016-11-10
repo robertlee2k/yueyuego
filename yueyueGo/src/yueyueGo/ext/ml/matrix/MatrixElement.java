@@ -1,4 +1,4 @@
-package ext.amten.ml.matrix;
+package yueyueGo.ext.ml.matrix;
 
 /**
  * Class used when iterating over elements in a Matrix.

@@ -1,4 +1,4 @@
-package ext.amten.ml.matrix;
+package yueyueGo.ext.ml.matrix;
 
 import no.uib.cipr.matrix.DenseMatrix;
 

@@ -1,4 +1,4 @@
-package ext;
+package yueyueGo.ext;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -12,9 +12,9 @@ import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.Option;
 import weka.core.Utils;
-import ext.amten.ml.NNParams;
-import ext.amten.ml.matrix.Matrix;
-import ext.amten.ml.matrix.MatrixElement;
+import yueyueGo.ext.ml.NNParams;
+import yueyueGo.ext.ml.matrix.Matrix;
+import yueyueGo.ext.ml.matrix.MatrixElement;
 
 /**
  * Weka Classifier wrapper around NeuralNetwork class.
@@ -38,7 +38,7 @@ public class WekaNeuralNetwork extends AbstractClassifier implements Serializabl
     private NNParams myParams = new NNParams();
 
     // Model
-    private ext.amten.ml.NeuralNetwork myNN = null;
+    private yueyueGo.ext.ml.NeuralNetwork myNN = null;
 
     public WekaNeuralNetwork() {
         super();
@@ -88,7 +88,7 @@ public class WekaNeuralNetwork extends AbstractClassifier implements Serializabl
         myParams.numClasses = numClasses;
         myParams.numCategories = numCategories;
 
-        myNN = new ext.amten.ml.NeuralNetwork(myParams);
+        myNN = new yueyueGo.ext.ml.NeuralNetwork(myParams);
         myNN.train(x, y);
     }
 

@@ -1,8 +1,8 @@
-package ext.amten.ml.examples;
+package yueyueGo.ext.ml.examples;
 
-import ext.amten.ml.NNParams;
-import ext.amten.ml.matrix.Matrix;
-import ext.amten.ml.matrix.MatrixUtils;
+import yueyueGo.ext.ml.NNParams;
+import yueyueGo.ext.ml.matrix.Matrix;
+import yueyueGo.ext.ml.matrix.MatrixUtils;
 
 /**
  * Examples of using NeuralNetwork for classification.
@@ -50,7 +50,7 @@ public class NNClassificationExample {
         params.learningRate = useConvolution ? 1E-2 : 0;
 
         long startTime = System.currentTimeMillis();
-        ext.amten.ml.NeuralNetwork nn = new ext.amten.ml.NeuralNetwork(params);
+        yueyueGo.ext.ml.NeuralNetwork nn = new yueyueGo.ext.ml.NeuralNetwork(params);
         nn.train(xTrain, yTrain);
         System.out.println("\nTraining time: " + String.format("%.3g", (System.currentTimeMillis() - startTime) / 1000.0) + "s");
 
@@ -113,7 +113,7 @@ public class NNClassificationExample {
         params.numClasses = 2; // 2 classes, survived/not
 
         long startTime = System.currentTimeMillis();
-        ext.amten.ml.NeuralNetwork nn = new ext.amten.ml.NeuralNetwork(params);
+        yueyueGo.ext.ml.NeuralNetwork nn = new yueyueGo.ext.ml.NeuralNetwork(params);
         nn.train(xTrain, yTrain);
         System.out.println("\nTraining time: " + String.format("%.3g", (System.currentTimeMillis() - startTime) / 1000.0) + "s");
 
