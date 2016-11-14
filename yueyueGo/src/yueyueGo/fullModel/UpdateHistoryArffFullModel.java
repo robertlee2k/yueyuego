@@ -15,6 +15,30 @@ import yueyueGo.utility.AppContext;
 
 public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 	
+	public static void main(String[] args) {
+		try {
+			BackTestFullModel fullModelWorker=new BackTestFullModel();
+			fullModelWorker.init();
+
+			//刷新增量数据
+			UpdateHistoryArffFullModel.callRefreshInstancesFullModel();
+			
+			//短线模型刷新最新月评估数据
+			fullModelWorker.callRefreshFullModelUseLatestData();
+			
+			
+			//短线模型生成初始全量数据
+//			UpdateHistoryArffFullModel.createFullModelInstances();
+			
+			//短线模型合并新的属性
+//			UpdateHistoryArffFullModel.callMergeExtDataForFullModel();			
+
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+		}
+	}
+	
 	protected static void callRefreshInstancesFullModel() throws Exception {
 		String startYearMonth="201609";
 		String endYearMonth="201612";

@@ -19,7 +19,23 @@ import yueyueGo.utility.FormatUtility;
 public class UpdateHistoryArffFile {
 
 
+	public static void main(String[] args) {
+		try {
+			BackTest worker=new BackTest();
+			worker.init();
+			
+			//用最新的单次交易数据，更新原始的交易数据文件
+			UpdateHistoryArffFile.callRefreshInstances();
 
+			//刷新最新月份的模型
+			worker.callRefreshModelUseLatestData();
+			
+			
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+		}
+	}
 
 	protected static void callRefreshInstances() throws Exception {
 		String startYearMonth="201510";
