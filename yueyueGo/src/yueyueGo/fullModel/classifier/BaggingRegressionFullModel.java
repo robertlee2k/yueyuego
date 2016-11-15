@@ -21,7 +21,7 @@ public class BaggingRegressionFullModel extends BaggingLinearRegression {
 		
 		classifierName=ClassifyUtility.BAGGING_REGRESSION_FULLMODEL;	
 		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
-		m_modelEvalFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
+		m_modelEvalFileShareMode=ModelStore.YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 		bagging_iteration=10;	//bagging特有参数
 		divided=EnvConstants.TRAINING_DATA_LIMIT/3000; //将trainingData分成多少份
 		
