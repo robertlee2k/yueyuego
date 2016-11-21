@@ -4,11 +4,6 @@ import yueyueGo.databeans.GeneralInstances;
 
 public interface GeneralDataSupplier {
 
-	//用于存放原始数据的公共数据仓库定义
-	public final static String URL = "jdbc:mysql://uts.simu800.com/develop?characterEncoding=utf8&autoReconnect=true";
-	public final static String USER = "root";
-	public final static String PASSWORD = "data@2014";
-
 	// 从指定文件里加载全部的数据，并将数据格式处理成算法需要的形式
 	public abstract GeneralInstances loadDataFromFile(String fileName)	throws Exception;
 

@@ -98,9 +98,9 @@ public class WekaDataSupplier implements GeneralDataSupplier {
 	
 		//load data from database that needs predicting
 		InstanceQuery query = new InstanceQuery();
-		query.setDatabaseURL(URL);
-		query.setUsername(USER);
-		query.setPassword(PASSWORD);
+		query.setDatabaseURL(DataIOHandler.URL);
+		query.setUsername(DataIOHandler.USER);
+		query.setPassword(DataIOHandler.PASSWORD);
 		String queryData=generateFullModelQueryData(dateString);
 		query.setQuery(queryData); 
 		GeneralInstances data = new WekaInstances(query.retrieveInstances());
@@ -197,9 +197,9 @@ public class WekaDataSupplier implements GeneralDataSupplier {
 		}	
 		//load data from database that needs predicting
 		InstanceQuery query = new InstanceQuery();
-		query.setDatabaseURL(URL);
-		query.setUsername(USER);
-		query.setPassword(PASSWORD);
+		query.setDatabaseURL(DataIOHandler.URL);
+		query.setUsername(DataIOHandler.USER);
+		query.setPassword(DataIOHandler.PASSWORD);
 		String queryData=generateQueryData(format);
 		query.setQuery(queryData); 
 		GeneralInstances data = new WekaInstances(query.retrieveInstances()); 
