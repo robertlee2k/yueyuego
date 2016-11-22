@@ -683,11 +683,12 @@ public class UpdateHistoryArffFile {
 //		System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
 
 		int startYear=2007;
-		int endYear=2016;
-		for (int i=startYear;i<=endYear;i=+2){
-			addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+i+"_"+(i+1)+".txt");
+		int endYear=2015;
+		for (int i=startYear;i<=endYear;i=i+2){
+			String fName=sourceFilePrefix+i+"_"+(i+1)+".txt";
+			addData = loadDataFromIncrementalCSVFile(fName);
 			fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
-			System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
+			System.out.println("merged one File"+fName+" ,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
 		}
 		return fullData;
 	}
