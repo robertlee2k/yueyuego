@@ -53,7 +53,7 @@ public class WekaInstanceProcessor extends BaseInstanceProcessor {
 	public  GeneralInstances stringToNominal(GeneralInstances data, String attribPos)
 			throws Exception {
 		String[] options = new String[2];
-		options[0] = "-C"; // "range"
+		options[0] = "-R"; // "range"
 		options[1] = attribPos; // attribute position
 		StringToNominal convert = new StringToNominal();
 		convert.setOptions(options);
