@@ -135,7 +135,7 @@ public class UpdateHistoryArffFile {
 		//全部读入后，对SWCODE做nominal处理（因为这个code可能会有持续更新）
 		instanceProcessor.calibrateAttributes(rawData, fullData);
 		int swCodePos=BaseInstanceProcessor.findATTPosition(fullData, ArffFormat.SW_ZHISHU_CODE);
-		instanceProcessor.stringToNominal(fullData, ""+swCodePos);
+		fullData=instanceProcessor.stringToNominal(fullData, ""+swCodePos);
 		rawData=null; //试图释放内存
 	
 		//获取tradeDateIndex （从1开始）， 并按其排序
