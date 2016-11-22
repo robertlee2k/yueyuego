@@ -39,6 +39,7 @@ import yueyueGo.databeans.DataInstances;
 import yueyueGo.databeans.GeneralAttribute;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.datasource.DataIOHandler;
+import yueyueGo.datasource.GeneralDataSaver;
 import yueyueGo.utility.AppContext;
 import yueyueGo.utility.BlockedThreadPoolExecutor;
 import yueyueGo.utility.ClassifySummaries;
@@ -85,11 +86,11 @@ public class BackTest {
 		//为半年度模型使用		
 //		"200807","200907","201007","201107","201207","201307","201407","201507","201607"
 		//为月度模型使用		
-//		"200801","200802","200803","200804","200805","200806","200807","200808","200809","200810","200811","200812","200901","200902","200903","200904","200905","200906","200907","200908","200909","200910","200911","200912","201001","201002","201003","201004","201005","201006","201007","201008","201009","201010","201011","201012","201101","201102","201103","201104","201105","201106","201107","201108","201109","201110","201111","201112","201201","201202","201203","201204","201205","201206","201207","201208","201209","201210","201211","201212","201301","201302","201303","201304","201305","201306","201307","201308","201309","201310","201311","201312","201401","201402","201403","201404","201405","201406","201407","201408","201409","201410","201411","201412","201501","201502","201503","201504","201505","201506","201507","201508","201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607","201608","201609","201610"
+		"200801","200802","200803","200804","200805","200806","200807","200808","200809","200810","200811","200812","200901","200902","200903","200904","200905","200906","200907","200908","200909","200910","200911","200912","201001","201002","201003","201004","201005","201006","201007","201008","201009","201010","201011","201012","201101","201102","201103","201104","201105","201106","201107","201108","201109","201110","201111","201112","201201","201202","201203","201204","201205","201206","201207","201208","201209","201210","201211","201212","201301","201302","201303","201304","201305","201306","201307","201308","201309","201310","201311","201312","201401","201402","201403","201404","201405","201406","201407","201408","201409","201410","201411","201412","201501","201502","201503","201504","201505","201506","201507","201508","201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607","201608","201609","201610"
 		//生成预测所使用半年度模型		
 //		"201607"
 		//新增增量数据后重新生成评估文件
-		"201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607","201608","201609","201610"
+//		"201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607","201608","201609","201610"
 		};		
 		
 	}
@@ -152,7 +153,7 @@ public class BackTest {
 
 		GeneralInstances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
-//		BaseInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
+//		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 
 		//按连续分类器回测历史数据
 		BaggingM5P cModel=new BaggingM5P();
@@ -160,16 +161,20 @@ public class BackTest {
 
 		GeneralInstances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
-//		BaseInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
+//		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 		
 		//统一输出统计结果
 		nModel.outputClassifySummary();
 		cModel.outputClassifySummary();
+		
+
 
 		//输出用于计算收益率的CSV文件
 		System.out.println("-----now output continuous predictions----------"+cModel.getIdentifyName());
 		GeneralInstances m5pOutput=mergeResultWithData(continuousResult,nominalResult,ArffFormat.RESULT_PREDICTED_WIN_RATE,cModel.getModelArffFormat());
 		saveSelectedFileForMarkets(m5pOutput,cModel.getIdentifyName());
+
+
 		System.out.println("-----now output nominal predictions----------"+nModel.getIdentifyName());
 		GeneralInstances mlpOutput=mergeResultWithData(nominalResult,continuousResult,ArffFormat.RESULT_PREDICTED_PROFIT,nModel.getModelArffFormat());
 		saveSelectedFileForMarkets(mlpOutput,nModel.getIdentifyName());
@@ -369,7 +374,8 @@ public class BackTest {
 		}
         
 		FileUtility.write(BACKTEST_RESULT_DIR+clModel.getIdentifyName()+"-monthlySummary.csv",  modelSummaries.getEvaluationSummary(), "GBK");
-
+		
+		//保存评估结果至文件
 		saveBacktestResultFile(result,clModel.getIdentifyName());
 
 		System.out.println(clModel.getIdentifyName()+" test result file saved.");
@@ -496,10 +502,11 @@ public class BackTest {
 		int tradeDateIndex=BaseInstanceProcessor.findATTPosition(mergedResult, ArffFormat.TRADE_DATE);
 		mergedResult.sort(tradeDateIndex-1);
 		
-		// 给mergedResult瘦身。 2=yearmonth, 6=datadate,7=positive,8=bias
-		String[] attributeToRemove=new String[]{ArffFormat.YEAR_MONTH,ArffFormat.DATA_DATE,ArffFormat.IS_POSITIVE,ArffFormat.BIAS5};
+		// 给mergedResult瘦身。 2=yearmonth, 6=datadate,7=positive,8=bias   (尝试把ArffFormat.DATA_DATE,保留）
+		String[] attributeToRemove=new String[]{ArffFormat.YEAR_MONTH,ArffFormat.IS_POSITIVE,ArffFormat.BIAS5};
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(mergedResult);
 		mergedResult=instanceProcessor.removeAttribs(mergedResult, attributeToRemove);
+
 
 		return mergedResult;
 	}
@@ -519,15 +526,19 @@ public class BackTest {
 		GeneralAttribute shouyilvAttribute=fullOutput.attribute(ArffFormat.SHOUYILV);
 		System.out.println("number of records for full market="+fullOutput.numInstances());
 		System.out.println("shouyilv average for full market="+FormatUtility.formatPercent(fullOutput.meanOrMode(shouyilvAttribute),2,2));
+	
+		GeneralDataSaver dataSaver=DataIOHandler.getSaver();
 		
-		//输出全市场选股结果
+		//输出全市场选股结果		
 		int pos = BaseInstanceProcessor.findATTPosition(fullOutput,ArffFormat.RESULT_SELECTED);
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullOutput);
 		GeneralInstances fullMarketSelected=instanceProcessor.getInstancesSubset(fullOutput, WekaInstanceProcessor.WEKA_ATT_PREFIX +pos+" = 1");
 		shouyilvAttribute=fullMarketSelected.attribute(ArffFormat.SHOUYILV);
 		System.out.println("selected shouyilv average for full market ="+FormatUtility.formatPercent(fullMarketSelected.meanOrMode(shouyilvAttribute),2,2)+" count="+fullMarketSelected.numInstances());
-		DataIOHandler.getSaver().saveCSVFile(fullMarketSelected, BACKTEST_RESULT_DIR+"选股-"+ classiferName+"-full" + RESULT_EXTENSION );
-
+		dataSaver.saveCSVFile(fullMarketSelected, BACKTEST_RESULT_DIR+"选股-"+ classiferName+"-full" + RESULT_EXTENSION );
+		//保存评估结果至数据库
+		DataIOHandler.getSaver().saveToDatabase(fullMarketSelected, "result_"+classiferName);
+		
 //		//输出沪深300
 //		Instances subsetMarketSelected=InstanceUtility.filterDataForIndex(fullMarketSelected,ArffFormat.IS_HS300);
 //		shouyilvAttribute=subsetMarketSelected.attribute(ArffFormat.SHOUYILV);

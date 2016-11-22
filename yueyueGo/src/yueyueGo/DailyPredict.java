@@ -284,7 +284,7 @@ public class DailyPredict {
 			left=instanceProcessor.filterAttribs(dailyData, ArffFormat.DAILY_PREDICT_RESULT_LEFT);
 			//将LEFT中的CODE加上=""，避免输出格式中前导零消失。
 			int codeIndex=BaseInstanceProcessor.findATTPosition(left,ArffFormat.CODE);
-			left=instanceProcessor.NominalToString(left, String.valueOf(codeIndex));
+			left=instanceProcessor.nominalToString(left, String.valueOf(codeIndex));
 			codeIndex-=1;  //以下的index是从0开始
 			for (int i=0;i<left.size();i++){
 				GeneralInstance originInstance=left.instance(i);

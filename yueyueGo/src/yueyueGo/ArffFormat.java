@@ -38,6 +38,8 @@ public class ArffFormat {
 	public static final String YEAR_MONTH = "yearmonth";
 	public static final String CODE = "code";
 	
+	public static final String SW_ZHISHU_CODE="sw_zhishu_code";
+	
 	public static final String ID = "id";
 	public static final int ID_POSITION = 1; // ID的位置
 	public static final String YEAR_MONTH_INDEX = "2"; // yearmonth所处位置，理论上说可以不用这个定义，用findAttPosition查找，暂时保留吧

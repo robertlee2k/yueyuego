@@ -78,7 +78,7 @@ public class WekaDataSupplier implements GeneralDataSupplier {
 			// I do the following according to a saying from the weka forum:
 			//"You can't add a value to a nominal attribute once it has been created. 
 			//If you want to do this, you need to use a string attribute instead."
-			datasrc=instanceProcessor.NominalToString(datasrc, nominalAttribString);
+			datasrc=instanceProcessor.nominalToString(datasrc, nominalAttribString);
 			
 			return datasrc;
 		}

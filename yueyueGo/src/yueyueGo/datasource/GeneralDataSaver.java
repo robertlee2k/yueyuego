@@ -12,4 +12,6 @@ public interface GeneralDataSaver {
 	public abstract void saveCSVFile(GeneralInstances data, String fileName)
 			throws IOException;
 
+	public abstract void saveToDatabase(GeneralInstances data, String tableName) throws Exception;
+
 }

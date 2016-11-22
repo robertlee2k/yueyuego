@@ -49,9 +49,12 @@ public abstract class BaseInstanceProcessor {
 			throws Exception;
 
 	//将数据集中给定位置的枚举属性转为String类型（位置用,分割）
-	public abstract GeneralInstances NominalToString(GeneralInstances data, String attribPos)
+	public abstract GeneralInstances nominalToString(GeneralInstances data, String attribPos)
 			throws Exception;
-
+	
+	//将数据集中给定位置的String属性转为Nomimal类型（位置用,分割）
+	public abstract GeneralInstances stringToNominal(GeneralInstances data, String attribPos) throws Exception;
+	
 	//将数据集中给定位置的数值属性转为枚举类型（位置用,分割）
 	public abstract GeneralInstances numToNominal(GeneralInstances data, String attribPos)
 			throws Exception;
@@ -173,5 +176,7 @@ public abstract class BaseInstanceProcessor {
 	public BaseInstanceProcessor() {
 		super();
 	}
+
+
 
 }

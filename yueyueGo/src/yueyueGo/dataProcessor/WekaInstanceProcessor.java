@@ -6,6 +6,7 @@ import weka.filters.unsupervised.attribute.AddUserFields;
 import weka.filters.unsupervised.attribute.NominalToString;
 import weka.filters.unsupervised.attribute.NumericToNominal;
 import weka.filters.unsupervised.attribute.Remove;
+import weka.filters.unsupervised.attribute.StringToNominal;
 import weka.filters.unsupervised.instance.SubsetByExpression;
 import yueyueGo.ArffFormat;
 import yueyueGo.databeans.GeneralInstance;
@@ -34,7 +35,7 @@ public class WekaInstanceProcessor extends BaseInstanceProcessor {
 	
 	// 转换Nominal为String
 	@Override
-	public  GeneralInstances NominalToString(GeneralInstances data, String attribPos)
+	public  GeneralInstances nominalToString(GeneralInstances data, String attribPos)
 			throws Exception {
 		String[] options = new String[2];
 		options[0] = "-C"; // "range"
@@ -47,6 +48,20 @@ public class WekaInstanceProcessor extends BaseInstanceProcessor {
 		return new WekaInstances(newData);
 	}
 	
+	// 转换String为Nominal
+	@Override
+	public  GeneralInstances stringToNominal(GeneralInstances data, String attribPos)
+			throws Exception {
+		String[] options = new String[2];
+		options[0] = "-C"; // "range"
+		options[1] = attribPos; // attribute position
+		StringToNominal convert = new StringToNominal();
+		convert.setOptions(options);
+		Instances wdata=WekaInstances.convertToWekaInstances(data);
+		convert.setInputFormat(wdata);
+		Instances newData = Filter.useFilter(wdata, convert); // apply filter
+		return new WekaInstances(newData);
+	}
 	
 	//删除指定的列（此处的index是从1开始）	
 	@Override
