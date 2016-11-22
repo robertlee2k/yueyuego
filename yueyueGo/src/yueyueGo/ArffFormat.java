@@ -131,15 +131,19 @@ public class ArffFormat {
 		"ma10_preday_perc", "ma20_preday_perc", "ma30_preday_perc",
 		"ma60_preday_perc", "ma5_pre2day_perc", "ma10_pre2day_perc",
 		"ma20_pre2day_perc", "ma30_pre2day_perc", "ma60_pre2day_perc",
-		"ma5_pre3day_perc", "ma10_pre3day_perc", "ma20_pre3day_perc",
-		"ma30_pre3day_perc", "ma60_pre3day_perc", "ma5_pre4day_perc",
-		"ma10_pre4day_perc", "ma20_pre4day_perc", "ma30_pre4day_perc",
-		"ma60_pre4day_perc", "ma5_pre5day_perc", "ma10_pre5day_perc",
-		"ma20_pre5day_perc", "ma30_pre5day_perc", "ma60_pre5day_perc",
-		"zhangdiefu", "huanshoulv", "huanshoulv_preday_perc",
-		"huanshoulv_pre2day_perc", "huanshoulv_pre3day_perc",
-		"zhishu_code", "sw_zhishu_code",IS_SZ50 ,IS_HS300 , "iszz100",
-		IS_ZZ500, "issz100",
+//		"ma5_pre3day_perc", "ma10_pre3day_perc", "ma20_pre3day_perc",
+//		"ma30_pre3day_perc", "ma60_pre3day_perc", "ma5_pre4day_perc",
+//		"ma10_pre4day_perc", "ma20_pre4day_perc", "ma30_pre4day_perc",
+//		"ma60_pre4day_perc", "ma5_pre5day_perc", "ma10_pre5day_perc",
+//		"ma20_pre5day_perc", "ma30_pre5day_perc", "ma60_pre5day_perc",
+		"zhangdiefu", "huanshoulv",
+//		"huanshoulv_preday_perc","huanshoulv_pre2day_perc", "huanshoulv_pre3day_perc",
+		"zhishu_code", "sw_zhishu_code",
+//		IS_SZ50 ,
+		IS_HS300 ,
+//		"iszz100",
+		IS_ZZ500, 
+//		"issz100",
 //		"ishgtb",
 		"isrzbd", "sw_bias5", "sw_bias10",
 		"sw_bias20", "sw_bias30", "sw_bias60", "sw_bias5_preday_dif",
@@ -153,19 +157,11 @@ public class ArffFormat {
 		"zhishu_bias20_preday_dif", "zhishu_bias30_preday_dif",
 		"zhishu_bias60_preday_dif", "zhishu_bias5_pre2day_dif",
 		"zhishu_bias10_pre2day_dif", "zhishu_bias20_pre2day_dif",
-		"zhishu_bias30_pre2day_dif", "zhishu_bias60_pre2day_dif"
-		,"zhishu_quantity_preday_perc","zhishu_quantity_pre2day_perc","zhishu_quantity_pre3day_perc","zhishu_ma5_indicator","zhishu_ma10_indicator","zhishu_ma20_indicator","zhishu_ma30_indicator","zhishu_ma60_indicator","sw_ma5_indicator","sw_ma10_indicator","sw_ma20_indicator","sw_ma30_indicator","sw_ma60_indicator","ma5_signal_scale","ma10_signal_scale","ma20_signal_scale","ma30_signal_scale","ma60_signal_scale"
+		"zhishu_bias30_pre2day_dif", "zhishu_bias60_pre2day_dif",
+//		"zhishu_quantity_preday_perc","zhishu_quantity_pre2day_perc","zhishu_quantity_pre3day_perc",
+		"zhishu_ma5_indicator","zhishu_ma10_indicator","zhishu_ma20_indicator","zhishu_ma30_indicator","zhishu_ma60_indicator","sw_ma5_indicator","sw_ma10_indicator","sw_ma20_indicator","sw_ma30_indicator","sw_ma60_indicator","ma5_signal_scale","ma10_signal_scale","ma20_signal_scale","ma30_signal_scale","ma60_signal_scale"
 		,"zhangdieting","shangying","xiaying","index_shangying","index_xiaying","yearhighbias","yearlowbias","monthhighbias","monthlowbias","index_yearhighbias","index_yearlowbias","index_monthhighbias","index_monthlowbias"
-		,"circulation_marketVal_gears","PE_TTM","PE_TTM_gears","PE_LYR","PE_LYR_gears","listed_days_gears","is_st"
-
-	};
-	
-	//每次新扩展ARFF格式的校验位
-	protected static final String[] EXT_ARFF_CRC= {
-		ID,TRADE_DATE,CODE,SELL_DATE,DATA_DATE,SELECTED_AVG_LINE,"bias5_preday_dif","zhishu_code"
-	};
-	//每次新扩展ARFF格式增加的数据
-	protected static final String[] EXT_ARFF_COLUMNS= {
+		,"circulation_marketVal_gears","PE_TTM","PE_TTM_gears","PE_LYR","PE_LYR_gears","listed_days_gears","is_st",
 		"skewness5_gupiao","skewness10_gupiao","skewness20_gupiao","skewness30_gupiao","skewness60_gupiao",
 		"skewness5_zhishu","skewness10_zhishu","skewness20_zhishu","skewness30_zhishu","skewness60_zhishu",
 		"skewness5_shenwan","skewness10_shenwan","skewness20_shenwan","skewness30_shenwan","skewness60_shenwan",
@@ -175,6 +171,19 @@ public class ArffFormat {
 		"HV5_gupiao","HV10_gupiao","HV20_gupiao","HV30_gupiao","HV60_gupiao",
 		"HV5_zhishu","HV10_zhishu","HV20_zhishu","HV30_zhishu","HV60_zhishu",
 		"HV5_shenwan","HV10_shenwan","HV20_shenwan","HV30_shenwan","HV60_shenwan"
+	};
+	
+	//每次新扩展ARFF格式的校验位
+	protected static final String[] EXT_ARFF_CRC= {
+		ID,TRADE_DATE,CODE,SELL_DATE,DATA_DATE,SELECTED_AVG_LINE,"bias5_preday_dif","zhishu_code"
+	};
+	//每次新扩展ARFF格式增加的数据
+	protected static final String[] EXT_ARFF_COLUMNS= {
+		"leijizhangdiefu5_gupiao","leijizhangdiefu10_gupiao","leijizhangdiefu20_gupiao","leijizhangdiefu30_gupiao","leijizhangdiefu60_gupiao",
+		"leijizhangdiefu5_zhishu","leijizhangdiefu10_zhishu","leijizhangdiefu20_zhishu","leijizhangdiefu30_zhishu","leijizhangdiefu60_zhishu",
+		"leijizhangdiefu5_shenwan","leijizhangdiefu10_shenwan","leijizhangdiefu20_shenwan","leijizhangdiefu30_shenwan","leijizhangdiefu60_shenwan",
+		"jun_huanhoulv_bilv5_gupiao","jun_huanhoulv_bilv10_gupiao","jun_huanhoulv_bilv20_gupiao","jun_huanhoulv_bilv30_gupiao",
+		"jun_huanhoulv_bilv60_gupiao","junliang_bilv5_zhishu","junliang_bilv10_zhishu","junliang_bilv20_zhishu","junliang_bilv30_zhishu","junliang_bilv60_zhishu"
 	};
 
 	//模型用的训练字段 （基础+扩展部分）
