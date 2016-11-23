@@ -101,7 +101,7 @@ public class AdaboostClassifier extends NominalClassifier {
 	protected void initializeParams() {
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 		m_skipTrainInBacktest = false;
-		m_skipEvalInBacktest = true;
+		m_skipEvalInBacktest = false;
 		
 		classifierName=ClassifyUtility.ADABOOST;
 //		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
