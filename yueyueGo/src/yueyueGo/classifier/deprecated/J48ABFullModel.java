@@ -6,6 +6,7 @@ import yueyueGo.ModelStore;
 import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.NominalClassifier;
 import yueyueGo.databeans.GeneralInstances;
+import yueyueGo.databeans.WekaInstances;
 import yueyueGo.fullModel.ArffFormatFullModel;
 import yueyueGo.utility.ClassifyUtility;
 @Deprecated
@@ -53,7 +54,7 @@ public class J48ABFullModel extends NominalClassifier {
 		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();	    
 	    classifier.setDebug(true);
 	    classifier.setClassifier(model);
-	    classifier.buildClassifier(train);
+	    classifier.buildClassifier(WekaInstances.convertToWekaInstances(train));
 	    return classifier;
 	}
 

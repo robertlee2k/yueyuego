@@ -5,6 +5,7 @@ import yueyueGo.ModelStore;
 import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.NominalClassifier;
 import yueyueGo.databeans.GeneralInstances;
+import yueyueGo.databeans.WekaInstances;
 import yueyueGo.utility.ClassifyUtility;
 
 
@@ -193,7 +194,7 @@ public class MLPABClassifier extends NominalClassifier {
 		model.setDebug(true);
 		classifier.setClassifier(model);
 		classifier.setDebug(true);
-		classifier.buildClassifier(train);
+		classifier.buildClassifier(WekaInstances.convertToWekaInstances(train));
 		System.out.println("finish buiding mlp-AB model.");
 
 		return classifier;

@@ -8,6 +8,7 @@ import yueyueGo.ContinousClassifier;
 import yueyueGo.ModelStore;
 import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.databeans.GeneralInstances;
+import yueyueGo.databeans.WekaInstances;
 import yueyueGo.utility.ClassifyUtility;
 
 
@@ -114,7 +115,7 @@ public class M5PABClassifier extends ContinousClassifier {
 	
 		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();
 		classifier.setClassifier(model);
-		classifier.buildClassifier(train);
+		classifier.buildClassifier(WekaInstances.convertToWekaInstances(train));
 		System.out.println("finish buiding"+this.getIdentifyName() +"model.");
 		
 		return classifier;

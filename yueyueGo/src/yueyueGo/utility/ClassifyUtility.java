@@ -133,6 +133,7 @@ public class ClassifyUtility {
 	    bagger.setCalcOutOfBag(false); //不计算袋外误差
 	    
 	    bagger.buildClassifier(WekaInstances.convertToWekaInstances(train));
+	    
 		return bagger;
 	}
 
@@ -149,7 +150,7 @@ public class ClassifyUtility {
 		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();	    
 	    classifier.setDebug(true);
 	    classifier.setClassifier(bagger);
-	    classifier.buildClassifier(train);
+	    classifier.buildClassifier(WekaInstances.convertToWekaInstances(train));
 	    
 		return classifier;
 	}

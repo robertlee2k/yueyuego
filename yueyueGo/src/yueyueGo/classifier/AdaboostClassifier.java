@@ -7,6 +7,7 @@ import yueyueGo.ModelStore;
 import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.NominalClassifier;
 import yueyueGo.databeans.GeneralInstances;
+import yueyueGo.databeans.WekaInstances;
 import yueyueGo.utility.ClassifyUtility;
 
 //1.  20160912结果
@@ -128,7 +129,7 @@ public class AdaboostClassifier extends NominalClassifier {
 		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();
 		classifier.setClassifier(adaboost);
 		classifier.setDebug(true);
-		classifier.buildClassifier(train);
+		classifier.buildClassifier(WekaInstances.convertToWekaInstances(train));
 		System.out.println("finish buiding adaboost model.");
 
 		return classifier;
