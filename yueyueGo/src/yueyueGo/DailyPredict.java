@@ -137,13 +137,13 @@ public class DailyPredict {
 	private String dailyPredict() throws Exception {
 
 
-		//新格式的bagging线性回归预测
-		BaggingLinearRegression lBagModel=new BaggingLinearRegression();
-		GeneralInstances linearInstances=predictWithDB(lBagModel);
-		
-		//新格式的神经网络预测
-		MyNNClassifier nnModel=new MyNNClassifier();
-		GeneralInstances nnInstances=predictWithDB(nnModel);
+//		//新格式的bagging线性回归预测
+//		BaggingLinearRegression lBagModel=new BaggingLinearRegression();
+//		GeneralInstances linearInstances=predictWithDB(lBagModel);
+//		
+//		//新格式的神经网络预测
+//		MyNNClassifier nnModel=new MyNNClassifier();
+//		GeneralInstances nnInstances=predictWithDB(nnModel);
 		
 		//新格式的bagging m5p预测
 		BaggingM5P cBagModel=new BaggingM5P();
@@ -154,14 +154,14 @@ public class DailyPredict {
 		GeneralInstances adaboostInstances=predictWithDB(adaModel);		
 
 		System.out.println("***************** now output prediction results************************");
-		lBagModel.outputClassifySummary();
-		nnModel.outputClassifySummary();
+//		lBagModel.outputClassifySummary();
+//		nnModel.outputClassifySummary();
 		cBagModel.outputClassifySummary();
 		adaModel.outputClassifySummary();
 		System.out.println("***************** end of output prediction results************************");
 		
 		
-		combinePreditions(lBagModel, linearInstances, nnModel, nnInstances);
+//		combinePreditions(lBagModel, linearInstances, nnModel, nnInstances);
 		
 		String savedResultFile=combinePreditions(cBagModel, baggingInstances, adaModel, adaboostInstances);
 		return savedResultFile;
