@@ -75,7 +75,7 @@ public class BackTest {
 		BACKTEST_RESULT_DIR=AppContext.getBACKTEST_RESULT_DIR();
 		
 
-		RUNNING_THREADS=20;
+		RUNNING_THREADS=60;
 
 		shouyilv_thresholds=new double[] {0.005,0.005,0.01,0.03,0.03};//{0.01,0.02,0.03,0.03,0.04};//{0,0,0,0,0};//{-100,-100,-100,-100,-100};
 		winrate_thresholds=new double[] {0.45,0.45,0.45,0.35,0.25};//{0.5,0.5,0.5,0.5,0.5};//{0,0,0,0,0};//{0.3,0.3,0.3,0.3,0.3};
@@ -539,7 +539,7 @@ public class BackTest {
 		System.out.println("selected shouyilv average for full market ="+FormatUtility.formatPercent(fullMarketSelected.meanOrMode(shouyilvAttribute),2,2)+" count="+fullMarketSelected.numInstances());
 		dataSaver.saveCSVFile(fullMarketSelected, BACKTEST_RESULT_DIR+"选股-"+ classiferName+"-full" + RESULT_EXTENSION );
 		//保存评估结果至数据库
-		DataIOHandler.getSaver().saveToDatabase(fullMarketSelected, "result_"+classiferName);
+//		DataIOHandler.getSaver().saveToDatabase(fullMarketSelected, "result_"+classiferName);
 		
 //		//输出沪深300
 //		Instances subsetMarketSelected=InstanceUtility.filterDataForIndex(fullMarketSelected,ArffFormat.IS_HS300);
