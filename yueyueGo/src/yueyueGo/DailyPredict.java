@@ -3,9 +3,7 @@ package yueyueGo;
 import java.util.HashMap;
 
 import yueyueGo.classifier.AdaboostClassifier;
-import yueyueGo.classifier.BaggingLinearRegression;
 import yueyueGo.classifier.BaggingM5P;
-import yueyueGo.classifier.MyNNClassifier;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.dataProcessor.InstanceHandler;
 import yueyueGo.dataProcessor.WekaInstanceProcessor;
