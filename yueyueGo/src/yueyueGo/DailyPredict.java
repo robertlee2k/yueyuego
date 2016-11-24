@@ -59,11 +59,11 @@ public class DailyPredict {
 			
 			//BaggingM5P当前使用的预测模型
 			classifierName=ClassifyUtility.BAGGING_M5P;
-			addModelData(classifierName,format,"\\extData2005-2016-baggingM5P-201507 MA ","\\extData2005-2016-baggingM5P-201509 MA ");
+			addModelData(classifierName,format,"\\extData2005-2016-baggingM5P-201507 MA ","\\extData2005-2016-baggingM5P-201510 MA ");
 
 			//adaboost当前使用的预测模型
 			classifierName=ClassifyUtility.ADABOOST;
-			addModelData(classifierName,format,"\\extData2005-2016-adaboost-201507 MA ","\\extData2005-2016-adaboost-201509 MA ");
+			addModelData(classifierName,format,"\\extData2005-2016-adaboost-201507 MA ","\\extData2005-2016-adaboost-201510 MA ");
 			
 		}else if(EnvConstants.FULL_MODEL_ROOT_DIR.equals(type)){
 			// fullmodel不保留legacy
