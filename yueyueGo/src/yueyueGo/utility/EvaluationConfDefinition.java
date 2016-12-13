@@ -14,13 +14,14 @@ public class EvaluationConfDefinition implements Serializable{
 	private static final long serialVersionUID = 4464388266024527544L;
 	
 	protected double[] SAMPLE_LOWER_LIMIT; // 各条均线选择样本的下限
-	protected double[] SAMPLE_UPPER_LIMIT; // 各条均线选择样本的上限
+	protected double[] SAMPLE_UPPER_LIMIT; // 各条均线选择样本的上限  
 	public static double LIFT_UP_TARGET=1.8; //选择样本阀值时TP FP RATIO从何开始，这个是常量
 	
 	public EvaluationConfDefinition(String classifierName) {
 		if (classifierName.equals(ClassifyUtility.BAGGING_M5P)){
-			SAMPLE_LOWER_LIMIT =new double[] { 0.03, 0.03, 0.03, 0.03, 0.03 };//{ 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限
-			SAMPLE_UPPER_LIMIT =new double[] { 0.1, 0.1, 0.1, 0.1, 0.1 }; // 各条均线选择样本的上限
+			//M5P的上限选0.1比0.05收益率高（每年都稍高）
+			SAMPLE_LOWER_LIMIT =new double[] { 0.02, 0.02, 0.02, 0.02, 0.02 };//{ 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限
+			SAMPLE_UPPER_LIMIT =new double[] { 0.06, 0.07, 0.08, 0.09, 0.1 }; // 各条均线选择样本的上限
 		}else if (classifierName.equals(ClassifyUtility.BAGGING_LINEAR_REGRESSION)){
 			SAMPLE_LOWER_LIMIT =new double[] { 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限
 			SAMPLE_UPPER_LIMIT =new double[] { 0.2, 0.2, 0.2, 0.2, 0.2 }; // 各条均线选择样本的上限
