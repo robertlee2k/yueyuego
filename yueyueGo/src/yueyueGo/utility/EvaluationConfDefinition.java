@@ -20,7 +20,7 @@ public class EvaluationConfDefinition implements Serializable{
 	public EvaluationConfDefinition(String classifierName) {
 		if (classifierName.equals(ClassifyUtility.BAGGING_M5P)){
 			SAMPLE_LOWER_LIMIT =new double[] { 0.03, 0.03, 0.03, 0.03, 0.03 };//{ 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限
-			SAMPLE_UPPER_LIMIT =new double[] { 0.05, 0.05, 0.05, 0.05, 0.05 }; // 各条均线选择样本的上限
+			SAMPLE_UPPER_LIMIT =new double[] { 0.1, 0.1, 0.1, 0.1, 0.1 }; // 各条均线选择样本的上限
 		}else if (classifierName.equals(ClassifyUtility.BAGGING_LINEAR_REGRESSION)){
 			SAMPLE_LOWER_LIMIT =new double[] { 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限
 			SAMPLE_UPPER_LIMIT =new double[] { 0.2, 0.2, 0.2, 0.2, 0.2 }; // 各条均线选择样本的上限
@@ -31,7 +31,7 @@ public class EvaluationConfDefinition implements Serializable{
 			SAMPLE_LOWER_LIMIT =new double[] { 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限
 			SAMPLE_UPPER_LIMIT =new double[] { 0.2, 0.2, 0.2, 0.2, 0.2 }; // 各条均线选择样本的上限
 		} else if(classifierName.equals(ClassifyUtility.ADABOOST)){
-			SAMPLE_LOWER_LIMIT =new double[] { 0.04, 0.04, 0.04, 0.04, 0.04 };//{ 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限
+			SAMPLE_LOWER_LIMIT =new double[] { 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限
 			SAMPLE_UPPER_LIMIT =new double[] { 0.1, 0.1, 0.1, 0.1, 0.1 }; // 各条均线选择样本的上限
 		}else if(classifierName.equals(ClassifyUtility.MYNN_MLP)){
 			SAMPLE_LOWER_LIMIT =new double[] { 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限
