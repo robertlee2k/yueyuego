@@ -78,7 +78,7 @@ public class BackTest {
 		RUNNING_THREADS=20;
 
 		shouyilv_thresholds=new double[] {0.005,0.01,0.03,0.05,0.08};//{0.01,0.02,0.03,0.03,0.04};//{0.005,0.005,0.01,0.03,0.03};////{0,0,0,0,0};//{-100,-100,-100,-100,-100};
-		winrate_thresholds=new double[]  {0.4,0.4,0.4,0.35,0.35};//{0.45,0.45,0.45,0.35,0.25};//{0.5,0.5,0.5,0.5,0.5};//{0,0,0,0,0};//{0.3,0.3,0.3,0.3,0.3};
+		winrate_thresholds=new double[]  {0.5,0.5,0.5,0.5,0.5};//{0.4,0.4,0.4,0.35,0.35};//{0.45,0.45,0.45,0.35,0.25};//{0.5,0.5,0.5,0.5,0.5};//{0,0,0,0,0};//{0.3,0.3,0.3,0.3,0.3};
 		
 		splitYear=new String[] {
 		//为年度模型使用
@@ -153,17 +153,17 @@ public class BackTest {
 		AdaboostClassifier nModel=new AdaboostClassifier();
 
 
-		GeneralInstances nominalResult=testBackward(nModel);
+//		GeneralInstances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
-//		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
+		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 
 		//按连续分类器回测历史数据
 		BaggingM5P cModel=new BaggingM5P();
 //		BaggingLinearRegression cModel=new BaggingLinearRegression();
 
-		GeneralInstances continuousResult=testBackward(cModel);
+//		GeneralInstances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
-//		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
+		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 		
 		//统一输出统计结果
 		nModel.outputClassifySummary();
