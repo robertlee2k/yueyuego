@@ -100,7 +100,7 @@ public class AdaboostClassifier extends NominalClassifier {
 	@Override
 	protected void initializeParams() {
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
-		m_skipTrainInBacktest = true;
+		m_skipTrainInBacktest = false;
 		m_skipEvalInBacktest = false;
 		
 		classifierName=ClassifyUtility.ADABOOST;
@@ -110,7 +110,7 @@ public class AdaboostClassifier extends NominalClassifier {
 		divided=300; //将trainingData分成多少份
 		boost_iteration=10; 	//boost特有参数
 		
-		m_noCaculationAttrib=false; //使用计算字段
+		m_noCaculationAttrib=true;//false; //尝试不使用计算字段 20161215
 	}
 		
 	@Override
