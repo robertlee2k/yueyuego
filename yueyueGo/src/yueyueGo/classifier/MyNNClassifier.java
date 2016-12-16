@@ -50,7 +50,7 @@ public class MyNNClassifier extends NominalClassifier implements ParrallelizedRu
 		
 		
 		m_thread=EnvConstants.CPU_CORE_NUMBER-1;
-		m_learningRate=0.1; //缺省用
+		m_learningRate=0.03; //缺省用
 //		m_dropOutRate=0;
 		
 		m_noCaculationAttrib=true; //不使用计算字段
