@@ -119,7 +119,7 @@ public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunn
 
 	@Override
 	protected void initializeParams() {
-		m_skipTrainInBacktest = true;
+		m_skipTrainInBacktest = false;
 		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 
@@ -132,7 +132,7 @@ public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunn
 		leafMinObjNum=300; //叶子节点最小的
 		divided=300; //将trainingData分成多少份
 		
-		m_noCaculationAttrib=true;//false; //尝试不使用计算字段 20161215
+		m_noCaculationAttrib=false;//false; //使用计算字段 
 
 	}
 

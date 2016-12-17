@@ -151,20 +151,20 @@ public class BackTest {
 		BaggingM5P cModel=new BaggingM5P();
 //		BaggingLinearRegression cModel=new BaggingLinearRegression();
 
-//		GeneralInstances continuousResult=testBackward(cModel);
+		GeneralInstances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
-		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
+//		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 
 		//按二分类器回测历史数据
 //		BaggingJ48 nModel=new BaggingJ48();
 //		MLPABClassifier nModel = new MLPABClassifier();
-		MyNNClassifier nModel=new MyNNClassifier(); 
-//		AdaboostClassifier nModel=new AdaboostClassifier();
+//		MyNNClassifier nModel=new MyNNClassifier(); 
+		AdaboostClassifier nModel=new AdaboostClassifier();
 
 
-		GeneralInstances nominalResult=testBackward(nModel);
+//		GeneralInstances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
-//		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
+		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 		
 		
 		//统一输出统计结果
