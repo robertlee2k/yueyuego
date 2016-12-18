@@ -110,7 +110,7 @@ public class AdaboostClassifier extends NominalClassifier {
 		divided=300; //将trainingData分成多少份
 		boost_iteration=10; 	//boost特有参数
 		
-		m_noCaculationAttrib=true;//false; //尝试不使用计算字段 20161215
+		m_noCaculationAttrib=false;//false; //使用计算字段 20161215
 	}
 		
 	@Override
