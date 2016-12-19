@@ -17,6 +17,7 @@ import yueyueGo.fullModel.classifier.MyNNFullModel;
 import yueyueGo.utility.AppContext;
 import yueyueGo.utility.ClassifySummaries;
 import yueyueGo.utility.ClassifyUtility;
+import yueyueGo.utility.EvaluationConfDefinition;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.MergeClassifyResults;
 import yueyueGo.utility.PredictModelData;
@@ -26,8 +27,10 @@ public class DailyPredict {
 	private static String PREDICT_WORK_DIR=EnvConstants.PREDICT_WORK_DIR;
 	private static String PREDICT_RESULT_DIR=PREDICT_WORK_DIR+"\\88-预测结果\\"; 
 	private HashMap<String, PredictModelData> PREDICT_MODELS;
+	
 	private double[] shouyilv_thresholds; //对于胜率优先算法的收益率筛选阀值
 	private double[] winrate_thresholds; //对于收益率优先算法的胜率筛选阀值
+
 	private HashMap<String, GeneralInstances> cached_daily_data=new HashMap<String, GeneralInstances>(); //从数据库里加载的每日预测数据
 
 	private void definePredictModels(String type){
@@ -102,8 +105,8 @@ public class DailyPredict {
 		AppContext.createContext(EnvConstants.AVG_LINE_ROOT_DIR);
 		//预先初始化各种模型文件的位置
 		worker.definePredictModels(EnvConstants.AVG_LINE_ROOT_DIR);
-		worker.shouyilv_thresholds=new double[] {0.005,0.005,0.01,0.03,0.03}; // {0.01,0.02,0.03,0.03,0.04};
-		worker.winrate_thresholds=new double[]  {0.45,0.45,0.45,0.35,0.25};  //{0.3,0.3,0.3,0.25,0.25};
+		worker.shouyilv_thresholds=EvaluationConfDefinition.SHOUYILV_FILTER_FOR_WINRATE;//new double[] {0.005,0.005,0.01,0.03,0.03}; // {0.01,0.02,0.03,0.03,0.04};
+		worker.winrate_thresholds=EvaluationConfDefinition.WINRATE_FILTER_FOR_SHOUYILV;//new double[]  {0.45,0.45,0.45,0.35,0.25};  //{0.3,0.3,0.3,0.25,0.25};
 		return worker.dailyPredict();
 	}
 

@@ -44,6 +44,7 @@ import yueyueGo.utility.AppContext;
 import yueyueGo.utility.BlockedThreadPoolExecutor;
 import yueyueGo.utility.ClassifySummaries;
 import yueyueGo.utility.ClassifyUtility;
+import yueyueGo.utility.EvaluationConfDefinition;
 import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.MergeClassifyResults;
@@ -61,9 +62,9 @@ public class BackTest {
 	private final static int BEGIN_FROM_POLICY=0; // 当回测需要跳过某些均线时，0表示不跳过
 	
 	protected String[] splitYear =null;
-
-	protected  double[] shouyilv_thresholds; //对于胜率优先算法的收益率筛选阀值
-	protected  double[] winrate_thresholds; //对于收益率优先算法的胜率筛选阀值
+	
+	protected  double[] shouyilv_thresholds=EvaluationConfDefinition.SHOUYILV_FILTER_FOR_WINRATE; //对于胜率优先算法的收益率筛选阀值
+	protected  double[] winrate_thresholds=EvaluationConfDefinition.WINRATE_FILTER_FOR_SHOUYILV; //对于收益率优先算法的胜率筛选阀值
 
 
 	//初始化环境参数，运行本类的方法必须先调用它
@@ -73,14 +74,8 @@ public class BackTest {
 		AppContext.clearContext();
 		AppContext.createContext(this.C_ROOT_DIRECTORY);	
 		BACKTEST_RESULT_DIR=AppContext.getBACKTEST_RESULT_DIR();
-		
 
 		RUNNING_THREADS=20;
-
-		//因为Adaboost不是很有效，这个阀值不太管用
-		shouyilv_thresholds=new double[] {0.005,0.01,0.03,0.05,0.08};//{0.01,0.02,0.03,0.03,0.04};//{0.005,0.005,0.01,0.03,0.03};////{0,0,0,0,0};//{-100,-100,-100,-100,-100};
-		//尝试过下面的数据全部调整至0.5，只对2009年的收益率有影响（下降20%左右），因此恢复原状
-		winrate_thresholds=new double[]  {0.45,0.45,0.45,0.35,0.25};//{0.4,0.4,0.4,0.35,0.35};//{0.5,0.5,0.5,0.5,0.5};//{0,0,0,0,0};//{0.3,0.3,0.3,0.3,0.3};
 		
 		splitYear=new String[] {
 		//为年度模型使用
