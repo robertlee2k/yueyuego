@@ -140,7 +140,7 @@ public abstract class BaseInstanceProcessor {
 						throw new IllegalStateException("Unhandled attribute type!");
 					}
 				}else {
-					throw new Exception("Attribute order error! "+ copyFromAttName + " vs. "+ copyToAttName);
+					throw new Exception("Attribute order error! data Attribute="+ copyFromAttName + " vs. format Attribute"+ copyToAttName);
 				}
 			}
 
