@@ -100,8 +100,8 @@ public class AdaboostClassifier extends NominalClassifier {
 	@Override
 	protected void initializeParams() {
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
-		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = true;
+		m_skipTrainInBacktest = false;
+		m_skipEvalInBacktest = false;
 		
 		classifierName=ClassifyUtility.ADABOOST;
 		m_modelEvalFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
@@ -111,6 +111,7 @@ public class AdaboostClassifier extends NominalClassifier {
 		boost_iteration=10; 	//boost特有参数
 		
 		m_noCaculationAttrib=false; //使用计算字段 (20161215试过无计算字段，效果不如有计算字段好）
+		m_removeSWData=true; //20161212尝试不用申万行业数据
 	}
 		
 	@Override

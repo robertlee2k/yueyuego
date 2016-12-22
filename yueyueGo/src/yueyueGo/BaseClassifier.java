@@ -46,6 +46,8 @@ public abstract class BaseClassifier implements Serializable{
 	protected ModelStore m_modelStore; //model 和 eval的持久化封装类类
 	
 	public boolean m_noCaculationAttrib;  //加入的计算字段与否
+	public boolean m_removeSWData;  //是否需要删除行业数据
+	
 	protected int modelArffFormat; //arff的格式
 
 
@@ -67,6 +69,7 @@ public abstract class BaseClassifier implements Serializable{
 	public BaseClassifier() {
 		m_positiveLine=0; //缺省的以收益率正负为二分类的正负。
 		m_noCaculationAttrib=false;  //缺省情况下，加入的计算字段 （在子类中覆盖）
+		m_removeSWData=false;  //缺省情况下，不删除申万行业数据（在子类中覆盖）
 		modelArffFormat=ArffFormat.EXT_FORMAT; //缺省使用扩展arff
 		m_modelEvalFileShareMode=ModelStore.SEPERATE_MODEL_AND_EVAL; //model文件和Eval的共享模式,缺省为 回测时按yearsplit和policysplit分割使用model和eval文件
 		WORK_FILE_PREFIX= "extData2005-2016";
