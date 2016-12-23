@@ -96,11 +96,12 @@ public class AdaboostClassifier extends NominalClassifier {
 	protected int leafMinObjNum; 	//j48树最小节点叶子数
 	protected int divided; //将trainingData分成多少份
 	protected int boost_iteration; 	//boost特有参数
-
+	protected boolean usePCA;
+	
 	@Override
 	protected void initializeParams() {
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
-		m_skipTrainInBacktest = true;
+		m_skipTrainInBacktest = false;
 		m_skipEvalInBacktest = false;
 		
 		classifierName=ClassifyUtility.ADABOOST;
@@ -110,8 +111,9 @@ public class AdaboostClassifier extends NominalClassifier {
 		divided=300; //将trainingData分成多少份
 		boost_iteration=10; 	//boost特有参数
 		
-		m_noCaculationAttrib=false; //使用计算字段 (20161215试过无计算字段，效果不如有计算字段好）
-		m_removeSWData=true; //20161212尝试不用申万行业数据
+		m_noCaculationAttrib=true;//不使用计算字段 (20161215试过无计算字段，效果不如有计算字段好） 
+		usePCA=false; //20121223尝试不使用PCA
+		m_removeSWData=true; //20161222尝试不用申万行业数据
 	}
 		
 	@Override
@@ -125,14 +127,19 @@ public class AdaboostClassifier extends NominalClassifier {
 		adaboost.setClassifier(model);
 		adaboost.setNumIterations(boost_iteration);
 		adaboost.setDebug(true);
-		
-		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();
-		classifier.setClassifier(adaboost);
-		classifier.setDebug(true);
-		classifier.buildClassifier(WekaInstances.convertToWekaInstances(train));
-		System.out.println("finish buiding adaboost model.");
+		if (usePCA==true){
+			MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();
+			classifier.setClassifier(adaboost);
+			classifier.setDebug(true);
+			classifier.buildClassifier(WekaInstances.convertToWekaInstances(train));
+			System.out.println("finish buiding adaboost model using PCA");
+			return classifier;
 
-		return classifier;
+		}else {
+			adaboost.buildClassifier(WekaInstances.convertToWekaInstances(train));
+			System.out.println("finish buiding adaboost model without PCA");
+			return adaboost;
+		}
 	}
 
 }

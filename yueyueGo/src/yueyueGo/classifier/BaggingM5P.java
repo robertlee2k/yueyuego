@@ -111,6 +111,7 @@ public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunn
 	 */
 	private static final long serialVersionUID = -6252159191030935801L;
  
+	protected boolean usePCA;
 	protected boolean useMultiPCA;
 	protected int bagging_iteration;
 	protected int leafMinObjNum;
@@ -119,11 +120,13 @@ public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunn
 
 	@Override
 	protected void initializeParams() {
-		m_skipTrainInBacktest = true;
+		m_skipTrainInBacktest = false;
 		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 
 		classifierName=ClassifyUtility.BAGGING_M5P;	
+		
+
 		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
 		
 
@@ -132,8 +135,9 @@ public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunn
 		leafMinObjNum=300; //叶子节点最小的
 		divided=300; //将trainingData分成多少份
 		
-		m_noCaculationAttrib=false;//使用计算字段 (20161215试过无计算字段，效果不如有计算字段好） 
-		m_removeSWData=true; //20161212尝试不用申万行业数据
+		m_noCaculationAttrib=true;//不使用计算字段 (20161215试过无计算字段，效果不如有计算字段好） 
+		usePCA=false; //20121223尝试不使用PCA
+		m_removeSWData=true; //20161222尝试不用申万行业数据
 	}
 
 	
@@ -144,12 +148,17 @@ public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunn
 		//设置基础的m5p classifier参数
 		M5P model=ClassifyUtility.prepareM5P(train.numInstances(),leafMinObjNum,divided);
 
-		if (useMultiPCA==true){
+		if (usePCA==true){ //使用PCA
+			if (useMultiPCA==true){
+				int bagging_samplePercent=70;//bagging sample 取样率
+				return ClassifyUtility.buildBaggingWithMultiPCA(train,model,bagging_iteration,bagging_samplePercent);
+			}else{
+				int bagging_samplePercent=100;// PrePCA算袋外误差时要求percent都为100
+				return ClassifyUtility.buildBaggingWithSinglePCA(train,model,bagging_iteration,bagging_samplePercent);
+			}
+		}else{ //不用主成分分析
 			int bagging_samplePercent=70;//bagging sample 取样率
-			return ClassifyUtility.buildBaggingWithMultiPCA(train,model,bagging_iteration,bagging_samplePercent);
-		}else{
-			int bagging_samplePercent=100;// PrePCA算袋外误差时要求percent都为100
-			return ClassifyUtility.buildBaggingWithSinglePCA(train,model,bagging_iteration,bagging_samplePercent);
+			return ClassifyUtility.buildBaggingWithoutPCA(train,model,bagging_iteration,bagging_samplePercent);
 		}
 	}
 
