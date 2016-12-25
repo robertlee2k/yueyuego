@@ -101,7 +101,7 @@ public class AdaboostClassifier extends NominalClassifier {
 	@Override
 	protected void initializeParams() {
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
-		m_skipTrainInBacktest = false;
+		m_skipTrainInBacktest = true;
 		m_skipEvalInBacktest = false;
 		
 		classifierName=ClassifyUtility.ADABOOST;
@@ -141,5 +141,15 @@ public class AdaboostClassifier extends NominalClassifier {
 			return adaboost;
 		}
 	}
-
+	
+	@Override
+	public String getIdentifyName(){
+		String idenString;
+		if (usePCA==true){ //使用PCA
+			idenString =classifierName;
+		}else{
+			idenString =classifierName+ClassifyUtility.NO_PCA_SURFIX;
+		}
+		return idenString;
+	}
 }

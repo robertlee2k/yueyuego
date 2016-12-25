@@ -14,6 +14,9 @@ import yueyueGo.databeans.WekaInstances;
 public class ClassifyUtility {
 	
 	public static final String MULTI_PCA_SURFIX="-multiPCA";
+	public static final String SINGLE_PCA_SURFIX="-singlePCA";
+	public static final String NO_PCA_SURFIX="-noPCA";
+	
 	public static final String MLPAB="mlpAB";
 	public static final String M5PAB="m5pAB";
 	public static final String BAGGING_M5P="baggingM5P";
