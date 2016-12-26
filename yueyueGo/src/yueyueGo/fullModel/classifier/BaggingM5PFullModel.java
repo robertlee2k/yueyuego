@@ -35,11 +35,12 @@ public class BaggingM5PFullModel extends BaggingM5P {
 		bagging_iteration=10;	//bagging特有参数
 		
 		classifierName= ClassifyUtility.BAGGING_M5P_FULLMODEL;
-		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
 //		setWorkPathAndCheck(AppContext.getCONTINOUS_CLASSIFIER_DIR()+getIdentifyName()+"\\");
 		m_modelEvalFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 		
 		m_noCaculationAttrib=false; //添加计算字段
-
+		m_usePCA=true; //覆盖父类，使用PCA
+		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
+		m_removeSWData=false; //覆盖父类，用申万行业数据
 	}
 }

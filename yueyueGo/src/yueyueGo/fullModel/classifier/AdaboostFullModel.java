@@ -29,7 +29,8 @@ public class AdaboostFullModel extends AdaboostClassifier {
 		m_modelEvalFileShareMode=ModelStore.YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 		
 		m_noCaculationAttrib=false; //使用计算字段
-
+		m_usePCA=true; //覆盖父类，使用PCA
+		m_removeSWData=false; //覆盖父类，用申万行业数据
 	}
 
 	@Override

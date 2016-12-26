@@ -96,7 +96,7 @@ public class AdaboostClassifier extends NominalClassifier {
 	protected int leafMinObjNum; 	//j48树最小节点叶子数
 	protected int divided; //将trainingData分成多少份
 	protected int boost_iteration; 	//boost特有参数
-	protected boolean usePCA;
+	public boolean m_usePCA;
 	
 	@Override
 	protected void initializeParams() {
@@ -112,7 +112,7 @@ public class AdaboostClassifier extends NominalClassifier {
 		boost_iteration=10; 	//boost特有参数
 		
 		m_noCaculationAttrib=true;//不使用计算字段 (20161215试过无计算字段，效果不如有计算字段好） 
-		usePCA=false; //20121223尝试不使用PCA
+		m_usePCA=false; //20121223尝试不使用PCA
 		m_removeSWData=true; //20161222尝试不用申万行业数据
 	}
 		
@@ -127,7 +127,7 @@ public class AdaboostClassifier extends NominalClassifier {
 		adaboost.setClassifier(model);
 		adaboost.setNumIterations(boost_iteration);
 		adaboost.setDebug(true);
-		if (usePCA==true){
+		if (m_usePCA==true){
 			MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();
 			classifier.setClassifier(adaboost);
 			classifier.setDebug(true);
@@ -145,7 +145,7 @@ public class AdaboostClassifier extends NominalClassifier {
 	@Override
 	public String getIdentifyName(){
 		String idenString;
-		if (usePCA==true){ //使用PCA
+		if (m_usePCA==true){ //使用PCA
 			idenString =classifierName;
 		}else{
 			idenString =classifierName+ClassifyUtility.NO_PCA_SURFIX;

@@ -44,7 +44,7 @@ public class MyNNFullModel extends MyNNClassifier {
 		m_learningRate=0.3; //缺省用
 		
 		m_noCaculationAttrib=true; //不使用计算字段，注意这里尝试短格式了。
-
+		m_removeSWData=false; //覆盖父类，用申万行业数据
 	}
 		
 	@Override

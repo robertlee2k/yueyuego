@@ -111,7 +111,7 @@ public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunn
 	 */
 	private static final long serialVersionUID = -6252159191030935801L;
  
-	protected boolean usePCA;
+	public boolean m_usePCA;
 	protected boolean useMultiPCA;
 	protected int bagging_iteration;
 	protected int leafMinObjNum;
@@ -136,7 +136,7 @@ public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunn
 		divided=300; //将trainingData分成多少份
 		
 		m_noCaculationAttrib=true;//不使用计算字段 (20161215试过无计算字段，效果不如有计算字段好） 
-		usePCA=false; //20121223尝试不使用PCA
+		m_usePCA=false; //20121223尝试不使用PCA
 		m_removeSWData=true; //20161222尝试不用申万行业数据
 	}
 
@@ -148,7 +148,7 @@ public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunn
 		//设置基础的m5p classifier参数
 		M5P model=ClassifyUtility.prepareM5P(train.numInstances(),leafMinObjNum,divided);
 
-		if (usePCA==true){ //使用PCA
+		if (m_usePCA==true){ //使用PCA
 			if (useMultiPCA==true){
 				int bagging_samplePercent=70;//bagging sample 取样率
 				return ClassifyUtility.buildBaggingWithMultiPCA(train,model,bagging_iteration,bagging_samplePercent);
@@ -169,7 +169,7 @@ public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunn
 	@Override
 	public String getIdentifyName(){
 		String idenString;
-		if (usePCA==true){ //使用PCA
+		if (m_usePCA==true){ //使用PCA
 			if (useMultiPCA==true){
 				idenString =classifierName+ClassifyUtility.MULTI_PCA_SURFIX;
 			}else{

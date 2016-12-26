@@ -59,7 +59,7 @@ public class DailyPredict {
 			addModelData(classifierName,format,"\\extData2005-2016-myNNAB-201507 MA ","\\extData2005-2016-myNNAB-201509 MA ");
 			
 			//BaggingM5P当前使用的预测模型
-			classifierName=ClassifyUtility.BAGGING_M5P;
+			classifierName=ClassifyUtility.BAGGING_M5P+ClassifyUtility.MULTI_PCA_SURFIX;
 			addModelData(classifierName,format,"\\extData2005-2016-baggingM5P-201507 MA ","\\extData2005-2016-baggingM5P-201511 MA ");
 
 			//adaboost当前使用的预测模型
@@ -70,7 +70,7 @@ public class DailyPredict {
 			// fullmodel不保留legacy
 			format=ArffFormatFullModel.FULLMODEL_FORMAT;
 			//BaggingM5PFullModel当前使用的预测模型---------FullMODEL
-			classifierName=ClassifyUtility.BAGGING_M5P_FULLMODEL;
+			classifierName=ClassifyUtility.BAGGING_M5P_FULLMODEL+ClassifyUtility.MULTI_PCA_SURFIX;
 			addModelData(classifierName,format,"\\extData2005-2016-BaggingM5PABFullModel-201507 MA ", "\\extData2005-2016-BaggingM5PABFullModel-201509 MA ");
 
 			//BaggingJ48FullModel当前使用的预测模型---------FullMODEL
@@ -146,12 +146,16 @@ public class DailyPredict {
 //		MyNNClassifier nnModel=new MyNNClassifier();
 //		GeneralInstances nnInstances=predictWithDB(nnModel);
 		
-		//新格式的bagging m5p预测
+		//新格式的bagging m5p预测  (使用PCA版本和计算字段）
 		BaggingM5P cBagModel=new BaggingM5P();
+		cBagModel.m_usePCA=true;
+		cBagModel.m_noCaculationAttrib=false;
 		GeneralInstances baggingInstances=predictWithDB(cBagModel);
 
-		//Adaboost
+		//Adaboost(使用PCA版本和计算字段）
 		AdaboostClassifier adaModel=new AdaboostClassifier();
+		adaModel.m_usePCA=true;
+		adaModel.m_noCaculationAttrib=false;
 		GeneralInstances adaboostInstances=predictWithDB(adaModel);		
 
 		System.out.println("***************** now output prediction results************************");
@@ -352,7 +356,7 @@ public class DailyPredict {
 
 			String modelFileName;
 			String evalFileName;
-			String id=clModel.classifierName+clModel.modelArffFormat;
+			String id=clModel.getIdentifyName()+clModel.modelArffFormat;
 			PredictModelData modelData=this.PREDICT_MODELS.get(id);
 			modelFileName=modelData.getModelFileName();
 			evalFileName=modelData.getEvalFileName();
