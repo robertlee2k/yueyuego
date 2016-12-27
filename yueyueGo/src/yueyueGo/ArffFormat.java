@@ -107,6 +107,7 @@ public class ArffFormat {
 
 	};
 	
+	
 	//须去除的行业相关数据
 	protected static final String[] REMOVE_SW_DATA= {
 			"sw_zhishu_code",

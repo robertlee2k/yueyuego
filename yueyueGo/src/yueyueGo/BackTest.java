@@ -75,7 +75,7 @@ public class BackTest {
 		AppContext.createContext(this.C_ROOT_DIRECTORY);	
 		BACKTEST_RESULT_DIR=AppContext.getBACKTEST_RESULT_DIR();
 
-		RUNNING_THREADS=20;
+		RUNNING_THREADS=30;
 		
 		splitYear=new String[] {
 		//为年度模型使用
@@ -157,9 +157,9 @@ public class BackTest {
 		AdaboostClassifier nModel=new AdaboostClassifier();
 
 
-		GeneralInstances nominalResult=testBackward(nModel);
+//		GeneralInstances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
-//		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
+		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 		
 		
 		//统一输出统计结果

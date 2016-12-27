@@ -29,7 +29,7 @@ public class EvaluationConfDefinition implements Serializable{
 	public EvaluationConfDefinition(String classifierName) {
 		if (classifierName.equals(ClassifyUtility.BAGGING_M5P)){
 			//M5P的上限选0.1比0.05收益率高（每年都稍高），下限选到0.02后比较差，恢复0.03
-			SAMPLE_LOWER_LIMIT =new double[] { 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限
+			SAMPLE_LOWER_LIMIT =new double[] { 0.03, 0.03, 0.04, 0.04, 0.04 }; // 各条均线选择样本的下限
 			SAMPLE_UPPER_LIMIT =new double[] { 0.1, 0.1, 0.1, 0.1, 0.1 }; // 各条均线选择样本的上限
 		} else if(classifierName.equals(ClassifyUtility.ADABOOST)){
 			SAMPLE_LOWER_LIMIT =new double[] { 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限
