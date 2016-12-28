@@ -138,6 +138,7 @@ public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunn
 		m_noCaculationAttrib=true;//不使用计算字段 (20161215试过无计算字段，效果不如有计算字段好） 
 		m_usePCA=false; //20121223尝试不使用PCA
 		m_removeSWData=true; //20161222尝试不用申万行业数据
+		m_modelDataSplitMode=USE_HALF_YEAR_DATA_FOR_EVAL; //尝试半年评估一次
 	}
 
 	
