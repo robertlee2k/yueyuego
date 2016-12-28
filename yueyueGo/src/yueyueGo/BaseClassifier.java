@@ -461,6 +461,13 @@ public abstract class BaseClassifier implements Serializable{
 		//这里build model的数据已变为当前周期前推一段时间的数据，
 		//比如若按年取评估数据，如果是2010XX.mdl 则取2009年XX月之前的数据build， 剩下的一年数据做评估用
 		String modelYearSplit=getModelYearSplit(aYearSplit);
+		//创建模型时应该把200801变为2008 （这是历史沿革习惯）
+		if (modelYearSplit.length()==6){
+			int inputMonth=Integer.parseInt(modelYearSplit.substring(4,6)); 
+			if (inputMonth==1){
+				modelYearSplit=modelYearSplit.substring(0,4);
+			}
+		}
 		String modelFileName=ModelStore.concatModeFilenameString(modelYearSplit, policySplit, this.WORK_PATH+this.WORK_FILE_PREFIX, this.classifierName);
 		ModelStore modelStore=new ModelStore(modelFileName,modelFileName+ModelStore.THRESHOLD_EXTENSION);
 		m_modelStore=modelStore;

@@ -84,7 +84,7 @@ public class ModelStore {
 		case HALF_YEAR_SHARED_MODEL:	
 			//评估文件按yearsplit和policySplit切割
 			evalFile=concatModeFilenameString(yearMonthSplit, policySplit, workFileFullPrefix, classifierName)+ModelStore.THRESHOLD_EXTENSION;;
-			String halfYearString="";
+			String halfYearString=""; //缺省上半年是直接用年份的模型，比如2010
 			//模型文件按半年建设模型，提高准确度
 			if (yearMonthSplit.length()==6){
 				convertedYear=yearMonthSplit.substring(0,4);
@@ -92,7 +92,7 @@ public class ModelStore {
 				int inputMonth=Integer.parseInt(yearMonthSplit.substring(4,6));
 				if (inputMonth>=7){
 					halfYearString="07";
-				}
+				} 
 			}else{
 				convertedYear=yearMonthSplit;
 			}

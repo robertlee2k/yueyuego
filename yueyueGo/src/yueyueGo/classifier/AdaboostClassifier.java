@@ -105,7 +105,7 @@ public class AdaboostClassifier extends NominalClassifier {
 		m_skipEvalInBacktest = false;
 		
 		classifierName=ClassifyUtility.ADABOOST;
-		m_modelEvalFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
+		m_modelEvalFileShareMode=ModelStore.QUARTER_YEAR_SHARED_MODEL;//HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 		
 		leafMinObjNum=300; 	//j48树最小节点叶子数
 		divided=300; //将trainingData分成多少份

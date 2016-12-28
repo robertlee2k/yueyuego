@@ -72,7 +72,7 @@ public class BackTest {
 		AppContext.createContext(this.C_ROOT_DIRECTORY);	
 		BACKTEST_RESULT_DIR=AppContext.getBACKTEST_RESULT_DIR();
 
-		RUNNING_THREADS=30;
+		RUNNING_THREADS=20;
 		
 	}
 
@@ -84,21 +84,21 @@ public class BackTest {
 			int evalMonths=clModel.m_modelDataSplitMode;
 			switch (clModel.m_modelEvalFileShareMode){
 			case ModelStore.SEPERATE_MODEL_AND_EVAL: //这个是全量模型
-				result=manipulateYearMonth(1,true,evalMonths);
+				result=manipulateYearMonth(1,evalMonths);
 				break;
 			case ModelStore.YEAR_SHARED_MODEL:	 //生成年度模型 
 			case ModelStore.YEAR_SHARED_MODEL_AND_EVAL:	
-				result=manipulateYearMonth(12,true,evalMonths);
+				result=manipulateYearMonth(12,evalMonths);
 				break;
 			case ModelStore.QUARTER_YEAR_SHARED_MODEL: //生成季度模型
-				result=manipulateYearMonth(3,true,evalMonths);
+				result=manipulateYearMonth(3,evalMonths);
 				break;
 			case ModelStore.HALF_YEAR_SHARED_MODEL:	//生成半年度模型
-				result=manipulateYearMonth(6,true,evalMonths);
+				result=manipulateYearMonth(6,evalMonths);
 				break;
 			}
 		}else{//不需要构建模型，则按月生成所有的数据即可
-			result=manipulateYearMonth(1,false,0);
+			result=manipulateYearMonth(1,0);
 		}
 		//调用手工覆盖的函数接口
 		String[] needOverride=overrideSplitYear();
@@ -114,7 +114,7 @@ public class BackTest {
 		return result;
 	}
 	
-	private String[] manipulateYearMonth(int interval,boolean changeYear,int evalDataMonths){
+	private String[] manipulateYearMonth(int interval,int evalDataMonths){
 		int startYear=2008;	
 		String[] result=null;
 		String currentYearMonth=FormatUtility.getCurrentYearMonth();
@@ -136,12 +136,7 @@ public class BackTest {
 				if (year==currentYear && month>currentMonth-1){ //当前年的当前月之后是没有数据的
 					break;
 				}
-				//这个地方建模时和评估时不一样，建模 按惯例200601的模型要写成2006
-				if (month==1 && changeYear==true){
-					result[pos]=""+year;
-				}else{
-					result[pos]=""+(year*100+month);
-				}
+				result[pos]=""+(year*100+month);
 				pos++;
 			}
 		}
@@ -221,13 +216,6 @@ public class BackTest {
 
 	protected void callTestBack() throws Exception {
 
-		//按连续分类器回测历史数据
-		BaggingM5P cModel=new BaggingM5P();
-//		BaggingLinearRegression cModel=new BaggingLinearRegression();
-
-		GeneralInstances continuousResult=testBackward(cModel);
-		//不真正回测了，直接从以前的结果文件中加载
-//		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 
 		//按二分类器回测历史数据
 //		BaggingJ48 nModel=new BaggingJ48();
@@ -240,6 +228,13 @@ public class BackTest {
 		//不真正回测了，直接从以前的结果文件中加载
 //		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 		
+		//按连续分类器回测历史数据
+		BaggingM5P cModel=new BaggingM5P();
+//		BaggingLinearRegression cModel=new BaggingLinearRegression();
+
+		GeneralInstances continuousResult=testBackward(cModel);
+		//不真正回测了，直接从以前的结果文件中加载
+//		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 		
 		//统一输出统计结果
 		nModel.outputClassifySummary();
