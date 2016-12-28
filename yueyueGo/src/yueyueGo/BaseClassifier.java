@@ -35,6 +35,12 @@ public abstract class BaseClassifier implements Serializable{
 	//统一常量
 	public static final String MA_PREFIX = " MA ";
 	public static final String ARFF_EXTENSION = ".arff";
+	
+	//切分构建模型和评估数据的模式常量定义
+	public static final int NO_SEPERATE_DATA_FOR_EVAL=0; //不需要评估数据（这是legacy的做法，目前不常用）
+	public static final int USE_YEAR_DATA_FOR_EVAL=1; //使用倒推一年的数据作为模型评估数据，之前用于的构建模型（缺省值）
+	public static final int USE_HALF_YEAR_DATA_FOR_EVAL=2;//使用倒推半年的数据作为模型评估数据，之前用于的构建模型
+	
 	//名称
 	public String classifierName;
 	
@@ -42,6 +48,7 @@ public abstract class BaseClassifier implements Serializable{
 	protected String WORK_PATH ;
 	protected String WORK_FILE_PREFIX;
 	protected int m_modelEvalFileShareMode; //model文件和Eval的共享模式。
+	protected int m_modelDataSplitMode;//切分构建模型和评估数据的模式
 	
 	protected ModelStore m_modelStore; //model 和 eval的持久化封装类类
 	
@@ -72,6 +79,7 @@ public abstract class BaseClassifier implements Serializable{
 		m_removeSWData=false;  //缺省情况下，不删除申万行业数据（在子类中覆盖）
 		modelArffFormat=ArffFormat.EXT_FORMAT; //缺省使用扩展arff
 		m_modelEvalFileShareMode=ModelStore.SEPERATE_MODEL_AND_EVAL; //model文件和Eval的共享模式,缺省为 回测时按yearsplit和policysplit分割使用model和eval文件
+		m_modelDataSplitMode=USE_YEAR_DATA_FOR_EVAL;//缺省使用倒推一年的数据作为模型评估数据，之前用于的构建模型
 		WORK_FILE_PREFIX= "extData2005-2016";
 		initializeParams();		// 留给子类的初始化参数函数
 		setWorkPathThenCheck(); //根据参数设置工作路径
@@ -479,7 +487,18 @@ public abstract class BaseClassifier implements Serializable{
 	 */
 	public String getModelYearSplit(String yearSplit){
 		//找到回测创建评估预测时应该使用modelStore对象（主要为获取model文件和eval文件名称）-- 评估时创建的mdl并不是当前年份的，而是前推一年的
-		String modelYearSplit=getLastYearSplit(yearSplit);
+		String modelYearSplit=null;
+		switch (this.m_modelDataSplitMode) {
+		case NO_SEPERATE_DATA_FOR_EVAL: //使用全量数据构建模型（不常用）
+			modelYearSplit=yearSplit; 
+			break;
+		case USE_YEAR_DATA_FOR_EVAL:
+			modelYearSplit=getLastYearSplit(yearSplit);			
+			break;
+		case USE_HALF_YEAR_DATA_FOR_EVAL:
+			modelYearSplit=getLastHalfYearSplit(yearSplit);			
+			break;
+		}
 		return modelYearSplit;
 	}
 	

@@ -63,7 +63,7 @@ public class ModelStore {
 			if (yearMonthSplit.length()==6){
 				//有月份时按季度获取模型
 				convertedYear=yearMonthSplit.substring(0,4);
-				int inputQuarter=Integer.parseInt(yearMonthSplit.substring(4,6))/3; //将月份按季度转化为0、1、2、3四个数字
+				int inputQuarter=(Integer.parseInt(yearMonthSplit.substring(4,6))-1)/3; //将月份按季度转化为0、1、2、3四个数字
 				if (inputQuarter==3){ //第四季度
 					quarterString="10";
 				}else{ //前三个季度
