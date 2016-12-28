@@ -38,8 +38,8 @@ public abstract class BaseClassifier implements Serializable{
 	
 	//切分构建模型和评估数据的模式常量定义
 	public static final int NO_SEPERATE_DATA_FOR_EVAL=0; //不需要评估数据（这是legacy的做法，目前不常用）
-	public static final int USE_YEAR_DATA_FOR_EVAL=1; //使用倒推一年的数据作为模型评估数据，之前用于的构建模型（缺省值）
-	public static final int USE_HALF_YEAR_DATA_FOR_EVAL=2;//使用倒推半年的数据作为模型评估数据，之前用于的构建模型
+	public static final int USE_YEAR_DATA_FOR_EVAL=12; //使用倒推一年的数据作为模型评估数据，之前用于的构建模型（缺省值）
+	public static final int USE_HALF_YEAR_DATA_FOR_EVAL=6;//使用倒推半年的数据作为模型评估数据，之前用于的构建模型
 	
 	//名称
 	public String classifierName;

@@ -29,9 +29,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import yueyueGo.classifier.AdaboostClassifier;
-import yueyueGo.classifier.BaggingLinearRegression;
 import yueyueGo.classifier.BaggingM5P;
-import yueyueGo.classifier.MyNNClassifier;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.dataProcessor.InstanceHandler;
 import yueyueGo.dataProcessor.WekaInstanceProcessor;
@@ -60,7 +58,7 @@ public class BackTest {
 	
 	private final static int BEGIN_FROM_POLICY=0; // 当回测需要跳过某些均线时，0表示不跳过
 	
-	protected String[] splitYear =null;
+//	protected String[] splitYear =null;
 	
 	protected  double[] shouyilv_thresholds=EvaluationConfDefinition.SHOUYILV_FILTER_FOR_WINRATE; //对于胜率优先算法的收益率筛选阀值
 	protected  double[] winrate_thresholds=EvaluationConfDefinition.WINRATE_FILTER_FOR_SHOUYILV; //对于收益率优先算法的胜率筛选阀值
@@ -76,7 +74,85 @@ public class BackTest {
 
 		RUNNING_THREADS=30;
 		
-		splitYear=new String[] {
+	}
+
+	
+	protected String[] generateSplitYearForModel(BaseClassifier clModel){
+
+		String[] result=null;
+		if(clModel.m_skipTrainInBacktest==false){ //需要构建模型
+			int evalMonths=clModel.m_modelDataSplitMode;
+			switch (clModel.m_modelEvalFileShareMode){
+			case ModelStore.SEPERATE_MODEL_AND_EVAL: //这个是全量模型
+				result=manipulateYearMonth(1,true,evalMonths);
+				break;
+			case ModelStore.YEAR_SHARED_MODEL:	 //生成年度模型 
+			case ModelStore.YEAR_SHARED_MODEL_AND_EVAL:	
+				result=manipulateYearMonth(12,true,evalMonths);
+				break;
+			case ModelStore.QUARTER_YEAR_SHARED_MODEL: //生成季度模型
+				result=manipulateYearMonth(3,true,evalMonths);
+				break;
+			case ModelStore.HALF_YEAR_SHARED_MODEL:	//生成半年度模型
+				result=manipulateYearMonth(6,true,evalMonths);
+				break;
+			}
+		}else{//不需要构建模型，则按月生成所有的数据即可
+			result=manipulateYearMonth(1,false,0);
+		}
+		//调用手工覆盖的函数接口
+		String[] needOverride=overrideSplitYear();
+		if(needOverride.length>0){
+			result=needOverride;
+		}
+		
+		System.out.println(" splitYear size="+result.length);
+		for (String string : result) {
+			System.out.print(string+",");
+		}
+		System.out.println("");
+		return result;
+	}
+	
+	private String[] manipulateYearMonth(int interval,boolean changeYear,int evalDataMonths){
+		int startYear=2008;	
+		String[] result=null;
+		String currentYearMonth=FormatUtility.getCurrentYearMonth();
+		int currentYear=Integer.parseInt(currentYearMonth.substring(0,4)); 
+		int currentMonth=Integer.parseInt(currentYearMonth.substring(4,6));
+		if (currentMonth>evalDataMonths){ //掐掉最后的评估月份数据
+			currentMonth-=evalDataMonths;
+		}else{//向去年借位
+			currentYear--;
+			currentMonth=12+currentMonth-evalDataMonths;
+		}
+		int size=0;
+		int pos=0;
+		size=(currentYear-startYear)*(12/interval)+(currentMonth-1)/interval+1-1/interval; //当前月是没有数据的，最新数据是上月的
+		result=new String[size];
+		pos=0;
+		for (int year=startYear;year<=currentYear;year++){
+			for (int month=1;month<=12;month+=interval){
+				if (year==currentYear && month>currentMonth-1){ //当前年的当前月之后是没有数据的
+					break;
+				}
+				//这个地方建模时和评估时不一样，建模 按惯例200601的模型要写成2006
+				if (month==1 && changeYear==true){
+					result[pos]=""+year;
+				}else{
+					result[pos]=""+(year*100+month);
+				}
+				pos++;
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * 如果需要手动设置 splitYear的内容，则在此方法中设置
+	 */
+	protected String[] overrideSplitYear() {
+		String[] splitYear=new String[] {
 		//为年度模型使用
 //		  "2008","2009","2010","2011","2012","2013","2014","2015","2016",
 		//为半年度模型使用		
@@ -86,10 +162,12 @@ public class BackTest {
 		//为月度模型使用		
 //		"200801","200802","200803","200804","200805","200806","200807","200808","200809","200810","200811","200812","200901","200902","200903","200904","200905","200906","200907","200908","200909","200910","200911","200912","201001","201002","201003","201004","201005","201006","201007","201008","201009","201010","201011","201012","201101","201102","201103","201104","201105","201106","201107","201108","201109","201110","201111","201112","201201","201202","201203","201204","201205","201206","201207","201208","201209","201210","201211","201212","201301","201302","201303","201304","201305","201306","201307","201308","201309","201310","201311","201312","201401","201402","201403","201404","201405","201406","201407","201408","201409","201410","201411","201412","201501","201502","201503","201504","201505","201506","201507","201508","201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607","201608","201609","201610","201611"
 		//生成预测所使用半年度模型		
-		"201607"
+//		"201607"
 		//新增增量数据后重新生成评估文件
 //		"201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607","201608","201609","201610","201611"
-		};		
+		};
+		
+		return splitYear;
 		
 	}
 	
@@ -115,30 +193,30 @@ public class BackTest {
 	 * @throws Exception
 	 */
 	protected void callRefreshModelUseLatestData() throws Exception{
-		BaseClassifier model=null;
-		splitYear=new String[] {"201609"};
-		RUNNING_THREADS=5;
-		
-		//逐次刷新数据
-		model=new AdaboostClassifier();
-		model.m_skipTrainInBacktest=true;
-		model.m_skipEvalInBacktest=false;
-		testBackward(model);
-		
-		model=new MyNNClassifier();
-		model.m_skipTrainInBacktest=true;
-		model.m_skipEvalInBacktest=false;
-		testBackward(model);
-		
-		model=new BaggingM5P();
-		model.m_skipTrainInBacktest=true;
-		model.m_skipEvalInBacktest=false;
-		testBackward(model);
-
-		model=new BaggingLinearRegression();
-		model.m_skipTrainInBacktest=true;
-		model.m_skipEvalInBacktest=false;
-		testBackward(model);
+//		BaseClassifier model=null;
+//		splitYear=new String[] {"201609"};
+//		RUNNING_THREADS=5;
+//		
+//		//逐次刷新数据
+//		model=new AdaboostClassifier();
+//		model.m_skipTrainInBacktest=true;
+//		model.m_skipEvalInBacktest=false;
+//		testBackward(model);
+//		
+//		model=new MyNNClassifier();
+//		model.m_skipTrainInBacktest=true;
+//		model.m_skipEvalInBacktest=false;
+//		testBackward(model);
+//		
+//		model=new BaggingM5P();
+//		model.m_skipTrainInBacktest=true;
+//		model.m_skipEvalInBacktest=false;
+//		testBackward(model);
+//
+//		model=new BaggingLinearRegression();
+//		model.m_skipTrainInBacktest=true;
+//		model.m_skipEvalInBacktest=false;
+//		testBackward(model);
 	}
 
 	protected void callTestBack() throws Exception {
@@ -158,9 +236,9 @@ public class BackTest {
 		AdaboostClassifier nModel=new AdaboostClassifier();
 
 
-//		GeneralInstances nominalResult=testBackward(nModel);
+		GeneralInstances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
-		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
+//		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 		
 		
 		//统一输出统计结果
@@ -220,7 +298,9 @@ public class BackTest {
 		}else{
 			System.out.println("####Thread Pool will not be used");
 		}
-
+		
+		
+		String[] splitYear =generateSplitYearForModel(clModel);
 		
 		// 别把数据文件里的ID变成Nominal的，否则读出来的ID就变成相对偏移量了
 		for (int i = 0; i < splitYear.length; i++) { 

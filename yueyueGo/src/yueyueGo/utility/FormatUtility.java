@@ -18,6 +18,14 @@ public class FormatUtility {
 		return dateString;
 	}
 
+	// 获取当前日期的yyyyMM格式
+	public static String getCurrentYearMonth() {
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.DATE, 0);
+		String dateString = new SimpleDateFormat("yyyyMM").format(cal.getTime());
+		return dateString;
+	}	
+	
 	/**
 	 * 将double类型数据转换为百分比格式，并保留小数点前IntegerDigits位和小数点后FractionDigits位
 	 * 
