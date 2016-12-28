@@ -43,7 +43,6 @@ import yueyueGo.datasource.GeneralDataSaver;
 import yueyueGo.utility.AppContext;
 import yueyueGo.utility.BlockedThreadPoolExecutor;
 import yueyueGo.utility.ClassifySummaries;
-import yueyueGo.utility.ClassifyUtility;
 import yueyueGo.utility.EvaluationConfDefinition;
 import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.FormatUtility;
@@ -230,7 +229,7 @@ public class BackTest {
 			System.out.println("****************************start ****************************   "+splitMark);
 
 			//获取分割年的clause
-			String[] splitYearClauses = splitYearClause(splitMark);
+			String[] splitYearClauses = splitYearClause(clModel,splitMark);
 			String splitTrainYearClause=splitYearClauses[0];
 			String splitEvalYearClause=splitYearClauses[1];
 			String splitTestYearClause=splitYearClauses[2];
@@ -443,30 +442,32 @@ public class BackTest {
 	}
 
 	/**
-	 * 	从全量数据中获取分割training和eval以及test的clause， test数据比较简单，就是当月的。train和eval的逻辑见下
-	 * 这里build model的数据已变为当前周期前推一年的数据 如果是2010XX.mdl 则取2009年XX月之前的数据build，
+	 * 	从全量数据中获取分割training和eval以及test的clause， test数据比较简单，就是当月的。
+	 * train和eval的逻辑见下:
+	 * 这里build model的数据已变为当前周期前推一段时间的数据（具体前推多少时间由model定义决定）
+	 * 比如，若是前推一年的， 如果是2010XX.mdl 则取2009年XX月之前的数据build，
 	 * 剩下的一年数据（2009XX到2010XX，后者不包含）做评估用
 	 * 如果是2010.mdl，则取2009年01月之前的数据build，2009当年数据做评估用
 	 * @param splitMark
 	 * @return
 	 */
-	protected final String[] splitYearClause(String a_yearSplit) {
-		String lastYearSplit=ClassifyUtility.getLastYearSplit(a_yearSplit);
+	protected final String[] splitYearClause(BaseClassifier clModel,String a_yearSplit) {
+		String modelYearSplit=clModel.getModelYearSplit(a_yearSplit);
 		String[] splitYearClauses=new String[3];
 		String attPos = WekaInstanceProcessor.WEKA_ATT_PREFIX + ArffFormat.YEAR_MONTH_INDEX;
-		if (lastYearSplit.length() == 6) { // 按月分割时
+		if (modelYearSplit.length() == 6) { // 按月分割时
 			splitYearClauses[0] = "(" + attPos + " < "
-					+ lastYearSplit + ") ";
+					+ modelYearSplit + ") ";
 			splitYearClauses[1] = "(" + attPos + " >= "
-					+ lastYearSplit + ") and (" + attPos + " < "	+ a_yearSplit + ") ";
+					+ modelYearSplit + ") and (" + attPos + " < "	+ a_yearSplit + ") ";
 			splitYearClauses[2] = "(" + attPos + " = "
 					+ a_yearSplit + ") ";
-		} else if (lastYearSplit.length() == 4) {// 按年分割
+		} else if (modelYearSplit.length() == 4) {// 按年分割
 			splitYearClauses[0] = "(" + attPos + " < "
-					+ lastYearSplit + "01) ";
+					+ modelYearSplit + "01) ";
 			splitYearClauses[1] = "(" + attPos + " >= "
-					+ lastYearSplit + "01) and (" + attPos + " <= "
-					+ lastYearSplit + "12) ";
+					+ modelYearSplit + "01) and (" + attPos + " <= "
+					+ modelYearSplit + "12) ";
 			splitYearClauses[2] = "(" + attPos + " >= "
 					+ a_yearSplit + "01) and (" + attPos + " <= "
 					+ a_yearSplit + "12) ";

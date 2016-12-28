@@ -15,7 +15,6 @@ import yueyueGo.databeans.GeneralInstance;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.utility.AppContext;
 import yueyueGo.utility.ClassifySummaries;
-import yueyueGo.utility.ClassifyUtility;
 import yueyueGo.utility.EvaluationBenchmark;
 import yueyueGo.utility.EvaluationConfDefinition;
 import yueyueGo.utility.EvaluationParams;
@@ -469,11 +468,64 @@ public abstract class BaseClassifier implements Serializable{
 		m_modelStore=modelStore;
 	}
 
-	//获取用于评估阀值的yearSplit （缺省情况下前推一年）
+	/*
+	 * 获取用于评估阀值的yearSplit （缺省情况下前推一年）
+	 * 这里将全量数据分解为model的构建数据及评测数据
+	 * 即根据当前yearSplit前推一段时间，将其切分成构建模型数据和评测数据（具体前推多少时间由model定义决定）
+	 * 比如，若是前推一年的， 如果是2010XX.mdl 则取2009年XX月之前的数据build，
+	 * 剩下的一年数据（2009XX到2010XX，后者不包含）做评估用
+	 * 如果是2010.mdl，则取2009年01月之前的数据build，2009当年数据做评估用
+	 * 
+	 */
 	public String getModelYearSplit(String yearSplit){
 		//找到回测创建评估预测时应该使用modelStore对象（主要为获取model文件和eval文件名称）-- 评估时创建的mdl并不是当前年份的，而是前推一年的
-		String modelYearSplit=ClassifyUtility.getLastYearSplit(yearSplit);
+		String modelYearSplit=getLastYearSplit(yearSplit);
 		return modelYearSplit;
+	}
+	
+	//	当前周期前推一年的年分隔线，比如 如果是2010XX 则返回2009年XX月（这是为了取不在trainingData里的evalData）
+	private static String getLastYearSplit(String yearSplit){
+		int lastPeriod=0;
+		int limit=2007; //回测模型的起始点， 在这之前无数据
+		lastPeriod=Integer.valueOf(yearSplit).intValue();
+		if (yearSplit.length()==4){ //最后一位-1 （2010-1=2009）
+			lastPeriod=lastPeriod-1;
+			if (lastPeriod<limit) 
+				lastPeriod=limit;
+		}else {//最后三位-1 （201001-100=200901）
+			lastPeriod=lastPeriod-100;
+			if (lastPeriod<limit*100+1) 
+				lastPeriod=limit*100+1;
+		}
+		return String.valueOf(lastPeriod);
+	}
+	
+	//	当前周期前推六个月的分隔线，比如 如果是201003 则返回200909
+	private static String getLastHalfYearSplit(String yearSplit){
+		int limit=2007; //回测模型的起始点， 在这之前无数据
+		int lastPeriod=0;
+		if (yearSplit.length()==4){ //最后一位-1 （2010-1=2009）再拼接一个07
+			lastPeriod=Integer.valueOf(yearSplit).intValue();
+			lastPeriod=lastPeriod-1;
+			if (lastPeriod<limit) {
+				lastPeriod=limit;
+			}
+			lastPeriod=lastPeriod*100+7;
+		}else {//最后两位数（n）大于6的话减6，小于等于6的话去掉尾数，然后201000-100后加（12-（6-n））=（6+n）
+			int inputYear=Integer.parseInt(yearSplit.substring(0,4)); //输入的年份
+			int inputMonth=Integer.parseInt(yearSplit.substring(4,6)); //输入的月份
+			if (inputMonth>6){
+				inputMonth=inputMonth-6;
+			}else{
+				inputMonth=6+inputMonth;
+				inputYear=inputYear-1;
+			}
+			lastPeriod=inputYear*100+inputMonth;
+			if (lastPeriod<limit*100+1){ 
+				lastPeriod=limit*100+1;
+			}
+		}
+		return String.valueOf(lastPeriod);
 	}
 	
 	//生成日常预测时使用的model文件和eval文件名称

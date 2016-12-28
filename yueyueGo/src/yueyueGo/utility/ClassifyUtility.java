@@ -210,22 +210,7 @@ public class ClassifyUtility {
 	}
 	
 	
-	//	当前周期前推一年的年分隔线，比如 如果是2010XX 则返回2009年XX月（这是为了取不在trainingData里的evalData）
-	public static String getLastYearSplit(String yearSplit){
-		int lastPeriod=0;
-		int limit=2007; //回测模型的起始点， 在这之前无数据
-		lastPeriod=Integer.valueOf(yearSplit).intValue();
-		if (yearSplit.length()==4){ //最后一位-1 （2010-1=2009）
-			lastPeriod=lastPeriod-1;
-			if (lastPeriod<limit) 
-				lastPeriod=limit;
-		}else {//最后三位-1 （201001-100=200901）
-			lastPeriod=lastPeriod-100;
-			if (lastPeriod<limit*100+1) 
-				lastPeriod=limit*100+1;
-		}
-		return String.valueOf(lastPeriod);
-	}
+
 
 	//评估时输出confusionMatrix
 	public static Evaluation getConfusionMatrix(GeneralInstances trainData,GeneralInstances evalData, Classifier model,boolean isNominal)
