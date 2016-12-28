@@ -499,6 +499,7 @@ public abstract class BaseClassifier implements Serializable{
 			modelYearSplit=getLastHalfYearSplit(yearSplit);			
 			break;
 		}
+		System.out.println("目标日期="+yearSplit+" 模型数据切分日期="+modelYearSplit);
 		return modelYearSplit;
 	}
 	
