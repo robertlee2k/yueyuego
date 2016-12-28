@@ -6,9 +6,8 @@ import java.util.Vector;
 import weka.classifiers.Classifier;
 import weka.core.Instances;
 import weka.core.SerializationHelper;
-import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.DataInstances;
-
+import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.utility.FileUtility;
 
 public class ModelStore {
@@ -16,11 +15,11 @@ public class ModelStore {
 	public static final String MODEL_FILE_EXTENSION = ".mdl";
 	public static final String THRESHOLD_EXTENSION = ".eval";
 	
-	public static final int SEPERATE_MODEL_AND_EVAL=1; // 回测时按yearsplit和policysplit分割使用model和eval文件， 这是最普遍的做法
+	public static final int SEPERATE_MODEL_AND_EVAL=1; // 回测时按yearsplit和policysplit分割使用model和eval文件， 这是细分的做法
 	public static final int YEAR_SHARED_MODEL=2; //回测时按年共享模型， eval文件则根据yearsplit自行分割。
-	public static final int HALF_YEAR_SHARED_MODEL=3; //为特殊年份（2016年）半年处增加一个模型评估文件（这个比较不常见）
+	public static final int HALF_YEAR_SHARED_MODEL=3; //回测时按半年共享模型， eval文件则根据yearsplit自行分割。
 	public static final int YEAR_SHARED_MODEL_AND_EVAL=4; //回测时按年共享模型和评估文件， 这个最不常见
-
+	public static final int QUARTER_YEAR_SHARED_MODEL=5; //回测时按季度共享模型， eval文件则根据yearsplit自行分割。
 
 	protected String m_modelFileName;
 	protected String m_evalFileName;
@@ -55,6 +54,22 @@ public class ModelStore {
 				convertedYear=yearMonthSplit;
 			}
 			modelFile=concatModeFilenameString(convertedYear, policySplit, workFileFullPrefix, classifierName);
+			break;
+		case QUARTER_YEAR_SHARED_MODEL:
+			//评估文件按yearsplit和policySplit切割
+			evalFile=concatModeFilenameString(yearMonthSplit, policySplit, workFileFullPrefix, classifierName)+ModelStore.THRESHOLD_EXTENSION;;
+			String quarterString="";
+			//模型文件按季度建设模型，提高准确度
+			if (yearMonthSplit.length()==6){
+				//有月份时按季度获取模型
+				convertedYear=yearMonthSplit.substring(0,4);
+				int inputQuarter=Integer.parseInt(yearMonthSplit.substring(4,6))/3+1;
+				quarterString="0"+inputQuarter;
+			}else{
+				convertedYear=yearMonthSplit;
+			}
+			modelFile=concatModeFilenameString(convertedYear+quarterString, policySplit, workFileFullPrefix, classifierName);
+
 			break;
 		case HALF_YEAR_SHARED_MODEL:	
 			//评估文件按yearsplit和policySplit切割

@@ -120,7 +120,7 @@ public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunn
 
 	@Override
 	protected void initializeParams() {
-		m_skipTrainInBacktest = false;
+		m_skipTrainInBacktest = true;
 		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 
@@ -130,7 +130,7 @@ public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunn
 		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
 		
 
-		m_modelEvalFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
+		m_modelEvalFileShareMode=ModelStore.QUARTER_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 		bagging_iteration=10;	//bagging特有参数
 		leafMinObjNum=300; //叶子节点最小的
 		divided=300; //将trainingData分成多少份
