@@ -64,12 +64,17 @@ public class ModelStore {
 				//有月份时按季度获取模型
 				convertedYear=yearMonthSplit.substring(0,4);
 				int inputQuarter=(Integer.parseInt(yearMonthSplit.substring(4,6))-1)/3; //将月份按季度转化为0、1、2、3四个数字
-				if (inputQuarter==3){ //第四季度
+				switch (inputQuarter){
+				case 0: //第一季度用年的模型（这是历史沿革习惯）
+					quarterString="";
+					break;
+				case 3://第四季度
 					quarterString="10";
-				}else{ //前三个季度
-					quarterString="0"+(inputQuarter*3+1);	
+					break;
+				default: //第二第三季度补0
+					quarterString="0"+(inputQuarter*3+1);
+					break;
 				}
-				
 			}else{
 				convertedYear=yearMonthSplit;
 			}
