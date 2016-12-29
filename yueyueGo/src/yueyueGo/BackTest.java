@@ -63,7 +63,24 @@ public class BackTest {
 	protected  double[] shouyilv_thresholds=EvaluationConfDefinition.SHOUYILV_FILTER_FOR_WINRATE; //对于胜率优先算法的收益率筛选阀值
 	protected  double[] winrate_thresholds=EvaluationConfDefinition.WINRATE_FILTER_FOR_SHOUYILV; //对于收益率优先算法的胜率筛选阀值
 
-
+	protected String m_startYear="2008";
+	protected String m_endYearMonth="201612";
+	protected String[] m_handSetSplitYear=new String[] {
+			"201607","201610",
+			//为年度模型使用
+//			  "2008","2009","2010","2011","2012","2013","2014","2015","2016",
+			//为半年度模型使用		
+//			"200807","200907","201007","201107","201207","201307","201407","201507","201607",
+			//为季度模型使用		
+//			"200804","200904","201004","201104","201204","201304","201404","201504","201604","200810","200910","201010","201110","201210","201310","201410","201510","201610",
+			//为月度模型使用		
+//			"200801","200802","200803","200804","200805","200806","200807","200808","200809","200810","200811","200812","200901","200902","200903","200904","200905","200906","200907","200908","200909","200910","200911","200912","201001","201002","201003","201004","201005","201006","201007","201008","201009","201010","201011","201012","201101","201102","201103","201104","201105","201106","201107","201108","201109","201110","201111","201112","201201","201202","201203","201204","201205","201206","201207","201208","201209","201210","201211","201212","201301","201302","201303","201304","201305","201306","201307","201308","201309","201310","201311","201312","201401","201402","201403","201404","201405","201406","201407","201408","201409","201410","201411","201412","201501","201502","201503","201504","201505","201506","201507","201508","201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607","201608","201609","201610","201611"
+			//生成预测所使用半年度模型		
+//			"201607"
+			//新增增量数据后重新生成评估文件
+//			"201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607","201608","201609","201610","201611"
+			};
+	
 	//初始化环境参数，运行本类的方法必须先调用它
 	public void init(){
 		
@@ -77,28 +94,28 @@ public class BackTest {
 	}
 
 	
-	protected String[] generateSplitYearForModel(BaseClassifier clModel){
+	protected String[] generateSplitYearForModel(BaseClassifier clModel,String startYear,String endYearMonth){
 
 		String[] result=null;
 		if(clModel.m_skipTrainInBacktest==false){ //需要构建模型
 			int evalMonths=clModel.m_modelDataSplitMode;
 			switch (clModel.m_modelEvalFileShareMode){
 			case ModelStore.SEPERATE_MODEL_AND_EVAL: //这个是全量模型
-				result=manipulateYearMonth(1,evalMonths);
+				result=manipulateYearMonth(startYear,endYearMonth,1,evalMonths);
 				break;
 			case ModelStore.YEAR_SHARED_MODEL:	 //生成年度模型 
 			case ModelStore.YEAR_SHARED_MODEL_AND_EVAL:	
-				result=manipulateYearMonth(12,evalMonths);
+				result=manipulateYearMonth(startYear,endYearMonth,12,evalMonths);
 				break;
 			case ModelStore.QUARTER_YEAR_SHARED_MODEL: //生成季度模型
-				result=manipulateYearMonth(3,evalMonths);
+				result=manipulateYearMonth(startYear,endYearMonth,3,evalMonths);
 				break;
 			case ModelStore.HALF_YEAR_SHARED_MODEL:	//生成半年度模型
-				result=manipulateYearMonth(6,evalMonths);
+				result=manipulateYearMonth(startYear,endYearMonth,6,evalMonths);
 				break;
 			}
 		}else{//不需要构建模型，则按月生成所有的数据即可
-			result=manipulateYearMonth(1,0);
+			result=manipulateYearMonth(startYear,endYearMonth,1,0);
 		}
 		//调用手工覆盖的函数接口
 		String[] needOverride=overrideSplitYear();
@@ -114,10 +131,10 @@ public class BackTest {
 		return result;
 	}
 	
-	private String[] manipulateYearMonth(int interval,int evalDataMonths){
-		int startYear=2008;	
+	private String[] manipulateYearMonth(String a_startYear,String endYearMonth, int interval,int evalDataMonths){
+		int startYear=Integer.parseInt(a_startYear);	
 		String[] result=null;
-		String currentYearMonth=FormatUtility.getCurrentYearMonth();
+		String currentYearMonth=endYearMonth;//FormatUtility.getCurrentYearMonth();
 		int currentYear=Integer.parseInt(currentYearMonth.substring(0,4)); 
 		int currentMonth=Integer.parseInt(currentYearMonth.substring(4,6));
 		if (currentMonth>evalDataMonths){ //掐掉最后的评估月份数据
@@ -147,22 +164,7 @@ public class BackTest {
 	 * 如果需要手动设置 splitYear的内容，则在此方法中设置
 	 */
 	protected String[] overrideSplitYear() {
-		String[] splitYear=new String[] {
-		//为年度模型使用
-//		  "2008","2009","2010","2011","2012","2013","2014","2015","2016",
-		//为半年度模型使用		
-//		"200807","200907","201007","201107","201207","201307","201407","201507","201607",
-		//为季度模型使用		
-//		"200804","200904","201004","201104","201204","201304","201404","201504","201604","200810","200910","201010","201110","201210","201310","201410","201510","201610",
-		//为月度模型使用		
-//		"200801","200802","200803","200804","200805","200806","200807","200808","200809","200810","200811","200812","200901","200902","200903","200904","200905","200906","200907","200908","200909","200910","200911","200912","201001","201002","201003","201004","201005","201006","201007","201008","201009","201010","201011","201012","201101","201102","201103","201104","201105","201106","201107","201108","201109","201110","201111","201112","201201","201202","201203","201204","201205","201206","201207","201208","201209","201210","201211","201212","201301","201302","201303","201304","201305","201306","201307","201308","201309","201310","201311","201312","201401","201402","201403","201404","201405","201406","201407","201408","201409","201410","201411","201412","201501","201502","201503","201504","201505","201506","201507","201508","201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607","201608","201609","201610","201611"
-		//生成预测所使用半年度模型		
-//		"201607"
-		//新增增量数据后重新生成评估文件
-//		"201509","201510","201511","201512","201601","201602","201603", "201604","201605","201606","201607","201608","201609","201610","201611"
-		};
-		
-		return splitYear;
+		return m_handSetSplitYear;
 		
 	}
 	
@@ -232,9 +234,9 @@ public class BackTest {
 		BaggingM5P cModel=new BaggingM5P();
 //		BaggingLinearRegression cModel=new BaggingLinearRegression();
 
-		GeneralInstances continuousResult=testBackward(cModel);
+//		GeneralInstances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
-//		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
+		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 		
 		//统一输出统计结果
 		nModel.outputClassifySummary();
@@ -295,7 +297,7 @@ public class BackTest {
 		}
 		
 		
-		String[] splitYear =generateSplitYearForModel(clModel);
+		String[] splitYear =generateSplitYearForModel(clModel,m_startYear,m_endYearMonth);
 		
 		// 别把数据文件里的ID变成Nominal的，否则读出来的ID就变成相对偏移量了
 		for (int i = 0; i < splitYear.length; i++) { 
