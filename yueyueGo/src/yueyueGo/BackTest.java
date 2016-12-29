@@ -29,7 +29,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import yueyueGo.classifier.AdaboostClassifier;
+import yueyueGo.classifier.BaggingLinearRegression;
 import yueyueGo.classifier.BaggingM5P;
+import yueyueGo.classifier.MyNNClassifier;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.dataProcessor.InstanceHandler;
 import yueyueGo.dataProcessor.WekaInstanceProcessor;
@@ -66,7 +68,7 @@ public class BackTest {
 	protected String m_startYear="2008";
 	protected String m_endYearMonth="201612";
 	protected String[] m_handSetSplitYear=new String[] {
-			"201607","201610",
+//			"201607","201610",
 			//为年度模型使用
 //			  "2008","2009","2010","2011","2012","2013","2014","2015","2016",
 			//为半年度模型使用		
@@ -190,30 +192,30 @@ public class BackTest {
 	 * @throws Exception
 	 */
 	protected void callRefreshModelUseLatestData() throws Exception{
-//		BaseClassifier model=null;
-//		splitYear=new String[] {"201609"};
-//		RUNNING_THREADS=5;
-//		
-//		//逐次刷新数据
-//		model=new AdaboostClassifier();
-//		model.m_skipTrainInBacktest=true;
-//		model.m_skipEvalInBacktest=false;
-//		testBackward(model);
-//		
-//		model=new MyNNClassifier();
-//		model.m_skipTrainInBacktest=true;
-//		model.m_skipEvalInBacktest=false;
-//		testBackward(model);
-//		
-//		model=new BaggingM5P();
-//		model.m_skipTrainInBacktest=true;
-//		model.m_skipEvalInBacktest=false;
-//		testBackward(model);
-//
-//		model=new BaggingLinearRegression();
-//		model.m_skipTrainInBacktest=true;
-//		model.m_skipEvalInBacktest=false;
-//		testBackward(model);
+		BaseClassifier model=null;
+		m_handSetSplitYear=new String[] {"201609"};
+		RUNNING_THREADS=5;
+		
+		//逐次刷新数据
+		model=new AdaboostClassifier();
+		model.m_skipTrainInBacktest=true;
+		model.m_skipEvalInBacktest=false;
+		testBackward(model);
+		
+		model=new MyNNClassifier();
+		model.m_skipTrainInBacktest=true;
+		model.m_skipEvalInBacktest=false;
+		testBackward(model);
+		
+		model=new BaggingM5P();
+		model.m_skipTrainInBacktest=true;
+		model.m_skipEvalInBacktest=false;
+		testBackward(model);
+
+		model=new BaggingLinearRegression();
+		model.m_skipTrainInBacktest=true;
+		model.m_skipEvalInBacktest=false;
+		testBackward(model);
 	}
 
 	protected void callTestBack() throws Exception {
@@ -234,9 +236,9 @@ public class BackTest {
 		BaggingM5P cModel=new BaggingM5P();
 //		BaggingLinearRegression cModel=new BaggingLinearRegression();
 
-//		GeneralInstances continuousResult=testBackward(cModel);
+		GeneralInstances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
-		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
+//		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 		
 		//统一输出统计结果
 		nModel.outputClassifySummary();
