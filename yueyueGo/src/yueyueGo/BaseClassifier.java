@@ -327,6 +327,8 @@ public abstract class BaseClassifier implements Serializable{
 		ThresholdData thresholdData=ThresholdData.loadDataFromFile(m_modelStore.getEvalFileName());
 		if (yearSplit.equals(thresholdData.getTargetYearSplit())==false){
 			throw new Exception("error! threshold data is inconsistent, target yearSplit="+yearSplit+" while yearSplit in file is "+thresholdData.getTargetYearSplit()+" file name="+m_modelStore.getEvalFileName());
+		}else{
+			System.out.println("eval File verified for target yearsplit "+thresholdData.getTargetYearSplit());
 		}
 		double thresholdMin=thresholdData.getThresholdMin();
 		double thresholdMax=thresholdData.getThresholdMax();
