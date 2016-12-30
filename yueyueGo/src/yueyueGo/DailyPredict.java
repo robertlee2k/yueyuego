@@ -365,7 +365,7 @@ public class DailyPredict {
 					+ clModel.m_policySubGroup[j]	;				
 			evalFileName = PREDICT_WORK_DIR+getDirPrefixByType(formatType)+"\\"+clModel.getIdentifyName()+evalFileName
 					+ clModel.m_policySubGroup[j]+ModelStore.THRESHOLD_EXTENSION	;				
-			ModelStore modelStore=new ModelStore(modelFileName,evalFileName);
+			ModelStore modelStore=new ModelStore(null,modelFileName,evalFileName);
 			clModel.setModelStore(modelStore);
 
 

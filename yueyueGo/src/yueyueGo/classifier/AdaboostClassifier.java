@@ -9,6 +9,7 @@ import yueyueGo.NominalClassifier;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaInstances;
 import yueyueGo.utility.ClassifyUtility;
+import yueyueGo.utility.FormatUtility;
 
 //1.  20160912结果
 //  全市场10-50单元格 ，收益率优先年平均（非年化）21%/20%/18%/17%：累计净值 3.75、3.37、3.24、3.20
@@ -101,7 +102,7 @@ public class AdaboostClassifier extends NominalClassifier {
 	@Override
 	protected void initializeParams() {
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
-		m_skipTrainInBacktest = true;
+		m_skipTrainInBacktest = false;
 		m_skipEvalInBacktest = false;
 		
 		classifierName=ClassifyUtility.ADABOOST;
@@ -111,10 +112,11 @@ public class AdaboostClassifier extends NominalClassifier {
 		divided=300; //将trainingData分成多少份
 		boost_iteration=10; 	//boost特有参数
 		
-		m_noCaculationAttrib=true;//不使用计算字段 (20161215试过无计算字段，效果不如有计算字段好） 
+		m_noCaculationAttrib=true;//不使用计算字段 
 		m_usePCA=true; //20121223尝试不使用PCA，效果一般且建模非常慢，所以放弃
 		m_removeSWData=true; //20161222尝试不用申万行业数据
-		m_modelDataSplitMode=USE_NINE_MONTHS_DATA_FOR_EVAL; //尝试评估区间使用半年数据
+		m_modelDataSplitMode=USE_NINE_MONTHS_DATA_FOR_EVAL; //尝试评估区间使用9个月数据（效果还不错）
+		m_positiveLine=0.03; //尝试3%的阀值
 	}
 		
 	@Override
@@ -147,10 +149,15 @@ public class AdaboostClassifier extends NominalClassifier {
 	public String getIdentifyName(){
 		String idenString;
 		if (m_usePCA==true){ //使用PCA
-			idenString =classifierName;
+			if (m_positiveLine==0){ //如果是正常的正负分类时就不用特别标记
+				idenString =classifierName;
+			}else { //如果用自定义的标尺线区分Class的正负，则特别标记
+				idenString =classifierName+"("+FormatUtility.formatDouble(m_positiveLine)+")";
+			}
 		}else{
 			idenString =classifierName+ClassifyUtility.NO_PCA_SURFIX;
 		}
+		
 		return idenString;
 	}
 }

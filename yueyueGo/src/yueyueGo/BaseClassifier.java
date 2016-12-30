@@ -156,6 +156,7 @@ public abstract class BaseClassifier implements Serializable{
 		System.out.println(" try to get best threshold for model...");
 		EvaluationParams evalParams=getEvaluationInstance(policySplit);
 		ThresholdData thresholdData = doModelEvaluation(benchmark,evalData, model, evalParams);
+		thresholdData.setTargetYearSplit(m_modelStore.getTargetYearSplit());
 		ThresholdData.saveEvaluationToFile(m_modelStore.getEvalFileName(), thresholdData);
 
 	}
@@ -324,7 +325,9 @@ public abstract class BaseClassifier implements Serializable{
 
 		
 		ThresholdData thresholdData=ThresholdData.loadDataFromFile(m_modelStore.getEvalFileName());
-		
+		if (yearSplit.equals(thresholdData.getTargetYearSplit())==false){
+			throw new Exception("error! threshold data is inconsistent, target yearSplit="+yearSplit+" while yearSplit in file is "+thresholdData.getTargetYearSplit()+" file name="+m_modelStore.getEvalFileName());
+		}
 		double thresholdMin=thresholdData.getThresholdMin();
 		double thresholdMax=thresholdData.getThresholdMax();
 
@@ -458,10 +461,10 @@ public abstract class BaseClassifier implements Serializable{
 	}
 
 	//初始化回测创建模型时使用的modelStore对象
-	public void initModelStore(String aYearSplit,String policySplit) {
+	public void initModelStore(String targetYearSplit,String policySplit) {
 		//这里build model的数据已变为当前周期前推一段时间的数据，
 		//比如若按年取评估数据，如果是2010XX.mdl 则取2009年XX月之前的数据build， 剩下的一年数据做评估用
-		String modelYearSplit=getModelYearSplit(aYearSplit);
+		String modelYearSplit=getModelYearSplit(targetYearSplit);
 		//创建模型时应该把200801变为2008 （这是历史沿革习惯）
 		if (modelYearSplit.length()==6){
 			int inputMonth=Integer.parseInt(modelYearSplit.substring(4,6)); 
@@ -470,17 +473,17 @@ public abstract class BaseClassifier implements Serializable{
 			}
 		}
 		String modelFileName=ModelStore.concatModeFilenameString(modelYearSplit, policySplit, this.WORK_PATH+this.WORK_FILE_PREFIX, this.classifierName);
-		ModelStore modelStore=new ModelStore(modelFileName,modelFileName+ModelStore.THRESHOLD_EXTENSION);
+		ModelStore modelStore=new ModelStore(targetYearSplit,modelFileName,modelFileName+ModelStore.THRESHOLD_EXTENSION);
 		m_modelStore=modelStore;
 	}
 	
 	//找到回测评估、预测时应该使用modelStore对象（主要为获取model文件和eval文件名称）
 	//此类可以在子类中被覆盖（通过把yearsplit的值做处理，实现临时指定使用某个模型，可以多年使用一个模型，也可以特殊指定某年月使用某模型）
-	public void locateModelStore(String aYearSplit,String policySplit) {
+	public void locateModelStore(String targetYearSplit,String policySplit) {
 		//这里build model的数据已变为当前周期前推一段时间的数据，
 		//比如若按年取评估数据，如果是2010XX.mdl 则取2009年XX月之前的数据build， 剩下的一年数据做评估用
-		String modelYearSplit=getModelYearSplit(aYearSplit);
-		ModelStore modelStore=new ModelStore(modelYearSplit,policySplit,this.WORK_PATH+this.WORK_FILE_PREFIX, this.classifierName,this.m_modelEvalFileShareMode);
+		String modelYearSplit=getModelYearSplit(targetYearSplit);
+		ModelStore modelStore=new ModelStore(targetYearSplit,modelYearSplit,policySplit,this.WORK_PATH+this.WORK_FILE_PREFIX, this.classifierName,this.m_modelEvalFileShareMode);
 		m_modelStore=modelStore;
 	}
 

@@ -14,7 +14,16 @@ public class ThresholdData implements Serializable{
 	private double startPercent=99999;
 	private double endPercent=99999;
 	private boolean isGuessed=false; //阀值是使用的缺省值
+	private String targetYearSplit=null; //当前评估数据对应的目标测试月份
 	
+	public String getTargetYearSplit() {
+		return targetYearSplit;
+	}
+
+	public void setTargetYearSplit(String targetYearSplit) {
+		this.targetYearSplit = targetYearSplit;
+	}
+
 	public static ThresholdData loadDataFromFile(String evalFileName) throws Exception{
 		//读取Threshold数据文件
 		ThresholdData thresholdData=(ThresholdData)SerializationHelper.read( evalFileName);

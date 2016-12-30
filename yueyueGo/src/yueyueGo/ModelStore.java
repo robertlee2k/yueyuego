@@ -23,47 +23,55 @@ public class ModelStore {
 
 	protected String m_modelFileName;
 	protected String m_evalFileName;
+	protected String m_targetYearSplit;
+	
+	public String getTargetYearSplit() {
+		return m_targetYearSplit;
+	}
+
 	protected Classifier m_model;
 	protected GeneralInstances m_modelFormat;
 
 	
 
-	public ModelStore(String model_filename,String eval_filename) {
+	public ModelStore(String targetYearSplit,String model_filename,String eval_filename) {
+		this.m_targetYearSplit=targetYearSplit; //记录下用于评测的目标月份，以便日后校验
 		this.m_modelFileName = model_filename;
 		this.m_evalFileName=eval_filename;
 	}
 
 	//回测时调用的，设置model文件和eval文件名称
-	public  ModelStore(String yearMonthSplit,String policySplit,String workFileFullPrefix, String classifierName,int modelEvalFileShareMode){//BaseClassifier classifier) {
+	public  ModelStore(String targetYearSplit,String modelYearSplit,String policySplit,String workFileFullPrefix, String classifierName,int modelEvalFileShareMode){//BaseClassifier classifier) {
 		
+		this.m_targetYearSplit=targetYearSplit; //记录下用于评测的目标月份，以便日后校验
 		String modelFile=null;
 		String evalFile=null;
 		String convertedYear=null;
 		switch (modelEvalFileShareMode){//classifier.m_modelEvalFileShareMode) {
 		case SEPERATE_MODEL_AND_EVAL:
-			modelFile=concatModeFilenameString(yearMonthSplit, policySplit, workFileFullPrefix, classifierName);
+			modelFile=concatModeFilenameString(modelYearSplit, policySplit, workFileFullPrefix, classifierName);
 			evalFile=modelFile+ModelStore.THRESHOLD_EXTENSION;
 			break;
 		case YEAR_SHARED_MODEL:	
 			//评估文件按yearsplit和policySplit切割
-			evalFile=concatModeFilenameString(yearMonthSplit, policySplit, workFileFullPrefix, classifierName)+ModelStore.THRESHOLD_EXTENSION;
+			evalFile=concatModeFilenameString(modelYearSplit, policySplit, workFileFullPrefix, classifierName)+ModelStore.THRESHOLD_EXTENSION;
 			//模型文件按年处理
-			if (yearMonthSplit.length()==6){
-				convertedYear=yearMonthSplit.substring(0,4);
+			if (modelYearSplit.length()==6){
+				convertedYear=modelYearSplit.substring(0,4);
 			}else{
-				convertedYear=yearMonthSplit;
+				convertedYear=modelYearSplit;
 			}
 			modelFile=concatModeFilenameString(convertedYear, policySplit, workFileFullPrefix, classifierName);
 			break;
 		case QUARTER_YEAR_SHARED_MODEL:
 			//评估文件按yearsplit和policySplit切割
-			evalFile=concatModeFilenameString(yearMonthSplit, policySplit, workFileFullPrefix, classifierName)+ModelStore.THRESHOLD_EXTENSION;;
+			evalFile=concatModeFilenameString(modelYearSplit, policySplit, workFileFullPrefix, classifierName)+ModelStore.THRESHOLD_EXTENSION;;
 			String quarterString="";
 			//模型文件按季度建设模型，提高准确度
-			if (yearMonthSplit.length()==6){
+			if (modelYearSplit.length()==6){
 				//有月份时按季度获取模型
-				convertedYear=yearMonthSplit.substring(0,4);
-				int inputQuarter=(Integer.parseInt(yearMonthSplit.substring(4,6))-1)/3; //将月份按季度转化为0、1、2、3四个数字
+				convertedYear=modelYearSplit.substring(0,4);
+				int inputQuarter=(Integer.parseInt(modelYearSplit.substring(4,6))-1)/3; //将月份按季度转化为0、1、2、3四个数字
 				switch (inputQuarter){
 				case 0: //第一季度用年的模型（这是历史沿革习惯）
 					quarterString="";
@@ -76,25 +84,25 @@ public class ModelStore {
 					break;
 				}
 			}else{
-				convertedYear=yearMonthSplit;
+				convertedYear=modelYearSplit;
 			}
 			modelFile=concatModeFilenameString(convertedYear+quarterString, policySplit, workFileFullPrefix, classifierName);
 
 			break;
 		case HALF_YEAR_SHARED_MODEL:	
 			//评估文件按yearsplit和policySplit切割
-			evalFile=concatModeFilenameString(yearMonthSplit, policySplit, workFileFullPrefix, classifierName)+ModelStore.THRESHOLD_EXTENSION;;
+			evalFile=concatModeFilenameString( modelYearSplit, policySplit, workFileFullPrefix, classifierName)+ModelStore.THRESHOLD_EXTENSION;;
 			String halfYearString=""; //缺省上半年是直接用年份的模型，比如2010
 			//模型文件按半年建设模型，提高准确度
-			if (yearMonthSplit.length()==6){
-				convertedYear=yearMonthSplit.substring(0,4);
+			if ( modelYearSplit.length()==6){
+				convertedYear= modelYearSplit.substring(0,4);
 				//为下半年增加一个模型，提高准确度
-				int inputMonth=Integer.parseInt(yearMonthSplit.substring(4,6));
+				int inputMonth=Integer.parseInt( modelYearSplit.substring(4,6));
 				if (inputMonth>=7){
 					halfYearString="07";
 				} 
 			}else{
-				convertedYear=yearMonthSplit;
+				convertedYear= modelYearSplit;
 			}
 			modelFile=concatModeFilenameString(convertedYear+halfYearString, policySplit, workFileFullPrefix, classifierName);
 
@@ -102,10 +110,10 @@ public class ModelStore {
 		
 		case YEAR_SHARED_MODEL_AND_EVAL:	
 			//模型文件按年处理,评估文件也相同
-			if (yearMonthSplit.length()==6){
-				convertedYear=yearMonthSplit.substring(0,4);
+			if ( modelYearSplit.length()==6){
+				convertedYear= modelYearSplit.substring(0,4);
 			}else{
-				convertedYear=yearMonthSplit;
+				convertedYear= modelYearSplit;
 			}			
 			modelFile=concatModeFilenameString(convertedYear, policySplit, workFileFullPrefix, classifierName);
 			evalFile=modelFile+ModelStore.THRESHOLD_EXTENSION;
