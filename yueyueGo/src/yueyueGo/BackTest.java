@@ -221,6 +221,13 @@ public class BackTest {
 
 	protected void callTestBack() throws Exception {
 
+		//按连续分类器回测历史数据
+		BaggingM5P cModel=new BaggingM5P();
+//		BaggingLinearRegression cModel=new BaggingLinearRegression();
+
+		GeneralInstances continuousResult=testBackward(cModel);
+		//不真正回测了，直接从以前的结果文件中加载
+//		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 
 		//按二分类器回测历史数据
 //		BaggingJ48 nModel=new BaggingJ48();
@@ -233,13 +240,6 @@ public class BackTest {
 		//不真正回测了，直接从以前的结果文件中加载
 //		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 		
-		//按连续分类器回测历史数据
-		BaggingM5P cModel=new BaggingM5P();
-//		BaggingLinearRegression cModel=new BaggingLinearRegression();
-
-		GeneralInstances continuousResult=testBackward(cModel);
-		//不真正回测了，直接从以前的结果文件中加载
-//		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 		
 		//统一输出统计结果
 		nModel.outputClassifySummary();
