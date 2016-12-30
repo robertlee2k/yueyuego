@@ -121,7 +121,7 @@ public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunn
 	@Override
 	protected void initializeParams() {
 		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = true;
+		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 
 		classifierName=ClassifyUtility.BAGGING_M5P;	
@@ -138,7 +138,7 @@ public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunn
 		m_noCaculationAttrib=true;//不使用计算字段 (20161215试过无计算字段，效果不如有计算字段好） 
 		m_usePCA=false; //20121223尝试不使用PCA
 		m_removeSWData=true; //20161222尝试不用申万行业数据
-		m_modelDataSplitMode=USE_YEAR_DATA_FOR_EVAL; //尝试评估区间使用半年数据
+		m_modelDataSplitMode=USE_NINE_MONTHS_DATA_FOR_EVAL; //尝试评估区间使用半年数据
 	}
 
 	

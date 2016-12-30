@@ -40,6 +40,7 @@ public abstract class BaseClassifier implements Serializable{
 	public static final int NO_SEPERATE_DATA_FOR_EVAL=0; //不需要评估数据（这是legacy的做法，目前不常用）
 	public static final int USE_YEAR_DATA_FOR_EVAL=12; //使用倒推一年的数据作为模型评估数据，之前用于的构建模型（缺省值）
 	public static final int USE_HALF_YEAR_DATA_FOR_EVAL=6;//使用倒推半年的数据作为模型评估数据，之前用于的构建模型
+	public static final int USE_NINE_MONTHS_DATA_FOR_EVAL=9;//使用倒推半年的数据作为模型评估数据，之前用于的构建模型
 	
 	//名称
 	public String classifierName;
@@ -503,7 +504,8 @@ public abstract class BaseClassifier implements Serializable{
 			modelYearSplit=getLastYearSplit(yearSplit);			
 			break;
 		case USE_HALF_YEAR_DATA_FOR_EVAL:
-			modelYearSplit=getLastHalfYearSplit(yearSplit);			
+		case USE_NINE_MONTHS_DATA_FOR_EVAL:
+			modelYearSplit=getNMonthsForYearSplit(this.m_modelDataSplitMode,yearSplit);			
 			break;
 		}
 		System.out.println("目标日期="+yearSplit+" 模型数据切分日期="+modelYearSplit);
@@ -511,6 +513,7 @@ public abstract class BaseClassifier implements Serializable{
 	}
 	
 	//	当前周期前推一年的年分隔线，比如 如果是2010XX 则返回2009年XX月（这是为了取不在trainingData里的evalData）
+	//TODO 可以用下面的函数代替
 	private static String getLastYearSplit(String yearSplit){
 		int lastPeriod=0;
 		int limit=2007; //回测模型的起始点， 在这之前无数据
@@ -528,7 +531,7 @@ public abstract class BaseClassifier implements Serializable{
 	}
 	
 	//	当前周期前推六个月的分隔线，比如 如果是201003 则返回200909
-	private static String getLastHalfYearSplit(String yearSplit){
+	private static String getNMonthsForYearSplit(int nMonths,String yearSplit){
 		int limit=2007; //回测模型的起始点， 在这之前无数据
 		int lastPeriod=0;
 		if (yearSplit.length()==4){ //最后一位-1 （2010-1=2009）再拼接一个07
@@ -538,13 +541,13 @@ public abstract class BaseClassifier implements Serializable{
 				lastPeriod=limit;
 			}
 			lastPeriod=lastPeriod*100+7;
-		}else {//最后两位数（n）大于6的话减6，小于等于6的话去掉尾数，然后201000-100后加（12-（6-n））=（6+n）
+		}else {//最后两位数（n）大于nMonths的话减nMonths，小于等于的话向年借位12
 			int inputYear=Integer.parseInt(yearSplit.substring(0,4)); //输入的年份
 			int inputMonth=Integer.parseInt(yearSplit.substring(4,6)); //输入的月份
-			if (inputMonth>6){
-				inputMonth=inputMonth-6;
+			if (inputMonth>nMonths){
+				inputMonth=inputMonth-nMonths;
 			}else{
-				inputMonth=6+inputMonth;
+				inputMonth=12+inputMonth-nMonths;
 				inputYear=inputYear-1;
 			}
 			lastPeriod=inputYear*100+inputMonth;
