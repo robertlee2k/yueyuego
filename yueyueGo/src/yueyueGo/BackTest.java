@@ -68,7 +68,7 @@ public class BackTest {
 	protected String m_startYear="2008";
 	protected String m_endYearMonth="201612";
 	protected String[] m_handSetSplitYear=new String[] {
-			"200801","200804",
+//			"200801","200804",
 //			"201607","201610",
 			//为年度模型使用
 //			  "2008","2009","2010","2011","2012","2013","2014","2015","2016",
