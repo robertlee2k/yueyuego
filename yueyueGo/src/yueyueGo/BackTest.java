@@ -92,7 +92,7 @@ public class BackTest {
 		AppContext.createContext(this.C_ROOT_DIRECTORY);	
 		BACKTEST_RESULT_DIR=AppContext.getBACKTEST_RESULT_DIR();
 
-		RUNNING_THREADS=20;
+		RUNNING_THREADS=30;
 		
 	}
 
