@@ -67,5 +67,47 @@ public class EvaluationConfDefinition implements Serializable{
 	}
 	
 
-
+	/*
+	 * 输出当前的评估阀值定义
+	 */
+	public String showEvaluationParameters(){
+		StringBuffer result=new StringBuffer();
+		result.append("SAMPLE_LOWER_LIMIT={");
+		for (double d : SAMPLE_LOWER_LIMIT) {
+			result.append(d);
+			result.append(",");
+		}
+		result.append("}\n\r");
+		
+		result.append("SAMPLE_UPPER_LIMIT={");
+		for (double d : SAMPLE_UPPER_LIMIT) {
+			result.append(d);
+			result.append(",");
+		}
+		result.append("}\n\r");
+		result.append("LIFT_UP_TARGET="+LIFT_UP_TARGET+"\n\r");
+		return result.toString();
+	}
+	
+	/*
+	 * 输出当前的合并阀值定义
+	 */
+	public static String showMergeParameters(){
+		StringBuffer result=new StringBuffer();
+		result.append("WINRATE_FILTER_FOR_SHOUYILV={");
+		for (double d : WINRATE_FILTER_FOR_SHOUYILV) {
+			result.append(d);
+			result.append(",");
+		}
+		result.append("}\n\r");
+		
+		result.append("SHOUYILV_FILTER_FOR_WINRATE={");
+		for (double d : SHOUYILV_FILTER_FOR_WINRATE) {
+			result.append(d);
+			result.append(",");
+		}
+		result.append("}\n\r");
+		return result.toString();
+		
+	}
 }

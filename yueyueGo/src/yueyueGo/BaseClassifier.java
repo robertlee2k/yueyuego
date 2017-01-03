@@ -27,6 +27,10 @@ import yueyueGo.utility.ThresholdData;
  * @author robert
  * 所有分类器的基类
  */
+/**
+ * @author robert
+ *
+ */
 public abstract class BaseClassifier implements Serializable{
 	/**
 	 * 
@@ -620,7 +624,32 @@ public abstract class BaseClassifier implements Serializable{
 			c=null;
 		}
 	}
+	
+	/*
+	 * 输出分类器的参数设置
+	 */
+	public void outputClassifyParameter() {
+		System.out.println("*************************");
+		System.out.println("ClassifyIdentity="+this.getIdentifyName());
+		System.out.println("m_skipTrainInBacktest="+this.m_skipTrainInBacktest);
+		System.out.println("m_skipEvalInBacktest="+this.m_skipEvalInBacktest);
+		System.out.println("m_noCaculationAttrib="+m_noCaculationAttrib);
+		System.out.println("m_removeSWData="+m_removeSWData);
+		System.out.println("m_positiveLine="+m_positiveLine);
+		
+
+		System.out.println("m_modelDataSplitMode="+m_modelDataSplitMode);
+		System.out.println("m_modelEvalFileShareMode="+m_modelEvalFileShareMode);
+		System.out.println("modelArffFormat="+modelArffFormat);
+		System.out.println(m_evalConf.showEvaluationParameters());
+	    System.out.println("*************************");
+	}
+	
+	/*
+	 * 输出分类器的分类结果
+	 */
 	public void outputClassifySummary() throws Exception{
+		outputClassifyParameter();
 		ClassifySummaries c=getClassifySummaries();
 		if (c!=null){
 			if (c.isForPrediction()){

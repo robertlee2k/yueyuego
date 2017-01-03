@@ -211,9 +211,9 @@ public class MergeClassifyResults {
 						mergedResult.add(newData);
 						resultIndex++;
 						leftIndex++;
-						if (mergedResult.numInstances() % 100000 ==0){
-							System.out.println("number of results processed:"+ mergedResult.numInstances());
-						}
+//						if (mergedResult.numInstances() % 100000 ==0){
+//							System.out.println("number of results processed:"+ mergedResult.numInstances());
+//						}
 					}else {
 						throw new Exception("data value in header data and result data does not equal left="+leftCurr.toString()+" /while result= "+resultCurr.toString());
 					}// end else of ArffFormat.checkSumBeforeMerge
@@ -225,6 +225,7 @@ public class MergeClassifyResults {
 				System.out.println("number of results merged and processed: "+ mergedResult.numInstances());
 			}
 			System.out.println("###### Finally selected count="+finalSelected+ "  ######");
+			System.out.println(EvaluationConfDefinition.showMergeParameters());
 			System.out.println(" result changed because of reference data not matched="+resultChanged+" while good change number="+goodChangeNum);
 			if (resultChanged>0){
 				double goodRatio=new Double(goodChangeNum).doubleValue()/resultChanged;
