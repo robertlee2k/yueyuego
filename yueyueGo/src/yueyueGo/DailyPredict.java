@@ -156,6 +156,7 @@ public class DailyPredict {
 		AdaboostClassifier adaModel=new AdaboostClassifier();
 		adaModel.m_usePCA=true;
 		adaModel.m_noCaculationAttrib=false;
+		adaModel.m_positiveLine=0;
 		GeneralInstances adaboostInstances=predictWithDB(adaModel);		
 
 		System.out.println("***************** now output prediction results************************");
