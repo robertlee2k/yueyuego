@@ -77,15 +77,15 @@ public class EvaluationConfDefinition implements Serializable{
 			result.append(d);
 			result.append(",");
 		}
-		result.append("}\n\r");
+		result.append("}\n");
 		
 		result.append("SAMPLE_UPPER_LIMIT={");
 		for (double d : SAMPLE_UPPER_LIMIT) {
 			result.append(d);
 			result.append(",");
 		}
-		result.append("}\n\r");
-		result.append("LIFT_UP_TARGET="+LIFT_UP_TARGET+"\n\r");
+		result.append("}\n");
+		result.append("LIFT_UP_TARGET="+LIFT_UP_TARGET);
 		return result.toString();
 	}
 	
@@ -99,14 +99,14 @@ public class EvaluationConfDefinition implements Serializable{
 			result.append(d);
 			result.append(",");
 		}
-		result.append("}\n\r");
+		result.append("}\n");
 		
 		result.append("SHOUYILV_FILTER_FOR_WINRATE={");
 		for (double d : SHOUYILV_FILTER_FOR_WINRATE) {
 			result.append(d);
 			result.append(",");
 		}
-		result.append("}\n\r");
+		result.append("}");
 		return result.toString();
 		
 	}

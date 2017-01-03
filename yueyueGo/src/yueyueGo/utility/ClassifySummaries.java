@@ -240,8 +240,6 @@ public class ClassifySummaries {
 		
 		
 		System.out.println("......................");
-		System.out.println("......................");
-		System.out.println("......................");
 		System.out.println("===============================output summary===================================== for : "+identityName);
 		System.out.println("Monthly selected_TPR mean: "+selected_TPR_mean+" standard deviation="+selected_TPR_SD+" Skewness="+selected_TPR_SKW+" Kurtosis="+selected_TPR_Kur);
 		System.out.println("Monthly selected_LIFT mean : "+lift_mean);
@@ -254,8 +252,6 @@ public class ClassifySummaries {
 		}
 		System.out.println("Monthly summary_judge_result summary: good number= "+FormatUtility.formatDouble(summary_judge_result.getSum(),8,0) + " bad number=" +FormatUtility.formatDouble((summary_judge_result.getN()-summary_judge_result.getSum()),8,0));
 		System.out.println("===============================end of summary=====================================for : "+identityName);
-		System.out.println("......................");
-		System.out.println("......................");
 		System.out.println("......................");
 
 	}

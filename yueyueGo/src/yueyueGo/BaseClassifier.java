@@ -629,7 +629,7 @@ public abstract class BaseClassifier implements Serializable{
 	 * 输出分类器的参数设置
 	 */
 	public void outputClassifyParameter() {
-		System.out.println("*************************");
+		System.out.println("***************************************CLASSIFY DATE="+FormatUtility.getDateStringFor(0));
 		System.out.println("ClassifyIdentity="+this.getIdentifyName());
 		System.out.println("m_skipTrainInBacktest="+this.m_skipTrainInBacktest);
 		System.out.println("m_skipEvalInBacktest="+this.m_skipEvalInBacktest);
@@ -642,7 +642,7 @@ public abstract class BaseClassifier implements Serializable{
 		System.out.println("m_modelEvalFileShareMode="+m_modelEvalFileShareMode);
 		System.out.println("modelArffFormat="+modelArffFormat);
 		System.out.println(m_evalConf.showEvaluationParameters());
-	    System.out.println("*************************");
+	    System.out.println("***************************************");
 	}
 	
 	/*
