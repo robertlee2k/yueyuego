@@ -64,7 +64,7 @@ public class DailyPredict {
 
 			//adaboost当前使用的预测模型
 			classifierName=ClassifyUtility.ADABOOST;
-			addModelData(classifierName,format,"\\extData2005-2016-adaboost-201604 MA ","\\extData2005-2016-adaboost-201605 MA ");
+			addModelData(classifierName,format,"\\extData2005-2016-adaboost-2016 MA ","\\extData2005-2016-adaboost-201602 MA ");
 			
 		}else if(EnvConstants.FULL_MODEL_ROOT_DIR.equals(type)){
 			// fullmodel不保留legacy
