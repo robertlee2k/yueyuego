@@ -172,6 +172,16 @@ import yueyueGo.utility.ClassifyUtility;
 //number of records for full market=1477574
 //shouyilv average for full market=0.66%
 //selected shouyilv average for full market =2.14% count=25633
+
+//###### Finally selected count=29736  ######
+//WINRATE_FILTER_FOR_SHOUYILV={0.4,0.4,0.35,0.35,0.3,}
+//SHOUYILV_FILTER_FOR_WINRATE={0.01,0.01,0.02,0.03,0.04,}
+// result changed because of reference data not matched=38909 while good change number=26244
+// good ratio=67.45% average changed shouyilv=1.58% @ winrate thredhold= /40.00% /40.00% /35.00% /35.00% /30.00% /
+//number of records for full market=1477574
+//shouyilv average for full market=0.66%
+//selected shouyilv average for full market =2.14% count=29736
+//-----now output nominal predictions----------adaboost
 public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunning{
 	/**
 	 * 
@@ -187,7 +197,7 @@ public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunn
 
 	@Override
 	protected void initializeParams() {
-		m_skipTrainInBacktest = true;
+		m_skipTrainInBacktest = false;
 		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 
@@ -205,7 +215,7 @@ public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunn
 		m_noCaculationAttrib=true;//不使用计算字段 (20161215试过无计算字段，效果不如有计算字段好） 
 		m_usePCA=true; //20121223尝试不使用PCA，效果不佳，恢复PCA
 		m_removeSWData=true; //20161222尝试不用申万行业数据
-		m_modelDataSplitMode=USE_YEAR_DATA_FOR_EVAL;//USE_NINE_MONTHS_DATA_FOR_EVAL; // //评估区间使用一年数据 （截止20170103，这个是效果最好的）
+		m_modelDataSplitMode=USE_NINE_MONTHS_DATA_FOR_EVAL;//USE_YEAR_DATA_FOR_EVAL;// // //评估区间使用一年数据 （截止20170103，这个是效果最好的）
 	}
 
 	

@@ -70,7 +70,8 @@ public class BackTest {
 	
 	protected String[] m_handSetSplitYear=new String[] {
 //			"200801","200804",
-//			"201607","201610",
+//			"201607",
+			"201610",
 			//为年度模型使用
 //			  "2008","2009","2010","2011","2012","2013","2014","2015","2016",
 			//为半年度模型使用		
@@ -610,7 +611,7 @@ public class BackTest {
 		//输出全市场概况
 		GeneralAttribute shouyilvAttribute=fullOutput.attribute(ArffFormat.SHOUYILV);
 		System.out.println("number of records for full market="+fullOutput.numInstances());
-		System.out.println("shouyilv average for full market="+FormatUtility.formatPercent(fullOutput.meanOrMode(shouyilvAttribute),2,2));
+		System.out.println("shouyilv average for full market="+FormatUtility.formatPercent(fullOutput.meanOrMode(shouyilvAttribute),2,4));
 	
 		GeneralDataSaver dataSaver=DataIOHandler.getSaver();
 		
@@ -619,7 +620,7 @@ public class BackTest {
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullOutput);
 		GeneralInstances fullMarketSelected=instanceProcessor.getInstancesSubset(fullOutput, WekaInstanceProcessor.WEKA_ATT_PREFIX +pos+" = 1");
 		shouyilvAttribute=fullMarketSelected.attribute(ArffFormat.SHOUYILV);
-		System.out.println("selected shouyilv average for full market ="+FormatUtility.formatPercent(fullMarketSelected.meanOrMode(shouyilvAttribute),2,2)+" count="+fullMarketSelected.numInstances());
+		System.out.println("selected shouyilv average for full market ="+FormatUtility.formatPercent(fullMarketSelected.meanOrMode(shouyilvAttribute),2,4)+" count="+fullMarketSelected.numInstances());
 		dataSaver.saveCSVFile(fullMarketSelected, BACKTEST_RESULT_DIR+"选股-"+ classiferName+"-full" + RESULT_EXTENSION );
 		//保存评估结果至数据库
 //		DataIOHandler.getSaver().saveToDatabase(fullMarketSelected, "result_"+classiferName);
