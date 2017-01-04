@@ -104,7 +104,7 @@ public class AdaboostClassifier extends NominalClassifier {
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 		
 		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = true;
+		m_skipEvalInBacktest = false;
 		
 		classifierName=ClassifyUtility.ADABOOST;
 		m_modelEvalFileShareMode=ModelStore.QUARTER_YEAR_SHARED_MODEL;//HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
@@ -117,7 +117,7 @@ public class AdaboostClassifier extends NominalClassifier {
 		m_usePCA=true; //20121223尝试不使用PCA，效果一般且建模非常慢，所以放弃
 		m_removeSWData=true; //20161222尝试不用申万行业数据
 		m_modelDataSplitMode=USE_NINE_MONTHS_DATA_FOR_EVAL; //尝试评估区间使用9个月数据（效果还不错）
-		m_positiveLine=0.03; //尝试3%的阀值
+//		m_positiveLine=0.03; //尝试3%的阀值
 	}
 		
 	@Override

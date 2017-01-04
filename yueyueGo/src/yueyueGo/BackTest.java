@@ -65,7 +65,7 @@ public class BackTest {
 	protected  double[] shouyilv_thresholds=EvaluationConfDefinition.SHOUYILV_FILTER_FOR_WINRATE; //对于胜率优先算法的收益率筛选阀值
 	protected  double[] winrate_thresholds=EvaluationConfDefinition.WINRATE_FILTER_FOR_SHOUYILV; //对于收益率优先算法的胜率筛选阀值
 
-	protected String m_startYear="2008";
+	protected String m_startYear="2016";//"2008";
 	protected String m_endYearMonth="201612";
 	
 	protected String[] m_handSetSplitYear=new String[] {
@@ -102,24 +102,24 @@ public class BackTest {
 
 		String[] result=null;
 		if(clModel.m_skipTrainInBacktest==false){ //需要构建模型
-			int evalMonths=clModel.m_modelDataSplitMode;
+//			int evalMonths=clModel.m_modelDataSplitMode;
 			switch (clModel.m_modelEvalFileShareMode){
 			case ModelStore.SEPERATE_MODEL_AND_EVAL: //这个是全量模型
-				result=manipulateYearMonth(startYear,endYearMonth,1,evalMonths);
+				result=manipulateYearMonth(startYear,endYearMonth,1);
 				break;
 			case ModelStore.YEAR_SHARED_MODEL:	 //生成年度模型 
 			case ModelStore.YEAR_SHARED_MODEL_AND_EVAL:	
-				result=manipulateYearMonth(startYear,endYearMonth,12,evalMonths);
+				result=manipulateYearMonth(startYear,endYearMonth,12);
 				break;
 			case ModelStore.QUARTER_YEAR_SHARED_MODEL: //生成季度模型
-				result=manipulateYearMonth(startYear,endYearMonth,3,evalMonths);
+				result=manipulateYearMonth(startYear,endYearMonth,3);
 				break;
 			case ModelStore.HALF_YEAR_SHARED_MODEL:	//生成半年度模型
-				result=manipulateYearMonth(startYear,endYearMonth,6,evalMonths);
+				result=manipulateYearMonth(startYear,endYearMonth,6);
 				break;
 			}
 		}else{//不需要构建模型，则按月生成所有的数据即可
-			result=manipulateYearMonth(startYear,endYearMonth,1,0);
+			result=manipulateYearMonth(startYear,endYearMonth,1);
 		}
 		//调用手工覆盖的函数接口
 		String[] needOverride=overrideSplitYear();
@@ -135,18 +135,18 @@ public class BackTest {
 		return result;
 	}
 	
-	private String[] manipulateYearMonth(String a_startYear,String endYearMonth, int interval,int evalDataMonths){
+	private String[] manipulateYearMonth(String a_startYear,String endYearMonth, int interval){//,int evalDataMonths){
 		int startYear=Integer.parseInt(a_startYear);	
 		String[] result=null;
 		String currentYearMonth=endYearMonth;//FormatUtility.getCurrentYearMonth();
 		int currentYear=Integer.parseInt(currentYearMonth.substring(0,4)); 
 		int currentMonth=Integer.parseInt(currentYearMonth.substring(4,6));
-		if (currentMonth>evalDataMonths){ //掐掉最后的评估月份数据
-			currentMonth-=evalDataMonths;
-		}else{//向去年借位
-			currentYear--;
-			currentMonth=12+currentMonth-evalDataMonths;
-		}
+//		if (currentMonth>evalDataMonths){ //掐掉最后的评估月份数据----此处不需要掐掉
+//			currentMonth-=evalDataMonths;
+//		}else{//向去年借位
+//			currentYear--;
+//			currentMonth=12+currentMonth-evalDataMonths;
+//		}
 		int size=0;
 		int pos=0;
 		size=(currentYear-startYear)*(12/interval)+(currentMonth-1)/interval+1-1/interval; //当前月是没有数据的，最新数据是上月的
