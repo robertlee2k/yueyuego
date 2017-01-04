@@ -331,11 +331,8 @@ public abstract class BaseClassifier implements Serializable{
 		ThresholdData thresholdData=ThresholdData.loadDataFromFile(m_modelStore.getEvalFileName());
 		String yearSplitInFile=thresholdData.getTargetYearSplit();
 		if (yearSplit.equals(yearSplitInFile)==false){
-			if(yearSplitInFile!=null)
+			if("".equals(yearSplit)==false) //只有在每日预测情况下yearSplit才会是""
 				throw new Exception("error! threshold data is inconsistent, target yearSplit="+yearSplit+" while yearSplit in file is "+yearSplitInFile+" file name="+m_modelStore.getEvalFileName());
-			else{
-				System.err.println("attention!, yearSplitInFile is null (this is acceptable for legacy eval file");
-			}
 		}else{
 			System.out.println("eval File verified for target yearsplit "+yearSplitInFile);
 		}

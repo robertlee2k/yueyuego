@@ -60,11 +60,11 @@ public class DailyPredict {
 			
 			//BaggingM5P当前使用的预测模型
 			classifierName=ClassifyUtility.BAGGING_M5P+ClassifyUtility.MULTI_PCA_SURFIX;
-			addModelData(classifierName,format,"\\extData2005-2016-baggingM5P-201507 MA ","\\extData2005-2016-baggingM5P-201511 MA ");
+			addModelData(classifierName,format,"\\extData2005-2016-baggingM5P-201510 MA ","\\extData2005-2016-baggingM5P-201511 MA ");
 
 			//adaboost当前使用的预测模型
 			classifierName=ClassifyUtility.ADABOOST;
-			addModelData(classifierName,format,"\\extData2005-2016-adaboost-201507 MA ","\\extData2005-2016-adaboost-201511 MA ");
+			addModelData(classifierName,format,"\\extData2005-2016-adaboost-201604 MA ","\\extData2005-2016-adaboost-201605 MA ");
 			
 		}else if(EnvConstants.FULL_MODEL_ROOT_DIR.equals(type)){
 			// fullmodel不保留legacy
@@ -149,14 +149,16 @@ public class DailyPredict {
 		//新格式的bagging m5p预测  (使用PCA版本和计算字段）
 		BaggingM5P cBagModel=new BaggingM5P();
 		cBagModel.m_usePCA=true;
-		cBagModel.m_noCaculationAttrib=false;
+		cBagModel.m_noCaculationAttrib=true;
+		cBagModel.m_removeSWData=true;
 		GeneralInstances baggingInstances=predictWithDB(cBagModel);
 
 		//Adaboost(使用PCA版本和计算字段）
 		AdaboostClassifier adaModel=new AdaboostClassifier();
 		adaModel.m_usePCA=true;
-		adaModel.m_noCaculationAttrib=false;
+		adaModel.m_noCaculationAttrib=true;
 		adaModel.m_positiveLine=0;
+		cBagModel.m_removeSWData=true;
 		GeneralInstances adaboostInstances=predictWithDB(adaModel);		
 
 		System.out.println("***************** now output prediction results************************");
@@ -303,6 +305,11 @@ public class DailyPredict {
 			//去掉多读入的CODE部分
 			instanceProcessor=InstanceHandler.getHandler(dailyData);
 			dailyData=instanceProcessor.removeAttribs(dailyData, new String[]{ArffFormat.CODE});
+			//决定是否删除申万行业数据
+			if (clModel.m_removeSWData==true){
+				dailyData=ArffFormat.removeSWData(dailyData);
+				System.out.println("removed SW Data based on model definition. now column="+ dailyData.numAttributes());
+			}
 			//将结果放入缓存
 			this.cached_daily_data.put(cacheKey, dailyData);
 		}
@@ -326,7 +333,7 @@ public class DailyPredict {
 		ClassifySummaries modelSummaries=new ClassifySummaries(clModel.getIdentifyName(),true);
 		clModel.setClassifySummaries(modelSummaries);
 
-		GeneralInstances fullData=calibrateAttributesForDailyData(inData,clModel.getModelArffFormat());
+		GeneralInstances fullData=calibrateAttributesForDailyData(inData,clModel);
 
 		//如果模型需要计算字段，则把计算字段加上
 		if (clModel.m_noCaculationAttrib==false){
@@ -415,13 +422,17 @@ public class DailyPredict {
 	}
 	
 	//这是对增量数据nominal label的处理 （因为增量数据中的nominal数据，label会可能不全）
-	private static GeneralInstances calibrateAttributesForDailyData(GeneralInstances incomingData,int formatType) throws Exception {
-
+	private static GeneralInstances calibrateAttributesForDailyData(GeneralInstances incomingData,BaseClassifier clModel) throws Exception {
+		int formatType=clModel.getModelArffFormat();
 		//与本地格式数据比较，这地方基本上会有nominal数据的label不一致，临时处理办法就是先替换掉
 		GeneralInstances outputData = getDailyPredictDataFormat(formatType);
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(outputData);
 		outputData=instanceProcessor.removeAttribs(outputData, ArffFormat.YEAR_MONTH_INDEX);
-
+		//如果要去除swData这里也要去除。
+		if (clModel.m_removeSWData==true){
+			outputData=ArffFormat.removeSWData(outputData);
+			System.out.println("removed SW Data in format based on model definition. now column="+ outputData.numAttributes());
+		}
 		instanceProcessor=InstanceHandler.getHandler(incomingData);
 		instanceProcessor.calibrateAttributes(incomingData, outputData);
 		return outputData;

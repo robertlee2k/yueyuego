@@ -115,6 +115,20 @@ import yueyueGo.utility.FormatUtility;
 //mixed selected positive rate: 38.73%
 //Monthly summary_judge_result summary: good number= 312 bad number=223
 //===============================end of summary=====================================for : adaboost
+//-----now output nominal predictions----------adaboost
+//incoming resultData size, row=1477574 column=6
+//incoming referenceData size, row=1477574 column=6
+//Left data loaded, row=1760436 column=12
+//number of results merged and processed: 1477574
+//###### Finally selected count=25381  ######
+//WINRATE_FILTER_FOR_SHOUYILV={0.45,0.45,0.45,0.35,0.3,}
+//SHOUYILV_FILTER_FOR_WINRATE={0.01,0.01,0.02,0.03,0.04,}
+// result changed because of reference data not matched=32663 while good change number=23057
+// good ratio=70.59% average changed shouyilv=1.94% @ shouyilv thredhold= /1.00% /1.00% /2.00% /3.00% /4.00% /
+//number of records for full market=1477574
+//shouyilv average for full market=0.66%
+//selected shouyilv average for full market =2.75% count=25381
+//-----end of test backward------
 public class AdaboostClassifier extends NominalClassifier {
 
 	/**
