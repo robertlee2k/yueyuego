@@ -222,7 +222,6 @@ public class BackTest {
 
 	protected void callTestBack() throws Exception {
 
-
 		//按二分类器回测历史数据
 //		BaggingJ48 nModel=new BaggingJ48();
 //		MLPABClassifier nModel = new MLPABClassifier();
