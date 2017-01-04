@@ -65,7 +65,7 @@ public class BackTest {
 	protected  double[] shouyilv_thresholds=EvaluationConfDefinition.SHOUYILV_FILTER_FOR_WINRATE; //对于胜率优先算法的收益率筛选阀值
 	protected  double[] winrate_thresholds=EvaluationConfDefinition.WINRATE_FILTER_FOR_SHOUYILV; //对于收益率优先算法的胜率筛选阀值
 
-	protected String m_startYear="2016";//"2008";
+	protected String m_startYear="2008";
 	protected String m_endYearMonth="201612";
 	
 	protected String[] m_handSetSplitYear=new String[] {
@@ -222,25 +222,22 @@ public class BackTest {
 
 	protected void callTestBack() throws Exception {
 
-		//按连续分类器回测历史数据
-		BaggingM5P cModel=new BaggingM5P();
-//		BaggingLinearRegression cModel=new BaggingLinearRegression();
-
-		GeneralInstances continuousResult=testBackward(cModel);
-		//不真正回测了，直接从以前的结果文件中加载
-//		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 
 		//按二分类器回测历史数据
 //		BaggingJ48 nModel=new BaggingJ48();
 //		MLPABClassifier nModel = new MLPABClassifier();
 //		MyNNClassifier nModel=new MyNNClassifier(); 
 		AdaboostClassifier nModel=new AdaboostClassifier();
-
-
 		GeneralInstances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
 //		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 		
+		//按连续分类器回测历史数据
+		BaggingM5P cModel=new BaggingM5P();
+//		BaggingLinearRegression cModel=new BaggingLinearRegression();
+		GeneralInstances continuousResult=testBackward(cModel);
+		//不真正回测了，直接从以前的结果文件中加载
+//		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 		
 		//统一输出统计结果
 		nModel.outputClassifySummary();

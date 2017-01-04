@@ -105,7 +105,6 @@ public class AdaboostClassifier extends NominalClassifier {
 		
 		m_skipTrainInBacktest = true;
 		m_skipEvalInBacktest = false;
-		
 		classifierName=ClassifyUtility.ADABOOST;
 		m_modelEvalFileShareMode=ModelStore.QUARTER_YEAR_SHARED_MODEL;//HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 		
