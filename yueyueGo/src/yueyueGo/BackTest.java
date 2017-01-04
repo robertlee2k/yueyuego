@@ -104,14 +104,13 @@ public class BackTest {
 		if(clModel.m_skipTrainInBacktest==false){ //需要构建模型
 //			int evalMonths=clModel.m_modelDataSplitMode;
 			switch (clModel.m_modelEvalFileShareMode){
-			case ModelStore.SEPERATE_MODEL_AND_EVAL: //这个是全量模型
+			case ModelStore.MONTHLY_MODEL: //这个是全量模型
 				result=manipulateYearMonth(startYear,endYearMonth,1);
 				break;
 			case ModelStore.YEAR_SHARED_MODEL:	 //生成年度模型 
-			case ModelStore.YEAR_SHARED_MODEL_AND_EVAL:	
 				result=manipulateYearMonth(startYear,endYearMonth,12);
 				break;
-			case ModelStore.QUARTER_YEAR_SHARED_MODEL: //生成季度模型
+			case ModelStore.QUARTER_SHARED_MODEL: //生成季度模型
 				result=manipulateYearMonth(startYear,endYearMonth,3);
 				break;
 			case ModelStore.HALF_YEAR_SHARED_MODEL:	//生成半年度模型

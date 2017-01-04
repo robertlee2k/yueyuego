@@ -88,6 +88,33 @@ import yueyueGo.utility.FormatUtility;
 //shouyilv average for full market=0.77%
 //selected shouyilv average for full market =2.47% count=40538
 //-----end of test backward------ (with baggingM5P)
+
+
+//***************************************CLASSIFY DATE=2017-01-04 
+//ClassifyIdentity=adaboost
+//m_skipTrainInBacktest=true
+//m_skipEvalInBacktest=false
+//m_noCaculationAttrib=true
+//m_removeSWData=true
+//m_positiveLine=0.0
+//m_modelDataSplitMode=9
+//m_modelEvalFileShareMode=3
+//modelArffFormat=2
+//SAMPLE_LOWER_LIMIT={0.03,0.03,0.03,0.03,0.03,}
+//SAMPLE_UPPER_LIMIT={0.1,0.1,0.1,0.1,0.1,}
+//LIFT_UP_TARGET=1.8
+//***************************************
+//......................
+//===============================output summary===================================== for : adaboost
+//Monthly selected_TPR mean: 31.75% standard deviation=21.47% Skewness=0.7 Kurtosis=-0.09
+//Monthly selected_LIFT mean : 1.1
+//Monthly selected_positive summary: 22,480
+//Monthly selected_count summary: 58,044
+//Monthly selected_shouyilv average: 1.25% standard deviation=7.33% Skewness=3.79 Kurtosis=27.14
+//Monthly total_shouyilv average: 0.83% standard deviation=6.01% Skewness=3.07 Kurtosis=15.82
+//mixed selected positive rate: 38.73%
+//Monthly summary_judge_result summary: good number= 312 bad number=223
+//===============================end of summary=====================================for : adaboost
 public class AdaboostClassifier extends NominalClassifier {
 
 	/**
@@ -104,9 +131,9 @@ public class AdaboostClassifier extends NominalClassifier {
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 		
 		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = false;
+		m_skipEvalInBacktest = true;
 		classifierName=ClassifyUtility.ADABOOST;
-		m_modelEvalFileShareMode=ModelStore.QUARTER_YEAR_SHARED_MODEL;//HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
+		m_modelEvalFileShareMode=ModelStore.QUARTER_SHARED_MODEL;//HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 		
 		leafMinObjNum=300; 	//j48树最小节点叶子数
 		divided=300; //将trainingData分成多少份

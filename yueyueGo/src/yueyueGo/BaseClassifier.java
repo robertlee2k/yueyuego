@@ -83,7 +83,7 @@ public abstract class BaseClassifier implements Serializable{
 		m_noCaculationAttrib=false;  //缺省情况下，加入的计算字段 （在子类中覆盖）
 		m_removeSWData=false;  //缺省情况下，不删除申万行业数据（在子类中覆盖）
 		modelArffFormat=ArffFormat.EXT_FORMAT; //缺省使用扩展arff
-		m_modelEvalFileShareMode=ModelStore.SEPERATE_MODEL_AND_EVAL; //model文件和Eval的共享模式,缺省为 回测时按yearsplit和policysplit分割使用model和eval文件
+		m_modelEvalFileShareMode=ModelStore.MONTHLY_MODEL; //model文件和Eval的共享模式,缺省为 回测时按yearsplit和policysplit分割使用model和eval文件
 		m_modelDataSplitMode=USE_YEAR_DATA_FOR_EVAL;//缺省使用倒推一年的数据作为模型评估数据，之前用于的构建模型
 		WORK_FILE_PREFIX= "extData2005-2016";
 		initializeParams();		// 留给子类的初始化参数函数

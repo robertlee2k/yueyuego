@@ -105,6 +105,33 @@ import yueyueGo.utility.ClassifyUtility;
 //shouyilv average for full market=0.77%
 //selected shouyilv average for full market =2.29% count=38867
 //-----now output nominal predictions----------adaboost
+
+//2011年和2013年回撤比较大。
+//***************************************CLASSIFY DATE=2017-01-04 
+//ClassifyIdentity=baggingM5P-multiPCA
+//m_skipTrainInBacktest=true
+//m_skipEvalInBacktest=false
+//m_noCaculationAttrib=true
+//m_removeSWData=true
+//m_positiveLine=0.0
+//m_modelDataSplitMode=12
+//m_modelEvalFileShareMode=3
+//modelArffFormat=2
+//SAMPLE_LOWER_LIMIT={0.03,0.03,0.04,0.04,0.04,}
+//SAMPLE_UPPER_LIMIT={0.1,0.1,0.1,0.1,0.1,}
+//LIFT_UP_TARGET=1.8
+//***************************************
+//......................
+//===============================output summary===================================== for : baggingM5P-multiPCA
+//Monthly selected_TPR mean: 28.85% standard deviation=23.80% Skewness=0.83 Kurtosis=0.26
+//Monthly selected_LIFT mean : 0.97
+//Monthly selected_positive summary: 25,985
+//Monthly selected_count summary: 73,727
+//Monthly selected_shouyilv average: 1.02% standard deviation=8.19% Skewness=6.49 Kurtosis=76.21
+//Monthly total_shouyilv average: 0.83% standard deviation=6.01% Skewness=3.07 Kurtosis=15.82
+//mixed selected positive rate: 35.24%
+//Monthly summary_judge_result summary: good number= 289 bad number=246
+//===============================end of summary=====================================for : baggingM5P-multiPCA
 public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunning{
 	/**
 	 * 
@@ -130,7 +157,7 @@ public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunn
 		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
 		
 
-		m_modelEvalFileShareMode=ModelStore.QUARTER_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
+		m_modelEvalFileShareMode=ModelStore.QUARTER_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 		bagging_iteration=10;	//bagging特有参数
 		leafMinObjNum=300; //叶子节点最小的
 		divided=300; //将trainingData分成多少份

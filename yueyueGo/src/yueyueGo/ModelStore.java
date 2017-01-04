@@ -15,11 +15,10 @@ public class ModelStore {
 	public static final String MODEL_FILE_EXTENSION = ".mdl";
 	public static final String THRESHOLD_EXTENSION = ".eval";
 	
-	public static final int SEPERATE_MODEL_AND_EVAL=1; // 回测时按yearsplit和policysplit分割使用model和eval文件， 这是细分的做法
-	public static final int YEAR_SHARED_MODEL=2; //回测时按年共享模型， eval文件则根据yearsplit自行分割。
-	public static final int HALF_YEAR_SHARED_MODEL=3; //回测时按半年共享模型， eval文件则根据yearsplit自行分割。
-	public static final int YEAR_SHARED_MODEL_AND_EVAL=4; //回测时按年共享模型和评估文件， 这个最不常见
-	public static final int QUARTER_YEAR_SHARED_MODEL=5; //回测时按季度共享模型， eval文件则根据yearsplit自行分割。
+	public static final int MONTHLY_MODEL=1; // 回测时按yearsplit和policysplit分割使用model和eval文件， 这是细分的做法
+	public static final int YEAR_SHARED_MODEL=12; //回测时按年共享模型， eval文件则根据yearsplit自行分割。
+	public static final int HALF_YEAR_SHARED_MODEL=6; //回测时按半年共享模型， eval文件则根据yearsplit自行分割。
+	public static final int QUARTER_SHARED_MODEL=3; //回测时按季度共享模型， eval文件则根据yearsplit自行分割。
 
 	protected String m_modelFileName;
 	protected String m_evalFileName;
@@ -48,7 +47,7 @@ public class ModelStore {
 		String evalFile=null;
 		String convertedYear=null;
 		switch (modelEvalFileShareMode){//classifier.m_modelEvalFileShareMode) {
-		case SEPERATE_MODEL_AND_EVAL:
+		case MONTHLY_MODEL:
 			modelFile=concatModeFilenameString(modelYearSplit, policySplit, workFileFullPrefix, classifierName);
 			evalFile=modelFile+ModelStore.THRESHOLD_EXTENSION;
 			break;
@@ -63,7 +62,7 @@ public class ModelStore {
 			}
 			modelFile=concatModeFilenameString(convertedYear, policySplit, workFileFullPrefix, classifierName);
 			break;
-		case QUARTER_YEAR_SHARED_MODEL:
+		case QUARTER_SHARED_MODEL:
 			//评估文件按yearsplit和policySplit切割
 			evalFile=concatModeFilenameString(modelYearSplit, policySplit, workFileFullPrefix, classifierName)+ModelStore.THRESHOLD_EXTENSION;;
 			String quarterString="";
@@ -106,17 +105,6 @@ public class ModelStore {
 			}
 			modelFile=concatModeFilenameString(convertedYear+halfYearString, policySplit, workFileFullPrefix, classifierName);
 
-			break;
-		
-		case YEAR_SHARED_MODEL_AND_EVAL:	
-			//模型文件按年处理,评估文件也相同
-			if ( modelYearSplit.length()==6){
-				convertedYear= modelYearSplit.substring(0,4);
-			}else{
-				convertedYear= modelYearSplit;
-			}			
-			modelFile=concatModeFilenameString(convertedYear, policySplit, workFileFullPrefix, classifierName);
-			evalFile=modelFile+ModelStore.THRESHOLD_EXTENSION;
 			break;
 		
 		default:
