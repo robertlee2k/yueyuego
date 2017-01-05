@@ -134,45 +134,6 @@ import yueyueGo.utility.ClassifyUtility;
 //===============================end of summary=====================================for : baggingM5P-multiPCA
 
 
-//***************************************CLASSIFY DATE=2017-01-04 
-//ClassifyIdentity=baggingM5P-multiPCA
-//m_skipTrainInBacktest=true
-//m_skipEvalInBacktest=false
-//m_noCaculationAttrib=true
-//m_removeSWData=true
-//m_positiveLine=0.0
-//m_modelDataSplitMode=12
-//m_modelEvalFileShareMode=3
-//modelArffFormat=2
-//SAMPLE_LOWER_LIMIT={0.03,0.03,0.03,0.03,0.03,}
-//SAMPLE_UPPER_LIMIT={0.1,0.1,0.1,0.1,0.1,}
-//LIFT_UP_TARGET=1.8
-//***************************************
-//......................
-//===============================output summary===================================== for : baggingM5P-multiPCA
-//Monthly selected_TPR mean: 28.56% standard deviation=24.12% Skewness=0.83 Kurtosis=0.23
-//Monthly selected_LIFT mean : 0.95
-//Monthly selected_positive summary: 24,406
-//Monthly selected_count summary: 68,645
-//Monthly selected_shouyilv average: 1.03% standard deviation=8.13% Skewness=6.53 Kurtosis=77.79
-//Monthly total_shouyilv average: 0.83% standard deviation=6.01% Skewness=3.07 Kurtosis=15.82
-//mixed selected positive rate: 35.55%
-//Monthly summary_judge_result summary: good number= 290 bad number=245
-//===============================end of summary=====================================for : baggingM5P-multiPCA
-//-----now output continuous predictions----------baggingM5P-multiPCA
-//incoming resultData size, row=1477574 column=6
-//incoming referenceData size, row=1477574 column=6
-//Left data loaded, row=1760436 column=12
-//number of results merged and processed: 1477574
-//###### Finally selected count=25633  ######
-//WINRATE_FILTER_FOR_SHOUYILV={0.45,0.45,0.45,0.35,0.3,}
-//SHOUYILV_FILTER_FOR_WINRATE={0.01,0.01,0.02,0.03,0.04,}
-// result changed because of reference data not matched=43012 while good change number=28745
-// good ratio=66.83% average changed shouyilv=1.64% @ winrate thredhold= /45.00% /45.00% /45.00% /35.00% /30.00% /
-//number of records for full market=1477574
-//shouyilv average for full market=0.66%
-//selected shouyilv average for full market =2.14% count=25633
-
 //***************************************CLASSIFY DATE=2017-01-05 
 //ClassifyIdentity=baggingM5P-multiPCA
 //m_skipTrainInBacktest=true
@@ -212,6 +173,46 @@ import yueyueGo.utility.ClassifyUtility;
 //number of records for full market=1477574
 //shouyilv average for full market=0.6578%
 //selected shouyilv average for full market =2.1422% count=29736
+
+//***************************************CLASSIFY DATE=2017-01-05 
+//ClassifyIdentity=baggingM5P-multiPCA
+//m_skipTrainInBacktest=true
+//m_skipEvalInBacktest=false
+//m_noCaculationAttrib=true
+//m_removeSWData=true
+//m_positiveLine=0.0
+//m_modelDataSplitMode=9
+//m_modelEvalFileShareMode=3
+//modelArffFormat=2
+//SAMPLE_LOWER_LIMIT={0.03,0.03,0.03,0.03,0.03,}
+//SAMPLE_UPPER_LIMIT={0.1,0.1,0.1,0.1,0.1,}
+//LIFT_UP_TARGET=1.8
+//***************************************
+//......................
+//===============================output summary===================================== for : baggingM5P-multiPCA
+//Monthly selected_TPR mean: 29.34% standard deviation=23.90% Skewness=0.7 Kurtosis=-0.17
+//Monthly selected_LIFT mean : 0.99
+//Monthly selected_positive summary: 23,968
+//Monthly selected_count summary: 67,028
+//Monthly selected_shouyilv average: 1.05% standard deviation=7.45% Skewness=3.65 Kurtosis=23.18
+//Monthly total_shouyilv average: 0.83% standard deviation=6.01% Skewness=3.07 Kurtosis=15.82
+//mixed selected positive rate: 35.76%
+//Monthly summary_judge_result summary: good number= 308 bad number=227
+//===============================end of summary=====================================for : baggingM5P-multiPCA
+//......................
+//-----now output continuous predictions----------baggingM5P-multiPCA
+//incoming resultData size, row=1477574 column=6
+//incoming referenceData size, row=1477574 column=6
+//Left data loaded, row=1760436 column=12
+//number of results merged and processed: 1477574
+//###### Finally selected count=29233  ######
+//WINRATE_FILTER_FOR_SHOUYILV={0.4,0.4,0.35,0.35,0.3,}
+//SHOUYILV_FILTER_FOR_WINRATE={0.01,0.01,0.02,0.03,0.04,}
+// result changed because of reference data not matched=37795 while good change number=25570
+// good ratio=67.65% average changed shouyilv=1.31% @ winrate thredhold= /40.00% /40.00% /35.00% /35.00% /30.00% /
+//number of records for full market=1477574
+//shouyilv average for full market=0.6578%
+//selected shouyilv average for full market =2.0902% count=29233
 public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunning{
 	/**
 	 * 
