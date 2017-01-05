@@ -128,6 +128,20 @@ import yueyueGo.utility.FormatUtility;
 //number of records for full market=1477574
 //shouyilv average for full market=0.6578%
 //selected shouyilv average for full market =2.7544% count=25381
+
+//-----now output nominal predictions----------adaboost
+//incoming resultData size, row=1477574 column=6
+//incoming referenceData size, row=1477574 column=6
+//Left data loaded, row=1760436 column=12
+//number of results merged and processed: 1477574
+//###### Finally selected count=20877  ######
+//WINRATE_FILTER_FOR_SHOUYILV={0.5,0.5,0.45,0.45,0.4,}
+//SHOUYILV_FILTER_FOR_WINRATE={0.01,0.02,0.03,0.04,0.05,}
+// result changed because of reference data not matched=37167 while good change number=26908
+// good ratio=72.40% average changed shouyilv=2.16% @ shouyilv thredhold= /1.00% /2.00% /3.00% /4.00% /5.00% /
+//number of records for full market=1477574
+//shouyilv average for full market=0.6578%
+//selected shouyilv average for full market =2.5265% count=20877
 public class AdaboostClassifier extends NominalClassifier {
 
 	/**
