@@ -147,7 +147,7 @@ public class MergeClassifyResults {
 							profit=resultCurr.value(resultData.attribute(ArffFormat.RESULT_PREDICTED_PROFIT));
 							//需要添加参考集里的什么数据
 							winrate=referenceCurr.value(referenceData.attribute(ArffFormat.RESULT_PREDICTED_WIN_RATE));
-							//当为连续分类器合并胜率时，如果参照的二分类器预期胜率小于等于0.5，则不选择该条记录?
+							//当为连续分类器合并胜率时，如果参照的二分类器预期胜率小于等于某阀值，则不选择该条记录
 							if (selected==1){
 								
 								int index;
