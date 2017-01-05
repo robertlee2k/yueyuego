@@ -225,9 +225,9 @@ public class BackTest {
 //		MLPABClassifier nModel = new MLPABClassifier();
 //		MyNNClassifier nModel=new MyNNClassifier(); 
 		AdaboostClassifier nModel=new AdaboostClassifier();
-		GeneralInstances nominalResult=testBackward(nModel);
+//		GeneralInstances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
-//		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
+		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 		
 		//按连续分类器回测历史数据
 		BaggingM5P cModel=new BaggingM5P();
