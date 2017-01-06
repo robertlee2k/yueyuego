@@ -82,7 +82,7 @@ public class DailyPredict {
 
 	public static void main(String[] args) {
 		try {
-			callFullModelPredict();
+//			callFullModelPredict();
 			callDailyPredict();
 
 		} catch (Exception e) {

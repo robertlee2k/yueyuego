@@ -157,14 +157,19 @@ public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 		fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
 		System.out.println("FULLMODEL...merged another File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
 		
-		int startYear=2014;
-		int endYear=2016;
+		addData = loadDataFromFullModelCSVFile(sourceFilePrefix+"2014_2016.txt");
+		fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
+		System.out.println("FULLMODEL...merged another File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
 		
-		for (int i=startYear;i<=endYear;i++){
-			addData = loadDataFromFullModelCSVFile(sourceFilePrefix+i+".txt");
-			fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
-			System.out.println("FULLMODEL...merged "+i +" File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
-		}
+
+//		int startYear=2014;
+//		int endYear=2016;
+//		
+//		for (int i=startYear;i<=endYear;i++){
+//			addData = loadDataFromFullModelCSVFile(sourceFilePrefix+i+".txt");
+//			fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
+//			System.out.println("FULLMODEL...merged "+i +" File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
+//		}
 		return fullData;
 	}
 	
