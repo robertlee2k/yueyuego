@@ -191,9 +191,9 @@ public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 		//保存不含计算字段的格式
 		DataIOHandler.getSaver().SaveDataIntoFile(result, originFileName+"-short.arff");
 		
-		//添加计算字段
-		result=ArffFormat.addCalculateAttribute(result);
-		DataIOHandler.getSaver().SaveDataIntoFile(result, originFileName+"-new.arff");
+//		//添加计算字段
+//		result=ArffFormat.addCalculateAttribute(result);
+//		DataIOHandler.getSaver().SaveDataIntoFile(result, originFileName+"-new.arff");
 		System.out.println("FULLMODEL...full Set Data File saved "  );
 
 	}

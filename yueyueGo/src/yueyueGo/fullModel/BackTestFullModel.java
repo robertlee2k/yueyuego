@@ -10,9 +10,7 @@ import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.dataProcessor.InstanceHandler;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.datasource.DataIOHandler;
-import yueyueGo.fullModel.classifier.AdaboostFullModel;
 import yueyueGo.fullModel.classifier.BaggingM5PFullModel;
-import yueyueGo.fullModel.classifier.BaggingRegressionFullModel;
 import yueyueGo.fullModel.classifier.MyNNFullModel;
 import yueyueGo.utility.AppContext;
 import yueyueGo.utility.MergeClassifyResults;
@@ -60,10 +58,6 @@ public class BackTestFullModel extends BackTest {
 		RUNNING_THREADS=5;
 		
 		//逐次刷新数据
-		model=new AdaboostFullModel();
-		model.m_skipTrainInBacktest=true;
-		model.m_skipEvalInBacktest=false;
-		testBackward(model);
 		
 		model=new BaggingM5PFullModel();
 		model.m_skipTrainInBacktest=true;
@@ -71,11 +65,6 @@ public class BackTestFullModel extends BackTest {
 		testBackward(model);
 		
 		model=new MyNNFullModel();
-		model.m_skipTrainInBacktest=true;
-		model.m_skipEvalInBacktest=false;
-		testBackward(model);
-
-		model=new BaggingRegressionFullModel();
 		model.m_skipTrainInBacktest=true;
 		model.m_skipEvalInBacktest=false;
 		testBackward(model);
@@ -87,8 +76,8 @@ public class BackTestFullModel extends BackTest {
 	protected void callFullModelTestBack() throws Exception, IOException {
 		//按二分类器回测历史数据
 //		BaggingJ48FullModel nModel=new BaggingJ48FullModel();
-		AdaboostFullModel nModel=new AdaboostFullModel();
-//		MyNNFullModel nModel=new MyNNFullModel();
+//		AdaboostFullModel nModel=new AdaboostFullModel();
+		MyNNFullModel nModel=new MyNNFullModel();
 		if (applyToMaModelInTestBack==true){//用fullModel模型来测试均线模型时不用重新build和评估
 			nModel.m_skipTrainInBacktest=true;
 			nModel.m_skipEvalInBacktest=true;
@@ -160,6 +149,12 @@ public class BackTestFullModel extends BackTest {
 			fullSetData = InstanceHandler.getHandler(fullSetData).removeAttribs(fullSetData,""+pos );
 		}
 		System.out.println("finish loading fullset Data. row : "+fullSetData.numInstances() + " column:"+ fullSetData.numAttributes());
+		
+		//决定是否删除申万行业数据
+		if (clModel.m_removeSWData==true){
+			fullSetData=ArffFormat.removeSWData(fullSetData);
+			System.out.println("removed SW Data based on model definition. now column="+ fullSetData.numAttributes());
+		}
 		return fullSetData;
 	}
 
@@ -175,7 +170,8 @@ public class BackTestFullModel extends BackTest {
 		if (clModel.m_noCaculationAttrib==true){
 			arffFile=ArffFormatFullModel.FULL_MODEL_SHORT_ARFF_FILE;
 		}else{
-			arffFile=ArffFormatFullModel.FULL_MODEL_LONG_ARFF_FILE;
+//			arffFile=ArffFormatFullModel.FULL_MODEL_LONG_ARFF_FILE;
+			throw new RuntimeException("we don't support Calculation fields any more");
 		}
 		String arffFullFileName=C_ROOT_DIRECTORY+arffFile;
 		//		int year=Integer.parseInt(splitMark);
@@ -197,7 +193,8 @@ public class BackTestFullModel extends BackTest {
 		if (clModel.m_noCaculationAttrib==true){
 			arffFile=ArffFormat.SHORT_ARFF_FILE;
 		}else{
-			arffFile=ArffFormat.LONG_ARFF_FILE;
+//			arffFile=ArffFormat.LONG_ARFF_FILE;
+			throw new RuntimeException("we don't support Calculation fields any more");
 		}
 		String arffFullFileName=EnvConstants.AVG_LINE_ROOT_DIR+arffFile;
 		return arffFullFileName;

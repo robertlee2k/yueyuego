@@ -12,6 +12,7 @@ import yueyueGo.utility.ClassifyUtility;
 //selected shouyilv average for full market =2.27% count=44204
 //selected shouyilv average for hs300 =1.63% count=2753
 //selected shouyilv average for zz500 =1.12% count=14042
+@Deprecated
 public class BaggingJ48FullModel extends BaggingJ48 {
  
 	/**

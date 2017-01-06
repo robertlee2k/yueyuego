@@ -5,7 +5,7 @@ import yueyueGo.ModelStore;
 import yueyueGo.classifier.BaggingLinearRegression;
 import yueyueGo.fullModel.ArffFormatFullModel;
 import yueyueGo.utility.ClassifyUtility;
-
+@Deprecated
 public class BaggingRegressionFullModel extends BaggingLinearRegression {
 
 	/**

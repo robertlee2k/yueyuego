@@ -29,7 +29,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import yueyueGo.classifier.AdaboostClassifier;
-import yueyueGo.classifier.BaggingLinearRegression;
 import yueyueGo.classifier.BaggingM5P;
 import yueyueGo.classifier.MyNNClassifier;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
@@ -212,10 +211,6 @@ public class BackTest {
 		model.m_skipEvalInBacktest=false;
 		testBackward(model);
 
-		model=new BaggingLinearRegression();
-		model.m_skipTrainInBacktest=true;
-		model.m_skipEvalInBacktest=false;
-		testBackward(model);
 	}
 
 	protected void callTestBack() throws Exception {
@@ -501,7 +496,8 @@ public class BackTest {
 		if (clModel.m_noCaculationAttrib==true){
 			arffFile=ArffFormat.SHORT_ARFF_FILE;
 		}else{
-			arffFile=ArffFormat.LONG_ARFF_FILE;
+//			arffFile=ArffFormat.LONG_ARFF_FILE;
+			throw new RuntimeException("we don't support Calculation fields any more");
 		}
 
 		System.out.println("start to load File for fullset from File: "+ arffFile  );

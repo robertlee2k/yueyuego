@@ -6,6 +6,7 @@ import yueyueGo.classifier.AdaboostClassifier;
 import yueyueGo.fullModel.ArffFormatFullModel;
 import yueyueGo.utility.ClassifyUtility;
 
+@Deprecated
 public class AdaboostFullModel extends AdaboostClassifier {
 
 	/**

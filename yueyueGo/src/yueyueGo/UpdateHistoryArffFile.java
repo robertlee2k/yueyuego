@@ -550,6 +550,7 @@ public class UpdateHistoryArffFile {
 		return mergedResult;
 	}
 
+	@Deprecated
 	final protected static void addCalculationsToFile(String path, String arffName) throws Exception{
 		System.out.println("start to load File for data "  );
 		GeneralInstances fullSetData = DataIOHandler.getSuppier().loadDataFromFile(path+arffName + "-short.arff");
@@ -604,9 +605,9 @@ public class UpdateHistoryArffFile {
 		//保存不含计算字段的格式
 		DataIOHandler.getSaver().SaveDataIntoFile(result, originFileName+"-short.arff");
 	
-		//添加计算字段
-		result=ArffFormat.addCalculateAttribute(result);
-		DataIOHandler.getSaver().SaveDataIntoFile(result, originFileName+"-new.arff");
+//		//添加计算字段
+//		result=ArffFormat.addCalculateAttribute(result);
+//		DataIOHandler.getSaver().SaveDataIntoFile(result, originFileName+"-new.arff");
 		System.out.println("full Set Data File saved "  );
 	
 	}

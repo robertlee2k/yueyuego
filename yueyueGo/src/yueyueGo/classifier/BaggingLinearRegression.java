@@ -46,7 +46,7 @@ import yueyueGo.utility.ClassifyUtility;
 //shouyilv average for full market=0.77%
 //selected shouyilv average for full market =3.17% count=39216
 //-----now output nominal predictions----------adaboost
-
+@Deprecated
 public class BaggingLinearRegression extends ContinousClassifier implements ParrallelizedRunning {
 
 	/**
