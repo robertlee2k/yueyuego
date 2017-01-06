@@ -1,7 +1,6 @@
 package yueyueGo.classifier.deprecated;
 
 import yueyueGo.ModelStore;
-import yueyueGo.classifier.MLPABClassifier;
 import yueyueGo.fullModel.ArffFormatFullModel;
 
 public class MLPABFullModel extends MLPABClassifier {

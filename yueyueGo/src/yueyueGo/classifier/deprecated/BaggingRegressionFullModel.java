@@ -1,8 +1,7 @@
-package yueyueGo.fullModel.classifier;
+package yueyueGo.classifier.deprecated;
 
 import yueyueGo.EnvConstants;
 import yueyueGo.ModelStore;
-import yueyueGo.classifier.BaggingLinearRegression;
 import yueyueGo.fullModel.ArffFormatFullModel;
 import yueyueGo.utility.ClassifyUtility;
 @Deprecated

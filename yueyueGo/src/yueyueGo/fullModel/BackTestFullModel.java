@@ -74,6 +74,18 @@ public class BackTestFullModel extends BackTest {
 	 * @throws IOException
 	 */
 	protected void callFullModelTestBack() throws Exception, IOException {
+		//按连续分类器回测历史数据
+		BaggingM5PFullModel cModel=new BaggingM5PFullModel();
+//		BaggingRegressionFullModel cModel=new BaggingRegressionFullModel();
+		if (applyToMaModelInTestBack==true){//用fullModel模型来测试均线模型时不用重新build和评估
+			cModel.m_skipTrainInBacktest=true;
+			cModel.m_skipEvalInBacktest=true;
+		}
+
+		GeneralInstances continuousResult=testBackward(cModel);
+		//不真正回测了，直接从以前的结果文件中加载
+//		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
+
 		//按二分类器回测历史数据
 //		BaggingJ48FullModel nModel=new BaggingJ48FullModel();
 //		AdaboostFullModel nModel=new AdaboostFullModel();
@@ -87,17 +99,6 @@ public class BackTestFullModel extends BackTest {
 		//不真正回测了，直接从以前的结果文件中加载
 //		BaseInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 
-		//按连续分类器回测历史数据
-		BaggingM5PFullModel cModel=new BaggingM5PFullModel();
-//		BaggingRegressionFullModel cModel=new BaggingRegressionFullModel();
-		if (applyToMaModelInTestBack==true){//用fullModel模型来测试均线模型时不用重新build和评估
-			cModel.m_skipTrainInBacktest=true;
-			cModel.m_skipEvalInBacktest=true;
-		}
-
-//		GeneralInstances continuousResult=testBackward(cModel);
-		//不真正回测了，直接从以前的结果文件中加载
-		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 		
 		//统一输出统计结果
 		nModel.outputClassifySummary();

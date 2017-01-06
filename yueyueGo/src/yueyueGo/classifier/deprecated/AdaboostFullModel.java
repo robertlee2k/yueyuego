@@ -1,4 +1,4 @@
-package yueyueGo.fullModel.classifier;
+package yueyueGo.classifier.deprecated;
 
 import yueyueGo.EnvConstants;
 import yueyueGo.ModelStore;

@@ -1,4 +1,4 @@
-package yueyueGo.classifier;
+package yueyueGo.classifier.deprecated;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.functions.LinearRegression;

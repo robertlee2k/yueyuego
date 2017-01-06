@@ -1,7 +1,6 @@
 package yueyueGo.classifier.deprecated;
 
 import yueyueGo.ModelStore;
-import yueyueGo.classifier.M5PABClassifier;
 import yueyueGo.fullModel.ArffFormatFullModel;
 
 @Deprecated

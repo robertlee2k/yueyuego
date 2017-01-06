@@ -20,15 +20,14 @@ public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 			BackTestFullModel fullModelWorker=new BackTestFullModel();
 			fullModelWorker.init();
 
-			//刷新增量数据
-			UpdateHistoryArffFullModel.callRefreshInstancesFullModel();
-			
-			//短线模型刷新最新月评估数据
-			fullModelWorker.callRefreshFullModelUseLatestData();
-			
-			
 			//短线模型生成初始全量数据
-//			UpdateHistoryArffFullModel.createFullModelInstances();
+			UpdateHistoryArffFullModel.callCreateFullModelInstances();
+
+//			//刷新增量数据
+//			UpdateHistoryArffFullModel.callRefreshInstancesFullModel();
+//			
+//			//短线模型刷新最新月评估数据
+//			fullModelWorker.callRefreshFullModelUseLatestData();
 			
 			//短线模型合并新的属性
 //			UpdateHistoryArffFullModel.callMergeExtDataForFullModel();			
@@ -83,7 +82,7 @@ public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 		System.out.println("FULLMODEL...trans arff file saved. ");
 		
 		//取出前半年的旧数据和当年的新数据作为验证的sample数据
-		String splitSampleClause = "( ATT" + ArffFormatFullModel.YEAR_MONTH_INDEX + " >= 201506) and ( ATT" + ArffFormatFullModel.YEAR_MONTH_INDEX+ " <= 201612) ";
+		String splitSampleClause = "( ATT" + ArffFormatFullModel.YEAR_MONTH_INDEX + " >= 201606) and ( ATT" + ArffFormatFullModel.YEAR_MONTH_INDEX+ " <= 201712) ";
 		GeneralInstances sampleData=instanceProcessor.getInstancesSubset(fullData, splitSampleClause);
 		DataIOHandler.getSaver().SaveDataIntoFile(sampleData, arffFileName+"-sample.arff");
 		System.out.println("FULLMODEL...sample arff file saved. ");
@@ -144,11 +143,21 @@ public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 	}
 
 	private static GeneralInstances mergeSrcFullModelFiles() throws Exception,	IllegalStateException {
-		String sourceFilePrefix=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\自选股\\第四组自选股5天后卖出策略数据\\test_onceyield_group4allhis_optional";
-		GeneralInstances fullData = loadDataFromFullModelCSVFile(sourceFilePrefix+"2005-2006.txt");
+		String sourceFilePrefix=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\短线策略全量数据\\onceyield_group7all_optional";
+		GeneralInstances fullData = loadDataFromFullModelCSVFile(sourceFilePrefix+"2005_2007.txt");
+
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullData);
 		GeneralInstances addData = null;
-		int startYear=2007;
+
+		addData = loadDataFromFullModelCSVFile(sourceFilePrefix+"2008_2010.txt");
+		fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
+		System.out.println("FULLMODEL...merged another File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
+
+		addData = loadDataFromFullModelCSVFile(sourceFilePrefix+"2011_2013.txt");
+		fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
+		System.out.println("FULLMODEL...merged another File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
+		
+		int startYear=2014;
 		int endYear=2016;
 		
 		for (int i=startYear;i<=endYear;i++){

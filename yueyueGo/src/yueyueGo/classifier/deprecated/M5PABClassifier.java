@@ -1,4 +1,4 @@
-package yueyueGo.classifier;
+package yueyueGo.classifier.deprecated;
 //attribution Selection for M5P 用主成份分析法
 
 
