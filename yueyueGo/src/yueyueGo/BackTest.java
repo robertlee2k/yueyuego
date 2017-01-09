@@ -132,18 +132,16 @@ public class BackTest {
 		return result;
 	}
 	
-	private String[] manipulateYearMonth(String a_startYear,String endYearMonth, int interval){//,int evalDataMonths){
+	/*
+	 * 根据给定的起始年和终止月份自动生成回测的年月阶段
+	 */
+	private String[] manipulateYearMonth(String a_startYear,String endYearMonth, int interval){
 		int startYear=Integer.parseInt(a_startYear);	
 		String[] result=null;
 		String currentYearMonth=endYearMonth;//FormatUtility.getCurrentYearMonth();
 		int currentYear=Integer.parseInt(currentYearMonth.substring(0,4)); 
 		int currentMonth=Integer.parseInt(currentYearMonth.substring(4,6));
-//		if (currentMonth>evalDataMonths){ //掐掉最后的评估月份数据----此处不需要掐掉
-//			currentMonth-=evalDataMonths;
-//		}else{//向去年借位
-//			currentYear--;
-//			currentMonth=12+currentMonth-evalDataMonths;
-//		}
+
 		int size=0;
 		int pos=0;
 		size=(currentYear-startYear)*(12/interval)+(currentMonth-1)/interval+1-1/interval; //当前月是没有数据的，最新数据是上月的

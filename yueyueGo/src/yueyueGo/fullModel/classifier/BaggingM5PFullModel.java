@@ -25,7 +25,7 @@ public class BaggingM5PFullModel extends BaggingM5P {
 	private static final long serialVersionUID = 8505755558382340493L;
 	@Override
 	protected void initializeParams() {
-		m_skipTrainInBacktest = false;
+		m_skipTrainInBacktest = true;
 		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{""};
 		modelArffFormat=ArffFormatFullModel.FULLMODEL_FORMAT; //这个模型缺省是为FULLMODEL用的格式
@@ -37,7 +37,7 @@ public class BaggingM5PFullModel extends BaggingM5P {
 		classifierName= ClassifyUtility.BAGGING_M5P_FULLMODEL;
 //		setWorkPathAndCheck(AppContext.getCONTINOUS_CLASSIFIER_DIR()+getIdentifyName()+"\\");
 		m_modelEvalFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式为半年
-		m_modelDataSplitMode=USE_NINE_MONTHS_DATA_FOR_EVAL;//覆盖父类，设定模型和评估间隔为9个月
+		m_modelDataSplitMode=USE_HALF_YEAR_DATA_FOR_EVAL;//覆盖父类，设定模型和评估间隔为6个月
 		
 		m_noCaculationAttrib=true; //不使用计算字段
 		m_usePCA=true; //覆盖父类，使用PCA

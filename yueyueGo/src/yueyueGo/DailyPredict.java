@@ -335,9 +335,10 @@ public class DailyPredict {
 
 		GeneralInstances fullData=calibrateAttributesForDailyData(inData,clModel);
 
-		//如果模型需要计算字段，则把计算字段加上
+		//如果模型需要计算字段，则把计算字段加上---20170109取消
 		if (clModel.m_noCaculationAttrib==false){
-			fullData=ArffFormat.addCalculateAttribute(fullData);		
+//			fullData=ArffFormat.addCalculateAttribute(fullData);
+			throw new RuntimeException("we don't support caculated attributes since 20170109");
 		}
 
 
