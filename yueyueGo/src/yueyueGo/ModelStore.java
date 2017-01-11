@@ -55,7 +55,7 @@ public class ModelStore {
 		String evalYearSplit=getEvalYearSplit(targetYearSplit,evalDataSplitMode);
 		
 		//历史数据切掉评估数据后再去getModelYearSplit看选多少作为模型构建数据（因为不是每月都有模型,要根据modelEvalFileShareMode来定）
-		String modelYearSplit=getEvalYearSplit(evalYearSplit,modelFileShareMode);
+		String modelYearSplit=getModelYearSplit(evalYearSplit,modelFileShareMode);
 		
 		//根据历史习惯， 如果模型是第一个月时将其变换为年的形式（如应该把200801变为2008）
 		if (modelYearSplit.length()==6){
