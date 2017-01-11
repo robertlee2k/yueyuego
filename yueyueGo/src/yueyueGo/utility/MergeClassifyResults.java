@@ -225,26 +225,26 @@ public class MergeClassifyResults {
 				System.out.println("number of results merged and processed: "+ mergedResult.numInstances());
 			}
 			System.out.println("###### Finally selected count="+finalSelected+ "  ######");
-			System.out.println(EvaluationConfDefinition.showMergeParameters());
+//			System.out.println(EvaluationConfDefinition.showMergeParameters());
 			System.out.println(" result changed because of reference data not matched="+resultChanged+" while good change number="+goodChangeNum);
 			if (resultChanged>0){
 				double goodRatio=new Double(goodChangeNum).doubleValue()/resultChanged;
 				System.out.print(" good ratio="+FormatUtility.formatPercent(goodRatio));
-				System.out.print(" average changed shouyilv="+FormatUtility.formatPercent(changedShouyilv/resultChanged));
+				System.out.println(" average changed shouyilv="+FormatUtility.formatPercent(changedShouyilv/resultChanged));
 			}	
 			if (dataToAdd.equals(ArffFormat.RESULT_PREDICTED_WIN_RATE)){
-				System.out.print(" @ winrate thredhold=");
+				System.out.print(" @ WINRATE_FILTER_FOR_SHOUYILV={");
 				for (int i = 0; i < winrate_thresholds.length; i++) {
-					System.out.print(" /"+FormatUtility.formatPercent(winrate_thresholds[i]));
+					System.out.print(FormatUtility.formatPercent(winrate_thresholds[i])+"," );
 				}
-				System.out.println(" /");
+				System.out.println(" }");
 			}
 			else{
-				System.out.print(" @ shouyilv thredhold=");
+				System.out.print(" @ SHOUYILV_FILTER_FOR_WINRATE={");
 				for (int i = 0; i < shouyilv_thresholds.length; i++) {
-					System.out.print(" /"+FormatUtility.formatPercent(shouyilv_thresholds[i]));
+					System.out.print(" /"+FormatUtility.formatPercent(shouyilv_thresholds[i])+",");
 				}
-				System.out.println(" /");
+				System.out.println(" }");
 			}
 
 			return mergedResult;

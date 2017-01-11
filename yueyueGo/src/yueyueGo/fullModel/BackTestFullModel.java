@@ -18,8 +18,7 @@ import yueyueGo.utility.MergeClassifyResults;
 
 public class BackTestFullModel extends BackTest {
 	private boolean applyToMaModelInTestBack=false; //default is false
-	private  double[] fullmodel_shouyilv_thresholds=null; //对于胜率优先算法的收益率筛选阀值
-	private  double[] fullmodel_winrate_thresholds=null; //对于收益率优先算法的胜率筛选阀值
+
 	//覆盖父类
 	public void init() {
 		STRAGEY_NAME="短线策略";
@@ -30,8 +29,8 @@ public class BackTestFullModel extends BackTest {
 		
 		RUNNING_THREADS=10;
 		
-		fullmodel_shouyilv_thresholds=EvaluationConfDefinition.FULLMODEL_SHOUYILV_FILTER_FOR_WINRATE; //对于胜率优先算法的收益率筛选阀值
-		fullmodel_winrate_thresholds=EvaluationConfDefinition.FULLMODEL_WINRATE_FILTER_FOR_SHOUYILV; //对于收益率优先算法的胜率筛选阀值
+		shouyilv_thresholds=EvaluationConfDefinition.FULLMODEL_SHOUYILV_FILTER_FOR_WINRATE; //对于胜率优先算法的收益率筛选阀值
+		winrate_thresholds=EvaluationConfDefinition.FULLMODEL_WINRATE_FILTER_FOR_SHOUYILV; //对于收益率优先算法的胜率筛选阀值
 	}
 
 
@@ -213,7 +212,7 @@ public class BackTestFullModel extends BackTest {
 			left=DataIOHandler.getSuppier().loadDataFromFile(C_ROOT_DIRECTORY+ArffFormatFullModel.FULL_MODEL_ARFF_PREFIX+"-left.arff");
 		}
 		
-		MergeClassifyResults merge=new MergeClassifyResults(fullmodel_shouyilv_thresholds, fullmodel_winrate_thresholds);
+		MergeClassifyResults merge=new MergeClassifyResults(shouyilv_thresholds, winrate_thresholds);
 		GeneralInstances mergedResult = merge.mergeResults(resultData, referenceData,dataToAdd, left);
 		
 		//返回结果之前需要按TradeDate重新排序
