@@ -59,8 +59,8 @@ public class BackTest {
 	
 	private final static int BEGIN_FROM_POLICY=0; // 当回测需要跳过某些均线时，0表示不跳过
 	
-	protected  double[] shouyilv_thresholds=null; //对于胜率优先算法的收益率筛选阀值
-	protected  double[] winrate_thresholds=null; //对于收益率优先算法的胜率筛选阀值
+	private  double[] shouyilv_thresholds=null; //对于胜率优先算法的收益率筛选阀值
+	private  double[] winrate_thresholds=null; //对于收益率优先算法的胜率筛选阀值
 
 	protected String m_startYear="2008";
 	protected String m_endYearMonth="201612";

@@ -125,8 +125,8 @@ public class DailyPredict {
 		AppContext.createContext(EnvConstants.FULL_MODEL_ROOT_DIR);
 		//预先初始化各种模型文件的位置
 		worker.definePredictModels(EnvConstants.FULL_MODEL_ROOT_DIR);
-		worker.shouyilv_thresholds=new double[] {0.03};
-		worker.winrate_thresholds=new double[] {0.5};
+		worker.shouyilv_thresholds=EvaluationConfDefinition.FULLMODEL_SHOUYILV_FILTER_FOR_WINRATE;
+		worker.winrate_thresholds=EvaluationConfDefinition.FULLMODEL_WINRATE_FILTER_FOR_SHOUYILV;
 		
 		return worker.fullModelPredict();
 	}
