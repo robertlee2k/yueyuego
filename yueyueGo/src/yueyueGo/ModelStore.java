@@ -135,7 +135,7 @@ public class ModelStore {
 		case YEAR_SHARED_MODEL:	//评估文件按yearsplit和policySplit切割
 			//模型文件按年处理
 			if (evalYearSplit.length()==6){
-				modelYearSplit=evalYearSplit.substring(0,4);
+				modelYearSplit=evalYearSplit.substring(0,4)+"01";
 			}else{
 				modelYearSplit=evalYearSplit;
 			}

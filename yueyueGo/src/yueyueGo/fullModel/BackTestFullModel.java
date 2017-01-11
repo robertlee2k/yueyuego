@@ -13,6 +13,7 @@ import yueyueGo.datasource.DataIOHandler;
 import yueyueGo.fullModel.classifier.BaggingM5PFullModel;
 import yueyueGo.fullModel.classifier.MyNNFullModel;
 import yueyueGo.utility.AppContext;
+import yueyueGo.utility.EvaluationConfDefinition;
 import yueyueGo.utility.MergeClassifyResults;
 
 public class BackTestFullModel extends BackTest {
@@ -28,9 +29,8 @@ public class BackTestFullModel extends BackTest {
 		
 		RUNNING_THREADS=10;
 		
-		shouyilv_thresholds=new double[] {0.02};
-		winrate_thresholds=new double[] {0.7};
-
+		shouyilv_thresholds=EvaluationConfDefinition.FULLMODEL_SHOUYILV_FILTER_FOR_WINRATE; //对于胜率优先算法的收益率筛选阀值
+		winrate_thresholds=EvaluationConfDefinition.FULLMODEL_WINRATE_FILTER_FOR_SHOUYILV; //对于收益率优先算法的胜率筛选阀值
 	}
 
 
@@ -82,9 +82,9 @@ public class BackTestFullModel extends BackTest {
 			cModel.m_skipEvalInBacktest=true;
 		}
 
-		GeneralInstances continuousResult=testBackward(cModel);
+//		GeneralInstances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
-//		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
+		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 
 		//按二分类器回测历史数据
 //		BaggingJ48FullModel nModel=new BaggingJ48FullModel();
@@ -95,9 +95,9 @@ public class BackTestFullModel extends BackTest {
 			nModel.m_skipEvalInBacktest=true;
 		}	
 		
-		GeneralInstances nominalResult=testBackward(nModel);
+//		GeneralInstances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
-//		BaseInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
+		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 
 		
 		//统一输出统计结果

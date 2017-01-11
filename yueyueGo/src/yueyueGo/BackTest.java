@@ -29,7 +29,6 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import yueyueGo.classifier.AdaboostClassifier;
-import yueyueGo.classifier.BaggingJ48;
 import yueyueGo.classifier.BaggingM5P;
 import yueyueGo.classifier.MyNNClassifier;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
@@ -60,8 +59,8 @@ public class BackTest {
 	
 	private final static int BEGIN_FROM_POLICY=0; // 当回测需要跳过某些均线时，0表示不跳过
 	
-	protected  double[] shouyilv_thresholds=EvaluationConfDefinition.SHOUYILV_FILTER_FOR_WINRATE; //对于胜率优先算法的收益率筛选阀值
-	protected  double[] winrate_thresholds=EvaluationConfDefinition.WINRATE_FILTER_FOR_SHOUYILV; //对于收益率优先算法的胜率筛选阀值
+	protected  double[] shouyilv_thresholds=null; //对于胜率优先算法的收益率筛选阀值
+	protected  double[] winrate_thresholds=null; //对于收益率优先算法的胜率筛选阀值
 
 	protected String m_startYear="2008";
 	protected String m_endYearMonth="201612";
@@ -91,7 +90,8 @@ public class BackTest {
 		AppContext.clearContext();
 		AppContext.createContext(this.C_ROOT_DIRECTORY);	
 		BACKTEST_RESULT_DIR=AppContext.getBACKTEST_RESULT_DIR();
-
+		shouyilv_thresholds=EvaluationConfDefinition.SHOUYILV_FILTER_FOR_WINRATE; //对于胜率优先算法的收益率筛选阀值
+		winrate_thresholds=EvaluationConfDefinition.WINRATE_FILTER_FOR_SHOUYILV; //对于收益率优先算法的胜率筛选阀值
 		RUNNING_THREADS=30;
 		
 	}
@@ -175,8 +175,8 @@ public class BackTest {
 			worker.init();
 
 			//调用回测函数回测
-//			worker.callTestBack();
-			worker.testForModelStore();
+			worker.callTestBack();
+//			worker.testForModelStore();
 			
 		} catch (Exception e) {
 			
