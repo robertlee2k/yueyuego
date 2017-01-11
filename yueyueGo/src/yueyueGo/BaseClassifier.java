@@ -40,20 +40,14 @@ public abstract class BaseClassifier implements Serializable{
 	public static final String MA_PREFIX = " MA ";
 	public static final String ARFF_EXTENSION = ".arff";
 	
-	//切分构建模型和评估数据的模式常量定义
-	public static final int NO_SEPERATE_DATA_FOR_EVAL=0; //不需要评估数据（这是legacy的做法，目前不常用）
-	public static final int USE_YEAR_DATA_FOR_EVAL=12; //使用倒推一年的数据作为模型评估数据，之前用于的构建模型（缺省值）
-	public static final int USE_HALF_YEAR_DATA_FOR_EVAL=6;//使用倒推半年的数据作为模型评估数据，之前用于的构建模型
-	public static final int USE_NINE_MONTHS_DATA_FOR_EVAL=9;//使用倒推半年的数据作为模型评估数据，之前用于的构建模型
-	
 	//名称
 	public String classifierName;
 	
 	//子类定义的工作路径
 	protected String WORK_PATH ;
 	protected String WORK_FILE_PREFIX;
-	protected int m_modelEvalFileShareMode; //model文件和Eval的共享模式。
-	protected int m_modelDataSplitMode;//切分构建模型和评估数据的模式
+	protected int m_modelFileShareMode; //model文件的共享模式1,3,6,12 （表示共享的月份）
+	protected int m_evalDataSplitMode;//切分构建模型和评估数据的模式 0、6、9、12 （表示评估数据的月份）
 	
 	protected ModelStore m_modelStore; //model 和 eval的持久化封装类类
 	
@@ -83,8 +77,8 @@ public abstract class BaseClassifier implements Serializable{
 		m_noCaculationAttrib=false;  //缺省情况下，加入的计算字段 （在子类中覆盖）
 		m_removeSWData=false;  //缺省情况下，不删除申万行业数据（在子类中覆盖）
 		modelArffFormat=ArffFormat.EXT_FORMAT; //缺省使用扩展arff
-		m_modelEvalFileShareMode=ModelStore.MONTHLY_MODEL; //model文件和Eval的共享模式,缺省为 回测时按yearsplit和policysplit分割使用model和eval文件
-		m_modelDataSplitMode=USE_YEAR_DATA_FOR_EVAL;//缺省使用倒推一年的数据作为模型评估数据，之前用于的构建模型
+		m_modelFileShareMode=ModelStore.MONTHLY_MODEL; //model文件和Eval的共享模式,缺省为 回测时按yearsplit和policysplit分割使用model和eval文件
+		m_evalDataSplitMode=ModelStore.USE_YEAR_DATA_FOR_EVAL;//缺省使用倒推一年的数据作为模型评估数据，之前用于的构建模型
 		WORK_FILE_PREFIX= "extData2005-2016";
 		initializeParams();		// 留给子类的初始化参数函数
 		setWorkPathThenCheck(); //根据参数设置工作路径
@@ -471,103 +465,20 @@ public abstract class BaseClassifier implements Serializable{
 	//初始化回测创建模型时使用的modelStore对象
 	public void initModelStore(String targetYearSplit,String policySplit) {
 		//这里build model的数据已变为当前周期前推一段时间的数据，
-		//比如若按年取评估数据，如果是2010XX.mdl 则取2009年XX月之前的数据build， 剩下的一年数据做评估用
-		String modelYearSplit=getModelYearSplit(targetYearSplit);
-		//创建模型时应该把200801变为2008 （这是历史沿革习惯）
-		if (modelYearSplit.length()==6){
-			int inputMonth=Integer.parseInt(modelYearSplit.substring(4,6)); 
-			if (inputMonth==1){
-				modelYearSplit=modelYearSplit.substring(0,4);
-			}
-		}
-		String modelFileName=ModelStore.concatModeFilenameString(modelYearSplit, policySplit, this.WORK_PATH+this.WORK_FILE_PREFIX, this.classifierName);
-		ModelStore modelStore=new ModelStore(targetYearSplit,modelFileName,modelFileName+ModelStore.THRESHOLD_EXTENSION);
+
+		ModelStore modelStore=new ModelStore(targetYearSplit,policySplit,this);
+//		String modelFileName=ModelStore.concatModeFilenameString(modelYearSplit, policySplit, this.WORK_PATH+this.WORK_FILE_PREFIX, this.classifierName);
+//		ModelStore modelStore=new ModelStore(targetYearSplit,modelFileName,modelFileName+ModelStore.THRESHOLD_EXTENSION);
 		m_modelStore=modelStore;
 	}
 	
 	//找到回测评估、预测时应该使用modelStore对象（主要为获取model文件和eval文件名称）
 	//此类可以在子类中被覆盖（通过把yearsplit的值做处理，实现临时指定使用某个模型，可以多年使用一个模型，也可以特殊指定某年月使用某模型）
 	public void locateModelStore(String targetYearSplit,String policySplit) {
-		//这里build model的数据已变为当前周期前推一段时间的数据，
-		//比如若按年取评估数据，如果是2010XX.mdl 则取2009年XX月之前的数据build， 剩下的一年数据做评估用
-		String modelYearSplit=getModelYearSplit(targetYearSplit);
-		ModelStore modelStore=new ModelStore(targetYearSplit,modelYearSplit,policySplit,this.WORK_PATH+this.WORK_FILE_PREFIX, this.classifierName,this.m_modelEvalFileShareMode);
+		ModelStore modelStore=new ModelStore(targetYearSplit,policySplit,this);
 		m_modelStore=modelStore;
 	}
 
-	/*
-	 * 获取用于评估阀值的yearSplit （缺省情况下前推一年）
-	 * 这里将全量数据分解为model的构建数据及评测数据
-	 * 即根据当前yearSplit前推一段时间，将其切分成构建模型数据和评测数据（具体前推多少时间由model定义决定）
-	 * 比如，若是前推一年的， 如果是2010XX.mdl 则取2009年XX月之前的数据build，
-	 * 剩下的一年数据（2009XX到2010XX，后者不包含）做评估用
-	 * 如果是2010.mdl，则取2009年01月之前的数据build，2009当年数据做评估用
-	 * 
-	 */
-	public String getModelYearSplit(String yearSplit){
-		//找到回测创建评估预测时应该使用modelStore对象（主要为获取model文件和eval文件名称）-- 评估时创建的mdl并不是当前年份的，而是前推一年的
-		String modelYearSplit=null;
-		switch (this.m_modelDataSplitMode) {
-		case NO_SEPERATE_DATA_FOR_EVAL: //使用全量数据构建模型（不常用）
-			modelYearSplit=yearSplit; 
-			break;
-		case USE_YEAR_DATA_FOR_EVAL:
-			modelYearSplit=getLastYearSplit(yearSplit);			
-			break;
-		case USE_HALF_YEAR_DATA_FOR_EVAL:
-		case USE_NINE_MONTHS_DATA_FOR_EVAL:
-			modelYearSplit=getNMonthsForYearSplit(this.m_modelDataSplitMode,yearSplit);			
-			break;
-		}
-		System.out.println("目标日期="+yearSplit+" 模型数据切分日期="+modelYearSplit);
-		return modelYearSplit;
-	}
-	
-	//	当前周期前推一年的年分隔线，比如 如果是2010XX 则返回2009年XX月（这是为了取不在trainingData里的evalData）
-	//TODO 可以用下面的函数代替
-	private static String getLastYearSplit(String yearSplit){
-		int lastPeriod=0;
-		int limit=2007; //回测模型的起始点， 在这之前无数据
-		lastPeriod=Integer.valueOf(yearSplit).intValue();
-		if (yearSplit.length()==4){ //最后一位-1 （2010-1=2009）
-			lastPeriod=lastPeriod-1;
-			if (lastPeriod<limit) 
-				lastPeriod=limit;
-		}else {//最后三位-1 （201001-100=200901）
-			lastPeriod=lastPeriod-100;
-			if (lastPeriod<limit*100+1) 
-				lastPeriod=limit*100+1;
-		}
-		return String.valueOf(lastPeriod);
-	}
-	
-	//	当前周期前推六个月的分隔线，比如 如果是201003 则返回200909
-	private static String getNMonthsForYearSplit(int nMonths,String yearSplit){
-		int limit=2007; //回测模型的起始点， 在这之前无数据
-		int lastPeriod=0;
-		if (yearSplit.length()==4){ //最后一位-1 （2010-1=2009）再拼接一个07
-			lastPeriod=Integer.valueOf(yearSplit).intValue();
-			lastPeriod=lastPeriod-1;
-			if (lastPeriod<limit) {
-				lastPeriod=limit;
-			}
-			lastPeriod=lastPeriod*100+7;
-		}else {//最后两位数（n）大于nMonths的话减nMonths，小于等于的话向年借位12
-			int inputYear=Integer.parseInt(yearSplit.substring(0,4)); //输入的年份
-			int inputMonth=Integer.parseInt(yearSplit.substring(4,6)); //输入的月份
-			if (inputMonth>nMonths){
-				inputMonth=inputMonth-nMonths;
-			}else{
-				inputMonth=12+inputMonth-nMonths;
-				inputYear=inputYear-1;
-			}
-			lastPeriod=inputYear*100+inputMonth;
-			if (lastPeriod<limit*100+1){ 
-				lastPeriod=limit*100+1;
-			}
-		}
-		return String.valueOf(lastPeriod);
-	}
 	
 	//生成日常预测时使用的model文件和eval文件名称
 	public void setModelStore(ModelStore m){
@@ -640,8 +551,8 @@ public abstract class BaseClassifier implements Serializable{
 		System.out.println("m_positiveLine="+m_positiveLine);
 		
 
-		System.out.println("m_modelDataSplitMode="+m_modelDataSplitMode);
-		System.out.println("m_modelEvalFileShareMode="+m_modelEvalFileShareMode);
+		System.out.println("m_modelDataSplitMode="+m_evalDataSplitMode);
+		System.out.println("m_modelEvalFileShareMode="+m_modelFileShareMode);
 		System.out.println("modelArffFormat="+modelArffFormat);
 		System.out.println(m_evalConf.showEvaluationParameters());
 	    System.out.println("***************************************");

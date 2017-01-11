@@ -28,7 +28,7 @@ public class J48ABFullModel extends NominalClassifier {
 		
 		classifierName= "J48ABFullModel";
 //		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
-		m_modelEvalFileShareMode=ModelStore.YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
+		m_modelFileShareMode=ModelStore.YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 
 		leafMinObjNum=1000; 	//j48树最小节点叶子数
 		divided=800; //将trainingData分成多少份

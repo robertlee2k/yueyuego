@@ -35,14 +35,12 @@ public class ProcessFlowExecutor implements Callable<String> {
 		System.out.println("----Entering ProcessFlowExecutor for " + yearSplit + "------policy=" + policySplit);
 
 		Classifier model = null;
+		//初始化回测创建模型时使用的modelStore对象（按yearSplit和policysplit分割处理）
+		clModel.locateModelStore(yearSplit,policySplit);
 
 		//是否build model 
 		if (clModel.m_skipTrainInBacktest == false) {
-			
 			System.out.println("start to build model");
-
-			//初始化回测创建模型时使用的modelStore对象（按yearSplit和policysplit分割处理）
-			clModel.initModelStore(yearSplit,policySplit);
 			model=clModel.trainData(trainingData);
 			
 			//输出模型的confusionMatrix
@@ -52,12 +50,9 @@ public class ProcessFlowExecutor implements Callable<String> {
 			}
 			ClassifyUtility.getConfusionMatrix(trainingData,evalData, model,isNominal);
 		} 
-//		Evaluation eval = new Evaluation(trainingData);
 		trainingData=null;//释放内存 （不管是不是用到了）
 		model=null; //释放内存
-		
-		//获取评估和预测用的模型及阀值数据
-		clModel.locateModelStore(yearSplit,policySplit);
+
 		//是否需要重做评估阶段
 		if (clModel.m_skipEvalInBacktest == false) {
 			clModel.evaluateModel(evalData, policySplit);
@@ -65,7 +60,7 @@ public class ProcessFlowExecutor implements Callable<String> {
 		
 		evalData=null;//释放内存 （不管是不是用到了）
 		
-		
+		//预测数据
 		clModel.predictData(testingData, result,yearSplit,policySplit);
 		testingData=null;//释放内存
 		

@@ -46,7 +46,7 @@ public class MyNNClassifier extends NominalClassifier implements ParrallelizedRu
 		
 		classifierName=ClassifyUtility.MYNN_MLP;
 //		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
-		m_modelEvalFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL;//SEPERATE_MODEL_AND_EVAL;// YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
+		m_modelFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL;//SEPERATE_MODEL_AND_EVAL;// YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 		
 		
 		m_thread=EnvConstants.CPU_CORE_NUMBER-1;

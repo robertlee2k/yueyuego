@@ -95,7 +95,7 @@ public class M5PABClassifier extends ContinousClassifier {
 		
 		classifierName=ClassifyUtility.M5PAB;
 //		setWorkPathAndCheck(AppContext.getCONTINOUS_CLASSIFIER_DIR()+getIdentifyName()+"\\");
-		m_modelEvalFileShareMode=ModelStore.YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
+		m_modelFileShareMode=ModelStore.YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 
 		leafMinObjNum=300; //叶子节点最小的
 		divided=300; //将trainingData分成多少份

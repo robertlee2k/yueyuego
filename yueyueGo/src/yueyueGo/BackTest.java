@@ -29,6 +29,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import yueyueGo.classifier.AdaboostClassifier;
+import yueyueGo.classifier.BaggingJ48;
 import yueyueGo.classifier.BaggingM5P;
 import yueyueGo.classifier.MyNNClassifier;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
@@ -100,8 +101,7 @@ public class BackTest {
 
 		String[] result=null;
 		if(clModel.m_skipTrainInBacktest==false){ //需要构建模型
-//			int evalMonths=clModel.m_modelDataSplitMode;
-			switch (clModel.m_modelEvalFileShareMode){
+			switch (clModel.m_modelFileShareMode){
 			case ModelStore.MONTHLY_MODEL: //这个是全量模型
 				result=manipulateYearMonth(startYear,endYearMonth,1);
 				break;
@@ -175,14 +175,44 @@ public class BackTest {
 			worker.init();
 
 			//调用回测函数回测
-			worker.callTestBack();
-			
+//			worker.callTestBack();
+			worker.testForModelStore();
 			
 		} catch (Exception e) {
 			
 			e.printStackTrace();
 		}
 	}
+	
+	protected void testForModelStore(){
+		AdaboostClassifier nModel=new AdaboostClassifier();
+		boolean[] mode=new boolean[] {true,false};
+		int[] evalDataSplitMode=new int[]{0,6,9,12};
+		int[] modelFileShareMode=new int[]{1,3,6,12};
+
+
+		for (int m : modelFileShareMode) {
+			for (int j : evalDataSplitMode) {
+				for (boolean k : mode) {
+					nModel.m_skipTrainInBacktest=k;
+					nModel.m_evalDataSplitMode=j;
+					nModel.m_modelFileShareMode=m;
+					System.out.println("=====================================================================================");
+					System.out.println("参数设置：跳过构建="+k+"/评估数据模式="+j+"/模型共享模式="+m);
+					String[] splitYear =generateSplitYearForModel(nModel,m_startYear,m_endYearMonth);
+					for (int i = 0; i < splitYear.length; i++) { 
+						String splitMark = splitYear[i];
+						System.out.println("=====");
+						splitYearClause(nModel,splitMark);
+					}
+					System.out.println("=====================================================================================");
+				}
+			}
+			
+		}
+	}
+
+	
 	
 	/**
 	 * 根据最新这个月的增量数据刷新模型
@@ -218,16 +248,16 @@ public class BackTest {
 //		MLPABClassifier nModel = new MLPABClassifier();
 //		MyNNClassifier nModel=new MyNNClassifier(); 
 		AdaboostClassifier nModel=new AdaboostClassifier();
-//		GeneralInstances nominalResult=testBackward(nModel);
+		GeneralInstances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
-		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
+//		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 		
 		//按连续分类器回测历史数据
 		BaggingM5P cModel=new BaggingM5P();
 //		BaggingLinearRegression cModel=new BaggingLinearRegression();
-//		GeneralInstances continuousResult=testBackward(cModel);
+		GeneralInstances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
-		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
+//		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 		
 		//统一输出统计结果
 		nModel.outputClassifySummary();
@@ -512,35 +542,35 @@ public class BackTest {
 
 	/**
 	 * 	从全量数据中获取分割training和eval以及test的clause， test数据比较简单，就是当月的。
-	 * train和eval的逻辑见下:
-	 * 这里build model的数据已变为当前周期前推一段时间的数据（具体前推多少时间由model定义决定）
-	 * 比如，若是前推一年的， 如果是2010XX.mdl 则取2009年XX月之前的数据build，
-	 * 剩下的一年数据（2009XX到2010XX，后者不包含）做评估用
-	 * 如果是2010.mdl，则取2009年01月之前的数据build，2009当年数据做评估用
-	 * @param splitMark
-	 * @return
+	 * train和eval的逻辑由ModelStore定义:
 	 */
-	protected final String[] splitYearClause(BaseClassifier clModel,String a_yearSplit) {
-		String modelYearSplit=clModel.getModelYearSplit(a_yearSplit);
+	protected final String[] splitYearClause(BaseClassifier clModel,String targetYearSplit) {
+		String evalYearSplit=ModelStore.getEvalYearSplit(targetYearSplit, clModel.m_evalDataSplitMode);
+		String modelYearSplit=ModelStore.getModelYearSplit(evalYearSplit, clModel.m_modelFileShareMode);
+
 		String[] splitYearClauses=new String[3];
 		String attPos = WekaInstanceProcessor.WEKA_ATT_PREFIX + ArffFormat.YEAR_MONTH_INDEX;
 		if (modelYearSplit.length() == 6) { // 按月分割时
 			splitYearClauses[0] = "(" + attPos + " < "
 					+ modelYearSplit + ") ";
 			splitYearClauses[1] = "(" + attPos + " >= "
-					+ modelYearSplit + ") and (" + attPos + " < "	+ a_yearSplit + ") ";
+					+ evalYearSplit + ") and (" + attPos + " < "	+ targetYearSplit + ") ";
 			splitYearClauses[2] = "(" + attPos + " = "
-					+ a_yearSplit + ") ";
+					+ targetYearSplit + ") ";
 		} else if (modelYearSplit.length() == 4) {// 按年分割
 			splitYearClauses[0] = "(" + attPos + " < "
 					+ modelYearSplit + "01) ";
+			//TODO 按年分割时应该是固定以年为评估单位，不能小于一年
 			splitYearClauses[1] = "(" + attPos + " >= "
-					+ modelYearSplit + "01) and (" + attPos + " <= "
-					+ modelYearSplit + "12) ";
+					+ evalYearSplit + "01) and (" + attPos + " <= "
+					+ evalYearSplit + "12) ";
 			splitYearClauses[2] = "(" + attPos + " >= "
-					+ a_yearSplit + "01) and (" + attPos + " <= "
-					+ a_yearSplit + "12) ";
+					+ targetYearSplit + "01) and (" + attPos + " <= "
+					+ targetYearSplit + "12) ";
 		}
+		System.out.println("训练样本分割："+splitYearClauses[0]);
+		System.out.println("评估样本分割："+splitYearClauses[1]);
+		System.out.println("预测样本分割："+splitYearClauses[2]);
 		return splitYearClauses;
 	}
 

@@ -33,7 +33,7 @@ public class BaggingJ48FullModel extends BaggingJ48 {
 		classifierName= ClassifyUtility.BAGGING_J48_FULLMODEL;
 		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
 //		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
-		m_modelEvalFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
+		m_modelFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 		
 		
 		m_noCaculationAttrib=false; //使用计算字段

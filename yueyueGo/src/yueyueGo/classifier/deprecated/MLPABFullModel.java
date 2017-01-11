@@ -21,7 +21,7 @@ public class MLPABFullModel extends MLPABClassifier {
 		classifierName= "mlpABFullModel";
 		
 
-		m_modelEvalFileShareMode=ModelStore.YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
+		m_modelFileShareMode=ModelStore.YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 		
 		m_hiddenLayer="a"; //MLP的固有参数
 

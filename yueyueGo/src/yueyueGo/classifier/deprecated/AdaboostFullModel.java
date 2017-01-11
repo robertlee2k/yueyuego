@@ -27,7 +27,7 @@ public class AdaboostFullModel extends AdaboostClassifier {
 		
 		classifierName=ClassifyUtility.ADABOOST_FULLMODEL;
 		
-		m_modelEvalFileShareMode=ModelStore.YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
+		m_modelFileShareMode=ModelStore.YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 		
 		m_noCaculationAttrib=false; //使用计算字段
 		m_usePCA=true; //覆盖父类，使用PCA
@@ -37,19 +37,16 @@ public class AdaboostFullModel extends AdaboostClassifier {
 	@Override
 	//TODO 此类可以在子类中被覆盖（通过把yearsplit的值做处理，实现临时多年使用一个模型）
 	public void locateModelStore(String targetYearSplit,String policySplit) {
-		//这里build model的数据已变为当前周期前推一段时间的数据，
-		//比如若按年取评估数据，如果是2010XX.mdl 则取2009年XX月之前的数据build， 剩下的一年数据做评估用
-		String modelYearSplit=getModelYearSplit(targetYearSplit);
-		int inputYear=Integer.parseInt(modelYearSplit.substring(0, 4));
+		int inputYear=Integer.parseInt(targetYearSplit.substring(0, 4));
 		String inputMonth="";
-		if (modelYearSplit.length()==6){
-			inputMonth=modelYearSplit.substring(4, 6);
+		if (targetYearSplit.length()==6){
+			inputMonth=targetYearSplit.substring(4, 6);
 		}
 		// 临时用2011模型替代2012、2013年的模型
 		if (inputYear==2012 || inputYear==2013){
-			modelYearSplit="2011"+inputMonth;
+			targetYearSplit="2011"+inputMonth;
 		}
-		ModelStore modelStore=new ModelStore(targetYearSplit,modelYearSplit,policySplit,this.WORK_PATH+this.WORK_FILE_PREFIX, this.classifierName,this.m_modelEvalFileShareMode);
+		ModelStore modelStore=new ModelStore(targetYearSplit,policySplit,this);
 		m_modelStore=modelStore;
 	}
 }

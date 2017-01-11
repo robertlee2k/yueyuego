@@ -20,7 +20,7 @@ public class M5PABFullModel extends M5PABClassifier {
 		
 		classifierName="m5pABFullModel";
 //		setWorkPathAndCheck(AppContext.getCONTINOUS_CLASSIFIER_DIR()+getIdentifyName()+"\\");
-		m_modelEvalFileShareMode=ModelStore.YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
+		m_modelFileShareMode=ModelStore.YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 		
 		leafMinObjNum=1000;
 		divided=800;		

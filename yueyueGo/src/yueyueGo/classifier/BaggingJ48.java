@@ -79,7 +79,7 @@ public class BaggingJ48 extends NominalClassifier implements ParrallelizedRunnin
 		divided=300; //将trainingData分成多少份
 		
 		if (m_positiveLine==0.03) { //收益率3%为正负阀值时的参数
-			m_modelEvalFileShareMode=ModelStore.YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
+			m_modelFileShareMode=ModelStore.YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 //			EVAL_RECENT_PORTION = 1; // 计算最近数据阀值从历史记录中选取多少比例的最近样本		
 //			SAMPLE_LOWER_LIMIT =new double[] { 0.04, 0.05, 0.06, 0.07, 0.08 }; // 各条均线选择样本的下限
 //			SAMPLE_UPPER_LIMIT =new double[] { 0.07, 0.08, 0.11, 0.12, 0.13 }; // 各条均线选择样本的上限
@@ -87,7 +87,7 @@ public class BaggingJ48 extends NominalClassifier implements ParrallelizedRunnin
 //			TP_FP_BOTTOM_LINE=0.5; //TP/FP的下限
 //			DEFAULT_THRESHOLD=0.5; // 找不出threshold时缺省值。
 		}else {// 缺省值
-			m_modelEvalFileShareMode=ModelStore.YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
+			m_modelFileShareMode=ModelStore.YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 //			EVAL_RECENT_PORTION = 1; // 计算最近数据阀值从历史记录中选取多少比例的最近样本		
 //			SAMPLE_LOWER_LIMIT =new double[] { 0.04, 0.05, 0.06, 0.07, 0.08 }; // 各条均线选择样本的下限
 //			SAMPLE_UPPER_LIMIT =new double[] { 0.07, 0.08, 0.11, 0.12, 0.13 }; // 各条均线选择样本的上限
