@@ -21,9 +21,9 @@ public class EvaluationConfDefinition implements Serializable{
 	public final static double[] SHOUYILV_FILTER_FOR_WINRATE=new double[] {0.01,0.02,0.03,0.03,0.04};//{0.01,0.02,0.03,0.04,0.05};//{0.01,0.01,0.02,0.03,0.04};//{0.005,0.01,0.03,0.05,0.08};//{0.01,0.02,0.03,0.03,0.04};//{0.005,0.005,0.01,0.03,0.03};////{0,0,0,0,0};//{-100,-100,-100,-100,-100}; 
 	
 	//fullmodel中对于收益率优先算法的胜率筛选阀值 
-	public final static double[] FULLMODEL_WINRATE_FILTER_FOR_SHOUYILV=new double[] {0.7};
+	public final static double[] FULLMODEL_WINRATE_FILTER_FOR_SHOUYILV=new double[] {0.5};
 	//fullmodel中对于胜率优先算法的收益率筛选阀值
-	public final static double[] FULLMODEL_SHOUYILV_FILTER_FOR_WINRATE=new double[] {0.03}; 
+	public final static double[] FULLMODEL_SHOUYILV_FILTER_FOR_WINRATE=new double[] {0.02}; 
 	
 	protected double[] SAMPLE_LOWER_LIMIT; // 各条均线选择样本的下限
 	protected double[] SAMPLE_UPPER_LIMIT; // 各条均线选择样本的上限  

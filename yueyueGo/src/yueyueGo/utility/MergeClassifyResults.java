@@ -242,7 +242,7 @@ public class MergeClassifyResults {
 			else{
 				System.out.print(" @ SHOUYILV_FILTER_FOR_WINRATE={");
 				for (int i = 0; i < shouyilv_thresholds.length; i++) {
-					System.out.print(" /"+FormatUtility.formatPercent(shouyilv_thresholds[i])+",");
+					System.out.print(FormatUtility.formatPercent(shouyilv_thresholds[i])+",");
 				}
 				System.out.println(" }");
 			}
