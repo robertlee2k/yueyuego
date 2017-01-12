@@ -352,7 +352,7 @@ public class ModelStore {
 			System.out.println("Classifier Model and Format Loaded from: "+ modelFileName);
 			m_model=model;
 			m_modelFormat=header;
-			if ( m_modelYearSplit==null ){ //每日预测时跳过
+			if ( m_modelYearSplit!=null ){ //每日预测时跳过
 				//如果model文件里存有构建model的数据时间段，则校验之
 				String savedModelYearSplit=null;
 				try {
