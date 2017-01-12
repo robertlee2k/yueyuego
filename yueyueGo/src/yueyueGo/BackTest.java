@@ -31,7 +31,6 @@ import java.util.concurrent.TimeUnit;
 import yueyueGo.classifier.AdaboostClassifier;
 import yueyueGo.classifier.BaggingM5P;
 import yueyueGo.classifier.MyNNClassifier;
-import yueyueGo.classifier.deprecated.M5PABClassifier;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.dataProcessor.InstanceHandler;
 import yueyueGo.dataProcessor.WekaInstanceProcessor;
@@ -146,9 +145,9 @@ public class BackTest {
 
 	protected void callTestBack() throws Exception {
 		//按连续分类器回测历史数据
-//		BaggingM5P cModel=new BaggingM5P();
+		BaggingM5P cModel=new BaggingM5P();
 //		BaggingLinearRegression cModel=new BaggingLinearRegression();
-		M5PABClassifier cModel=new M5PABClassifier();
+//		M5PABClassifier cModel=new M5PABClassifier();
 		GeneralInstances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
 //		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());

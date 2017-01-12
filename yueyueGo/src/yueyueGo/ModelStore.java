@@ -273,13 +273,13 @@ public class ModelStore {
 
 		}else {
 			if (m_targetYearSplit.equals(thresholdData.getTargetYearSplit())==false){
-				msg+=" target m_targetYearSplit="+m_targetYearSplit+" while yearSplit in thresholdData is "+thresholdData.getTargetYearSplit();
+				msg+=" {ERROR}target m_targetYearSplit="+m_targetYearSplit+" while targetYearSplit in thresholdData is "+thresholdData.getTargetYearSplit();
 			}
 			if (m_evalYearSplit.equals(thresholdData.getEvalYearSplit())==false){
-				msg+=" target m_evalYearSplit="+m_evalYearSplit+" while yearSplit in thresholdData is "+thresholdData.getEvalYearSplit();
+				msg+=" {ERROR}target m_evalYearSplit="+m_evalYearSplit+" while evalYearSplit in thresholdData is "+thresholdData.getEvalYearSplit();
 			}
 			if (m_modelYearSplit.equals(thresholdData.getModelYearSplit())==false){
-				msg+=" target m_modelYearSplit="+m_modelYearSplit+" while yearSplit in thresholdData is "+thresholdData.getModelYearSplit();
+				msg+=" {ERROR}target m_modelYearSplit="+m_modelYearSplit+" while modelYearSplit in thresholdData is "+thresholdData.getModelYearSplit();
 			}
 		}
 		if ("".equals(msg))

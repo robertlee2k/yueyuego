@@ -325,22 +325,8 @@ public abstract class BaseClassifier implements Serializable{
 	public  void predictData(GeneralInstances test, GeneralInstances result,String yearSplit,String policySplit)
 			throws Exception {
 
-		
-		ThresholdData thresholdData=ThresholdData.loadDataFromFile(m_modelStore.getEvalFileName());
-
-		//校验读入的thresholdData内容是否可以用于目前评估
-		String msg=m_modelStore.validateThresholdData(thresholdData);
-		if (msg==null)
-			System.out.println("ThresholdData verified for target yearsplit "+yearSplit);
-		else 
-			throw new Exception(msg);
-		
-		double thresholdMin=thresholdData.getThresholdMin();
-		double thresholdMax=thresholdData.getThresholdMax();
-
-
-		// read classify model and header
-		Classifier model =m_modelStore.loadModelFromFile();
+		// 从保存的数据文件中加载分类用的model and header
+		Classifier model =m_modelStore.loadModelFromFile(); //模型数据的校验会在加载方法内部进行，此处下面仅校验格式
 		GeneralInstances header =m_modelStore.getModelFormat();
 		// There is additional ID attribute in test instances, so we should save it and remove before doing prediction
 		double[] ids=test.attributeToDoubleArray(ArffFormat.ID_POSITION - 1);  
@@ -358,7 +344,18 @@ public abstract class BaseClassifier implements Serializable{
 			//再比一次
 			BaseInstanceProcessor.compareInstancesFormat(test, header);
 		}
-		
+
+		//获取评估数据
+		ThresholdData thresholdData=ThresholdData.loadDataFromFile(m_modelStore.getEvalFileName());
+		//校验读入的thresholdData内容是否可以用于目前评估
+		String msg=m_modelStore.validateThresholdData(thresholdData);
+		if (msg==null)
+			System.out.println("ThresholdData verified for target yearsplit "+yearSplit);
+		else 
+			throw new Exception(msg);
+		double thresholdMin=thresholdData.getThresholdMin();
+		double thresholdMax=thresholdData.getThresholdMax();		
+
 		//开始用分类模型和阀值进行预测
 		System.out.println("actual -> predicted....... ");
 		

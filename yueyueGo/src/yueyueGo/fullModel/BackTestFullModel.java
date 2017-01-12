@@ -17,7 +17,7 @@ import yueyueGo.utility.EvaluationConfDefinition;
 import yueyueGo.utility.MergeClassifyResults;
 
 public class BackTestFullModel extends BackTest {
-	private boolean applyToMaModelInTestBack=false; //default is false
+	private boolean applyToMaModelInTestBack=true;//false; //default is false
 
 	//覆盖父类
 	public void init() {
@@ -82,9 +82,9 @@ public class BackTestFullModel extends BackTest {
 			cModel.m_skipEvalInBacktest=true;
 		}
 
-//		GeneralInstances continuousResult=testBackward(cModel);
+		GeneralInstances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
-		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
+//		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 
 		//按二分类器回测历史数据
 //		BaggingJ48FullModel nModel=new BaggingJ48FullModel();
@@ -95,9 +95,9 @@ public class BackTestFullModel extends BackTest {
 			nModel.m_skipEvalInBacktest=true;
 		}	
 		
-//		GeneralInstances nominalResult=testBackward(nModel);
+		GeneralInstances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
-		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
+//		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 
 		
 		//统一输出统计结果
