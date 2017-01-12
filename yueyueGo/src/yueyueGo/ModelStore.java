@@ -364,6 +364,8 @@ public class ModelStore {
 				if (savedModelYearSplit!=null){ //如果有数据，则校验之
 					if (savedModelYearSplit.equals(this.m_modelYearSplit)==false){
 						throw new Exception(" savedModelYearSplit in model file="+savedModelYearSplit+" while m_modelYearSplit="+m_modelYearSplit);
+					}else{
+						System.out.println(" modelYearSplit verified for loaded model ");
 					}
 				}
 			}
