@@ -61,18 +61,18 @@ public class DailyPredict {
 			format=ArffFormatFullModel.FULLMODEL_FORMAT;
 			//BaggingM5PFullModel当前使用的预测模型---------FullMODEL
 			classifierName=ClassifyUtility.BAGGING_M5P_FULLMODEL+ClassifyUtility.MULTI_PCA_SURFIX;
-			addModelData(classifierName,format,"\\extData2005-2016-BaggingM5PABFullModel-201507 MA ", "\\extData2005-2016-BaggingM5PABFullModel-201509 MA ");
+			addModelData(classifierName,format,"\\extData2005-2016-BaggingM5PABFullModel-2016 MA ", "\\extData2005-2016-BaggingM5PABFullModel-201605 MA ");
 
 			//BaggingJ48FullModel当前使用的预测模型---------FullMODEL
 			classifierName=ClassifyUtility.MYNN_MLP_FULLMODEL;
-			addModelData(classifierName,format,"\\extData2005-2016-myNNFullModel-201507 MA ", "\\extData2005-2016-myNNFullModel-201509 MA ");
+			addModelData(classifierName,format,"\\extData2005-2016-myNNFullModel-2015 MA ", "\\extData2005-2016-myNNFullModel-201511 MA ");
 		}
 	}
 
 
 	public static void main(String[] args) {
 		try {
-//			callFullModelPredict();
+			callFullModelPredict();
 			callDailyPredict();
 
 		} catch (Exception e) {
