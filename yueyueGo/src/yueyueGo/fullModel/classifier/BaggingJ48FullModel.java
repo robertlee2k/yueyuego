@@ -15,6 +15,7 @@ import yueyueGo.utility.ClassifyUtility;
 @Deprecated
 public class BaggingJ48FullModel extends BaggingJ48 {
  
+	
 	/**
 	 * 
 	 */
