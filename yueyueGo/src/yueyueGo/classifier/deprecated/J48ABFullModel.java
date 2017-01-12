@@ -12,6 +12,7 @@ import yueyueGo.utility.ClassifyUtility;
 @Deprecated
 public class J48ABFullModel extends NominalClassifier {
  
+	
 	/**
 	 * 
 	 */

@@ -142,6 +142,21 @@ import yueyueGo.utility.FormatUtility;
 //number of records for full market=1477574
 //shouyilv average for full market=0.6578%
 //selected shouyilv average for full market =2.5265% count=20877
+
+//-----now output nominal predictions----------adaboost
+//incoming resultData size, row=1477574 column=6
+//incoming referenceData size, row=1477574 column=6
+//Left data loaded, row=1760436 column=12
+//number of results merged and processed: 1477574
+//###### Finally selected count=22125  ######
+// result changed because of reference data not matched=35919 while good change number=25790
+// good ratio=71.80% average changed shouyilv=2.15%
+// @ SHOUYILV_FILTER_FOR_WINRATE={1.00%,2.00%,3.00%,3.00%,4.00%, }
+//number of records for full market=1477574
+//shouyilv average for full market=0.6578%
+//selected shouyilv average for full market =2.5252% count=22125
+
+
 public class AdaboostClassifier extends NominalClassifier {
 
 	/**
@@ -158,7 +173,7 @@ public class AdaboostClassifier extends NominalClassifier {
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 		
 		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = false;
+		m_skipEvalInBacktest = true;
 		classifierName=ClassifyUtility.ADABOOST;
 		m_modelFileShareMode=ModelStore.QUARTER_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 		

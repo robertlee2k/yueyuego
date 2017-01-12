@@ -205,20 +205,6 @@ import yueyueGo.utility.ClassifyUtility;
 //incoming referenceData size, row=1477574 column=6
 //Left data loaded, row=1760436 column=12
 //number of results merged and processed: 1477574
-//###### Finally selected count=29233  ######
-//WINRATE_FILTER_FOR_SHOUYILV={0.4,0.4,0.35,0.35,0.3,}
-//SHOUYILV_FILTER_FOR_WINRATE={0.01,0.01,0.02,0.03,0.04,}
-// result changed because of reference data not matched=37795 while good change number=25570
-// good ratio=67.65% average changed shouyilv=1.31% @ winrate thredhold= /40.00% /40.00% /35.00% /35.00% /30.00% /
-//number of records for full market=1477574
-//shouyilv average for full market=0.6578%
-//selected shouyilv average for full market =2.0902% count=29233
-
-//-----now output continuous predictions----------baggingM5P-multiPCA
-//incoming resultData size, row=1477574 column=6
-//incoming referenceData size, row=1477574 column=6
-//Left data loaded, row=1760436 column=12
-//number of results merged and processed: 1477574
 //###### Finally selected count=21495  ######
 //WINRATE_FILTER_FOR_SHOUYILV={0.5,0.5,0.45,0.45,0.4,}
 //SHOUYILV_FILTER_FOR_WINRATE={0.01,0.02,0.03,0.04,0.05,}
@@ -227,6 +213,21 @@ import yueyueGo.utility.ClassifyUtility;
 //number of records for full market=1477574
 //shouyilv average for full market=0.6578%
 //selected shouyilv average for full market =2.2170% count=21495
+
+//-----now output continuous predictions----------baggingM5P-multiPCA
+//incoming resultData size, row=1477574 column=6
+//incoming referenceData size, row=1477574 column=6
+//Left data loaded, row=1760436 column=12
+//number of results merged and processed: 1477574
+//###### Finally selected count=29233  ######
+//WINRATE_FILTER_FOR_SHOUYILV={0.4,0.4,0.35,0.35,0.3,}
+//SHOUYILV_FILTER_FOR_WINRATE={0.01,0.01,0.02,0.03,0.04,}
+//result changed because of reference data not matched=37795 while good change number=25570
+//good ratio=67.65% average changed shouyilv=1.31% @ winrate thredhold= /40.00% /40.00% /35.00% /35.00% /30.00% /
+//number of records for full market=1477574
+//shouyilv average for full market=0.6578%
+//selected shouyilv average for full market =2.0902% count=29233
+
 public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunning{
 	/**
 	 * 

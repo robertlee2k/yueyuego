@@ -31,6 +31,7 @@ import java.util.concurrent.TimeUnit;
 import yueyueGo.classifier.AdaboostClassifier;
 import yueyueGo.classifier.BaggingM5P;
 import yueyueGo.classifier.MyNNClassifier;
+import yueyueGo.classifier.deprecated.M5PABClassifier;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.dataProcessor.InstanceHandler;
 import yueyueGo.dataProcessor.WekaInstanceProcessor;
@@ -99,76 +100,6 @@ public class BackTest {
 	}
 
 	
-	protected String[] generateSplitYearForModel(BaseClassifier clModel,String startYear,String endYearMonth){
-
-		String[] result=null;
-		if(clModel.m_skipTrainInBacktest==false){ //需要构建模型
-			switch (clModel.m_modelFileShareMode){
-			case ModelStore.MONTHLY_MODEL: //这个是全量模型
-				result=manipulateYearMonth(startYear,endYearMonth,1);
-				break;
-			case ModelStore.YEAR_SHARED_MODEL:	 //生成年度模型 
-				result=manipulateYearMonth(startYear,endYearMonth,12);
-				break;
-			case ModelStore.QUARTER_SHARED_MODEL: //生成季度模型
-				result=manipulateYearMonth(startYear,endYearMonth,3);
-				break;
-			case ModelStore.HALF_YEAR_SHARED_MODEL:	//生成半年度模型
-				result=manipulateYearMonth(startYear,endYearMonth,6);
-				break;
-			}
-		}else{//不需要构建模型，则按月生成所有的数据即可
-			result=manipulateYearMonth(startYear,endYearMonth,1);
-		}
-		//调用手工覆盖的函数接口
-		String[] needOverride=overrideSplitYear();
-		if(needOverride.length>0){
-			result=needOverride;
-		}
-		
-		System.out.println(" splitYear size="+result.length);
-		for (String string : result) {
-			System.out.print(string+",");
-		}
-		System.out.println("");
-		return result;
-	}
-	
-	/*
-	 * 根据给定的起始年和终止月份自动生成回测的年月阶段
-	 */
-	private String[] manipulateYearMonth(String a_startYear,String endYearMonth, int interval){
-		int startYear=Integer.parseInt(a_startYear);	
-		String[] result=null;
-		String currentYearMonth=endYearMonth;//FormatUtility.getCurrentYearMonth();
-		int currentYear=Integer.parseInt(currentYearMonth.substring(0,4)); 
-		int currentMonth=Integer.parseInt(currentYearMonth.substring(4,6));
-
-		int size=0;
-		int pos=0;
-		size=(currentYear-startYear)*(12/interval)+(currentMonth-1)/interval+1-1/interval; //当前月是没有数据的，最新数据是上月的
-		result=new String[size];
-		pos=0;
-		for (int year=startYear;year<=currentYear;year++){
-			for (int month=1;month<=12;month+=interval){
-				if (year==currentYear && month>currentMonth-1){ //当前年的当前月之后是没有数据的
-					break;
-				}
-				result[pos]=""+(year*100+month);
-				pos++;
-			}
-		}
-		return result;
-	}
-	
-	/**
-	 * 如果需要手动设置 splitYear的内容，则在此方法中设置
-	 */
-	protected String[] overrideSplitYear() {
-		return m_handSetSplitYear;
-		
-	}
-	
 	public static void main(String[] args) {
 		try {
 			
@@ -185,36 +116,6 @@ public class BackTest {
 			e.printStackTrace();
 		}
 	}
-	
-	protected void testForModelStore(){
-		AdaboostClassifier nModel=new AdaboostClassifier();
-		boolean[] mode=new boolean[] {true,false};
-		int[] evalDataSplitMode=new int[]{0,6,9,12};
-		int[] modelFileShareMode=new int[]{1,3,6,12};
-
-
-		for (int m : modelFileShareMode) {
-			for (int j : evalDataSplitMode) {
-				for (boolean k : mode) {
-					nModel.m_skipTrainInBacktest=k;
-					nModel.m_evalDataSplitMode=j;
-					nModel.m_modelFileShareMode=m;
-					System.out.println("=====================================================================================");
-					System.out.println("参数设置：跳过构建="+k+"/评估数据模式="+j+"/模型共享模式="+m);
-					String[] splitYear =generateSplitYearForModel(nModel,m_startYear,m_endYearMonth);
-					for (int i = 0; i < splitYear.length; i++) { 
-						String splitMark = splitYear[i];
-						System.out.println("=====");
-						getSplitYearTags(nModel,splitMark);
-					}
-					System.out.println("=====================================================================================");
-				}
-			}
-			
-		}
-	}
-
-	
 	
 	/**
 	 * 根据最新这个月的增量数据刷新模型
@@ -244,7 +145,14 @@ public class BackTest {
 	}
 
 	protected void callTestBack() throws Exception {
-
+		//按连续分类器回测历史数据
+//		BaggingM5P cModel=new BaggingM5P();
+//		BaggingLinearRegression cModel=new BaggingLinearRegression();
+		M5PABClassifier cModel=new M5PABClassifier();
+		GeneralInstances continuousResult=testBackward(cModel);
+		//不真正回测了，直接从以前的结果文件中加载
+//		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
+		
 		//按二分类器回测历史数据
 //		BaggingJ48 nModel=new BaggingJ48();
 //		MLPABClassifier nModel = new MLPABClassifier();
@@ -254,13 +162,7 @@ public class BackTest {
 		//不真正回测了，直接从以前的结果文件中加载
 //		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 		
-		//按连续分类器回测历史数据
-		BaggingM5P cModel=new BaggingM5P();
-//		BaggingLinearRegression cModel=new BaggingLinearRegression();
-		GeneralInstances continuousResult=testBackward(cModel);
-		//不真正回测了，直接从以前的结果文件中加载
-//		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
-		
+
 		//统一输出统计结果
 		nModel.outputClassifySummary();
 		cModel.outputClassifySummary();
@@ -646,6 +548,108 @@ public class BackTest {
 //		shouyilvAttribute=subsetMarketSelected.attribute(ArffFormat.SHOUYILV);
 //		System.out.println("selected shouyilv average for zz500 ="+FormatUtility.formatPercent(subsetMarketSelected.meanOrMode(shouyilvAttribute),2,2)+" count="+subsetMarketSelected.numInstances());
 //		FileUtility.saveCSVFile(subsetMarketSelected, BACKTEST_RESULT_DIR+"选股-"+ classiferName+"-zz500" + RESULT_EXTENSION );
+	}
+
+
+	protected void testForModelStore(){
+		AdaboostClassifier nModel=new AdaboostClassifier();
+		boolean[] mode=new boolean[] {true,false};
+		int[] evalDataSplitMode=new int[]{0,6,9,12};
+		int[] modelFileShareMode=new int[]{1,3,6,12};
+	
+	
+		for (int m : modelFileShareMode) {
+			for (int j : evalDataSplitMode) {
+				for (boolean k : mode) {
+					nModel.m_skipTrainInBacktest=k;
+					nModel.m_evalDataSplitMode=j;
+					nModel.m_modelFileShareMode=m;
+					System.out.println("=====================================================================================");
+					System.out.println("参数设置：跳过构建="+k+"/评估数据模式="+j+"/模型共享模式="+m);
+					String[] splitYear =generateSplitYearForModel(nModel,m_startYear,m_endYearMonth);
+					for (int i = 0; i < splitYear.length; i++) { 
+						String splitMark = splitYear[i];
+						System.out.println("=====");
+						getSplitYearTags(nModel,splitMark);
+					}
+					System.out.println("=====================================================================================");
+				}
+			}
+			
+		}
+	}
+
+
+	protected String[] generateSplitYearForModel(BaseClassifier clModel,String startYear,String endYearMonth){
+	
+		String[] result=null;
+		if(clModel.m_skipTrainInBacktest==false){ //需要构建模型
+			switch (clModel.m_modelFileShareMode){
+			case ModelStore.MONTHLY_MODEL: //这个是全量模型
+				result=manipulateYearMonth(startYear,endYearMonth,1);
+				break;
+			case ModelStore.YEAR_SHARED_MODEL:	 //生成年度模型 
+				result=manipulateYearMonth(startYear,endYearMonth,12);
+				break;
+			case ModelStore.QUARTER_SHARED_MODEL: //生成季度模型
+				result=manipulateYearMonth(startYear,endYearMonth,3);
+				break;
+			case ModelStore.HALF_YEAR_SHARED_MODEL:	//生成半年度模型
+				result=manipulateYearMonth(startYear,endYearMonth,6);
+				break;
+			}
+		}else{//不需要构建模型，则按月生成所有的数据即可
+			result=manipulateYearMonth(startYear,endYearMonth,1);
+		}
+		//调用手工覆盖的函数接口
+		String[] needOverride=overrideSplitYear();
+		if(needOverride.length>0){
+			result=needOverride;
+		}
+		
+		System.out.println(" splitYear size="+result.length);
+		for (String string : result) {
+			System.out.print(string+",");
+		}
+		System.out.println("");
+		return result;
+	}
+
+
+	/*
+	 * 根据给定的起始年和终止月份自动生成回测的年月阶段
+	 */
+	private String[] manipulateYearMonth(String a_startYear,String endYearMonth, int interval){
+		int startYear=Integer.parseInt(a_startYear);	
+		String[] result=null;
+		String currentYearMonth=endYearMonth;//FormatUtility.getCurrentYearMonth();
+		int currentYear=Integer.parseInt(currentYearMonth.substring(0,4)); 
+		int currentMonth=Integer.parseInt(currentYearMonth.substring(4,6));
+	
+		int size=0;
+		int pos=0;
+		size=(currentYear-startYear)*(12/interval)+(currentMonth-1)/interval+1-1/interval; //当前月是没有数据的，最新数据是上月的
+		result=new String[size];
+		pos=0;
+		for (int year=startYear;year<=currentYear;year++){
+			for (int month=1;month<=12;month+=interval){
+				if (year==currentYear && month>currentMonth-1){ //当前年的当前月之后是没有数据的
+					break;
+				}
+				result[pos]=""+(year*100+month);
+				pos++;
+			}
+		}
+		return result;
+	}
+
+
+	/**
+	 * 如果需要手动设置 splitYear的内容，则在此方法中设置
+	 */
+	protected String[] overrideSplitYear() {
+		return m_handSetSplitYear;
+		
 	}
 
 
