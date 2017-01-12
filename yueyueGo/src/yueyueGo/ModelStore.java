@@ -4,11 +4,12 @@ import java.io.IOException;
 import java.util.Vector;
 
 import weka.classifiers.Classifier;
-import weka.core.Instances;
 import weka.core.SerializationHelper;
 import yueyueGo.databeans.DataInstances;
+import yueyueGo.databeans.GeneralDataTag;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.utility.FileUtility;
+import yueyueGo.utility.ThresholdData;
 
 public class ModelStore {
 	public static final String TXT_EXTENSION = ".txt";
@@ -31,17 +32,33 @@ public class ModelStore {
 
 	protected String m_modelFileName;
 	protected String m_evalFileName;
+	
+	protected String m_modelYearSplit;
+	protected String m_evalYearSplit;
 	protected String m_targetYearSplit;
 	
 	public String getTargetYearSplit() {
 		return m_targetYearSplit;
 	}
-	
 
-	public ModelStore(String targetYearSplit,String model_filename,String eval_filename) {
-		this.m_targetYearSplit=targetYearSplit; //记录下用于评测的目标月份，以便日后校验
+	public String getModelYearSplit() {
+		return m_modelYearSplit;
+	}
+
+	public String getEvalYearSplit() {
+		return m_evalYearSplit;
+	}
+
+
+	//预测时调用的
+	public ModelStore(String model_filename,String eval_filename) {
 		this.m_modelFileName = model_filename;
 		this.m_evalFileName=eval_filename;
+
+		//预测时不校验，将这些都设为设为null
+		this.m_evalYearSplit=null;
+		this.m_modelYearSplit=null;
+		this.m_targetYearSplit=null;
 	}
 
 	//回测时调用的，设置model文件和eval文件名称
@@ -52,12 +69,16 @@ public class ModelStore {
 		int evalDataSplitMode=clModel.m_evalDataSplitMode;
 		
 		//根据modelDataSplitMode推算出评估数据的起始区间 （目前主要有三种： 最近6个月、9个月、12个月）
-		String evalYearSplit=getEvalYearSplit(targetYearSplit,evalDataSplitMode);
+		String evalYearSplit=caculateEvalYearSplit(targetYearSplit,evalDataSplitMode);
 		
 		//历史数据切掉评估数据后再去getModelYearSplit看选多少作为模型构建数据（因为不是每月都有模型,要根据modelEvalFileShareMode来定）
-		String modelYearSplit=getModelYearSplit(evalYearSplit,modelFileShareMode);
+		String modelYearSplit=caculateModelYearSplit(evalYearSplit,modelFileShareMode);
+
+		this.m_targetYearSplit=targetYearSplit; //记录下用于评测的目标月份，以便日后校验
+		this.m_modelYearSplit=modelYearSplit;//记录下用于构建的模型月份，以便校验输入的数据
+		this.m_evalYearSplit=evalYearSplit;//记录下用于评估的月份，以便校验输入的数据
 		
-		//根据历史习惯， 如果模型是第一个月时将其变换为年的形式（如应该把200801变为2008）
+		//根据历史习惯， 如果模型是第一个月时将其文件名变换为年的形式（如应该把200801变为2008）
 		if (modelYearSplit.length()==6){
 			int inputMonth=Integer.parseInt(modelYearSplit.substring(4,6)); 
 			if (inputMonth==1){
@@ -65,7 +86,7 @@ public class ModelStore {
 			}
 		}
 
-		this.m_targetYearSplit=targetYearSplit; //记录下用于评测的目标月份，以便日后校验
+
 		m_modelFileName=concatModeFilenameString(modelYearSplit, policySplit, workFileFullPrefix, classifierName);
 		m_evalFileName=concatModeFilenameString(evalYearSplit, policySplit, workFileFullPrefix, classifierName)+ModelStore.THRESHOLD_EXTENSION;
 
@@ -77,7 +98,7 @@ public class ModelStore {
 	 * 比如，若是一年区间， 则取最近的1年间数据作为评估数据用。之前的数据再去getModelYearSplit看选多少作为模型构建数据（因为不是每月都有模型）
 	 * 如果是2010.mdl，则取2009年01月之前的数据build，2009当年数据做评估用
 	 */
-	public static String getEvalYearSplit(String targetYearSplit,int evalDataSplitMode){
+	public static String caculateEvalYearSplit(String targetYearSplit,int evalDataSplitMode){
 		//找到回测创建评估预测时应该使用modelStore对象（主要为获取model文件和eval文件名称）-- 评估时创建的mdl并不是当前年份的，而是前推一年的
 		String evalYearSplit=null;
 		switch (evalDataSplitMode) {
@@ -126,7 +147,7 @@ public class ModelStore {
 	 * 历史数据切掉评估数据后再调用该函数看选多少作为模型构建数据
 	 * （因为为了回测速度， 不是每月都有模型,要根据模型的modelEvalFileShareMode来定）
 	 */
-	public static String getModelYearSplit(String evalYearSplit,int modelFileShareMode){
+	public static String caculateModelYearSplit(String evalYearSplit,int modelFileShareMode){
 		String modelYearSplit=null;
 		switch (modelFileShareMode){//classifier.m_modelEvalFileShareMode) {
 		case MONTHLY_MODEL:
@@ -184,24 +205,88 @@ public class ModelStore {
 		return modelYearSplit;
 	}	
 	
-//	//	当前周期前推一年的年分隔线，比如 如果是2010XX 则返回2009年XX月（这是为了取不在trainingData里的evalData）
-//	private static String getLastYearSplit(String yearSplit){
-//		int lastPeriod=0;
-//		int limit=2007; //回测模型的起始点， 在这之前无数据
-//		lastPeriod=Integer.valueOf(yearSplit).intValue();
-//		if (yearSplit.length()==4){ //最后一位-1 （2010-1=2009）
-//			lastPeriod=lastPeriod-1;
-//			if (lastPeriod<limit) 
-//				lastPeriod=limit;
-//		}else {//最后三位-1 （201001-100=200901）
-//			lastPeriod=lastPeriod-100;
-//			if (lastPeriod<limit*100+1) 
-//				lastPeriod=limit*100+1;
-//		}
-//		return String.valueOf(lastPeriod);
-//	}
-	
 
+	/*
+	 * 校验构建模型阶段准备用于Training的data是否符合要求
+	 * 返回null的时候表示符合要求
+	 */
+	public String validateTrainingData(GeneralDataTag dataTag){
+		String msg="";
+		if (dataTag.getDataType()!=GeneralDataTag.TRAINING_DATA){
+			msg+=" incoming dataType is not training data! ";
+		}
+		if (this.m_modelYearSplit.equals(dataTag.getToPeriod())==false){
+			msg+=" incoming data toPeriod="+dataTag.getToPeriod()+" while expected modelYearSplit="+this.m_modelYearSplit;
+		}
+		if ("".equals(msg))
+			return null;
+		else
+			return msg;
+	}
+	
+	/*
+	 * 校验评估阶段准备用于Evaluating的data是否符合要求
+	 * 返回null的时候表示符合要求
+	 */	
+	public String validateEvalData(GeneralDataTag dataTag){
+		String msg="";
+		if (dataTag.getDataType()!=GeneralDataTag.EVALUATION_DATA){
+			msg+=" incoming dataType is not evaluation data! ";
+		}
+		if (this.m_evalYearSplit.equals(dataTag.getFromPeriod())==false){
+			msg+=" incoming data FromPeriod="+dataTag.getFromPeriod()+" while expected m_m_evalYearSplit="+this.m_evalYearSplit;
+		}
+		
+		if (this.m_targetYearSplit.equals(dataTag.getToPeriod())==false){
+			msg+=" incoming data toPeriod="+dataTag.getToPeriod()+" while expected m_targetYearSplit="+this.m_targetYearSplit;
+		}
+		if ("".equals(msg))
+			return null;
+		else
+			return msg;
+	}
+	
+	/*
+	 * 校验回测阶段准备用于Testing的data是否符合要求
+	 * 返回null的时候表示符合要求
+	 */	
+	public String validateTestingData(GeneralDataTag dataTag){
+		String msg="";
+		if (dataTag.getDataType()!=GeneralDataTag.TESTING_DATA){
+			msg+=" incoming dataType is not testing data! ";
+		}
+		if (this.m_targetYearSplit.equals(dataTag.getToPeriod())==false){
+			msg+=" incoming data toPeriod="+dataTag.getToPeriod()+" while expected targetYearSplit="+this.m_targetYearSplit;
+		}
+		if ("".equals(msg))
+			return null;
+		else
+			return msg;
+	}
+	
+	/*
+	 * 校验从文件中读取的Threshold值是否可以用于当前的模型
+	 */
+	public String validateThresholdData(ThresholdData thresholdData){
+		String msg="";
+		if (m_targetYearSplit==null && m_evalYearSplit==null && m_modelYearSplit==null ){ //每日预测时跳过
+
+		}else {
+			if (m_targetYearSplit.equals(thresholdData.getTargetYearSplit())==false){
+				msg+=" target m_targetYearSplit="+m_targetYearSplit+" while yearSplit in thresholdData is "+thresholdData.getTargetYearSplit();
+			}
+			if (m_evalYearSplit.equals(thresholdData.getEvalYearSplit())==false){
+				msg+=" target m_evalYearSplit="+m_evalYearSplit+" while yearSplit in thresholdData is "+thresholdData.getEvalYearSplit();
+			}
+			if (m_modelYearSplit.equals(thresholdData.getModelYearSplit())==false){
+				msg+=" target m_modelYearSplit="+m_modelYearSplit+" while yearSplit in thresholdData is "+thresholdData.getModelYearSplit();
+			}
+		}
+		if ("".equals(msg))
+			return null;
+		else
+			return msg;
+	}
 	
 	public static String concatModeFilenameString(String yearSplit,String policySplit, String workFileFullPrefix, String classifierName){//BaseClassifier classifier) {
 		return workFileFullPrefix +"-"+classifierName+ "-" + yearSplit + BaseClassifier.MA_PREFIX + policySplit;
@@ -240,8 +325,9 @@ public class ModelStore {
 			Vector<Object> v = new Vector<Object>();
 			v.add(m_model);
 			v.add(m_modelFormat);
+			//写入构建model的数据时间，供日后校验
+			v.add(m_modelYearSplit);
 			SerializationHelper.write(modelFileName+ModelStore.MODEL_FILE_EXTENSION, v);
-			//		SerializationHelper.write(modelFileName+WEKA_MODEL_EXTENSION, model);
 			System.out.println("models saved to :"+ modelFileName);
 		} catch(IOException e){
 			System.err.println("error when saving: "+modelFileName);
@@ -258,14 +344,29 @@ public class ModelStore {
 			
 			Object savedHeaderObject=v.get(1);
 			GeneralInstances header =null;
-			if (savedHeaderObject instanceof DataInstances){
-				header=(DataInstances)savedHeaderObject;
-			}else{ //TODO  interface化之前的旧模型的legacy数据强转为Instances
-				header=new DataInstances((Instances)savedHeaderObject);
-			}
+//			if (savedHeaderObject instanceof DataInstances){
+			header=(DataInstances)savedHeaderObject;
+//			}else{ // interface化之前的旧模型的legacy数据强转为Instances
+//				header=new DataInstances((Instances)savedHeaderObject);
+//			}
 			System.out.println("Classifier Model and Format Loaded from: "+ modelFileName);
 			m_model=model;
 			m_modelFormat=header;
+			if ( m_modelYearSplit==null ){ //每日预测时跳过
+				//如果model文件里存有构建model的数据时间段，则校验之
+				String savedModelYearSplit=null;
+				try {
+					savedModelYearSplit=(String)v.get(2);
+				}catch (Exception ee){
+					//TODO 因为201701之前的构建模型里没有存入这个数据，对旧数据兼容的目的来说，可以忽略
+					//ignore it;
+				}
+				if (savedModelYearSplit!=null){ //如果有数据，则校验之
+					if (savedModelYearSplit.equals(this.m_modelYearSplit)==false){
+						throw new Exception(" savedModelYearSplit in model file="+savedModelYearSplit+" while m_modelYearSplit="+m_modelYearSplit);
+					}
+				}
+			}
 			return m_model;
 		} catch(IOException e){
 			System.err.println("error when loading: "+modelFileName);

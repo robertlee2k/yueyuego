@@ -6,6 +6,8 @@ public class PredictModelData {
 	private String identify;
 	private String modelFileName;
 	private String evalFileName;
+//	private String modelSplitYear;
+//	private String evalSplitYear;
 	private int modelFormatType;
 
 	
@@ -41,5 +43,21 @@ public class PredictModelData {
 	public void setModelFormatType(int modelFormatType) {
 		this.modelFormatType = modelFormatType;
 	}
+
+//	public String getModelSplitYear() {
+//		return modelSplitYear;
+//	}
+//
+//	public void setModelSplitYear(String modelSplitYear) {
+//		this.modelSplitYear = modelSplitYear;
+//	}
+//
+//	public String getEvalSplitYear() {
+//		return evalSplitYear;
+//	}
+//
+//	public void setEvalSplitYear(String evalSplitYear) {
+//		this.evalSplitYear = evalSplitYear;
+//	}
 	
 }

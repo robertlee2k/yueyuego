@@ -3,6 +3,7 @@ package yueyueGo;
 import java.util.concurrent.Callable;
 
 import weka.classifiers.Classifier;
+import yueyueGo.databeans.GeneralDataTag;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.utility.ClassifyUtility;
 
@@ -14,11 +15,12 @@ public class ProcessFlowExecutor implements Callable<String> {
 	private GeneralInstances trainingData;
 	private GeneralInstances evalData;
 	private GeneralInstances testingData;
+	private GeneralDataTag[] dataTags;
 	
 	public ProcessFlowExecutor(BaseClassifier a_clModel,
 			 GeneralInstances a_result, String a_yearSplit,
 			String a_policySplit,GeneralInstances a_trainingData,
-			GeneralInstances a_evalData, GeneralInstances a_testingData){
+			GeneralInstances a_evalData, GeneralInstances a_testingData,GeneralDataTag[] a_dataTags){
 		clModel=a_clModel;
 		result=a_result;
 		yearSplit=a_yearSplit;
@@ -26,6 +28,7 @@ public class ProcessFlowExecutor implements Callable<String> {
 		trainingData=a_trainingData;
 		testingData=a_testingData;
 		evalData=a_evalData;
+		dataTags=a_dataTags;
 	}
 	
 
@@ -37,16 +40,27 @@ public class ProcessFlowExecutor implements Callable<String> {
 		Classifier model = null;
 		//初始化回测创建模型时使用的modelStore对象（按yearSplit和policysplit分割处理）
 		clModel.locateModelStore(yearSplit,policySplit);
+		
+		
 
 		//是否build model 
 		if (clModel.m_skipTrainInBacktest == false) {
 			System.out.println("start to build model");
+			String msg=clModel.validateTrainingData(dataTags[0]);
+			if (msg!=null){
+				throw new Exception(msg);
+			}
 			model=clModel.trainData(trainingData);
 			
 			//输出模型的confusionMatrix
 			boolean isNominal=false;
 			if (clModel instanceof NominalClassifier){
 				isNominal=true;
+			}
+			
+			msg=clModel.validateEvalData(dataTags[1]);
+			if (msg!=null){
+				throw new Exception(msg);
 			}
 			ClassifyUtility.getConfusionMatrix(trainingData,evalData, model,isNominal);
 		} 
@@ -55,12 +69,20 @@ public class ProcessFlowExecutor implements Callable<String> {
 
 		//是否需要重做评估阶段
 		if (clModel.m_skipEvalInBacktest == false) {
+			String msg=clModel.validateEvalData(dataTags[1]);
+			if (msg!=null){
+				throw new Exception(msg);
+			}
 			clModel.evaluateModel(evalData, policySplit);
 		}
 		
 		evalData=null;//释放内存 （不管是不是用到了）
 		
 		//预测数据
+		String msg=clModel.validateTestingData(dataTags[2]);
+		if (msg!=null){
+			throw new Exception(msg);
+		}
 		clModel.predictData(testingData, result,yearSplit,policySplit);
 		testingData=null;//释放内存
 		

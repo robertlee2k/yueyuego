@@ -15,6 +15,8 @@ public class ThresholdData implements Serializable{
 	private double endPercent=99999;
 	private boolean isGuessed=false; //阀值是使用的缺省值
 	private String targetYearSplit=null; //当前评估数据对应的目标测试月份
+	private String evalYearSplit=null; //当前评估数据对应的评估起始月份
+	private String modelYearSplit=null; //当前评估数据对应的模型数据截止月份
 	
 	public String getTargetYearSplit() {
 		return targetYearSplit;
@@ -22,6 +24,34 @@ public class ThresholdData implements Serializable{
 
 	public void setTargetYearSplit(String targetYearSplit) {
 		this.targetYearSplit = targetYearSplit;
+	}
+
+	/**
+	 * @return the evalYearSplit
+	 */
+	public String getEvalYearSplit() {
+		return evalYearSplit;
+	}
+
+	/**
+	 * @param evalYearSplit the evalYearSplit to set
+	 */
+	public void setEvalYearSplit(String evalYearSplit) {
+		this.evalYearSplit = evalYearSplit;
+	}
+
+	/**
+	 * @return the modelYearSplit
+	 */
+	public String getModelYearSplit() {
+		return modelYearSplit;
+	}
+
+	/**
+	 * @param modelYearSplit the modelYearSplit to set
+	 */
+	public void setModelYearSplit(String modelYearSplit) {
+		this.modelYearSplit = modelYearSplit;
 	}
 
 	public static ThresholdData loadDataFromFile(String evalFileName) throws Exception{

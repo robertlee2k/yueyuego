@@ -44,20 +44,10 @@ public class DailyPredict {
 			//=========================LEGACY FORMAT 不常用========================
 			format=ArffFormat.LEGACY_FORMAT;
 			//MLPAB旧格式预测模型
-			classifierName=ClassifyUtility.MLPAB;
-			addModelData(classifierName,format,"\\extData2005-2016-mlpAB-2016 MA ","\\extData2005-2016-mlpAB-2016 MA ");
 			
 			//=========================EXT FORMAT 部分========================
 			format=ArffFormat.EXT_FORMAT;
 
-			//BaggingLinearRegression当前使用的预测模型
-			classifierName=ClassifyUtility.BAGGING_LINEAR_REGRESSION;
-			addModelData(classifierName,format,"\\extData2005-2016-BaggingLinearRegression-201507 MA ","\\extData2005-2016-BaggingLinearRegression-201509 MA ");
-
-			//MyNN当前使用模型
-			classifierName=ClassifyUtility.MYNN_MLP;
-			addModelData(classifierName,format,"\\extData2005-2016-myNNAB-201507 MA ","\\extData2005-2016-myNNAB-201509 MA ");
-			
 			//BaggingM5P当前使用的预测模型
 			classifierName=ClassifyUtility.BAGGING_M5P+ClassifyUtility.MULTI_PCA_SURFIX;
 			addModelData(classifierName,format,"\\extData2005-2016-baggingM5P-2016 MA ","\\extData2005-2016-baggingM5P-201602 MA ");
@@ -363,18 +353,20 @@ public class DailyPredict {
 			}
 
 
-			String modelFileName;
-			String evalFileName;
+
 			String id=clModel.getIdentifyName()+clModel.modelArffFormat;
 			PredictModelData modelData=this.PREDICT_MODELS.get(id);
-			modelFileName=modelData.getModelFileName();
-			evalFileName=modelData.getEvalFileName();
+			String modelFileName=modelData.getModelFileName();
+			String evalFileName=modelData.getEvalFileName();
+//			String modelSplitYear=modelData.getModelSplitYear();
+//			String evalSplitYear=modelData.getEvalSplitYear();
+			
 			int formatType=modelData.getModelFormatType();
 			modelFileName = PREDICT_WORK_DIR+getDirPrefixByType(formatType)+"\\"+clModel.getIdentifyName()+ modelFileName
 					+ clModel.m_policySubGroup[j]	;				
 			evalFileName = PREDICT_WORK_DIR+getDirPrefixByType(formatType)+"\\"+clModel.getIdentifyName()+evalFileName
 					+ clModel.m_policySubGroup[j]+ModelStore.THRESHOLD_EXTENSION	;				
-			ModelStore modelStore=new ModelStore(null,modelFileName,evalFileName);
+			ModelStore modelStore=new ModelStore(modelFileName,evalFileName);
 			clModel.setModelStore(modelStore);
 
 

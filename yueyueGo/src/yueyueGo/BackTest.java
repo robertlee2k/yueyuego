@@ -36,7 +36,9 @@ import yueyueGo.dataProcessor.InstanceHandler;
 import yueyueGo.dataProcessor.WekaInstanceProcessor;
 import yueyueGo.databeans.DataInstances;
 import yueyueGo.databeans.GeneralAttribute;
+import yueyueGo.databeans.GeneralDataTag;
 import yueyueGo.databeans.GeneralInstances;
+import yueyueGo.databeans.WekaDataTag;
 import yueyueGo.datasource.DataIOHandler;
 import yueyueGo.datasource.GeneralDataSaver;
 import yueyueGo.utility.AppContext;
@@ -203,7 +205,7 @@ public class BackTest {
 					for (int i = 0; i < splitYear.length; i++) { 
 						String splitMark = splitYear[i];
 						System.out.println("=====");
-						splitYearClause(nModel,splitMark);
+						getSplitYearTags(nModel,splitMark);
 					}
 					System.out.println("=====================================================================================");
 				}
@@ -327,10 +329,10 @@ public class BackTest {
 			System.out.println("****************************start ****************************   "+splitMark);
 
 			//获取分割年的clause
-			String[] splitYearClauses = splitYearClause(clModel,splitMark);
-			String splitTrainYearClause=splitYearClauses[0];
-			String splitEvalYearClause=splitYearClauses[1];
-			String splitTestYearClause=splitYearClauses[2];
+			GeneralDataTag[] splitYearTags = getSplitYearTags(clModel,splitMark);
+			String splitTrainYearClause=splitYearTags[0].getSplitClause();
+			String splitEvalYearClause=splitYearTags[1].getSplitClause();
+			String splitTestYearClause=splitYearTags[2].getSplitClause();
 
 			String policy = null;
 
@@ -406,6 +408,7 @@ public class BackTest {
 				if (clModel.m_skipTrainInBacktest == false){
 					fullSetData=null; //释放内存
 				}				
+				
 
 				if (threadPool!=null){ //需要多线程并发
 
@@ -421,7 +424,7 @@ public class BackTest {
 					DataInstances resultClone=new DataInstances(result);
 					threadResult.add(resultClone);
 					//创建实现了Runnable接口对象
-					ProcessFlowExecutor t = new ProcessFlowExecutor(clModelClone, resultClone,splitMark, policy,trainingData,evaluationData,testingData);
+					ProcessFlowExecutor t = new ProcessFlowExecutor(clModelClone, resultClone,splitMark, policy,trainingData,evaluationData,testingData,splitYearTags);
 					//将线程放入池中进行执行
 					threadPool.submit(t);
 
@@ -439,7 +442,7 @@ public class BackTest {
 				}else{
 
 					//不需要多线程并发的时候，还是按传统方式处理
-					ProcessFlowExecutor worker=new ProcessFlowExecutor(clModel, result,splitMark, policy,trainingData,evaluationData,testingData);
+					ProcessFlowExecutor worker=new ProcessFlowExecutor(clModel, result,splitMark, policy,trainingData,evaluationData,testingData,splitYearTags);
 					worker.doPredictProcess();
 					System.out.println("accumulated predicted rows: "+ result.numInstances());
 				}
@@ -544,34 +547,21 @@ public class BackTest {
 	 * 	从全量数据中获取分割training和eval以及test的clause， test数据比较简单，就是当月的。
 	 * train和eval的逻辑由ModelStore定义:
 	 */
-	protected final String[] splitYearClause(BaseClassifier clModel,String targetYearSplit) {
-		String evalYearSplit=ModelStore.getEvalYearSplit(targetYearSplit, clModel.m_evalDataSplitMode);
-		String modelYearSplit=ModelStore.getModelYearSplit(evalYearSplit, clModel.m_modelFileShareMode);
+	protected final GeneralDataTag[] getSplitYearTags(BaseClassifier clModel,String targetYearSplit) {
+		String evalYearSplit=ModelStore.caculateEvalYearSplit(targetYearSplit, clModel.m_evalDataSplitMode);
+		String modelYearSplit=ModelStore.caculateModelYearSplit(evalYearSplit, clModel.m_modelFileShareMode);
 
-		String[] splitYearClauses=new String[3];
-		String attPos = WekaInstanceProcessor.WEKA_ATT_PREFIX + ArffFormat.YEAR_MONTH_INDEX;
-		if (modelYearSplit.length() == 6) { // 按月分割时
-			splitYearClauses[0] = "(" + attPos + " < "
-					+ modelYearSplit + ") ";
-			splitYearClauses[1] = "(" + attPos + " >= "
-					+ evalYearSplit + ") and (" + attPos + " < "	+ targetYearSplit + ") ";
-			splitYearClauses[2] = "(" + attPos + " = "
-					+ targetYearSplit + ") ";
-		} else if (modelYearSplit.length() == 4) {// 按年分割
-			splitYearClauses[0] = "(" + attPos + " < "
-					+ modelYearSplit + "01) ";
-			//TODO 按年分割时应该是固定以年为评估单位，不能小于一年
-			splitYearClauses[1] = "(" + attPos + " >= "
-					+ evalYearSplit + "01) and (" + attPos + " <= "
-					+ evalYearSplit + "12) ";
-			splitYearClauses[2] = "(" + attPos + " >= "
-					+ targetYearSplit + "01) and (" + attPos + " <= "
-					+ targetYearSplit + "12) ";
-		}
-		System.out.println("训练样本分割："+splitYearClauses[0]);
-		System.out.println("评估样本分割："+splitYearClauses[1]);
-		System.out.println("预测样本分割："+splitYearClauses[2]);
-		return splitYearClauses;
+
+		GeneralDataTag[] dataTags=new WekaDataTag[3];
+		
+		dataTags[0]=new WekaDataTag(GeneralDataTag.TRAINING_DATA,GeneralDataTag.LONG_LONG_AGO,modelYearSplit);
+		dataTags[1]=new WekaDataTag(GeneralDataTag.EVALUATION_DATA,evalYearSplit,targetYearSplit);
+		dataTags[2]=new WekaDataTag(GeneralDataTag.TESTING_DATA,targetYearSplit,targetYearSplit);
+		
+//		System.out.println("训练样本分割："+splitYearClauses[0]);
+//		System.out.println("评估样本分割："+splitYearClauses[1]);
+//		System.out.println("预测样本分割："+splitYearClauses[2]);
+		return dataTags;
 	}
 
 	

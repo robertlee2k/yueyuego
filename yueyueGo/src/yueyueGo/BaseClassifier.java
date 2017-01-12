@@ -11,6 +11,7 @@ import yueyueGo.dataProcessor.InstanceHandler;
 import yueyueGo.databeans.DataInstance;
 import yueyueGo.databeans.DataInstances;
 import yueyueGo.databeans.GeneralAttribute;
+import yueyueGo.databeans.GeneralDataTag;
 import yueyueGo.databeans.GeneralInstance;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.utility.AppContext;
@@ -154,7 +155,10 @@ public abstract class BaseClassifier implements Serializable{
 		System.out.println(" try to get best threshold for model...");
 		EvaluationParams evalParams=getEvaluationInstance(policySplit);
 		ThresholdData thresholdData = doModelEvaluation(benchmark,evalData, model, evalParams);
+		//将相应的数据区段值存入评估数据文件中，以备日后校验
 		thresholdData.setTargetYearSplit(m_modelStore.getTargetYearSplit());
+		thresholdData.setEvalYearSplit(m_modelStore.getEvalYearSplit());
+		thresholdData.setModelYearSplit(m_modelStore.getModelYearSplit());
 		ThresholdData.saveEvaluationToFile(m_modelStore.getEvalFileName(), thresholdData);
 
 	}
@@ -323,13 +327,14 @@ public abstract class BaseClassifier implements Serializable{
 
 		
 		ThresholdData thresholdData=ThresholdData.loadDataFromFile(m_modelStore.getEvalFileName());
-		String yearSplitInFile=thresholdData.getTargetYearSplit();
-		if (yearSplit.equals(yearSplitInFile)==false){
-			if("".equals(yearSplit)==false) //只有在每日预测情况下yearSplit才会是""
-				throw new Exception("error! threshold data is inconsistent, target yearSplit="+yearSplit+" while yearSplit in file is "+yearSplitInFile+" file name="+m_modelStore.getEvalFileName());
-		}else{
-			System.out.println("eval File verified for target yearsplit "+yearSplitInFile);
-		}
+
+		//校验读入的thresholdData内容是否可以用于目前评估
+		String msg=m_modelStore.validateThresholdData(thresholdData);
+		if (msg==null)
+			System.out.println("ThresholdData verified for target yearsplit "+yearSplit);
+		else 
+			throw new Exception(msg);
+		
 		double thresholdMin=thresholdData.getThresholdMin();
 		double thresholdMax=thresholdData.getThresholdMax();
 
@@ -471,6 +476,33 @@ public abstract class BaseClassifier implements Serializable{
 	}
 
 	
+	/**
+	 * @param dataTag
+	 * @return
+	 * @see yueyueGo.ModelStore#validateTrainingData(yueyueGo.databeans.GeneralDataTag)
+	 */
+	public String validateTrainingData(GeneralDataTag dataTag) {
+		return m_modelStore.validateTrainingData(dataTag);
+	}
+
+	/**
+	 * @param dataTag
+	 * @return
+	 * @see yueyueGo.ModelStore#validateEvalData(yueyueGo.databeans.GeneralDataTag)
+	 */
+	public String validateEvalData(GeneralDataTag dataTag) {
+		return m_modelStore.validateEvalData(dataTag);
+	}
+
+	/**
+	 * @param dataTag
+	 * @return
+	 * @see yueyueGo.ModelStore#validateTestingData(yueyueGo.databeans.GeneralDataTag)
+	 */
+	public String validateTestingData(GeneralDataTag dataTag) {
+		return m_modelStore.validateTestingData(dataTag);
+	}
+
 	//生成日常预测时使用的model文件和eval文件名称
 	public void setModelStore(ModelStore m){
 		m_modelStore=m;
