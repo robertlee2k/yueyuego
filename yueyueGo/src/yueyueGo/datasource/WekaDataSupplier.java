@@ -6,6 +6,7 @@ import weka.core.converters.CSVLoader;
 import weka.core.converters.ConverterUtils.DataSource;
 import weka.experiment.InstanceQuery;
 import yueyueGo.ArffFormat;
+import yueyueGo.EnvConstants;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.dataProcessor.InstanceHandler;
 import yueyueGo.databeans.GeneralInstances;
@@ -98,9 +99,9 @@ public class WekaDataSupplier implements GeneralDataSupplier {
 	
 		//load data from database that needs predicting
 		InstanceQuery query = new InstanceQuery();
-		query.setDatabaseURL(DataIOHandler.URL);
-		query.setUsername(DataIOHandler.USER);
-		query.setPassword(DataIOHandler.PASSWORD);
+		query.setDatabaseURL(EnvConstants.URL);
+		query.setUsername(EnvConstants.USER);
+		query.setPassword(EnvConstants.PASSWORD);
 		String queryData=generateFullModelQueryData(dateString);
 		query.setQuery(queryData); 
 		GeneralInstances data = new WekaInstances(query.retrieveInstances());
@@ -198,9 +199,9 @@ public class WekaDataSupplier implements GeneralDataSupplier {
 		}	
 		//load data from database that needs predicting
 		InstanceQuery query = new InstanceQuery();
-		query.setDatabaseURL(DataIOHandler.URL);
-		query.setUsername(DataIOHandler.USER);
-		query.setPassword(DataIOHandler.PASSWORD);
+		query.setDatabaseURL(EnvConstants.URL);
+		query.setUsername(EnvConstants.USER);
+		query.setPassword(EnvConstants.PASSWORD);
 		String queryData=generateQueryData(format);
 		query.setQuery(queryData); 
 		GeneralInstances data = new WekaInstances(query.retrieveInstances()); 

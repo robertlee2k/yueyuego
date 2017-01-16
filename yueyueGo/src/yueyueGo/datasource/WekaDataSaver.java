@@ -6,6 +6,7 @@ import java.io.IOException;
 import weka.core.converters.ArffSaver;
 import weka.core.converters.CSVSaver;
 import weka.core.converters.DatabaseSaver;
+import yueyueGo.EnvConstants;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaInstances;
 
@@ -40,9 +41,9 @@ public class WekaDataSaver implements GeneralDataSaver {
 	@Override
 	public void saveToDatabase(GeneralInstances data,String tableName) throws Exception {
 		DatabaseSaver save = new DatabaseSaver();
-		save.setUrl(DataIOHandler.URL);
-		save.setUser(DataIOHandler.USER);
-		save.setPassword(DataIOHandler.PASSWORD);
+		save.setUrl(EnvConstants.URL);
+		save.setUser(EnvConstants.USER);
+		save.setPassword(EnvConstants.PASSWORD);
 		save.setInstances(WekaInstances.convertToWekaInstances(data));
 		save.setRelationForTableName(false);
 		save.setTableName(tableName);

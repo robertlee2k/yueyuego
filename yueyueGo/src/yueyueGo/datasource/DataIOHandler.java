@@ -3,11 +3,6 @@ package yueyueGo.datasource;
 
 public class DataIOHandler {
 	
-	//用于存放原始数据的公共数据仓库定义
-	public final static String URL = "jdbc:mysql://uts.simu800.com/develop?characterEncoding=utf8&autoReconnect=true";
-	public final static String USER = "root";
-	public final static String PASSWORD = "data@2014";
-	
 	private static WekaDataSupplier weka_supplier = null;
 	private static WekaDataSaver weka_saver = null;
 	
