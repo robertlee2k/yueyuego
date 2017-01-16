@@ -21,6 +21,10 @@ public class BackTestFullModel extends BackTest {
 
 	//覆盖父类
 	public void init() {
+		m_handSetSplitYear=new String[] {
+			//"201610"	
+		};
+		
 		STRAGEY_NAME="短线策略";
 		C_ROOT_DIRECTORY = EnvConstants.FULL_MODEL_ROOT_DIR;
 		AppContext.clearContext();

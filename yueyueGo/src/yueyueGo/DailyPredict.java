@@ -72,6 +72,7 @@ public class DailyPredict {
 
 	public static void main(String[] args) {
 		try {
+			System.out.println("Database URL in USE : "+EnvConstants.URL + " Please ensure this is the correct environment you want to use.....");
 			callFullModelPredict();
 			callDailyPredict();
 
