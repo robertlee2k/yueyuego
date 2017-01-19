@@ -16,6 +16,7 @@ import yueyueGo.utility.AppContext;
 import yueyueGo.utility.EvaluationConfDefinition;
 import yueyueGo.utility.MergeClassifyResults;
 
+
 public class BackTestFullModel extends BackTest {
 	private boolean applyToMaModelInTestBack=false; //default is false
 
