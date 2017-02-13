@@ -174,39 +174,53 @@ public class ClassifyUtility {
 	 */
 	public static String estimateHiddenLayerNodes(GeneralInstances train, boolean usePCA){
 		int instanceNum=train.numInstances();
-		double upperLimit=(double)instanceNum/10;
+
 		int inputNodeNum=train.numAttributes();
 		if (usePCA){
 			inputNodeNum=inputNodeNum/2; // 假设PCA消除了一半的Attributes
 		}
 		
 		int outputNodeNum=train.numClasses();
+		if (outputNodeNum==0) // 连续变量 
+			outputNodeNum=1;
 		
+		return estimateHiddenLayerNodes(instanceNum, inputNodeNum, outputNodeNum,0.1); //参数上限是实例数十分之一
+		
+	}
+
+	/**
+	 * @param dataSize  训练数据条数
+	 * @param dataColumnNum 训练数据属性数
+	 * @param outputNodeNum 输出节点个数 
+	 * @param paramFactor 参数上限/实例数
+	 * @return
+	 */
+	public static String estimateHiddenLayerNodes(int dataSize, int dataColumnNum, int outputNodeNum,double paramFactor) {
 		int first;		
 		int second=0;
 		double temp;
 		double parameterNum=0;
 		String result=null;
-		temp=upperLimit/inputNodeNum;
-		if (temp<=inputNodeNum*2){
+		double upperLimit=dataSize*paramFactor;
+		temp=upperLimit/dataColumnNum;
+		if (temp<=dataColumnNum*2){
 			first=(int)temp;
 			result=String.valueOf(first);
-			parameterNum=inputNodeNum*first+first*outputNodeNum;
+			parameterNum=dataColumnNum*first+first*outputNodeNum;
 		}else{ //当节点数超过一定量时，考虑多分一层，为计算简便起见第一层起始时就保持inputNodeNum这样多，迭代计算
 			double factor=1;
 			do{
-				first=(int)(inputNodeNum*factor);
-				temp= (upperLimit- inputNodeNum*first)/first;  
+				first=(int)(dataColumnNum*factor);
+				temp= (upperLimit- dataColumnNum*first)/first;  
 				second=(int)temp;
 				result=String.valueOf(first)+","+String.valueOf(second);
-				parameterNum=inputNodeNum*first+first*second+second*outputNodeNum;
-				factor*=1.05; //将第一层递增20%试验
+				parameterNum=dataColumnNum*first+first*second+second*outputNodeNum;
+				factor*=1.05; //将第一层递增5%试验
 			} while (second>first); //如果second>first，持续迭代计算
 		}
 		
-		System.out.println("estimated hidden layer parameters=  "+result + " while parameterNum= "+parameterNum +" instance/paramNum= "+FormatUtility.formatDouble(instanceNum/parameterNum));
+		System.out.println("estimated hidden layer parameters=  "+result + " while parameterNum= "+parameterNum +" instance/paramNum= "+FormatUtility.formatDouble(dataSize/parameterNum));
 		return result;
-		
 	}
 	
 	
