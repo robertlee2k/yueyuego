@@ -70,13 +70,9 @@ public class ArffFormat {
 		"zhangdiefu", "huanshoulv",
 		"huanshoulv_preday_perc","huanshoulv_pre2day_perc", "huanshoulv_pre3day_perc",
 		"zhishu_code", "sw_zhishu_code",
-//		IS_SZ50 ,
 		IS_HS300 ,
-//		"iszz100",
 		IS_ZZ500, 
-//		"issz100",
-//		"ishgtb",
-		"isrzbd", 
+//		"isrzbd", 
 		"sw_bias5", "sw_bias10","sw_bias20", "sw_bias30", "sw_bias60", 
 		"sw_bias5_preday_dif","sw_bias10_preday_dif", "sw_bias20_preday_dif",	"sw_bias30_preday_dif", "sw_bias60_preday_dif",	
 		"sw_bias5_pre2day_dif", "sw_bias10_pre2day_dif","sw_bias20_pre2day_dif", "sw_bias30_pre2day_dif","sw_bias60_pre2day_dif", 
@@ -85,7 +81,7 @@ public class ArffFormat {
 		"zhishu_bias5_pre2day_dif","zhishu_bias10_pre2day_dif", "zhishu_bias20_pre2day_dif","zhishu_bias30_pre2day_dif", "zhishu_bias60_pre2day_dif",
 		"zhishu_quantity_preday_perc","zhishu_quantity_pre2day_perc","zhishu_quantity_pre3day_perc",
 		"zhishu_ma5_indicator","zhishu_ma10_indicator","zhishu_ma20_indicator","zhishu_ma30_indicator","zhishu_ma60_indicator",
-		"sw_ma5_indicator","sw_ma10_indicator","sw_ma20_indicator","sw_ma30_indicator","sw_ma60_indicator",
+//		"sw_ma5_indicator","sw_ma10_indicator","sw_ma20_indicator","sw_ma30_indicator","sw_ma60_indicator",
 		"ma5_signal_scale","ma10_signal_scale","ma20_signal_scale","ma30_signal_scale","ma60_signal_scale"
 		,"zhangdieting","shangying","xiaying","index_shangying","index_xiaying","yearhighbias","yearlowbias","monthhighbias","monthlowbias",
 		"index_yearhighbias","index_yearlowbias","index_monthhighbias","index_monthlowbias"

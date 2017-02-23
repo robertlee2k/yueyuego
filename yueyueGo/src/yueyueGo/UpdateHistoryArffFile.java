@@ -673,24 +673,24 @@ public class UpdateHistoryArffFile {
 	 */
 	private static GeneralInstances mergeSrcTransFiles() throws Exception,
 	IllegalStateException {
-		String sourceFilePrefix=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group7\\test_onceyield_group7all";
-		GeneralInstances fullData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2005_2007.txt");
-		GeneralInstances addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2008_2009.txt");
+		String sourceFilePrefix=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group8\\v_onceyield_group8all";
+		GeneralInstances fullData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2005_2010.txt");
+		GeneralInstances addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2011_2017.txt");
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullData);
 		fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
-		System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
-		addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2010_2012.txt");
-		fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
-		System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
-
-		int startYear=2013;
-		int endYear=2015;
-		for (int i=startYear;i<=endYear;i=i+2){
-			String fName=sourceFilePrefix+i+"_"+(i+1)+".txt";
-			addData = loadDataFromIncrementalCSVFile(fName);
-			fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
-			System.out.println("merged one File"+fName+" ,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
-		}
+//		System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
+//		addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2010_2012.txt");
+//		fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
+//		System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
+//
+//		int startYear=2013;
+//		int endYear=2015;
+//		for (int i=startYear;i<=endYear;i=i+2){
+//			String fName=sourceFilePrefix+i+"_"+(i+1)+".txt";
+//			addData = loadDataFromIncrementalCSVFile(fName);
+//			fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
+//			System.out.println("merged one File"+fName+" ,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
+//		}
 		return fullData;
 	}
 
