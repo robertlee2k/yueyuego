@@ -4,11 +4,12 @@ import weka.classifiers.Classifier;
 import weka.classifiers.trees.RandomForest;
 import yueyueGo.ModelStore;
 import yueyueGo.NominalClassifier;
+import yueyueGo.ParrallelizedRunning;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaInstances;
 import yueyueGo.utility.ClassifyUtility;
 
-public class RandForest extends NominalClassifier {
+public class RandForest extends NominalClassifier implements ParrallelizedRunning{
 
 	/**
 	 * 
@@ -39,8 +40,10 @@ public class RandForest extends NominalClassifier {
 		RandomForest rForest=new RandomForest();
 		rForest.setSeed(888);
 		rForest.setNumTrees(1000);
-		rForest.setNumExecutionSlots(10);
 		int features=trainData.numAttributes();
+		int threads=ClassifyUtility.calculateExecutionSlots(trainData.numInstances(),features,20,100);
+		rForest.setNumExecutionSlots(threads);
+		
 		rForest.setNumFeatures(features/8);
 		rForest.setNumDecimalPlaces(6);
 		rForest.setDebug(true);
@@ -49,5 +52,21 @@ public class RandForest extends NominalClassifier {
 		return rForest;
 		
 	}
-
+	
+	//	将外部的并发线程根据算法内并发的计算强度折算出新的建议值
+	public int recommendRunningThreads(int runningThreads){
+		int recommendThreads=1; //缺省值
+		if (runningThreads>1){ //如果外部调用者是多线程运行
+			if (this.m_skipTrainInBacktest==false){ //如果要重新构建模型，那最多2个线程在外面
+				recommendThreads=2;
+			}else if (this.m_skipEvalInBacktest==false){ //如果不需要构建模型，但需要重新评估模型，那将并发数折半
+				recommendThreads=runningThreads/2;
+			}else{ //如果只需要回测，简单减一后返回。
+				recommendThreads=runningThreads-1;
+			}
+		}else{//如果外部不是多线程返回1
+			recommendThreads=1;
+		}
+		return recommendThreads;
+	}
 }

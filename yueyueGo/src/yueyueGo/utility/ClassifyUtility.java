@@ -79,7 +79,7 @@ public class ClassifyUtility {
 	//	内存估算依据：
 	// 在云端： 56G内存， J48FullModelBagging 2000000个 instances 153个attributes,bagging_samplePercent=70， 10个Iteration,同时10个会OOM，6个可以正常。
 	// 在本地： 6G内存,， J48FullModelBagging 550000个 instances 153个attributes,bagging_samplePercent=70， 10个Iteration 3个会OOM，2个可以正常。
-	private static int calculateExecutionSlots(int dataNum,int attribNum,int bagging_iteration,int bagging_samplePercent){
+	public static int calculateExecutionSlots(int dataNum,int attribNum,int bagging_iteration,int bagging_samplePercent){
 		
 		double threads; 
 		double factor;
