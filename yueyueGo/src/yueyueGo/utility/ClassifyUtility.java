@@ -23,7 +23,7 @@ public class ClassifyUtility {
 	public static final String ADABOOST="adaboost";
 	public static final String MYNN_MLP="myNNAB"; //名字有AB但实际上没有做PCA
 	public static final String BAGGING_LINEAR_REGRESSION="BaggingLinearRegression";
-	
+	public static final String RANDOM_FOREST="RandForest";
 	
 	public static final String MYNN_MLP_FULLMODEL="myNNFullModel";
 	public static final String BAGGING_M5P_FULLMODEL="BaggingM5PABFullModel";
