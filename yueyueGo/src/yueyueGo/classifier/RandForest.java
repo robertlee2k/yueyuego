@@ -1,13 +1,13 @@
 package yueyueGo.classifier;
 
 import weka.classifiers.Classifier;
-import weka.classifiers.trees.RandomForest;
 import yueyueGo.ModelStore;
 import yueyueGo.NominalClassifier;
 import yueyueGo.ParrallelizedRunning;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaInstances;
 import yueyueGo.utility.ClassifyUtility;
+import yueyueGo.utility.MyRandomForestClassifer;
 
 public class RandForest extends NominalClassifier implements ParrallelizedRunning{
 
@@ -16,35 +16,37 @@ public class RandForest extends NominalClassifier implements ParrallelizedRunnin
 	 */
 	private static final long serialVersionUID = 7135604627890964460L;
 
-	protected int leafMinObjNum;
 	
+	protected double leafMinObjNum; //叶子节点最小的大小
 
 	@Override
 	protected void initializeParams() {
-		m_skipTrainInBacktest = true;
+		m_skipTrainInBacktest = false;
 		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 
 		classifierName=ClassifyUtility.RANDOM_FOREST;	
 
 		m_modelFileShareMode=ModelStore.QUARTER_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
-		
+		m_evalDataSplitMode=ModelStore.USE_NINE_MONTHS_DATA_FOR_EVAL;//USE_YEAR_DATA_FOR_EVAL; //评估区间使用一年数据 （截止20170103，这个是效果最好的）		
 		m_noCaculationAttrib=true;//不使用计算字段 (20161215试过无计算字段，效果不如有计算字段好） 
 		m_removeSWData=true; //20161222尝试不用申万行业数据
-		m_evalDataSplitMode=ModelStore.USE_NINE_MONTHS_DATA_FOR_EVAL;//USE_YEAR_DATA_FOR_EVAL; //评估区间使用一年数据 （截止20170103，这个是效果最好的）
+
+		leafMinObjNum=300;
 	}
 
 
 	@Override
 	protected Classifier buildModel(GeneralInstances trainData) throws Exception {
-		RandomForest rForest=new RandomForest();
+		MyRandomForestClassifer rForest=new MyRandomForestClassifer();
 		rForest.setSeed(888);
 		rForest.setNumTrees(1000);
 		int features=trainData.numAttributes();
 		int threads=ClassifyUtility.calculateExecutionSlots(trainData.numInstances(),features,20,100);
 		rForest.setNumExecutionSlots(threads);
-		
 		rForest.setNumFeatures(features/8);
+		rForest.setMinNum(leafMinObjNum);
+
 		rForest.setNumDecimalPlaces(6);
 		rForest.setDebug(true);
 		rForest.buildClassifier(WekaInstances.convertToWekaInstances(trainData));
