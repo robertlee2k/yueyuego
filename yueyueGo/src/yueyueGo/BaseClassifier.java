@@ -1,5 +1,6 @@
 package yueyueGo;
 
+
 import java.io.Serializable;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
@@ -30,7 +31,7 @@ import yueyueGo.utility.ThresholdData;
  */
 /**
  * @author robert
- *
+ * 基础通用分类器
  */
 public abstract class BaseClassifier implements Serializable{
 	/**
