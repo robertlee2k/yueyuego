@@ -59,8 +59,8 @@ public class RandForest extends NominalClassifier implements ParrallelizedRunnin
 	public int recommendRunningThreads(int runningThreads){
 		int recommendThreads=1; //缺省值
 		if (runningThreads>1){ //如果外部调用者是多线程运行
-			if (this.m_skipTrainInBacktest==false){ //如果要重新构建模型，那最多2个线程在外面
-				recommendThreads=2;
+			if (this.m_skipTrainInBacktest==false){ //如果要重新构建模型，那最多1个线程在外面
+				recommendThreads=1;
 			}else if (this.m_skipEvalInBacktest==false){ //如果不需要构建模型，但需要重新评估模型，那将并发数折半
 				recommendThreads=runningThreads/2;
 			}else{ //如果只需要回测，简单减一后返回。
