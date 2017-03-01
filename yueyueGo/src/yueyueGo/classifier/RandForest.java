@@ -21,14 +21,14 @@ public class RandForest extends NominalClassifier implements ParrallelizedRunnin
 
 	@Override
 	protected void initializeParams() {
-		m_skipTrainInBacktest = true;
+		m_skipTrainInBacktest = false;
 		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 
 		classifierName=ClassifyUtility.RANDOM_FOREST;	
 
-		m_modelFileShareMode=ModelStore.YEAR_SHARED_MODEL;//.QUARTER_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
-		m_evalDataSplitMode=ModelStore.USE_YEAR_DATA_FOR_EVAL;//USE_NINE_MONTHS_DATA_FOR_EVAL;// //评估区间使用一年数据 （截止20170103，这个是效果最好的）		
+		m_modelFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL;//.QUARTER_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
+		m_evalDataSplitMode=ModelStore.USE_HALF_YEAR_DATA_FOR_EVAL;//USE_NINE_MONTHS_DATA_FOR_EVAL;// //评估区间使用一年数据 （截止20170103，这个是效果最好的）		
 		m_noCaculationAttrib=true;//不使用计算字段 (20161215试过无计算字段，效果不如有计算字段好） 
 		m_removeSWData=true; //20161222尝试不用申万行业数据
 
