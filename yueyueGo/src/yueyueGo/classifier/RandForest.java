@@ -9,6 +9,45 @@ import yueyueGo.databeans.WekaInstances;
 import yueyueGo.utility.ClassifyUtility;
 import yueyueGo.utility.MyRandomForestClassifer;
 
+//***************************************CLASSIFY DATE=2017-03-05 
+//ClassifyIdentity=RandForest
+//m_skipTrainInBacktest=true
+//m_skipEvalInBacktest=false
+//m_noCaculationAttrib=true
+//m_removeSWData=true
+//m_positiveLine=0.0
+//m_modelDataSplitMode=6
+//m_modelEvalFileShareMode=6
+//modelArffFormat=2
+//SAMPLE_LOWER_LIMIT={0.03,0.03,0.03,0.03,0.03,}
+//SAMPLE_UPPER_LIMIT={0.1,0.1,0.1,0.1,0.1,}
+//LIFT_UP_TARGET=1.8
+//***************************************
+//......................
+//===============================output summary===================================== for : RandForest
+//Monthly selected_TPR mean: 24.34% standard deviation=27.78% Skewness=0.99 Kurtosis=-0.1
+//Monthly selected_LIFT mean : 0.76
+//Monthly selected_positive summary: 36,265
+//Monthly selected_count summary: 89,867
+//Monthly selected_shouyilv average: 0.99% standard deviation=5.63% Skewness=3.36 Kurtosis=21.33
+//Monthly total_shouyilv average: 0.77% standard deviation=5.96% Skewness=3.11 Kurtosis=16.17
+//mixed selected positive rate: 40.35%
+//Monthly summary_judge_result summary: good number= 317 bad number=228
+//===============================end of summary=====================================for : RandForest
+//-----now output nominal predictions----------RandForest
+//incoming resultData size, row=1511065 column=6
+//incoming referenceData size, row=1511065 column=6
+//Left data loaded, row=1793927 column=12
+//number of results merged and processed: 1511065
+//###### Finally selected count=35943  ######
+// result changed because of reference data not matched=53924 while good change number=37819
+// good ratio=70.13% average changed shouyilv=1.30%
+// @ SHOUYILV_FILTER_FOR_WINRATE={1.00%,2.00%,3.00%,3.00%,4.00%, }
+//number of records for full market=1511065
+//shouyilv average for full market=0.6076%
+//selected shouyilv average for full market =1.9818% count=35943
+//-----end of test backward------
+
 public class RandForest extends NominalClassifier implements ParrallelizedRunning{
 
 	/**
@@ -22,7 +61,7 @@ public class RandForest extends NominalClassifier implements ParrallelizedRunnin
 	@Override
 	protected void initializeParams() {
 		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = false;
+		m_skipEvalInBacktest = true;
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 
 		classifierName=ClassifyUtility.RANDOM_FOREST;	

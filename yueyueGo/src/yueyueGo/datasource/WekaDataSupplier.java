@@ -159,11 +159,11 @@ public class WekaDataSupplier implements GeneralDataSupplier {
 		switch (format) {
 		case ArffFormat.LEGACY_FORMAT:
 			target_columns=ArffFormat.DAILY_DATA_TO_PREDICT_FORMAT_LEGACY;
-			target_view="t_stock_avgline_increment_zuixin_group6";//"t_stock_avgline_increment_zuixin_group5";//"t_stock_avgline_increment_zuixin_v";
+			target_view="t_stock_avgline_increment_zuixin_group7";//"t_stock_avgline_increment_zuixin_group5";//"t_stock_avgline_increment_zuixin_v";
 			break;
 		case ArffFormat.EXT_FORMAT:
 			target_columns=ArffFormat.DAILY_DATA_TO_PREDICT_FORMAT_NEW;
-			target_view="t_stock_avgline_increment_zuixin_group7";
+			target_view="t_stock_avgline_increment_zuixin_group8";
 			//"t_stock_avgline_increment_zuixin_group6";  //"t_stock_avgline_increment_zuixin_group5"; //"t_stock_avgline_increment_zuixin_group5_test";
 			break;			
 		default:
