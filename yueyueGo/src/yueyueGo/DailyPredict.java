@@ -43,18 +43,25 @@ public class DailyPredict {
 
 			//=========================LEGACY FORMAT 不常用========================
 			format=ArffFormat.LEGACY_FORMAT;
-			//MLPAB旧格式预测模型
+			//旧格式预测模型
+			//BaggingM5P上次使用的预测模型
+			classifierName=ClassifyUtility.BAGGING_M5P+ClassifyUtility.MULTI_PCA_SURFIX;
+			addModelData(classifierName,format,"extData2005-2016-baggingM5P-2016 MA ","\\legacy\\extData2005-2016-baggingM5P-201602 MA ");
+
+			//adaboost上次使用的预测模型
+			classifierName=ClassifyUtility.ADABOOST;
+			addModelData(classifierName,format,"extData2005-2016-adaboost-2016 MA ","\\legacy\\extData2005-2016-adaboost-201602 MA ");
 			
 			//=========================EXT FORMAT 部分========================
 			format=ArffFormat.EXT_FORMAT;
 
 			//BaggingM5P当前使用的预测模型
 			classifierName=ClassifyUtility.BAGGING_M5P+ClassifyUtility.MULTI_PCA_SURFIX;
-			addModelData(classifierName,format,"\\extData2005-2016-baggingM5P-2016 MA ","\\extData2005-2016-baggingM5P-201602 MA ");
+			addModelData(classifierName,format,"\\extData2005-2016-baggingM5P-201604 MA ","\\extData2005-2016-baggingM5P-201604 MA ");
 
 			//adaboost当前使用的预测模型
 			classifierName=ClassifyUtility.ADABOOST;
-			addModelData(classifierName,format,"\\extData2005-2016-adaboost-2016 MA ","\\extData2005-2016-adaboost-201602 MA ");
+			addModelData(classifierName,format,"\\extData2005-2016-adaboost-201604 MA ","\\extData2005-2016-adaboost-201604 MA ");
 			
 		}else if(EnvConstants.FULL_MODEL_ROOT_DIR.equals(type)){
 			// fullmodel不保留legacy
@@ -136,6 +143,29 @@ public class DailyPredict {
 //		//新格式的神经网络预测
 //		MyNNClassifier nnModel=new MyNNClassifier();
 //		GeneralInstances nnInstances=predictWithDB(nnModel);
+		System.out.println("******LEGACY*********** output LEGACY  prediction results**************LEGACY**********");
+		//旧格式的bagging m5p预测 
+		BaggingM5P cOldBagModel=new BaggingM5P();
+		cOldBagModel.m_usePCA=true;
+		cOldBagModel.m_noCaculationAttrib=true;
+		cOldBagModel.m_removeSWData=true;
+		cOldBagModel.setModelArffFormat(ArffFormat.LEGACY_FORMAT);
+		GeneralInstances baggingOldInstances=predictWithDB(cOldBagModel);
+
+		//Adaboost(使用PCA版本和计算字段）
+		AdaboostClassifier adaOldModel=new AdaboostClassifier();
+		adaOldModel.m_usePCA=true;
+		adaOldModel.m_noCaculationAttrib=true;
+		adaOldModel.m_positiveLine=0;
+		adaOldModel.m_removeSWData=true;
+		adaOldModel.setModelArffFormat(ArffFormat.LEGACY_FORMAT);
+		GeneralInstances adaboostOldInstances=predictWithDB(adaOldModel);		
+
+		cOldBagModel.outputClassifySummary();
+		adaOldModel.outputClassifySummary();
+		
+		System.out.println("******LEGACY*********** end of output LEGACY prediction results**********LEGACY**************");
+		
 		
 		//新格式的bagging m5p预测  (使用PCA版本和计算字段）
 		BaggingM5P cBagModel=new BaggingM5P();
@@ -459,8 +489,8 @@ public class DailyPredict {
 		String formatFile=null;
 		switch (formatType) {
 		case ArffFormat.LEGACY_FORMAT: //可以使用同一个Format文件，只是需要将无关字段去掉
-//			formatFile="trans20052016-legacy-format.arff";
-//			break;
+			formatFile=getDirPrefixByType(formatType)+ArffFormat.TRANSACTION_ARFF_PREFIX+"-format.arff";
+			break;
 		case ArffFormat.EXT_FORMAT:
 			formatFile=ArffFormat.TRANSACTION_ARFF_PREFIX+"-format.arff";
 			break;
