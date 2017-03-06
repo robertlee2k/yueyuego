@@ -489,7 +489,7 @@ public class DailyPredict {
 		String formatFile=null;
 		switch (formatType) {
 		case ArffFormat.LEGACY_FORMAT: //可以使用同一个Format文件，只是需要将无关字段去掉
-			formatFile=getDirPrefixByType(formatType)+ArffFormat.TRANSACTION_ARFF_PREFIX+"-format.arff";
+			formatFile=ArffFormat.TRANSACTION_ARFF_PREFIX+"-format-legacy.arff";
 			break;
 		case ArffFormat.EXT_FORMAT:
 			formatFile=ArffFormat.TRANSACTION_ARFF_PREFIX+"-format.arff";
@@ -502,10 +502,10 @@ public class DailyPredict {
 		}
 
 		GeneralInstances outputData=DataIOHandler.getSuppier().loadDataFromFile(PREDICT_WORK_DIR+formatFile); //C_ROOT_DIRECTORY+
-		if (formatType==ArffFormat.LEGACY_FORMAT){//如果是原有模式，去掉扩展字段
-			BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(outputData);
-			outputData=instanceProcessor.removeAttribs(outputData, ArffFormat.EXT_ARFF_COLUMNS);
-		}
+//		if (formatType==ArffFormat.LEGACY_FORMAT){//如果是原有模式，去掉扩展字段
+//			BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(outputData);
+//			outputData=instanceProcessor.removeAttribs(outputData, ArffFormat.EXT_ARFF_COLUMNS);
+//		}
 		return outputData;
 	}
 
