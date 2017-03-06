@@ -125,7 +125,7 @@ public class BackTest {
 	 */
 	protected void callRefreshModelUseLatestData() throws Exception{
 		BaseClassifier model=null;
-		m_handSetSplitYear=new String[] {"201609"};
+		m_handSetSplitYear=new String[] {"201702"};
 		RUNNING_THREADS=5;
 		
 		//逐次刷新数据
@@ -151,16 +151,16 @@ public class BackTest {
 		BaggingM5P cModel=new BaggingM5P();
 //		BaggingLinearRegression cModel=new BaggingLinearRegression();
 //		M5PABClassifier cModel=new M5PABClassifier();
-		GeneralInstances continuousResult=testBackward(cModel);
+//		GeneralInstances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
-//		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
+		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 		
 		//按二分类器回测历史数据
 //		BaggingJ48 nModel=new BaggingJ48();
 //		MLPABClassifier nModel = new MLPABClassifier();
 //		MyNNClassifier nModel=new MyNNClassifier(); 
-		AdaboostClassifier nModel=new AdaboostClassifier();
-//		RandForest nModel=new RandForest();
+//		AdaboostClassifier nModel=new AdaboostClassifier();
+		RandForest nModel=new RandForest();
 		GeneralInstances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
 //		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
