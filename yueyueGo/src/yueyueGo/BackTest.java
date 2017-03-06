@@ -158,7 +158,8 @@ public class BackTest {
 		//按二分类器回测历史数据
 //		BaggingJ48 nModel=new BaggingJ48();
 //		MLPABClassifier nModel = new MLPABClassifier();
-//		MyNNClassifier nModel=new MyNNClassifier(); 
+//		MyNNClassifier nModel=new MyNNClassifier();
+		
 //		AdaboostClassifier nModel=new AdaboostClassifier();
 		RandForest nModel=new RandForest();
 		GeneralInstances nominalResult=testBackward(nModel);
