@@ -197,7 +197,7 @@ public class BackTest {
 		
 		
 		//创建存储评估结果的数据容器
-		ClassifySummaries modelSummaries=new ClassifySummaries(clModel.getIdentifyName(),false);
+		ClassifySummaries modelSummaries=new ClassifySummaries(clModel.getIdentifyName()+" format="+clModel.modelArffFormat,false);
 		clModel.setClassifySummaries(modelSummaries);
 
 		System.out.println("test backward using classifier : "+clModel.getIdentifyName()+" @ model work path :"+clModel.WORK_PATH);

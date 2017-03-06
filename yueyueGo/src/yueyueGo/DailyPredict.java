@@ -160,6 +160,7 @@ public class DailyPredict {
 		adaOldModel.m_removeSWData=true;
 		adaOldModel.setModelArffFormat(ArffFormat.LEGACY_FORMAT);
 		GeneralInstances adaboostOldInstances=predictWithDB(adaOldModel);		
+		combinePreditions(cOldBagModel, baggingOldInstances, adaOldModel, adaboostOldInstances);
 		System.out.println("******LEGACY*********** end of output LEGACY prediction results**********LEGACY**************");
 		
 		
@@ -182,6 +183,7 @@ public class DailyPredict {
 		cOldBagModel.outputClassifySummary();
 		adaOldModel.outputClassifySummary();
 		System.out.println("******LEGACY*********** end of output LEGACY prediction results**********LEGACY**************");
+
 		System.out.println("***************** now output prediction results************************");
 //		lBagModel.outputClassifySummary();
 //		nnModel.outputClassifySummary();
@@ -190,7 +192,6 @@ public class DailyPredict {
 		System.out.println("***************** end of output prediction results************************");
 		
 		
-//		combinePreditions(lBagModel, linearInstances, nnModel, nnInstances);
 		
 		String savedResultFile=combinePreditions(cBagModel, baggingInstances, adaModel, adaboostInstances);
 		return savedResultFile;
@@ -218,7 +219,7 @@ public class DailyPredict {
 		GeneralInstances nMergedOutput=merge.mergeResults(nInstances,cInstances,ArffFormat.RESULT_PREDICTED_PROFIT,left);
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(nMergedOutput);
 		nMergedOutput=instanceProcessor.removeAttribs(nMergedOutput, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
-		String savedNFileName=PREDICT_RESULT_DIR+ "Merged Selected Result-"+nModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv";
+		String savedNFileName=PREDICT_RESULT_DIR+getDirPrefixByType(nModel.modelArffFormat)+ "Merged Selected Result-"+nModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv";
 		DataIOHandler.getSaver().saveCSVFile(nMergedOutput, savedNFileName);
 		nMergedOutput=null;
 		System.out.println(nModel.getIdentifyName()+"----------prediction ends---------");
@@ -226,7 +227,7 @@ public class DailyPredict {
 		System.out.println("-----now output combined predictions----------"+cModel.getIdentifyName()+" combined with："+nModel.getIdentifyName());
 		GeneralInstances cMergedOutput=merge.mergeResults(cInstances,nInstances,ArffFormat.RESULT_PREDICTED_WIN_RATE,left);
 		cMergedOutput=instanceProcessor.removeAttribs(cMergedOutput, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
-		String savedCFileName=PREDICT_RESULT_DIR+ "Merged Selected Result-"+cModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv";
+		String savedCFileName=PREDICT_RESULT_DIR+getDirPrefixByType(cModel.modelArffFormat)+ "Merged Selected Result-"+cModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv";
 		DataIOHandler.getSaver().saveCSVFile(cMergedOutput, savedCFileName);
 		cMergedOutput=null;
 		System.out.println(cModel.getIdentifyName()+"----------prediction ends--------");
@@ -351,7 +352,7 @@ public class DailyPredict {
 		GeneralInstances result = null;
 
 		//创建存储评估结果的数据容器
-		ClassifySummaries modelSummaries=new ClassifySummaries(clModel.getIdentifyName(),true);
+		ClassifySummaries modelSummaries=new ClassifySummaries(clModel.getIdentifyName()+" format="+clModel.modelArffFormat,true);
 		clModel.setClassifySummaries(modelSummaries);
 
 		GeneralInstances fullData=calibrateAttributesForDailyData(inData,clModel);
@@ -435,7 +436,7 @@ public class DailyPredict {
 	private static String getDirPrefixByType(int modelFormatType){
 		switch (modelFormatType) {
 		case ArffFormat.LEGACY_FORMAT:
-			return "\\00-legacy";
+			return "\\00-legacy\\";
 		case ArffFormat.EXT_FORMAT:
 			return "";
 		case ArffFormatFullModel.FULLMODEL_FORMAT:

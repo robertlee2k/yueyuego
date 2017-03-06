@@ -11,8 +11,8 @@ import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.utility.FormatUtility;
 
 public class ArffFormat {
-	public static final int LEGACY_FORMAT=-1;
-	public static final int EXT_FORMAT=2;
+	public static final int LEGACY_FORMAT=7;
+	public static final int EXT_FORMAT=8;
 
 	public static final String TRANSACTION_ARFF_PREFIX="trans20052016-ext";
 //	public static final String LONG_ARFF_FILE = TRANSACTION_ARFF_PREFIX+"-new.arff"; // 包含计算字段的ARFF格式，这是提供给各输入属性独立的分类器使用的，如分类树---20170106废弃
