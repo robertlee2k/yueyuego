@@ -51,7 +51,6 @@ import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.MergeClassifyResults;
 
 public class BackTest {
-
 	protected String C_ROOT_DIRECTORY =EnvConstants.AVG_LINE_ROOT_DIR;
 	protected String BACKTEST_RESULT_DIR=null;
 	protected int RUNNING_THREADS; //doOneModel时的并发，1表示仅有主线程单线运行。
