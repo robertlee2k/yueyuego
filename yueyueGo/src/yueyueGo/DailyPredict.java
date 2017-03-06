@@ -160,10 +160,6 @@ public class DailyPredict {
 		adaOldModel.m_removeSWData=true;
 		adaOldModel.setModelArffFormat(ArffFormat.LEGACY_FORMAT);
 		GeneralInstances adaboostOldInstances=predictWithDB(adaOldModel);		
-
-		cOldBagModel.outputClassifySummary();
-		adaOldModel.outputClassifySummary();
-		
 		System.out.println("******LEGACY*********** end of output LEGACY prediction results**********LEGACY**************");
 		
 		
@@ -182,6 +178,10 @@ public class DailyPredict {
 		cBagModel.m_removeSWData=true;
 		GeneralInstances adaboostInstances=predictWithDB(adaModel);		
 
+		System.out.println("******LEGACY*********** output LEGACY  prediction results**************LEGACY**********");
+		cOldBagModel.outputClassifySummary();
+		adaOldModel.outputClassifySummary();
+		System.out.println("******LEGACY*********** end of output LEGACY prediction results**********LEGACY**************");
 		System.out.println("***************** now output prediction results************************");
 //		lBagModel.outputClassifySummary();
 //		nnModel.outputClassifySummary();
