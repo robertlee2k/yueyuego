@@ -157,6 +157,45 @@ import yueyueGo.utility.FormatUtility;
 //selected shouyilv average for full market =2.5252% count=22125
 
 
+//***************************************CLASSIFY DATE=2017-03-07 
+//ClassifyIdentity=adaboost
+//m_skipTrainInBacktest=true
+//m_skipEvalInBacktest=false
+//m_noCaculationAttrib=true
+//m_removeSWData=true
+//m_positiveLine=0.0
+//m_modelDataSplitMode=9
+//m_modelEvalFileShareMode=3
+//modelArffFormat=8
+//SAMPLE_LOWER_LIMIT={0.03,0.03,0.03,0.03,0.03,}
+//SAMPLE_UPPER_LIMIT={0.06,0.06,0.07,0.08,0.09,}
+//LIFT_UP_TARGET=1.8
+//***************************************
+//......................
+//===============================output summary===================================== for : adaboost format=8
+//Monthly selected_TPR mean: 31.89% standard deviation=21.62% Skewness=0.57 Kurtosis=-0.31
+//Monthly selected_LIFT mean : 1.07
+//Monthly selected_positive summary: 21,075
+//Monthly selected_count summary: 54,726
+//Monthly selected_shouyilv average: 1.15% standard deviation=6.88% Skewness=3 Kurtosis=14.3
+//Monthly total_shouyilv average: 0.77% standard deviation=5.96% Skewness=3.11 Kurtosis=16.17
+//mixed selected positive rate: 38.51%
+//Monthly summary_judge_result summary: good number= 310 bad number=235
+//===============================end of summary=====================================for : adaboost format=8
+//-----now output nominal predictions----------adaboost (filtered by continuous: baggingM5P-multiPCA)
+//incoming resultData size, row=1511065 column=6
+//incoming referenceData size, row=1511065 column=6
+//Left data loaded, row=1793927 column=12
+//number of results merged and processed: 1511065
+//###### Finally selected count=20088  ######
+// result changed because of reference data not matched=34638 while good change number=25199
+// good ratio=72.75% average changed shouyilv=1.77%
+// @ SHOUYILV_FILTER_FOR_WINRATE={1.00%,2.00%,3.00%,3.00%,4.00%, }
+//number of records for full market=1511065
+//shouyilv average for full market=0.6076%
+//selected shouyilv average for full market =2.5346% count=20088
+//-----end of test backward------
+
 public class AdaboostClassifier extends NominalClassifier {
 
 	/**
