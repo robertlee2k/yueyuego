@@ -31,7 +31,6 @@ import java.util.concurrent.TimeUnit;
 import yueyueGo.classifier.AdaboostClassifier;
 import yueyueGo.classifier.BaggingM5P;
 import yueyueGo.classifier.MyNNClassifier;
-import yueyueGo.classifier.RandForest;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.dataProcessor.InstanceHandler;
 import yueyueGo.dataProcessor.WekaInstanceProcessor;
@@ -69,11 +68,8 @@ public class BackTest {
 	
 	protected String[] m_handSetSplitYear=new String[] {
 
-//			"200801","200804",
-//			"201607",
-//			"201610",
 			//为年度模型使用
-//			  "2008","2009","2010","2011","2012","2013","2014","2015","2016",
+//			  "2008","2009","2010","2011","2012","2013","2014","2015","2016","2017",
 			//为半年度模型使用		
 //			"200807","200907","201007","201107","201207","201307","201407","201507","201607",
 			//为季度模型使用		
@@ -158,8 +154,8 @@ public class BackTest {
 //		BaggingJ48 nModel=new BaggingJ48();
 //		MLPABClassifier nModel = new MLPABClassifier();
 //		MyNNClassifier nModel=new MyNNClassifier();
-//		AdaboostClassifier nModel=new AdaboostClassifier();
-		RandForest nModel=new RandForest();
+		AdaboostClassifier nModel=new AdaboostClassifier();
+//		RandForest nModel=new RandForest();
 		GeneralInstances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
 //		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
