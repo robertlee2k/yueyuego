@@ -30,7 +30,6 @@ import java.util.concurrent.TimeUnit;
 
 import yueyueGo.classifier.AdaboostClassifier;
 import yueyueGo.classifier.BaggingM5P;
-import yueyueGo.classifier.MyNNClassifier;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.dataProcessor.InstanceHandler;
 import yueyueGo.dataProcessor.WekaInstanceProcessor;
@@ -125,17 +124,17 @@ public class BackTest {
 		
 		//逐次刷新数据
 		model=new AdaboostClassifier();
-		model.m_skipTrainInBacktest=true;
+		model.m_skipTrainInBacktest=false;
 		model.m_skipEvalInBacktest=false;
 		testBackward(model);
 		
-		model=new MyNNClassifier();
-		model.m_skipTrainInBacktest=true;
-		model.m_skipEvalInBacktest=false;
-		testBackward(model);
+//		model=new MyNNClassifier();
+//		model.m_skipTrainInBacktest=true;
+//		model.m_skipEvalInBacktest=false;
+//		testBackward(model);
 		
 		model=new BaggingM5P();
-		model.m_skipTrainInBacktest=true;
+		model.m_skipTrainInBacktest=false;
 		model.m_skipEvalInBacktest=false;
 		testBackward(model);
 
