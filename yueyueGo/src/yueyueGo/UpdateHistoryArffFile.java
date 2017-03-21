@@ -28,7 +28,7 @@ public class UpdateHistoryArffFile {
 //			callCreateTransInstances();
 			
 //			//用最新的单次交易数据，更新原始的交易数据文件
-			UpdateHistoryArffFile.callRefreshInstances();
+//			UpdateHistoryArffFile.callRefreshInstances();
 //
 //			//刷新最新月份的模型
 			worker.callRefreshModelUseLatestData();
