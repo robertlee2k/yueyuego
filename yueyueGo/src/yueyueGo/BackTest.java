@@ -119,7 +119,7 @@ public class BackTest {
 	 */
 	protected void callRefreshModelUseLatestData() throws Exception{
 		BaseClassifier model=null;
-		m_handSetSplitYear=new String[] {"201610"};//"201702"};
+		m_handSetSplitYear=new String[] {"201610","201702"};
 		RUNNING_THREADS=5;
 		
 		//逐次刷新数据
