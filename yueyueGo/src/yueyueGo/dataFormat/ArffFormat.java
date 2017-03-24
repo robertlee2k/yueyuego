@@ -10,7 +10,7 @@ import yueyueGo.databeans.GeneralInstance;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.utility.FormatUtility;
 
-public class ArffFormat {
+public abstract class ArffFormat {
 	
 	// 常量定义
 	public static final int LEGACY_FORMAT=7;
@@ -74,7 +74,6 @@ public class ArffFormat {
 	protected String[] MODEL_ATTRIB_FORMAT_BASE;
 	protected String[] MODEL_ATTRIB_FORMAT_LEGACY;
 
-	
 	//每次新扩展ARFF格式的校验位
 	public  final String[] EXT_ARFF_CRC= {
 		ID,TRADE_DATE,CODE,SELL_DATE,DATA_DATE,SELECTED_AVG_LINE,"bias5_preday_dif","zhishu_code"
@@ -84,17 +83,17 @@ public class ArffFormat {
 	};
 
 	//模型用的训练字段 （基础+扩展部分）
-	public String[] MODEL_ATTRIB_FORMAT_NEW=FormatUtility.concatStrings(MODEL_ATTRIB_FORMAT_BASE,EXT_ARFF_COLUMNS);
+	public String[] MODEL_ATTRIB_FORMAT_NEW;
 	
 	//每次新的扩展ARFF文件整体格式
-	public  String[] EXT_ARFF_FILE_FORMAT= FormatUtility.concatStrings(EXT_ARFF_CRC,EXT_ARFF_COLUMNS);
+	public  String[] EXT_ARFF_FILE_FORMAT;
 	
 	
 	// 每日预测（旧模型数据格式）数据（数据库和数据文件都是如此)的旧格式
-	public String[] DAILY_DATA_TO_PREDICT_FORMAT_LEGACY = FormatUtility.concatStrings(new String[]{ID},MODEL_ATTRIB_FORMAT_LEGACY,new String[]{CODE});
+	public String[] DAILY_DATA_TO_PREDICT_FORMAT_LEGACY;
 	
 	// 每日预测扩展格式数据（数据库和数据文件都是如此)的格式
-	public String[] DAILY_DATA_TO_PREDICT_FORMAT_NEW = FormatUtility.concatStrings(new String[]{ID},MODEL_ATTRIB_FORMAT_NEW,new String[]{CODE});
+	public String[] DAILY_DATA_TO_PREDICT_FORMAT_NEW;
 	
 	//每日预测数据中的左侧字段，此处顺序无关（positive和收益率其实是二选一的）
 	public String[] DAILY_PREDICT_RESULT_LEFT={ID,SELECTED_AVG_LINE,BIAS5,CODE,IS_POSITIVE,SHOUYILV};
@@ -107,6 +106,20 @@ public class ArffFormat {
 	// 单次收益率增量数据的格式 （从ID到均线策略之前的字段），后面都和dailyArff的相同了
 	private  String[] TRANS_DATA_LEFT = FormatUtility.concatStrings(new String[]{ID},TRANS_DATA_NOT_SAVED_IN_ARFF);
 	public  String[] TRANS_DATA_FORMAT_NEW=FormatUtility.concatStrings(TRANS_DATA_LEFT,MODEL_ATTRIB_FORMAT_NEW, new String[]{SHOUYILV});
+
+	
+	public ArffFormat() {
+		//先调用子类的方法对相应数据赋值
+		initializeFormat();
+		MODEL_ATTRIB_FORMAT_NEW=FormatUtility.concatStrings(MODEL_ATTRIB_FORMAT_BASE,EXT_ARFF_COLUMNS);
+		EXT_ARFF_FILE_FORMAT= FormatUtility.concatStrings(EXT_ARFF_CRC,EXT_ARFF_COLUMNS);
+		DAILY_DATA_TO_PREDICT_FORMAT_LEGACY = FormatUtility.concatStrings(new String[]{ID},MODEL_ATTRIB_FORMAT_LEGACY,new String[]{CODE});
+		DAILY_DATA_TO_PREDICT_FORMAT_NEW = FormatUtility.concatStrings(new String[]{ID},MODEL_ATTRIB_FORMAT_NEW,new String[]{CODE});
+
+	}
+
+	protected abstract void initializeFormat();
+	
 
 	//所有数据中需要作为nominal 处理的数据
 	private static final String[] NOMINAL_ATTRIBS={

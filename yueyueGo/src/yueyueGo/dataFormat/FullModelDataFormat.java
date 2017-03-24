@@ -116,4 +116,11 @@ public class FullModelDataFormat extends ArffFormat {
 		GeneralInstances result = InstanceHandler.getHandler(allData).removeAttribs(allData,FULL_MODEL_DATA_NOT_SAVED_IN_ARFF);
 		return result;
 	}
+
+	@Override
+	protected void initializeFormat() {
+		// TODO Auto-generated method stub
+		MODEL_ATTRIB_FORMAT_BASE=new String[]{};
+		MODEL_ATTRIB_FORMAT_LEGACY=new String[]{};
+	}
 }
