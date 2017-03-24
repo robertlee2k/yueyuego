@@ -36,7 +36,7 @@ public class BackTestFullModel extends BackTest {
 		AppContext.createContext(C_ROOT_DIRECTORY);	
 		BACKTEST_RESULT_DIR=AppContext.getBACKTEST_RESULT_DIR();
 		
-		RUNNING_THREADS=20;
+		RUNNING_THREADS=1;
 		
 		shouyilv_thresholds=EvaluationConfDefinition.FULLMODEL_SHOUYILV_FILTER_FOR_WINRATE; //对于胜率优先算法的收益率筛选阀值
 		winrate_thresholds=EvaluationConfDefinition.FULLMODEL_WINRATE_FILTER_FOR_SHOUYILV; //对于收益率优先算法的胜率筛选阀值
