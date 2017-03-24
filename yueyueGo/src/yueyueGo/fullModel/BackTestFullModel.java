@@ -30,8 +30,14 @@ public class BackTestFullModel extends BackTest {
 		};
 		
 		STRAGEY_NAME="短线策略";
-		ARFF_FORMAT=new AvgLineDataFormat();
+
+		//初始化相应的Model文件数据格式
 		ARFF_FORMAT_FULLMODEL=new FullModelDataFormat();
+		if (applyToMaModelInTestBack==true){
+			ARFF_FORMAT=new AvgLineDataFormat();
+		}else{
+			ARFF_FORMAT=null; //以免误用
+		}
 		C_ROOT_DIRECTORY = EnvConstants.FULL_MODEL_ROOT_DIR;
 		AppContext.clearContext();
 		AppContext.createContext(C_ROOT_DIRECTORY);	
