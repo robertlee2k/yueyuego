@@ -2,7 +2,7 @@ package yueyueGo.classifier.deprecated;
 
 import yueyueGo.EnvConstants;
 import yueyueGo.ModelStore;
-import yueyueGo.fullModel.ArffFormatFullModel;
+import yueyueGo.dataFormat.FullModelDataFormat;
 import yueyueGo.utility.ClassifyUtility;
 @Deprecated
 public class BaggingRegressionFullModel extends BaggingLinearRegression {
@@ -16,7 +16,7 @@ public class BaggingRegressionFullModel extends BaggingLinearRegression {
 		m_skipTrainInBacktest = false;
 		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{""};
-		modelArffFormat=ArffFormatFullModel.FULLMODEL_FORMAT; //这个模型缺省是为FULLMODEL用的格式
+		modelArffFormat=FullModelDataFormat.FULLMODEL_FORMAT; //这个模型缺省是为FULLMODEL用的格式
 		
 		classifierName=ClassifyUtility.BAGGING_REGRESSION_FULLMODEL;	
 		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA

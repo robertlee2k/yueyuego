@@ -1,6 +1,6 @@
 package yueyueGo.utility;
 
-import yueyueGo.ArffFormat;
+import yueyueGo.dataFormat.ArffFormat;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.dataProcessor.InstanceHandler;
 import yueyueGo.databeans.DataInstance;

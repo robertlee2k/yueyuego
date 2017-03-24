@@ -3,7 +3,7 @@ package yueyueGo.classifier.deprecated;
 import yueyueGo.EnvConstants;
 import yueyueGo.ModelStore;
 import yueyueGo.classifier.AdaboostClassifier;
-import yueyueGo.fullModel.ArffFormatFullModel;
+import yueyueGo.dataFormat.FullModelDataFormat;
 import yueyueGo.utility.ClassifyUtility;
 
 @Deprecated
@@ -19,7 +19,7 @@ public class AdaboostFullModel extends AdaboostClassifier {
 		m_skipTrainInBacktest = true;
 		m_skipEvalInBacktest = true;
 		m_policySubGroup = new String[]{""};
-		modelArffFormat=ArffFormatFullModel.FULLMODEL_FORMAT; //这个模型缺省是为FULLMODEL用的格式
+		modelArffFormat=FullModelDataFormat.FULLMODEL_FORMAT; //这个模型缺省是为FULLMODEL用的格式
 		
 		leafMinObjNum=1000; 	//j48树最小节点叶子数
 		divided=EnvConstants.TRAINING_DATA_LIMIT/3000; //将trainingData分成多少份

@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 
+import yueyueGo.dataFormat.ArffFormat;
+import yueyueGo.dataFormat.AvgLineDataFormat;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.dataProcessor.InstanceHandler;
 import yueyueGo.databeans.DataInstance;
@@ -17,7 +19,7 @@ import yueyueGo.utility.AppContext;
 import yueyueGo.utility.FormatUtility;
 
 public class UpdateHistoryArffFile {
-
+	protected static ArffFormat ARFF_FORMAT=new AvgLineDataFormat(); //当前所用数据文件格式 
 
 	public static void main(String[] args) {
 		try {
@@ -25,13 +27,13 @@ public class UpdateHistoryArffFile {
 			worker.init();
 			
 			//重新创建ARFF文件
-//			callCreateTransInstances();
+			callCreateTransInstances();
 			
 //			//用最新的单次交易数据，更新原始的交易数据文件
 //			UpdateHistoryArffFile.callRefreshInstances();
 //
 //			//刷新最新月份的模型
-			worker.callRefreshModelUseLatestData();
+//			worker.callRefreshModelUseLatestData();
 			
 			
 		} catch (Exception e) {
@@ -44,7 +46,7 @@ public class UpdateHistoryArffFile {
 		String startYearMonth="201601";
 		String endYearMonth="201703";
 
-		String originFilePrefix=AppContext.getC_ROOT_DIRECTORY()+ArffFormat.TRANSACTION_ARFF_PREFIX;
+		String originFilePrefix=AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT.TRANSACTION_ARFF_PREFIX;
 		
 		String newDataFileName=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group8\\v_onceyield_group8all20162017.txt";
 		GeneralInstances newData = loadDataFromIncrementalCSVFile(newDataFileName);
@@ -74,12 +76,12 @@ public class UpdateHistoryArffFile {
 	
 		file1=AppContext.getC_ROOT_DIRECTORY()+"\\sourceData\\波动率\\onceyield_hv_update_2005_2007.txt";
 		file2=AppContext.getC_ROOT_DIRECTORY()+"\\sourceData\\波动率\\onceyield_hv_update_2008_2012.txt";
-		extData = mergeExtDataFromTwoFiles(file1, file2,ArffFormat.EXT_ARFF_FILE_FORMAT);
+		extData = mergeExtDataFromTwoFiles(file1, file2,ARFF_FORMAT.EXT_ARFF_FILE_FORMAT);
 		System.out.println("NewGroup data 1 loaded. number="+extData.numInstances());
 	
 		String file3=AppContext.getC_ROOT_DIRECTORY()+"\\sourceData\\波动率\\onceyield_hv_update_2013_2015.txt";
 		String file4=AppContext.getC_ROOT_DIRECTORY()+"\\sourceData\\波动率\\onceyield_hv_update_2016.txt";
-		extData2 = mergeExtDataFromTwoFiles(file3, file4,ArffFormat.EXT_ARFF_FILE_FORMAT);
+		extData2 = mergeExtDataFromTwoFiles(file3, file4,ARFF_FORMAT.EXT_ARFF_FILE_FORMAT);
 		System.out.println("NewGroup data 2 loaded. number="+extData2.numInstances());
 		
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(extData);
@@ -87,7 +89,7 @@ public class UpdateHistoryArffFile {
 		System.out.println("NewGroup data merged and loaded. number="+extData.numInstances());
 	
 		//加载原始arff文件
-		String originFileName=AppContext.getC_ROOT_DIRECTORY()+ArffFormat.TRANSACTION_ARFF_PREFIX;
+		String originFileName=AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT.TRANSACTION_ARFF_PREFIX;
 		GeneralInstances fullData = DataIOHandler.getSuppier().loadDataFromFile(originFileName+"-origin.arff");
 	
 	
@@ -99,7 +101,7 @@ public class UpdateHistoryArffFile {
 		System.out.println("all data sorted by id");
 	
 	
-		GeneralInstances result=mergeTransactionWithExtension(fullData,extData,ArffFormat.EXT_ARFF_COLUMNS,ArffFormat.EXT_ARFF_CRC);
+		GeneralInstances result=mergeTransactionWithExtension(fullData,extData,ARFF_FORMAT.EXT_ARFF_COLUMNS,ARFF_FORMAT.EXT_ARFF_CRC);
 		System.out.println("NewGroup data processed. number="+result.numInstances()+" columns="+result.numAttributes());
 		extData=null;
 		fullData=null;
@@ -122,7 +124,7 @@ public class UpdateHistoryArffFile {
 	protected static void callCreateTransInstances() throws Exception {
 	
 	
-		String arffFileName=AppContext.getC_ROOT_DIRECTORY()+ArffFormat.TRANSACTION_ARFF_PREFIX;
+		String arffFileName=AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT.TRANSACTION_ARFF_PREFIX;
 		GeneralInstances rawData = mergeSrcTransFiles();
 	
 		//处理所有的日期字段，并插入yearmonth
@@ -660,7 +662,7 @@ public class UpdateHistoryArffFile {
 	//这是处理历史全量数据，重新切割生成各种长、短以及格式文件的方法
 	private static void processHistoryFile() throws Exception {
 		System.out.println("loading history file into memory "  );
-		String originFileName=AppContext.getC_ROOT_DIRECTORY()+ArffFormat.TRANSACTION_ARFF_PREFIX;
+		String originFileName=AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT.TRANSACTION_ARFF_PREFIX;
 		GeneralInstances fullSetData = DataIOHandler.getSuppier().loadDataFromFile(originFileName+".arff");
 		System.out.println("finish  loading fullset File  row : "+ fullSetData.numInstances() + " column:"+ fullSetData.numAttributes());
 		generateArffFileSet(originFileName, fullSetData);
@@ -701,7 +703,7 @@ public class UpdateHistoryArffFile {
 
 	// 从增量的交易CSV文件中加载数据
 	private static GeneralInstances loadDataFromIncrementalCSVFile(String fileName) throws Exception{ 
-		return DataIOHandler.getSuppier().loadDataWithFormatFromCSVFile(fileName,ArffFormat.TRANS_DATA_FORMAT_NEW);
+		return DataIOHandler.getSuppier().loadDataWithFormatFromCSVFile(fileName,ARFF_FORMAT.TRANS_DATA_FORMAT_NEW);
 	}
 
 

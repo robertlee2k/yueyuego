@@ -1,7 +1,5 @@
 package yueyueGo.utility;
 
-
-
 //singleton 
 public class AppContext {
 	private static AppContext singleton = null;
@@ -11,6 +9,7 @@ public class AppContext {
 	protected String NOMINAL_CLASSIFIER_DIR=null;
 	protected String CONTINOUS_CLASSIFIER_DIR=null;
 	protected String BACKTEST_RESULT_DIR=null;
+	
 	private AppContext(String rootPath) {
     	C_ROOT_DIRECTORY=rootPath;
 		NOMINAL_CLASSIFIER_DIR = rootPath+"models\\01-二分类器\\";

@@ -5,13 +5,13 @@ import java.io.File;
 import weka.core.converters.CSVLoader;
 import weka.core.converters.ConverterUtils.DataSource;
 import weka.experiment.InstanceQuery;
-import yueyueGo.ArffFormat;
 import yueyueGo.EnvConstants;
+import yueyueGo.dataFormat.ArffFormat;
+import yueyueGo.dataFormat.FullModelDataFormat;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.dataProcessor.InstanceHandler;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaInstances;
-import yueyueGo.fullModel.ArffFormatFullModel;
 
 public class WekaDataSupplier implements GeneralDataSupplier {
 
@@ -89,20 +89,20 @@ public class WekaDataSupplier implements GeneralDataSupplier {
 	 * @see yueyueGo.datasource.GeneralDataSupplier#LoadFullModelDataFromDB()
 	 */
 	@Override
-	public GeneralInstances LoadFullModelDataFromDB() throws Exception{
-		return LoadFullModelDataFromDB(null);
+	public GeneralInstances LoadFullModelDataFromDB(FullModelDataFormat formatFullModel) throws Exception{
+		return LoadFullModelDataFromDB(null,formatFullModel);
 	}
 
 	//如果传入的参数 dateString==null; 则取数据库中的最新数据，否则取相应交易日的数据
-	private GeneralInstances LoadFullModelDataFromDB(String dateString) throws Exception{
-		String[] validateFormat=ArffFormatFullModel.DAILY_DATA_TO_PREDICT_FULL_MODEL;
+	private GeneralInstances LoadFullModelDataFromDB(String dateString,FullModelDataFormat formatFullModel) throws Exception{
+		String[] validateFormat=formatFullModel.DAILY_DATA_TO_PREDICT_FULL_MODEL;
 	
 		//load data from database that needs predicting
 		InstanceQuery query = new InstanceQuery();
 		query.setDatabaseURL(EnvConstants.URL);
 		query.setUsername(EnvConstants.USER);
 		query.setPassword(EnvConstants.PASSWORD);
-		String queryData=generateFullModelQueryData(dateString);
+		String queryData=generateFullModelQueryData(dateString,formatFullModel);
 		query.setQuery(queryData); 
 		GeneralInstances data = new WekaInstances(query.retrieveInstances());
 	
@@ -122,14 +122,14 @@ public class WekaDataSupplier implements GeneralDataSupplier {
 	}
 
 	//如果传入的参数 dateString==null; 则取数据库中的最新数据，否则取相应交易日的数据
-	private String generateFullModelQueryData(String dateString){
+	private String generateFullModelQueryData(String dateString,FullModelDataFormat formatFullModel){
 		
 		String queryData="SELECT ";
 		String[] target_columns=null;
 		String target_view=null;
 		String date_cretiriaString="";
 		
-		target_columns=ArffFormatFullModel.DAILY_DATA_TO_PREDICT_FULL_MODEL;
+		target_columns=formatFullModel.DAILY_DATA_TO_PREDICT_FULL_MODEL;
 	
 		//如果传入的参数 dateString==null; 则取数据库中的最新数据，否则取相应交易日的数据
 		if (dateString==null){
@@ -150,7 +150,7 @@ public class WekaDataSupplier implements GeneralDataSupplier {
 		return queryData;
 	}
 
-	private String generateQueryData(int format){
+	private String generateQueryData(int format,ArffFormat arffFormat){
 		
 		String queryData="SELECT ";
 		String[] target_columns=null;
@@ -158,11 +158,11 @@ public class WekaDataSupplier implements GeneralDataSupplier {
 		
 		switch (format) {
 		case ArffFormat.LEGACY_FORMAT:
-			target_columns=ArffFormat.DAILY_DATA_TO_PREDICT_FORMAT_LEGACY;
+			target_columns=arffFormat.DAILY_DATA_TO_PREDICT_FORMAT_LEGACY;
 			target_view="t_stock_avgline_increment_zuixin_group7";//"t_stock_avgline_increment_zuixin_group5";//"t_stock_avgline_increment_zuixin_v";
 			break;
 		case ArffFormat.EXT_FORMAT:
-			target_columns=ArffFormat.DAILY_DATA_TO_PREDICT_FORMAT_NEW;
+			target_columns=arffFormat.DAILY_DATA_TO_PREDICT_FORMAT_NEW;
 			target_view="t_stock_avgline_increment_zuixin_group8";
 			//"t_stock_avgline_increment_zuixin_group6";  //"t_stock_avgline_increment_zuixin_group5"; //"t_stock_avgline_increment_zuixin_group5_test";
 			break;			
@@ -184,15 +184,15 @@ public class WekaDataSupplier implements GeneralDataSupplier {
 	 * @see yueyueGo.datasource.GeneralDataSupplier#LoadDataFromDB(int)
 	 */
 	@Override
-	public GeneralInstances LoadDataFromDB(int format) throws Exception{
+	public GeneralInstances LoadDataFromDB(int format,ArffFormat arffFormat) throws Exception{
 	
 		String[] validateFormat=null;
 		switch (format) {
 		case ArffFormat.LEGACY_FORMAT:
-			validateFormat=ArffFormat.DAILY_DATA_TO_PREDICT_FORMAT_LEGACY;
+			validateFormat=arffFormat.DAILY_DATA_TO_PREDICT_FORMAT_LEGACY;
 			break;
 		case ArffFormat.EXT_FORMAT:
-			validateFormat=ArffFormat.DAILY_DATA_TO_PREDICT_FORMAT_NEW;
+			validateFormat=arffFormat.DAILY_DATA_TO_PREDICT_FORMAT_NEW;
 			break;			
 		default:
 			break;
@@ -202,7 +202,7 @@ public class WekaDataSupplier implements GeneralDataSupplier {
 		query.setDatabaseURL(EnvConstants.URL);
 		query.setUsername(EnvConstants.USER);
 		query.setPassword(EnvConstants.PASSWORD);
-		String queryData=generateQueryData(format);
+		String queryData=generateQueryData(format,arffFormat);
 		query.setQuery(queryData); 
 		GeneralInstances data = new WekaInstances(query.retrieveInstances()); 
 	

@@ -30,6 +30,8 @@ import java.util.concurrent.TimeUnit;
 
 import yueyueGo.classifier.AdaboostClassifier;
 import yueyueGo.classifier.BaggingM5P;
+import yueyueGo.dataFormat.ArffFormat;
+import yueyueGo.dataFormat.AvgLineDataFormat;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.dataProcessor.InstanceHandler;
 import yueyueGo.dataProcessor.WekaInstanceProcessor;
@@ -56,7 +58,8 @@ public class BackTest {
 	public static final String RESULT_EXTENSION = "-Test Result.csv";
 	
 	protected String STRAGEY_NAME; // 策略的名称，只是用于输出。
-	
+	protected ArffFormat ARFF_FORMAT; //当前所用数据文件格式 
+
 	private final static int BEGIN_FROM_POLICY=0; // 当回测需要跳过某些均线时，0表示不跳过
 	
 	protected double[] shouyilv_thresholds=null; //对于胜率优先算法的收益率筛选阀值
@@ -85,6 +88,7 @@ public class BackTest {
 	public void init(){
 		
 		STRAGEY_NAME="均线策略";
+		ARFF_FORMAT=new AvgLineDataFormat();
 		AppContext.clearContext();
 		AppContext.createContext(this.C_ROOT_DIRECTORY);	
 		BACKTEST_RESULT_DIR=AppContext.getBACKTEST_RESULT_DIR();
@@ -424,7 +428,7 @@ public class BackTest {
 		// 根据模型来决定是否要使用有计算字段的ARFF
 		String arffFile=null;
 		if (clModel.m_noCaculationAttrib==true){
-			arffFile=ArffFormat.SHORT_ARFF_FILE;
+			arffFile=ARFF_FORMAT.SHORT_ARFF_FILE;
 		}else{
 //			arffFile=ArffFormat.LONG_ARFF_FILE;
 			throw new RuntimeException("we don't support Calculation fields any more");
@@ -490,7 +494,7 @@ public class BackTest {
 //			left=FileUtility.loadDataFromFile(C_ROOT_DIRECTORY+ArffFormat.TRANSACTION_ARFF_PREFIX+"-left.arff");
 //		}
 
-		left=DataIOHandler.getSuppier().loadDataFromFile(C_ROOT_DIRECTORY+ArffFormat.TRANSACTION_ARFF_PREFIX+"-left.arff");
+		left=DataIOHandler.getSuppier().loadDataFromFile(C_ROOT_DIRECTORY+ARFF_FORMAT.TRANSACTION_ARFF_PREFIX+"-left.arff");
 		MergeClassifyResults merge=new MergeClassifyResults(shouyilv_thresholds, winrate_thresholds);
 		GeneralInstances mergedResult =merge.mergeResults(resultData, referenceData,dataToAdd, left);
 

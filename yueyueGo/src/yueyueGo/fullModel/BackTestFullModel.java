@@ -2,10 +2,12 @@ package yueyueGo.fullModel;
 
 import java.io.IOException;
 
-import yueyueGo.ArffFormat;
 import yueyueGo.BackTest;
 import yueyueGo.BaseClassifier;
 import yueyueGo.EnvConstants;
+import yueyueGo.dataFormat.ArffFormat;
+import yueyueGo.dataFormat.FullModelDataFormat;
+import yueyueGo.dataFormat.AvgLineDataFormat;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.dataProcessor.InstanceHandler;
 import yueyueGo.databeans.GeneralInstances;
@@ -19,7 +21,8 @@ import yueyueGo.utility.MergeClassifyResults;
 
 public class BackTestFullModel extends BackTest {
 	private boolean applyToMaModelInTestBack=false; //default is false
-
+	protected FullModelDataFormat ARFF_FORMAT_FULLMODEL; //当前所用FULLMODEL数据文件格式 
+	
 	//覆盖父类
 	public void init() {
 		m_handSetSplitYear=new String[] {
@@ -27,6 +30,7 @@ public class BackTestFullModel extends BackTest {
 		};
 		
 		STRAGEY_NAME="短线策略";
+		ARFF_FORMAT=new AvgLineDataFormat();
 		C_ROOT_DIRECTORY = EnvConstants.FULL_MODEL_ROOT_DIR;
 		AppContext.clearContext();
 		AppContext.createContext(C_ROOT_DIRECTORY);	
@@ -174,7 +178,7 @@ public class BackTestFullModel extends BackTest {
 		// 根据模型来决定是否要使用有计算字段的ARFF
 		String arffFile=null;
 		if (clModel.m_noCaculationAttrib==true){
-			arffFile=ArffFormatFullModel.FULL_MODEL_SHORT_ARFF_FILE;
+			arffFile=ARFF_FORMAT_FULLMODEL.FULL_MODEL_SHORT_ARFF_FILE;
 		}else{
 //			arffFile=ArffFormatFullModel.FULL_MODEL_LONG_ARFF_FILE;
 			throw new RuntimeException("we don't support Calculation fields any more");
@@ -197,7 +201,7 @@ public class BackTestFullModel extends BackTest {
 		// 根据模型来决定是否要使用有计算字段的ARFF
 		String arffFile=null;
 		if (clModel.m_noCaculationAttrib==true){
-			arffFile=ArffFormat.SHORT_ARFF_FILE;
+			arffFile=ARFF_FORMAT.SHORT_ARFF_FILE;
 		}else{
 //			arffFile=ArffFormat.LONG_ARFF_FILE;
 			throw new RuntimeException("we don't support Calculation fields any more");
@@ -212,9 +216,9 @@ public class BackTestFullModel extends BackTest {
 		GeneralInstances left=null;		
 		//读取磁盘上预先保存的左侧数据
 		if (applyToMaModelInTestBack==true){
-			left=DataIOHandler.getSuppier().loadDataFromFile(EnvConstants.AVG_LINE_ROOT_DIR+ArffFormat.TRANSACTION_ARFF_PREFIX+"-left.arff");
+			left=DataIOHandler.getSuppier().loadDataFromFile(EnvConstants.AVG_LINE_ROOT_DIR+ARFF_FORMAT.TRANSACTION_ARFF_PREFIX+"-left.arff");
 		}else{
-			left=DataIOHandler.getSuppier().loadDataFromFile(C_ROOT_DIRECTORY+ArffFormatFullModel.FULL_MODEL_ARFF_PREFIX+"-left.arff");
+			left=DataIOHandler.getSuppier().loadDataFromFile(C_ROOT_DIRECTORY+ARFF_FORMAT_FULLMODEL.FULL_MODEL_ARFF_PREFIX+"-left.arff");
 		}
 		
 		MergeClassifyResults merge=new MergeClassifyResults(shouyilv_thresholds, winrate_thresholds);

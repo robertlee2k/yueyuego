@@ -1,7 +1,7 @@
 package yueyueGo.classifier.deprecated;
 
 import yueyueGo.ModelStore;
-import yueyueGo.fullModel.ArffFormatFullModel;
+import yueyueGo.dataFormat.FullModelDataFormat;
 
 public class MLPABFullModel extends MLPABClassifier {
 
@@ -16,7 +16,7 @@ public class MLPABFullModel extends MLPABClassifier {
 		m_skipTrainInBacktest = false;
 		m_skipEvalInBacktest = false;
 		m_policySubGroup = new String[]{"" };
-		modelArffFormat=ArffFormatFullModel.FULLMODEL_FORMAT; //这个模型缺省是为FULLMODEL用的格式
+		modelArffFormat=FullModelDataFormat.FULLMODEL_FORMAT; //这个模型缺省是为FULLMODEL用的格式
 		
 		classifierName= "mlpABFullModel";
 		

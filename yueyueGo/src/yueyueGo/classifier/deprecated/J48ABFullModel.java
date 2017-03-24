@@ -5,9 +5,9 @@ import weka.classifiers.trees.J48;
 import yueyueGo.ModelStore;
 import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.NominalClassifier;
+import yueyueGo.dataFormat.FullModelDataFormat;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaInstances;
-import yueyueGo.fullModel.ArffFormatFullModel;
 import yueyueGo.utility.ClassifyUtility;
 @Deprecated
 public class J48ABFullModel extends NominalClassifier {
@@ -25,7 +25,7 @@ public class J48ABFullModel extends NominalClassifier {
 		m_skipTrainInBacktest = true;
 		m_skipEvalInBacktest = true;
 		m_policySubGroup = new String[]{"" };
-		modelArffFormat=ArffFormatFullModel.FULLMODEL_FORMAT; //这个模型缺省是为FULLMODEL用的格式
+		modelArffFormat=FullModelDataFormat.FULLMODEL_FORMAT; //这个模型缺省是为FULLMODEL用的格式
 		
 		classifierName= "J48ABFullModel";
 //		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");

@@ -1,7 +1,7 @@
 package yueyueGo.classifier.deprecated;
 
 import yueyueGo.ModelStore;
-import yueyueGo.fullModel.ArffFormatFullModel;
+import yueyueGo.dataFormat.FullModelDataFormat;
 
 @Deprecated
 public class M5PABFullModel extends M5PABClassifier {
@@ -16,7 +16,7 @@ public class M5PABFullModel extends M5PABClassifier {
 		m_skipTrainInBacktest = true;
 		m_skipEvalInBacktest = true;
 		m_policySubGroup = new String[]{""};
-		modelArffFormat=ArffFormatFullModel.FULLMODEL_FORMAT; //这个模型缺省是为FULLMODEL用的格式
+		modelArffFormat=FullModelDataFormat.FULLMODEL_FORMAT; //这个模型缺省是为FULLMODEL用的格式
 		
 		classifierName="m5pABFullModel";
 //		setWorkPathAndCheck(AppContext.getCONTINOUS_CLASSIFIER_DIR()+getIdentifyName()+"\\");

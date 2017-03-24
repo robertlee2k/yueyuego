@@ -2,7 +2,7 @@ package yueyueGo.utility;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
-import yueyueGo.ArffFormat;
+import yueyueGo.dataFormat.ArffFormat;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.databeans.GeneralInstances;
 

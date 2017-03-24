@@ -1,5 +1,7 @@
 package yueyueGo.datasource;
 
+import yueyueGo.dataFormat.ArffFormat;
+import yueyueGo.dataFormat.FullModelDataFormat;
 import yueyueGo.databeans.GeneralInstances;
 
 public interface GeneralDataSupplier {
@@ -19,9 +21,9 @@ public interface GeneralDataSupplier {
 			String[] verifyFormat) throws Exception;
 
 	//取最新的交易日短线策略数据（用于每日预测）
-	public abstract GeneralInstances LoadFullModelDataFromDB() throws Exception;
+	public abstract GeneralInstances LoadFullModelDataFromDB(FullModelDataFormat formatFullModel) throws Exception;
 	
 	//取最新的交易日均线策略数据（用于每日预测）
-	public abstract GeneralInstances LoadDataFromDB(int format)	throws Exception;
+	public abstract GeneralInstances LoadDataFromDB(int format,ArffFormat arffFormat)	throws Exception;
 
 }

@@ -4,6 +4,9 @@ import java.util.HashMap;
 
 import yueyueGo.classifier.AdaboostClassifier;
 import yueyueGo.classifier.BaggingM5P;
+import yueyueGo.dataFormat.ArffFormat;
+import yueyueGo.dataFormat.FullModelDataFormat;
+import yueyueGo.dataFormat.AvgLineDataFormat;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.dataProcessor.InstanceHandler;
 import yueyueGo.dataProcessor.WekaInstanceProcessor;
@@ -11,7 +14,6 @@ import yueyueGo.databeans.DataInstances;
 import yueyueGo.databeans.GeneralInstance;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.datasource.DataIOHandler;
-import yueyueGo.fullModel.ArffFormatFullModel;
 import yueyueGo.fullModel.classifier.BaggingM5PFullModel;
 import yueyueGo.fullModel.classifier.MyNNFullModel;
 import yueyueGo.utility.AppContext;
@@ -25,6 +27,7 @@ import yueyueGo.utility.PredictModelData;
 public class DailyPredict {
 
 	private static String PREDICT_WORK_DIR=EnvConstants.PREDICT_WORK_DIR;
+	protected ArffFormat ARFF_FORMAT; //当前所用数据文件格式 
 	private static String PREDICT_RESULT_DIR=PREDICT_WORK_DIR+"\\88-预测结果\\"; 
 	private HashMap<String, PredictModelData> PREDICT_MODELS;
 	
@@ -65,7 +68,7 @@ public class DailyPredict {
 			
 		}else if(EnvConstants.FULL_MODEL_ROOT_DIR.equals(type)){
 			// fullmodel不保留legacy
-			format=ArffFormatFullModel.FULLMODEL_FORMAT;
+			format=FullModelDataFormat.FULLMODEL_FORMAT;
 			//BaggingM5PFullModel当前使用的预测模型---------FullMODEL
 			classifierName=ClassifyUtility.BAGGING_M5P_FULLMODEL+ClassifyUtility.MULTI_PCA_SURFIX;
 			addModelData(classifierName,format,"\\extData2005-2016-BaggingM5PABFullModel-2016 MA ", "\\extData2005-2016-BaggingM5PABFullModel-201605 MA ");
@@ -102,6 +105,7 @@ public class DailyPredict {
 		AppContext.clearContext();
 		AppContext.createContext(EnvConstants.AVG_LINE_ROOT_DIR);
 		//预先初始化各种模型文件的位置
+		worker.ARFF_FORMAT=new AvgLineDataFormat();
 		worker.definePredictModels(EnvConstants.AVG_LINE_ROOT_DIR);
 		worker.shouyilv_thresholds=EvaluationConfDefinition.SHOUYILV_FILTER_FOR_WINRATE;//new double[] {0.005,0.005,0.01,0.03,0.03}; // {0.01,0.02,0.03,0.03,0.04};
 		worker.winrate_thresholds=EvaluationConfDefinition.WINRATE_FILTER_FOR_SHOUYILV;//new double[]  {0.45,0.45,0.45,0.35,0.25};  //{0.3,0.3,0.3,0.25,0.25};
@@ -122,6 +126,7 @@ public class DailyPredict {
 		System.out.println("==================================================");
 		AppContext.createContext(EnvConstants.FULL_MODEL_ROOT_DIR);
 		//预先初始化各种模型文件的位置
+		worker.ARFF_FORMAT=new FullModelDataFormat();
 		worker.definePredictModels(EnvConstants.FULL_MODEL_ROOT_DIR);
 		worker.shouyilv_thresholds=EvaluationConfDefinition.FULLMODEL_SHOUYILV_FILTER_FOR_WINRATE;
 		worker.winrate_thresholds=EvaluationConfDefinition.FULLMODEL_WINRATE_FILTER_FOR_SHOUYILV;
@@ -297,13 +302,13 @@ public class DailyPredict {
 		if(dailyData==null){ //缓存中没有，需要从数据库里加载
 			switch (dataFormat){
 			case ArffFormat.LEGACY_FORMAT:
-				dailyData=DataIOHandler.getSuppier().LoadDataFromDB(dataFormat);
+				dailyData=DataIOHandler.getSuppier().LoadDataFromDB(dataFormat,ARFF_FORMAT);
 				break;
 			case ArffFormat.EXT_FORMAT:
-				dailyData=DataIOHandler.getSuppier().LoadDataFromDB(dataFormat);
+				dailyData=DataIOHandler.getSuppier().LoadDataFromDB(dataFormat,ARFF_FORMAT);
 				break;
-			case ArffFormatFullModel.FULLMODEL_FORMAT:
-				dailyData = DataIOHandler.getSuppier().LoadFullModelDataFromDB();
+			case FullModelDataFormat.FULLMODEL_FORMAT:
+				dailyData = DataIOHandler.getSuppier().LoadFullModelDataFromDB((FullModelDataFormat)ARFF_FORMAT);
 				break;			
 			default:
 				throw new Exception("invalid arffFormat type");
@@ -311,7 +316,7 @@ public class DailyPredict {
 			//保留DAILY RESULT的LEFT部分在磁盘上，主要为了保存股票代码
 			GeneralInstances left = new DataInstances(dailyData);
 			BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(left);
-			left=instanceProcessor.filterAttribs(dailyData, ArffFormat.DAILY_PREDICT_RESULT_LEFT);
+			left=instanceProcessor.filterAttribs(dailyData, ARFF_FORMAT.DAILY_PREDICT_RESULT_LEFT);
 			//将LEFT中的CODE加上=""，避免输出格式中前导零消失。
 			int codeIndex=BaseInstanceProcessor.findATTPosition(left,ArffFormat.CODE);
 			left=instanceProcessor.nominalToString(left, String.valueOf(codeIndex));
@@ -408,7 +413,7 @@ public class DailyPredict {
 				// remove unnecessary data,leave 均线策略 & code alone
 				GeneralInstances header = new DataInstances(newData, 0);
 				BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(header);
-				result=instanceProcessor.filterAttribs(header, ArffFormat.DAILY_PREDICT_RESULT_LEFT);
+				result=instanceProcessor.filterAttribs(header, ARFF_FORMAT.DAILY_PREDICT_RESULT_LEFT);
 
 				if (clModel instanceof NominalClassifier ){
 					result = instanceProcessor.AddAttribute(result, ArffFormat.RESULT_PREDICTED_WIN_RATE,
@@ -439,7 +444,7 @@ public class DailyPredict {
 			return "\\00-legacy\\";
 		case ArffFormat.EXT_FORMAT:
 			return "";
-		case ArffFormatFullModel.FULLMODEL_FORMAT:
+		case FullModelDataFormat.FULLMODEL_FORMAT:
 			return "";
 		default:
 			return "";
@@ -447,7 +452,7 @@ public class DailyPredict {
 	}
 	
 	//这是对增量数据nominal label的处理 （因为增量数据中的nominal数据，label会可能不全）
-	private static GeneralInstances calibrateAttributesForDailyData(GeneralInstances incomingData,BaseClassifier clModel) throws Exception {
+	private  GeneralInstances calibrateAttributesForDailyData(GeneralInstances incomingData,BaseClassifier clModel) throws Exception {
 		int formatType=clModel.getModelArffFormat();
 		//与本地格式数据比较，这地方基本上会有nominal数据的label不一致，临时处理办法就是先替换掉
 		GeneralInstances outputData = getDailyPredictDataFormat(formatType);
@@ -485,18 +490,18 @@ public class DailyPredict {
 	 * @return
 	 * @throws Exception
 	 */
-	protected static GeneralInstances getDailyPredictDataFormat(int formatType)
+	protected  GeneralInstances getDailyPredictDataFormat(int formatType)
 			throws Exception {
 		String formatFile=null;
 		switch (formatType) {
 		case ArffFormat.LEGACY_FORMAT: //可以使用同一个Format文件，只是需要将无关字段去掉
-			formatFile=ArffFormat.TRANSACTION_ARFF_PREFIX+"-format-legacy.arff";
+			formatFile=ARFF_FORMAT.TRANSACTION_ARFF_PREFIX+"-format-legacy.arff";
 			break;
 		case ArffFormat.EXT_FORMAT:
-			formatFile=ArffFormat.TRANSACTION_ARFF_PREFIX+"-format.arff";
+			formatFile=ARFF_FORMAT.TRANSACTION_ARFF_PREFIX+"-format.arff";
 			break;
-		case ArffFormatFullModel.FULLMODEL_FORMAT:
-			formatFile=ArffFormatFullModel.FULL_MODEL_ARFF_PREFIX+"-format.arff";
+		case FullModelDataFormat.FULLMODEL_FORMAT:
+			formatFile=((FullModelDataFormat)ARFF_FORMAT).FULL_MODEL_ARFF_PREFIX+"-format.arff";
 			break;			
 		default:
 			throw new Exception("invalid arffFormat type");

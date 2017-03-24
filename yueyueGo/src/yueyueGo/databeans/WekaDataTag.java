@@ -3,7 +3,7 @@
  */
 package yueyueGo.databeans;
 
-import yueyueGo.ArffFormat;
+import yueyueGo.dataFormat.ArffFormat;
 import yueyueGo.dataProcessor.WekaInstanceProcessor;
 
 /**

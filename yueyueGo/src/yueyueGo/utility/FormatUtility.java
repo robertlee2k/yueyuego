@@ -6,7 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-import yueyueGo.ArffFormat;
+import yueyueGo.dataFormat.ArffFormat;
 
 public class FormatUtility {
 	// 获取指定偏移量的日期String
