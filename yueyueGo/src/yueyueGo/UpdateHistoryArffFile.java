@@ -68,55 +68,56 @@ public class UpdateHistoryArffFile {
 
 
 	//这个函数是将原有的历史arff文件数据（比如说只有第一二三组）合并上新的数据列
-	protected static void callMergeExtData() throws Exception{
-		String file1=null;
-		String file2=null;
-		GeneralInstances extData=null;
-		GeneralInstances extData2=null;
-	
-		file1=AppContext.getC_ROOT_DIRECTORY()+"\\sourceData\\波动率\\onceyield_hv_update_2005_2007.txt";
-		file2=AppContext.getC_ROOT_DIRECTORY()+"\\sourceData\\波动率\\onceyield_hv_update_2008_2012.txt";
-		extData = mergeExtDataFromTwoFiles(file1, file2,ARFF_FORMAT.EXT_ARFF_FILE_FORMAT);
-		System.out.println("NewGroup data 1 loaded. number="+extData.numInstances());
-	
-		String file3=AppContext.getC_ROOT_DIRECTORY()+"\\sourceData\\波动率\\onceyield_hv_update_2013_2015.txt";
-		String file4=AppContext.getC_ROOT_DIRECTORY()+"\\sourceData\\波动率\\onceyield_hv_update_2016.txt";
-		extData2 = mergeExtDataFromTwoFiles(file3, file4,ARFF_FORMAT.EXT_ARFF_FILE_FORMAT);
-		System.out.println("NewGroup data 2 loaded. number="+extData2.numInstances());
-		
-		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(extData);
-		extData=instanceProcessor.mergeTwoInstances(extData, extData2);
-		System.out.println("NewGroup data merged and loaded. number="+extData.numInstances());
-	
-		//加载原始arff文件
-		String originFileName=AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT.TRANSACTION_ARFF_PREFIX;
-		GeneralInstances fullData = DataIOHandler.getSuppier().loadDataFromFile(originFileName+"-origin.arff");
-	
-	
-		System.out.println("full trans data loaded. number="+fullData.numInstances());
-	
-		//将两边数据以ID排序
-		fullData.sort(ArffFormat.ID_POSITION-1);
-		extData.sort(ArffFormat.ID_POSITION-1);
-		System.out.println("all data sorted by id");
-	
-	
-		GeneralInstances result=mergeTransactionWithExtension(fullData,extData,ARFF_FORMAT.EXT_ARFF_COLUMNS,ARFF_FORMAT.EXT_ARFF_CRC);
-		System.out.println("NewGroup data processed. number="+result.numInstances()+" columns="+result.numAttributes());
-		extData=null;
-		fullData=null;
-	
-		//返回结果之前需要按TradeDate重新排序
-		int tradeDateIndex=BaseInstanceProcessor.findATTPosition(result, ArffFormat.TRADE_DATE);
-		result.sort(tradeDateIndex-1);
-	
-		//保留原始的ext文件
-		DataIOHandler.getSaver().SaveDataIntoFile(result, originFileName+".arff");
-		System.out.println("history Data File saved: "+originFileName+".arff");
-	
-		//生成相应的一套Arff文件
-		generateArffFileSet(originFileName,result);
-	}
+//	@Deprecated
+//	protected static void callMergeExtData() throws Exception{
+//		String file1=null;
+//		String file2=null;
+//		GeneralInstances extData=null;
+//		GeneralInstances extData2=null;
+//	
+//		file1=AppContext.getC_ROOT_DIRECTORY()+"\\sourceData\\波动率\\onceyield_hv_update_2005_2007.txt";
+//		file2=AppContext.getC_ROOT_DIRECTORY()+"\\sourceData\\波动率\\onceyield_hv_update_2008_2012.txt";
+//		extData = mergeExtDataFromTwoFiles(file1, file2,ARFF_FORMAT.EXT_ARFF_FILE_FORMAT);
+//		System.out.println("NewGroup data 1 loaded. number="+extData.numInstances());
+//	
+//		String file3=AppContext.getC_ROOT_DIRECTORY()+"\\sourceData\\波动率\\onceyield_hv_update_2013_2015.txt";
+//		String file4=AppContext.getC_ROOT_DIRECTORY()+"\\sourceData\\波动率\\onceyield_hv_update_2016.txt";
+//		extData2 = mergeExtDataFromTwoFiles(file3, file4,ARFF_FORMAT.EXT_ARFF_FILE_FORMAT);
+//		System.out.println("NewGroup data 2 loaded. number="+extData2.numInstances());
+//		
+//		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(extData);
+//		extData=instanceProcessor.mergeTwoInstances(extData, extData2);
+//		System.out.println("NewGroup data merged and loaded. number="+extData.numInstances());
+//	
+//		//加载原始arff文件
+//		String originFileName=AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT.TRANSACTION_ARFF_PREFIX;
+//		GeneralInstances fullData = DataIOHandler.getSuppier().loadDataFromFile(originFileName+"-origin.arff");
+//	
+//	
+//		System.out.println("full trans data loaded. number="+fullData.numInstances());
+//	
+//		//将两边数据以ID排序
+//		fullData.sort(ArffFormat.ID_POSITION-1);
+//		extData.sort(ArffFormat.ID_POSITION-1);
+//		System.out.println("all data sorted by id");
+//	
+//	
+//		GeneralInstances result=mergeTransactionWithExtension(fullData,extData,ARFF_FORMAT.EXT_ARFF_COLUMNS,ARFF_FORMAT.EXT_ARFF_CRC);
+//		System.out.println("NewGroup data processed. number="+result.numInstances()+" columns="+result.numAttributes());
+//		extData=null;
+//		fullData=null;
+//	
+//		//返回结果之前需要按TradeDate重新排序
+//		int tradeDateIndex=BaseInstanceProcessor.findATTPosition(result, ArffFormat.TRADE_DATE);
+//		result.sort(tradeDateIndex-1);
+//	
+//		//保留原始的ext文件
+//		DataIOHandler.getSaver().SaveDataIntoFile(result, originFileName+".arff");
+//		System.out.println("history Data File saved: "+originFileName+".arff");
+//	
+//		//生成相应的一套Arff文件
+//		generateArffFileSet(originFileName,result);
+//	}
 
 
 
@@ -554,17 +555,17 @@ public class UpdateHistoryArffFile {
 		return mergedResult;
 	}
 
-	@Deprecated
-	final protected static void addCalculationsToFile(String path, String arffName) throws Exception{
-		System.out.println("start to load File for data "  );
-		GeneralInstances fullSetData = DataIOHandler.getSuppier().loadDataFromFile(path+arffName + "-short.arff");
-		System.out.println("finish  loading fullset File  row : "
-				+ fullSetData.numInstances() + " column:"
-				+ fullSetData.numAttributes());
-		GeneralInstances result=ArffFormat.addCalculateAttribute(fullSetData);
-		DataIOHandler.getSaver().SaveDataIntoFile(result, path+arffName+"-new.arff");
-		System.out.println("file saved "  );
-	}
+//	@Deprecated
+//	final protected static void addCalculationsToFile(String path, String arffName) throws Exception{
+//		System.out.println("start to load File for data "  );
+//		GeneralInstances fullSetData = DataIOHandler.getSuppier().loadDataFromFile(path+arffName + "-short.arff");
+//		System.out.println("finish  loading fullset File  row : "
+//				+ fullSetData.numInstances() + " column:"
+//				+ fullSetData.numAttributes());
+//		GeneralInstances result=ArffFormat.addCalculateAttribute(fullSetData);
+//		DataIOHandler.getSaver().SaveDataIntoFile(result, path+arffName+"-new.arff");
+//		System.out.println("file saved "  );
+//	}
 
 
 	/**

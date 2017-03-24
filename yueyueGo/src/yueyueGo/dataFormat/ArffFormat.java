@@ -2,9 +2,6 @@ package yueyueGo.dataFormat;
 
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.dataProcessor.InstanceHandler;
-import yueyueGo.databeans.DataAttribute;
-import yueyueGo.databeans.DataInstance;
-import yueyueGo.databeans.DataInstances;
 import yueyueGo.databeans.GeneralAttribute;
 import yueyueGo.databeans.GeneralInstance;
 import yueyueGo.databeans.GeneralInstances;
@@ -48,7 +45,7 @@ public abstract class ArffFormat {
 	
 	//须去除的行业相关数据
 	protected static final String[] REMOVE_SW_DATA= {
-			"sw_zhishu_code",
+			SW_ZHISHU_CODE,
 			"isrzbd",
 			"sw_bias5", "sw_bias10","sw_bias20", "sw_bias30", "sw_bias60",
 			"sw_bias5_preday_dif",	"sw_bias10_preday_dif", "sw_bias20_preday_dif",	"sw_bias30_preday_dif", "sw_bias60_preday_dif",
@@ -74,20 +71,18 @@ public abstract class ArffFormat {
 	protected String[] MODEL_ATTRIB_FORMAT_BASE;
 	protected String[] MODEL_ATTRIB_FORMAT_LEGACY;
 
-	//每次新扩展ARFF格式的校验位
-	public  final String[] EXT_ARFF_CRC= {
-		ID,TRADE_DATE,CODE,SELL_DATE,DATA_DATE,SELECTED_AVG_LINE,"bias5_preday_dif","zhishu_code"
-	};
-	//每次新扩展ARFF格式增加的数据
-	public  final String[] EXT_ARFF_COLUMNS= {
-	};
-
+//	//每次新扩展ARFF格式的校验位
+//	public  final String[] EXT_ARFF_CRC= {
+//		ID,TRADE_DATE,CODE,SELL_DATE,DATA_DATE,SELECTED_AVG_LINE,"bias5_preday_dif","zhishu_code"
+//	};
+//	//每次新扩展ARFF格式增加的数据
+//	public  final String[] EXT_ARFF_COLUMNS= {
+//	};
+//	//每次新的扩展ARFF文件整体格式
+//	public  String[] EXT_ARFF_FILE_FORMAT;
+	
 	//模型用的训练字段 （基础+扩展部分）
 	public String[] MODEL_ATTRIB_FORMAT_NEW;
-	
-	//每次新的扩展ARFF文件整体格式
-	public  String[] EXT_ARFF_FILE_FORMAT;
-	
 	
 	// 每日预测（旧模型数据格式）数据（数据库和数据文件都是如此)的旧格式
 	public String[] DAILY_DATA_TO_PREDICT_FORMAT_LEGACY;
@@ -105,17 +100,18 @@ public abstract class ArffFormat {
 	};
 	// 单次收益率增量数据的格式 （从ID到均线策略之前的字段），后面都和dailyArff的相同了
 	private  String[] TRANS_DATA_LEFT = FormatUtility.concatStrings(new String[]{ID},TRANS_DATA_NOT_SAVED_IN_ARFF);
-	public  String[] TRANS_DATA_FORMAT_NEW=FormatUtility.concatStrings(TRANS_DATA_LEFT,MODEL_ATTRIB_FORMAT_NEW, new String[]{SHOUYILV});
+	public  String[] TRANS_DATA_FORMAT_NEW;
 
 	
 	public ArffFormat() {
 		//先调用子类的方法对相应数据赋值
 		initializeFormat();
-		MODEL_ATTRIB_FORMAT_NEW=FormatUtility.concatStrings(MODEL_ATTRIB_FORMAT_BASE,EXT_ARFF_COLUMNS);
-		EXT_ARFF_FILE_FORMAT= FormatUtility.concatStrings(EXT_ARFF_CRC,EXT_ARFF_COLUMNS);
+		MODEL_ATTRIB_FORMAT_NEW=MODEL_ATTRIB_FORMAT_BASE;
+				//FormatUtility.concatStrings(MODEL_ATTRIB_FORMAT_BASE,EXT_ARFF_COLUMNS);
+//		EXT_ARFF_FILE_FORMAT= FormatUtility.concatStrings(EXT_ARFF_CRC,EXT_ARFF_COLUMNS);
 		DAILY_DATA_TO_PREDICT_FORMAT_LEGACY = FormatUtility.concatStrings(new String[]{ID},MODEL_ATTRIB_FORMAT_LEGACY,new String[]{CODE});
 		DAILY_DATA_TO_PREDICT_FORMAT_NEW = FormatUtility.concatStrings(new String[]{ID},MODEL_ATTRIB_FORMAT_NEW,new String[]{CODE});
-
+		TRANS_DATA_FORMAT_NEW=FormatUtility.concatStrings(TRANS_DATA_LEFT,MODEL_ATTRIB_FORMAT_NEW, new String[]{SHOUYILV});
 	}
 
 	protected abstract void initializeFormat();
@@ -126,7 +122,7 @@ public abstract class ArffFormat {
 		TRADE_DATE,CODE, SELL_DATE, 
 		DATA_DATE, SELECTED_AVG_LINE, IS_POSITIVE,
 		"zhangdieting",
-		"zhishu_code", "sw_zhishu_code",IS_SZ50 ,IS_HS300 , "iszz100",
+		"zhishu_code", SW_ZHISHU_CODE,IS_SZ50 ,IS_HS300 , "iszz100",
 		IS_ZZ500, "issz100", "ishgtb", "isrzbd","is_st"
 	};
 	
@@ -154,84 +150,84 @@ public abstract class ArffFormat {
 		return InstanceHandler.getHandler(allData).filterAttribs(allData,TRANS_DATA_LEFT_PART);
 	}
 	
-	// 为原始的Arff文件加上计算属性
-	@Deprecated
-	public static GeneralInstances addCalculateAttribute(GeneralInstances data) throws Exception {
-		GeneralInstances result = new DataInstances(data, 0);
-
-		int row = data.numInstances();
-		double[][] bias5to60 = { { 0.0, 0.0, 0.0, 0.0, 0.0 },
-				{ 0.0, 0.0, 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0, 0.0, 0.0 } };
-//		String[][] biasAttName = {
-//				{ BIAS5, "bias10", "bias20", "bias30", "bias60" },
-//				{ "sw行业bias5", "sw行业bias10", "sw行业bias20", "sw行业bias30",
-//						"sw行业bias60" },
-//				{ "指数bias5", "指数bias10", "指数bias20", "指数bias30", "指数bias60" } };
-		 String[][] biasAttName = {{ BIAS5, "bias10", "bias20",
-		 "bias30","bias60"},{"sw_bias5","sw_bias10","sw_bias20","sw_bias30","sw_bias60"},{"zhishu_bias5","zhishu_bias10","zhishu_bias20","zhishu_bias30","zhishu_bias60"}
-		 };
-		for (int x = 0; x < bias5to60.length; x++) {
-			for (int m = 0; m < bias5to60[x].length; m++) {
-				for (int k = m + 1; k < bias5to60[x].length; k++) {
-					// insert before class value
-					result.insertAttributeAt(new DataAttribute(biasAttName[x][m]+ "-" + biasAttName[x][k]),result.numAttributes() - 1);
-				}
-			}
-		}
-
-		// 为每一行数据处理
-		for (int i = 0; i < row; i++) {
-			GeneralInstance oneRow = data.instance(i);
-			for (int x = 0; x < biasAttName.length; x++) {
-				for (int j = 0; j < biasAttName[x].length; j++) {
-					GeneralAttribute attribute = data.attribute(biasAttName[x][j]);
-					bias5to60[x][j] = oneRow.value(attribute);
-				}
-			}
-			DataInstance newRow = new DataInstance(result.numAttributes());
-			newRow.setDataset(result);
-
-			// copy same values
-
-			for (int n = 0; n < data.numAttributes() - 1; n++) {
-				GeneralAttribute att = data.attribute(n);
-				GeneralAttribute newRowAtt=result.attribute(n);
-				BaseInstanceProcessor.fullCopyAttribute(oneRow, newRow, att, newRowAtt);
-//				if (att != null) {
-//					if (att.isNominal()) {
-//						String label = oneRow.stringValue(att);
-//						int index = att.indexOfValue(label);
-//						if (index != -1) {
-//							newRow.setValue(n, index);
-//						}
-//					} else if (att.isNumeric()) {
-//						newRow.setValue(n, oneRow.value(att));
-//					} else {
-//						throw new IllegalStateException(
-//								"Unhandled attribute type!");
+//	// 为原始的Arff文件加上计算属性
+//	@Deprecated
+//	public static GeneralInstances addCalculateAttribute(GeneralInstances data) throws Exception {
+//		GeneralInstances result = new DataInstances(data, 0);
+//
+//		int row = data.numInstances();
+//		double[][] bias5to60 = { { 0.0, 0.0, 0.0, 0.0, 0.0 },
+//				{ 0.0, 0.0, 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0, 0.0, 0.0 } };
+////		String[][] biasAttName = {
+////				{ BIAS5, "bias10", "bias20", "bias30", "bias60" },
+////				{ "sw行业bias5", "sw行业bias10", "sw行业bias20", "sw行业bias30",
+////						"sw行业bias60" },
+////				{ "指数bias5", "指数bias10", "指数bias20", "指数bias30", "指数bias60" } };
+//		 String[][] biasAttName = {{ BIAS5, "bias10", "bias20",
+//		 "bias30","bias60"},{"sw_bias5","sw_bias10","sw_bias20","sw_bias30","sw_bias60"},{"zhishu_bias5","zhishu_bias10","zhishu_bias20","zhishu_bias30","zhishu_bias60"}
+//		 };
+//		for (int x = 0; x < bias5to60.length; x++) {
+//			for (int m = 0; m < bias5to60[x].length; m++) {
+//				for (int k = m + 1; k < bias5to60[x].length; k++) {
+//					// insert before class value
+//					result.insertAttributeAt(new DataAttribute(biasAttName[x][m]+ "-" + biasAttName[x][k]),result.numAttributes() - 1);
+//				}
+//			}
+//		}
+//
+//		// 为每一行数据处理
+//		for (int i = 0; i < row; i++) {
+//			GeneralInstance oneRow = data.instance(i);
+//			for (int x = 0; x < biasAttName.length; x++) {
+//				for (int j = 0; j < biasAttName[x].length; j++) {
+//					GeneralAttribute attribute = data.attribute(biasAttName[x][j]);
+//					bias5to60[x][j] = oneRow.value(attribute);
+//				}
+//			}
+//			DataInstance newRow = new DataInstance(result.numAttributes());
+//			newRow.setDataset(result);
+//
+//			// copy same values
+//
+//			for (int n = 0; n < data.numAttributes() - 1; n++) {
+//				GeneralAttribute att = data.attribute(n);
+//				GeneralAttribute newRowAtt=result.attribute(n);
+//				BaseInstanceProcessor.fullCopyAttribute(oneRow, newRow, att, newRowAtt);
+////				if (att != null) {
+////					if (att.isNominal()) {
+////						String label = oneRow.stringValue(att);
+////						int index = att.indexOfValue(label);
+////						if (index != -1) {
+////							newRow.setValue(n, index);
+////						}
+////					} else if (att.isNumeric()) {
+////						newRow.setValue(n, oneRow.value(att));
+////					} else {
+////						throw new IllegalStateException(
+////								"Unhandled attribute type!");
+////					}
+////				}
+//			}
+//			// 添加bias相减的部分
+//			int addColumn = 0;
+//			int insertPosition = data.numAttributes() - 1;
+//			for (int x = 0; x < bias5to60.length; x++) {
+//				for (int m = 0; m < bias5to60[x].length; m++) {
+//					for (int k = m + 1; k < bias5to60[x].length; k++) {
+//						newRow.setValue(insertPosition + addColumn,
+//								bias5to60[x][m] - bias5to60[x][k]);
+//						addColumn++;
 //					}
 //				}
-			}
-			// 添加bias相减的部分
-			int addColumn = 0;
-			int insertPosition = data.numAttributes() - 1;
-			for (int x = 0; x < bias5to60.length; x++) {
-				for (int m = 0; m < bias5to60[x].length; m++) {
-					for (int k = m + 1; k < bias5to60[x].length; k++) {
-						newRow.setValue(insertPosition + addColumn,
-								bias5to60[x][m] - bias5to60[x][k]);
-						addColumn++;
-					}
-				}
-			}
-			// 添加最后的classvalue
-			newRow.setValue(result.numAttributes() - 1,
-					oneRow.value(data.numAttributes() - 1));
-			result.add(newRow);
-
-		}
-		return result;
-	}
+//			}
+//			// 添加最后的classvalue
+//			newRow.setValue(result.numAttributes() - 1,
+//					oneRow.value(data.numAttributes() - 1));
+//			result.add(newRow);
+//
+//		}
+//		return result;
+//	}
 
 	// 将输入文件和standardFormat数据字段名称顺序对比 ，不一致则报错。
 	public static GeneralInstances validateAttributeNames(GeneralInstances data,String[] standardFormat) throws Exception {
