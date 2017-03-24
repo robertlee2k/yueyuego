@@ -178,7 +178,7 @@ public class BackTestFullModel extends BackTest {
 		// 根据模型来决定是否要使用有计算字段的ARFF
 		String arffFile=null;
 		if (clModel.m_noCaculationAttrib==true){
-			arffFile=ARFF_FORMAT_FULLMODEL.FULL_MODEL_SHORT_ARFF_FILE;
+			arffFile=ARFF_FORMAT_FULLMODEL.SHORT_ARFF_FILE;
 		}else{
 //			arffFile=ArffFormatFullModel.FULL_MODEL_LONG_ARFF_FILE;
 			throw new RuntimeException("we don't support Calculation fields any more");
@@ -218,7 +218,7 @@ public class BackTestFullModel extends BackTest {
 		if (applyToMaModelInTestBack==true){
 			left=DataIOHandler.getSuppier().loadDataFromFile(EnvConstants.AVG_LINE_ROOT_DIR+ARFF_FORMAT.TRANSACTION_ARFF_PREFIX+"-left.arff");
 		}else{
-			left=DataIOHandler.getSuppier().loadDataFromFile(C_ROOT_DIRECTORY+ARFF_FORMAT_FULLMODEL.FULL_MODEL_ARFF_PREFIX+"-left.arff");
+			left=DataIOHandler.getSuppier().loadDataFromFile(C_ROOT_DIRECTORY+ARFF_FORMAT_FULLMODEL.TRANSACTION_ARFF_PREFIX+"-left.arff");
 		}
 		
 		MergeClassifyResults merge=new MergeClassifyResults(shouyilv_thresholds, winrate_thresholds);

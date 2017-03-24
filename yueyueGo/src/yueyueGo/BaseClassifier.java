@@ -79,7 +79,7 @@ public abstract class BaseClassifier implements Serializable{
 		m_positiveLine=0; //缺省的以收益率正负为二分类的正负。
 		m_noCaculationAttrib=false;  //缺省情况下，加入的计算字段 （在子类中覆盖）
 		m_removeSWData=false;  //缺省情况下，不删除申万行业数据（在子类中覆盖）
-		modelArffFormat=ArffFormat.EXT_FORMAT; //缺省使用扩展arff
+		modelArffFormat=ArffFormat.CURRENT_FORMAT; //缺省使用扩展arff
 		m_modelFileShareMode=ModelStore.MONTHLY_MODEL; //model文件和Eval的共享模式,缺省为 回测时按yearsplit和policysplit分割使用model和eval文件
 		m_evalDataSplitMode=ModelStore.USE_YEAR_DATA_FOR_EVAL;//缺省使用倒推一年的数据作为模型评估数据，之前用于的构建模型
 		WORK_FILE_PREFIX= "extData2005-2016";

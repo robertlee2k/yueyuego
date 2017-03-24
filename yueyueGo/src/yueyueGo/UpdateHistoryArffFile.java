@@ -596,13 +596,13 @@ public class UpdateHistoryArffFile {
 			GeneralInstances fullSetData) throws Exception, IOException {
 	
 		// 存下用于计算收益率的数据
-		GeneralInstances left=ArffFormat.getTransLeftPartFromAllTransaction(fullSetData);
+		GeneralInstances left=ARFF_FORMAT.getTransLeftPartFromAllTransaction(fullSetData);
 		DataIOHandler.getSaver().SaveDataIntoFile(left, originFileName+"-left.arff");
 		System.out.println("history Data left File saved: "+originFileName+"-left.arff"  );
 		left=null; //试图释放内存
 	
 		// 去除与训练无关的字段
-		GeneralInstances result=ArffFormat.prepareTransData(fullSetData);
+		GeneralInstances result=ARFF_FORMAT.prepareTransData(fullSetData);
 	
 		//保存训练用的format，用于做日后的校验 
 		GeneralInstances format=new WekaInstances(result,0);
@@ -703,7 +703,7 @@ public class UpdateHistoryArffFile {
 
 
 	// 从增量的交易CSV文件中加载数据
-	private static GeneralInstances loadDataFromIncrementalCSVFile(String fileName) throws Exception{ 
+	protected static GeneralInstances loadDataFromIncrementalCSVFile(String fileName) throws Exception{ 
 		return DataIOHandler.getSuppier().loadDataWithFormatFromCSVFile(fileName,ARFF_FORMAT.TRANS_DATA_FORMAT_NEW);
 	}
 

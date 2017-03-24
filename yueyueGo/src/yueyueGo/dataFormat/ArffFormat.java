@@ -11,7 +11,7 @@ public abstract class ArffFormat {
 	
 	// 常量定义
 	public static final int LEGACY_FORMAT=7;
-	public static final int EXT_FORMAT=8;
+	public static final int CURRENT_FORMAT=8;
 
 	public static final String SELECTED_AVG_LINE = "selected_avgline"; // 输入输出文件中的“均线策略”名称
 	public static final String IS_HS300 = "ishs300";
@@ -95,11 +95,9 @@ public abstract class ArffFormat {
 
 
 	//单次收益率数据中不用保存在ARFF文件中的字段
-	private static final String[] TRANS_DATA_NOT_SAVED_IN_ARFF={ 
-		TRADE_DATE,CODE, SELL_DATE, DATA_DATE, IS_POSITIVE
-	};
+	protected  String[] TRANS_DATA_NOT_SAVED_IN_ARFF;
+	
 	// 单次收益率增量数据的格式 （从ID到均线策略之前的字段），后面都和dailyArff的相同了
-	private  String[] TRANS_DATA_LEFT = FormatUtility.concatStrings(new String[]{ID},TRANS_DATA_NOT_SAVED_IN_ARFF);
 	public  String[] TRANS_DATA_FORMAT_NEW;
 
 	
@@ -111,7 +109,8 @@ public abstract class ArffFormat {
 //		EXT_ARFF_FILE_FORMAT= FormatUtility.concatStrings(EXT_ARFF_CRC,EXT_ARFF_COLUMNS);
 		DAILY_DATA_TO_PREDICT_FORMAT_LEGACY = FormatUtility.concatStrings(new String[]{ID},MODEL_ATTRIB_FORMAT_LEGACY,new String[]{CODE});
 		DAILY_DATA_TO_PREDICT_FORMAT_NEW = FormatUtility.concatStrings(new String[]{ID},MODEL_ATTRIB_FORMAT_NEW,new String[]{CODE});
-		TRANS_DATA_FORMAT_NEW=FormatUtility.concatStrings(TRANS_DATA_LEFT,MODEL_ATTRIB_FORMAT_NEW, new String[]{SHOUYILV});
+		String[] temp = FormatUtility.concatStrings(new String[]{ID},TRANS_DATA_NOT_SAVED_IN_ARFF);
+		TRANS_DATA_FORMAT_NEW=FormatUtility.concatStrings(temp,MODEL_ATTRIB_FORMAT_NEW, new String[]{SHOUYILV});
 	}
 
 	protected abstract void initializeFormat();
@@ -132,20 +131,20 @@ public abstract class ArffFormat {
 	}
 	
 	// 从All Transaction Data中删除无关字段 (tradeDate到均线策略之前）
-	public static GeneralInstances prepareTransData(GeneralInstances allData)
+	public  GeneralInstances prepareTransData(GeneralInstances allData)
 			throws Exception {
 		GeneralInstances result = InstanceHandler.getHandler(allData).removeAttribs(allData,TRANS_DATA_NOT_SAVED_IN_ARFF);// "3-9");
 		return result;
 	}
 
 	// 交易ARFF数据全集数据的格式 （从ID到均线策略之前，后面都和trainingarff的相同了）
-	private static final String[] TRANS_DATA_LEFT_PART = { ID,
+	private String[] TRANS_DATA_LEFT_PART = { ID,
 			YEAR_MONTH, TRADE_DATE, CODE, SELL_DATE,  
 			DATA_DATE, IS_POSITIVE, SELECTED_AVG_LINE,BIAS5,IS_SZ50 ,IS_HS300 , 
 			IS_ZZ500,SHOUYILV };
-
+	
 	// 此方法从All Transaction Data中保留计算收益率的相关字段，以及最后的收益率，删除其他计算字段
-	public static GeneralInstances getTransLeftPartFromAllTransaction(GeneralInstances allData)
+	public GeneralInstances getTransLeftPartFromAllTransaction(GeneralInstances allData)
 			throws Exception {
 		return InstanceHandler.getHandler(allData).filterAttribs(allData,TRANS_DATA_LEFT_PART);
 	}

@@ -56,7 +56,7 @@ public class DailyPredict {
 			addModelData(classifierName,format,"\\extData2005-2016-adaboost-2016 MA ","\\extData2005-2016-adaboost-201602 MA ");
 			
 			//=========================EXT FORMAT 部分========================
-			format=ArffFormat.EXT_FORMAT;
+			format=ArffFormat.CURRENT_FORMAT;
 
 			//BaggingM5P当前使用的预测模型
 			classifierName=ClassifyUtility.BAGGING_M5P+ClassifyUtility.MULTI_PCA_SURFIX;
@@ -304,7 +304,7 @@ public class DailyPredict {
 			case ArffFormat.LEGACY_FORMAT:
 				dailyData=DataIOHandler.getSuppier().LoadDataFromDB(dataFormat,ARFF_FORMAT);
 				break;
-			case ArffFormat.EXT_FORMAT:
+			case ArffFormat.CURRENT_FORMAT:
 				dailyData=DataIOHandler.getSuppier().LoadDataFromDB(dataFormat,ARFF_FORMAT);
 				break;
 			case FullModelDataFormat.FULLMODEL_FORMAT:
@@ -442,7 +442,7 @@ public class DailyPredict {
 		switch (modelFormatType) {
 		case ArffFormat.LEGACY_FORMAT:
 			return "\\00-legacy\\";
-		case ArffFormat.EXT_FORMAT:
+		case ArffFormat.CURRENT_FORMAT:
 			return "";
 		case FullModelDataFormat.FULLMODEL_FORMAT:
 			return "";
@@ -497,11 +497,11 @@ public class DailyPredict {
 		case ArffFormat.LEGACY_FORMAT: //可以使用同一个Format文件，只是需要将无关字段去掉
 			formatFile=ARFF_FORMAT.TRANSACTION_ARFF_PREFIX+"-format-legacy.arff";
 			break;
-		case ArffFormat.EXT_FORMAT:
+		case ArffFormat.CURRENT_FORMAT:
 			formatFile=ARFF_FORMAT.TRANSACTION_ARFF_PREFIX+"-format.arff";
 			break;
 		case FullModelDataFormat.FULLMODEL_FORMAT:
-			formatFile=((FullModelDataFormat)ARFF_FORMAT).FULL_MODEL_ARFF_PREFIX+"-format.arff";
+			formatFile=((FullModelDataFormat)ARFF_FORMAT).TRANSACTION_ARFF_PREFIX+"-format.arff";
 			break;			
 		default:
 			throw new Exception("invalid arffFormat type");
