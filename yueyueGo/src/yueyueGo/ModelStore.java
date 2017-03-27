@@ -62,8 +62,8 @@ public class ModelStore {
 	}
 
 	//回测时调用的，设置model文件和eval文件名称
-	public  ModelStore(String targetYearSplit,String policySplit,BaseClassifier clModel){
-		String workFileFullPrefix=clModel.WORK_PATH+clModel.WORK_FILE_PREFIX;
+	public  ModelStore(String targetYearSplit,String policySplit,String modelFilepathPrefix, BaseClassifier clModel){
+		String workFileFullPrefix=modelFilepathPrefix;
 		String classifierName=clModel.classifierName;
 		int modelFileShareMode=clModel.m_modelFileShareMode;
 		int evalDataSplitMode=clModel.m_evalDataSplitMode;

@@ -183,13 +183,14 @@ public class BackTest {
 	}
 
 
-
-	
-	
-	//用模型预测数据
-	
 	//历史回测
 	protected  GeneralInstances testBackward(BaseClassifier clModel) throws Exception{
+		String modelFilePrefix=null;
+		
+		
+		//根据分类器和数据类别确定回测模型的工作目录
+		modelFilePrefix=prepareModelWorkPath(clModel);
+		
 		GeneralInstances fullSetData = null;
 		GeneralInstances result = null;
 		
@@ -198,7 +199,7 @@ public class BackTest {
 		ClassifySummaries modelSummaries=new ClassifySummaries(clModel.getIdentifyName()+" format="+clModel.modelArffFormat,false);
 		clModel.setClassifySummaries(modelSummaries);
 
-		System.out.println("test backward using classifier : "+clModel.getIdentifyName()+" @ model work path :"+clModel.WORK_PATH);
+		System.out.println("test backward using classifier : "+clModel.getIdentifyName()+" @ model work path prefix:"+modelFilePrefix);
 		
 		
 		 //创建一个可重用固定线程数的线程池
@@ -327,7 +328,7 @@ public class BackTest {
 					DataInstances resultClone=new DataInstances(result);
 					threadResult.add(resultClone);
 					//创建实现了Runnable接口对象
-					ProcessFlowExecutor t = new ProcessFlowExecutor(clModelClone, resultClone,splitMark, policy,trainingData,evaluationData,testingData,splitYearTags);
+					ProcessFlowExecutor t = new ProcessFlowExecutor(clModelClone, resultClone,splitMark, policy,trainingData,evaluationData,testingData,splitYearTags,modelFilePrefix);
 					//将线程放入池中进行执行
 					threadPool.submit(t);
 
@@ -345,7 +346,7 @@ public class BackTest {
 				}else{
 
 					//不需要多线程并发的时候，还是按传统方式处理
-					ProcessFlowExecutor worker=new ProcessFlowExecutor(clModel, result,splitMark, policy,trainingData,evaluationData,testingData,splitYearTags);
+					ProcessFlowExecutor worker=new ProcessFlowExecutor(clModel, result,splitMark, policy,trainingData,evaluationData,testingData,splitYearTags,modelFilePrefix);
 					worker.doPredictProcess();
 					System.out.println("accumulated predicted rows: "+ result.numInstances());
 				}
@@ -642,6 +643,24 @@ public class BackTest {
 			}
 		}
 		return result;
+	}
+
+
+	//设置历史回测的目录
+	protected String prepareModelWorkPath(BaseClassifier clModel){
+		String workPath=null;
+		if (clModel instanceof ContinousClassifier){
+			workPath=AppContext.getCONTINOUS_CLASSIFIER_DIR()+clModel.getIdentifyName()+"\\";
+		}else if (clModel instanceof NominalClassifier){
+			workPath=AppContext.getNOMINAL_CLASSIFIER_DIR()+clModel.getIdentifyName()+"\\";
+		}
+		//根据不同的原始数据（策略）设置不同的模型工作目录
+		workPath+=ARFF_FORMAT.TRANSACTION_ARFF_PREFIX+"\\";
+		FileUtility.mkdirIfNotExist(workPath);
+		
+		//TODO 常量化
+		String modelPrefix="extData2005-2016";
+		return workPath+modelPrefix;
 	}
 
 

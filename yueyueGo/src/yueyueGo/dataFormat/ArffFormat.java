@@ -68,22 +68,12 @@ public abstract class ArffFormat {
 
 	public String TRANSACTION_ARFF_PREFIX;
 	public String SHORT_ARFF_FILE;
-	protected String[] MODEL_ATTRIB_FORMAT_BASE;
+	
+	//当前模型用的训练字段 （在子类中定义）
+	protected String[] MODEL_ATTRIB_FORMAT_NEW;
+	//前一模型用的训练字段 （在子类中定义，一般用于预测对比）
 	protected String[] MODEL_ATTRIB_FORMAT_LEGACY;
 
-//	//每次新扩展ARFF格式的校验位
-//	public  final String[] EXT_ARFF_CRC= {
-//		ID,TRADE_DATE,CODE,SELL_DATE,DATA_DATE,SELECTED_AVG_LINE,"bias5_preday_dif","zhishu_code"
-//	};
-//	//每次新扩展ARFF格式增加的数据
-//	public  final String[] EXT_ARFF_COLUMNS= {
-//	};
-//	//每次新的扩展ARFF文件整体格式
-//	public  String[] EXT_ARFF_FILE_FORMAT;
-	
-	//模型用的训练字段 （基础+扩展部分）
-	public String[] MODEL_ATTRIB_FORMAT_NEW;
-	
 	// 每日预测（旧模型数据格式）数据（数据库和数据文件都是如此)的旧格式
 	public String[] DAILY_DATA_TO_PREDICT_FORMAT_LEGACY;
 	
@@ -95,7 +85,9 @@ public abstract class ArffFormat {
 
 
 	//单次收益率数据中不用保存在ARFF文件中的字段
-	protected  String[] TRANS_DATA_NOT_SAVED_IN_ARFF;
+	protected  String[] TRANS_DATA_NOT_SAVED_IN_ARFF=new String[]{ 
+					TRADE_DATE,CODE, SELL_DATE, DATA_DATE, "chicang_days", IS_POSITIVE
+			};
 	
 	// 单次收益率增量数据的格式 （从ID到均线策略之前的字段），后面都和dailyArff的相同了
 	public  String[] TRANS_DATA_FORMAT_NEW;
@@ -104,9 +96,6 @@ public abstract class ArffFormat {
 	public ArffFormat() {
 		//先调用子类的方法对相应数据赋值
 		initializeFormat();
-		MODEL_ATTRIB_FORMAT_NEW=MODEL_ATTRIB_FORMAT_BASE;
-				//FormatUtility.concatStrings(MODEL_ATTRIB_FORMAT_BASE,EXT_ARFF_COLUMNS);
-//		EXT_ARFF_FILE_FORMAT= FormatUtility.concatStrings(EXT_ARFF_CRC,EXT_ARFF_COLUMNS);
 		DAILY_DATA_TO_PREDICT_FORMAT_LEGACY = FormatUtility.concatStrings(new String[]{ID},MODEL_ATTRIB_FORMAT_LEGACY,new String[]{CODE});
 		DAILY_DATA_TO_PREDICT_FORMAT_NEW = FormatUtility.concatStrings(new String[]{ID},MODEL_ATTRIB_FORMAT_NEW,new String[]{CODE});
 		String[] temp = FormatUtility.concatStrings(new String[]{ID},TRANS_DATA_NOT_SAVED_IN_ARFF);

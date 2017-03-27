@@ -13,13 +13,10 @@ public class FullModelDataFormat extends ArffFormat {
 		TRANSACTION_ARFF_PREFIX="all20052016-ext";
 		SHORT_ARFF_FILE = TRANSACTION_ARFF_PREFIX+"-short.arff";
 		
-		//全模型单次收益率数据中不用保存在ARFF文件中的字段
-		TRANS_DATA_NOT_SAVED_IN_ARFF=new String[]{ 
-			TRADE_DATE,CODE, SELL_DATE, DATA_DATE, "chicang_days", IS_POSITIVE
-		};
+
 
 		//全模型用的训练字段 
-		MODEL_ATTRIB_FORMAT_BASE=new String[]{
+		MODEL_ATTRIB_FORMAT_NEW=new String[]{
 				 BIAS5, "bias10", "bias20", "bias30",
 					"bias60", "bias5_preday_dif", "bias10_preday_dif",
 					"bias20_preday_dif", "bias30_preday_dif", "bias60_preday_dif",

@@ -16,11 +16,12 @@ public class ProcessFlowExecutor implements Callable<String> {
 	private GeneralInstances evalData;
 	private GeneralInstances testingData;
 	private GeneralDataTag[] dataTags;
+	private String modelFilepathPrefix;
 	
 	public ProcessFlowExecutor(BaseClassifier a_clModel,
 			 GeneralInstances a_result, String a_yearSplit,
 			String a_policySplit,GeneralInstances a_trainingData,
-			GeneralInstances a_evalData, GeneralInstances a_testingData,GeneralDataTag[] a_dataTags){
+			GeneralInstances a_evalData, GeneralInstances a_testingData,GeneralDataTag[] a_dataTags,String a_modelFilepathPrefix){
 		clModel=a_clModel;
 		result=a_result;
 		yearSplit=a_yearSplit;
@@ -29,6 +30,7 @@ public class ProcessFlowExecutor implements Callable<String> {
 		testingData=a_testingData;
 		evalData=a_evalData;
 		dataTags=a_dataTags;
+		modelFilepathPrefix=a_modelFilepathPrefix;
 	}
 	
 
@@ -39,7 +41,7 @@ public class ProcessFlowExecutor implements Callable<String> {
 
 		Classifier model = null;
 		//初始化回测创建模型时使用的modelStore对象（按yearSplit和policysplit分割处理）
-		clModel.locateModelStore(yearSplit,policySplit);
+		clModel.locateModelStore(yearSplit,policySplit,modelFilepathPrefix);
 		
 		
 

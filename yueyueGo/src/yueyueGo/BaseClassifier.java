@@ -16,12 +16,10 @@ import yueyueGo.databeans.GeneralAttribute;
 import yueyueGo.databeans.GeneralDataTag;
 import yueyueGo.databeans.GeneralInstance;
 import yueyueGo.databeans.GeneralInstances;
-import yueyueGo.utility.AppContext;
 import yueyueGo.utility.ClassifySummaries;
 import yueyueGo.utility.EvaluationBenchmark;
 import yueyueGo.utility.EvaluationConfDefinition;
 import yueyueGo.utility.EvaluationParams;
-import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.NumericThresholdCurve;
 import yueyueGo.utility.ThresholdData;
@@ -46,9 +44,7 @@ public abstract class BaseClassifier implements Serializable{
 	//名称
 	public String classifierName;
 	
-	//子类定义的工作路径
-	protected String WORK_PATH ;
-	protected String WORK_FILE_PREFIX;
+
 	protected int m_modelFileShareMode; //model文件的共享模式1,3,6,12 （表示共享的月份）
 	protected int m_evalDataSplitMode;//切分构建模型和评估数据的模式 0、6、9、12 （表示评估数据的月份）
 	
@@ -77,14 +73,12 @@ public abstract class BaseClassifier implements Serializable{
 	
 	public BaseClassifier() {
 		m_positiveLine=0; //缺省的以收益率正负为二分类的正负。
-		m_noCaculationAttrib=false;  //缺省情况下，加入的计算字段 （在子类中覆盖）
-		m_removeSWData=false;  //缺省情况下，不删除申万行业数据（在子类中覆盖）
-		modelArffFormat=ArffFormat.CURRENT_FORMAT; //缺省使用扩展arff
+		m_noCaculationAttrib=true;  //缺省情况下，不加入计算字段 （在子类中覆盖）
+		m_removeSWData=true;  //缺省情况下，删除申万行业数据（可在子类中覆盖）
+		modelArffFormat=ArffFormat.CURRENT_FORMAT; //缺省使用当前的arff Format
 		m_modelFileShareMode=ModelStore.MONTHLY_MODEL; //model文件和Eval的共享模式,缺省为 回测时按yearsplit和policysplit分割使用model和eval文件
 		m_evalDataSplitMode=ModelStore.USE_YEAR_DATA_FOR_EVAL;//缺省使用倒推一年的数据作为模型评估数据，之前用于的构建模型
-		WORK_FILE_PREFIX= "extData2005-2016";
 		initializeParams();		// 留给子类的初始化参数函数
-		setWorkPathThenCheck(); //根据参数设置工作路径
 
 		initEvaluationConfDefinition(); //初始化evaluation的常量定义
 	}
@@ -469,8 +463,8 @@ public abstract class BaseClassifier implements Serializable{
 	
 	//找到回测评估、预测时应该使用modelStore对象（主要为获取model文件和eval文件名称）
 	//此类可以在子类中被覆盖（通过把yearsplit的值做处理，实现临时指定使用某个模型，可以多年使用一个模型，也可以特殊指定某年月使用某模型）
-	public void locateModelStore(String targetYearSplit,String policySplit) {
-		ModelStore modelStore=new ModelStore(targetYearSplit,policySplit,this);
+	public void locateModelStore(String targetYearSplit,String policySplit,String modelFilepathPrefix) {
+		ModelStore modelStore=new ModelStore(targetYearSplit,policySplit,modelFilepathPrefix,this);
 		m_modelStore=modelStore;
 	}
 
@@ -513,18 +507,7 @@ public abstract class BaseClassifier implements Serializable{
 		return classifierName;
 	}
 
-	private void setWorkPathThenCheck(){
-		if (this instanceof ContinousClassifier){
-			setWorkPath(AppContext.getCONTINOUS_CLASSIFIER_DIR()+getIdentifyName()+"\\");
-		}else if (this instanceof NominalClassifier){
-			setWorkPath(AppContext.getNOMINAL_CLASSIFIER_DIR()+getIdentifyName()+"\\");
-		}
-		FileUtility.mkdirIfNotExist(WORK_PATH);
-	}
-	
-	public void setWorkPath(String apath){
-		WORK_PATH=apath;
-	}
+
 	/**
 	 * Creates a deep copy of the given classifier using serialization.
 	 *

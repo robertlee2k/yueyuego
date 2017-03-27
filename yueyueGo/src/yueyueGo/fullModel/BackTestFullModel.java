@@ -4,7 +4,9 @@ import java.io.IOException;
 
 import yueyueGo.BackTest;
 import yueyueGo.BaseClassifier;
+import yueyueGo.ContinousClassifier;
 import yueyueGo.EnvConstants;
+import yueyueGo.NominalClassifier;
 import yueyueGo.dataFormat.ArffFormat;
 import yueyueGo.dataFormat.FullModelDataFormat;
 import yueyueGo.dataFormat.AvgLineDataFormat;
@@ -16,6 +18,7 @@ import yueyueGo.fullModel.classifier.BaggingM5PFullModel;
 import yueyueGo.fullModel.classifier.MyNNFullModel;
 import yueyueGo.utility.AppContext;
 import yueyueGo.utility.EvaluationConfDefinition;
+import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.MergeClassifyResults;
 
 
@@ -248,5 +251,19 @@ public class BackTestFullModel extends BackTest {
 		
 
 	}
-
+	//设置历史回测的目录
+	//TODO 子类fullModel的这个函数需要重写，将fullModel的处理统一化
+	protected String prepareModelWorkPath(BaseClassifier clModel){
+		String workPath=null;
+		if (clModel instanceof ContinousClassifier){
+			workPath=AppContext.getCONTINOUS_CLASSIFIER_DIR()+clModel.getIdentifyName()+"\\";
+		}else if (clModel instanceof NominalClassifier){
+			workPath=AppContext.getNOMINAL_CLASSIFIER_DIR()+clModel.getIdentifyName()+"\\";
+		}
+//		workPath+=ARFF_FORMAT.TRANSACTION_ARFF_PREFIX+"\\";
+		FileUtility.mkdirIfNotExist(workPath);
+		
+		String modelPrefix="extData2005-2016";
+		return workPath+modelPrefix;
+	}
 }

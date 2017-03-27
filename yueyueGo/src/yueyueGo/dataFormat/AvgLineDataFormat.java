@@ -7,14 +7,14 @@ public class AvgLineDataFormat extends ArffFormat {
 		TRANSACTION_ARFF_PREFIX="trans20052016-ext";
 		SHORT_ARFF_FILE = TRANSACTION_ARFF_PREFIX+"-short.arff";// 不包含计算字段的ARFF格式，这是提供给各输入属性独立的分类器使用的，如神经网络
 		
-		//单次收益率数据中不用保存在ARFF文件中的字段
-		TRANS_DATA_NOT_SAVED_IN_ARFF=new String[] { 
-				TRADE_DATE,CODE, SELL_DATE, DATA_DATE, IS_POSITIVE
-		};
+//		//单次收益率数据中不用保存在ARFF文件中的字段
+//		TRANS_DATA_NOT_SAVED_IN_ARFF=new String[] { 
+//				TRADE_DATE,CODE, SELL_DATE, DATA_DATE, IS_POSITIVE
+//		};
 		
 		
 		//模型用的训练字段 （当前使用模型的基础部分）
-		MODEL_ATTRIB_FORMAT_BASE=new String[] {
+		MODEL_ATTRIB_FORMAT_NEW=new String[] {
 				SELECTED_AVG_LINE, BIAS5, "bias10", "bias20", "bias30",
 				"bias60", "bias5_preday_dif", "bias10_preday_dif",
 				"bias20_preday_dif", "bias30_preday_dif", "bias60_preday_dif",
