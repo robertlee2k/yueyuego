@@ -11,13 +11,15 @@ import yueyueGo.databeans.GeneralInstances;
 
 
 public class MergeClassifyResults {
-	private  double[] shouyilv_thresholds; //对于胜率优先算法的收益率筛选阀值
-	private  double[] winrate_thresholds; //对于收益率优先算法的胜率筛选阀值
+	private  double[] m_shouyilv_thresholds; //对于胜率优先算法的收益率筛选阀值
+	private  double[] m_winrate_thresholds; //对于收益率优先算法的胜率筛选阀值
+	private  String m_policy_group;
 
 	public MergeClassifyResults(double[] shouyilv,
-			double[] winrate) {
-		this.shouyilv_thresholds = shouyilv;
-		this.winrate_thresholds = winrate;
+			double[] winrate, String a_policy_group) {
+		this.m_shouyilv_thresholds = shouyilv;
+		this.m_winrate_thresholds = winrate;
+		this.m_policy_group=a_policy_group;
 	}
 
 	/**
@@ -49,12 +51,12 @@ public class MergeClassifyResults {
 			DataInstance newData;
 			
 			//左侧冗余信息文件属性
-			GeneralAttribute leftMA=left.attribute(ArffFormat.SELECTED_AVG_LINE);
+			GeneralAttribute leftMA=left.attribute(m_policy_group);//ArffFormat.SELECTED_AVG_LINE);
 			GeneralAttribute shouyilvAtt=left.attribute(ArffFormat.SHOUYILV);	
 			GeneralAttribute leftBias5=left.attribute(ArffFormat.BIAS5);
 			
 			//结果文件属性
-			GeneralAttribute resultMA=resultData.attribute(ArffFormat.SELECTED_AVG_LINE);	
+			GeneralAttribute resultMA=resultData.attribute(m_policy_group);//ArffFormat.SELECTED_AVG_LINE);	
 			GeneralAttribute resultBias5=resultData.attribute(ArffFormat.BIAS5);
 			GeneralAttribute resultSelectedAtt=resultData.attribute(ArffFormat.RESULT_SELECTED);
 			
@@ -156,7 +158,7 @@ public class MergeClassifyResults {
 								}else{//均线策略时按序选择THREDHOLD的第一个
 									index=new Double(resultCurr.value(resultMA)).intValue();	
 								}
-								if (winrate<winrate_thresholds[index]){ //需要修改选股结果 
+								if (winrate<m_winrate_thresholds[index]){ //需要修改选股结果 
 									selected=0;
 									resultChanged++;
 									if (shouyilvAtt!=null){
@@ -187,13 +189,13 @@ public class MergeClassifyResults {
 								}else{//均线策略时按序选择SHOUYILV_THREDHOLD的第一个
 									index=new Double(resultCurr.value(resultMA)).intValue();	
 								}
-								if (profit<=shouyilv_thresholds[index]){  //需要修改选股结果
+								if (profit<=m_shouyilv_thresholds[index]){  //需要修改选股结果
 									selected=0;
 									resultChanged++;
 									if (shouyilvAtt!=null){
 										double shouyilv=leftCurr.value(shouyilvAtt);
 										changedShouyilv+=shouyilv;
-										if (shouyilv<=shouyilv_thresholds[index]){
+										if (shouyilv<=m_shouyilv_thresholds[index]){
 											//如果变化的实际收益率也小于阀值，说明这是一次正确的变换
 											goodChangeNum++;
 										}// end if shouyilv<=
@@ -234,15 +236,15 @@ public class MergeClassifyResults {
 			}	
 			if (dataToAdd.equals(ArffFormat.RESULT_PREDICTED_WIN_RATE)){
 				System.out.print(" @ WINRATE_FILTER_FOR_SHOUYILV={");
-				for (int i = 0; i < winrate_thresholds.length; i++) {
-					System.out.print(FormatUtility.formatPercent(winrate_thresholds[i])+"," );
+				for (int i = 0; i < m_winrate_thresholds.length; i++) {
+					System.out.print(FormatUtility.formatPercent(m_winrate_thresholds[i])+"," );
 				}
 				System.out.println(" }");
 			}
 			else{
 				System.out.print(" @ SHOUYILV_FILTER_FOR_WINRATE={");
-				for (int i = 0; i < shouyilv_thresholds.length; i++) {
-					System.out.print(FormatUtility.formatPercent(shouyilv_thresholds[i])+",");
+				for (int i = 0; i < m_shouyilv_thresholds.length; i++) {
+					System.out.print(FormatUtility.formatPercent(m_shouyilv_thresholds[i])+",");
 				}
 				System.out.println(" }");
 			}

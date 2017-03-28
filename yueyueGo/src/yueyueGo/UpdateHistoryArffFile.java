@@ -46,7 +46,7 @@ public class UpdateHistoryArffFile {
 		String startYearMonth="201601";
 		String endYearMonth="201703";
 
-		String originFilePrefix=AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT.TRANSACTION_ARFF_PREFIX;
+		String originFilePrefix=AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT.m_arff_file_prefix;
 		
 		String newDataFileName=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group8\\v_onceyield_group8all20162017.txt";
 		GeneralInstances newData = loadDataFromIncrementalCSVFile(newDataFileName);
@@ -125,7 +125,7 @@ public class UpdateHistoryArffFile {
 	protected static void callCreateTransInstances() throws Exception {
 	
 	
-		String arffFileName=AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT.TRANSACTION_ARFF_PREFIX;
+		String arffFileName=AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT.m_arff_file_prefix;
 		GeneralInstances rawData = mergeSrcTransFiles();
 	
 		//处理所有的日期字段，并插入yearmonth
@@ -281,7 +281,7 @@ public class UpdateHistoryArffFile {
 		System.out.println("data sorted on tradeDate");
 
 		int codeIndex=BaseInstanceProcessor.findATTPosition(originData,ArffFormat.CODE);
-		int maIndex=BaseInstanceProcessor.findATTPosition(originData, ArffFormat.SELECTED_AVG_LINE); //对于短线策略，这里的值是-1
+		int maIndex=BaseInstanceProcessor.findATTPosition(originData, ARFF_FORMAT.m_policy_group); //对于短线策略，这里的值是-1
 
 		GeneralInstances originDailyData=null;
 		GeneralInstances refreshedDailyData=null;
@@ -663,7 +663,7 @@ public class UpdateHistoryArffFile {
 	//这是处理历史全量数据，重新切割生成各种长、短以及格式文件的方法
 	private static void processHistoryFile() throws Exception {
 		System.out.println("loading history file into memory "  );
-		String originFileName=AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT.TRANSACTION_ARFF_PREFIX;
+		String originFileName=AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT.m_arff_file_prefix;
 		GeneralInstances fullSetData = DataIOHandler.getSuppier().loadDataFromFile(originFileName+".arff");
 		System.out.println("finish  loading fullset File  row : "+ fullSetData.numInstances() + " column:"+ fullSetData.numAttributes());
 		generateArffFileSet(originFileName, fullSetData);
@@ -704,7 +704,7 @@ public class UpdateHistoryArffFile {
 
 	// 从增量的交易CSV文件中加载数据
 	protected static GeneralInstances loadDataFromIncrementalCSVFile(String fileName) throws Exception{ 
-		return DataIOHandler.getSuppier().loadDataWithFormatFromCSVFile(fileName,ARFF_FORMAT.TRANS_DATA_FORMAT_NEW);
+		return DataIOHandler.getSuppier().loadDataWithFormatFromCSVFile(fileName,ARFF_FORMAT.m_arff_data_full);
 	}
 
 

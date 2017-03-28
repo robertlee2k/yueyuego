@@ -13,7 +13,7 @@ public abstract class ArffFormat {
 	public static final int LEGACY_FORMAT=7;
 	public static final int CURRENT_FORMAT=8;
 
-	public static final String SELECTED_AVG_LINE = "selected_avgline"; // 输入输出文件中的“均线策略”名称
+
 	public static final String IS_HS300 = "ishs300";
 	public static final String IS_ZZ500 = "iszz500";
 	public static final String IS_SZ50 = "issz50";
@@ -66,52 +66,56 @@ public abstract class ArffFormat {
 	//end of 常量定义
 
 
-	public String TRANSACTION_ARFF_PREFIX;
-	public String SHORT_ARFF_FILE;
+	public String m_arff_file_prefix;
+	public String m_arff_ext;
 	
+	public String m_policy_group; // 输入输出文件中的“策略分组”名称
 	//当前模型用的训练字段 （在子类中定义）
-	protected String[] MODEL_ATTRIB_FORMAT_NEW;
+	protected String[] m_model_attribute_format;
 	//前一模型用的训练字段 （在子类中定义，一般用于预测对比）
-	protected String[] MODEL_ATTRIB_FORMAT_LEGACY;
-
+	protected String[] m_model_attribute_format_legacy;
+	
+	//单次收益率数据中不用保存在ARFF文件中的字段（需要子类定义）
+	protected  String[] m_arff_data_not_in_model;
+	
+	
 	// 每日预测（旧模型数据格式）数据（数据库和数据文件都是如此)的旧格式
-	public String[] DAILY_DATA_TO_PREDICT_FORMAT_LEGACY;
+	public String[] m_daily_data_to_predict_format_legacy;
 	
 	// 每日预测扩展格式数据（数据库和数据文件都是如此)的格式
-	public String[] DAILY_DATA_TO_PREDICT_FORMAT_NEW;
+	public String[] m_daily_data_to_predict_format;
 	
 	//每日预测数据中的左侧字段，此处顺序无关（positive和收益率其实是二选一的）
-	public String[] DAILY_PREDICT_RESULT_LEFT={ID,SELECTED_AVG_LINE,BIAS5,CODE,IS_POSITIVE,SHOUYILV};
+	public String[] m_daily_predict_left_part;
 
-
-	//单次收益率数据中不用保存在ARFF文件中的字段
-	protected  String[] TRANS_DATA_NOT_SAVED_IN_ARFF=new String[]{ 
-					TRADE_DATE,CODE, SELL_DATE, DATA_DATE, "chicang_days", IS_POSITIVE
-			};
 	
-	// 单次收益率增量数据的格式 （从ID到均线策略之前的字段），后面都和dailyArff的相同了
-	public  String[] TRANS_DATA_FORMAT_NEW;
+	// 单次收益率增量全部数据的格式 
+	public  String[] m_arff_data_full;
 
 	
 	public ArffFormat() {
 		//先调用子类的方法对相应数据赋值
 		initializeFormat();
-		DAILY_DATA_TO_PREDICT_FORMAT_LEGACY = FormatUtility.concatStrings(new String[]{ID},MODEL_ATTRIB_FORMAT_LEGACY,new String[]{CODE});
-		DAILY_DATA_TO_PREDICT_FORMAT_NEW = FormatUtility.concatStrings(new String[]{ID},MODEL_ATTRIB_FORMAT_NEW,new String[]{CODE});
-		String[] temp = FormatUtility.concatStrings(new String[]{ID},TRANS_DATA_NOT_SAVED_IN_ARFF);
-		TRANS_DATA_FORMAT_NEW=FormatUtility.concatStrings(temp,MODEL_ATTRIB_FORMAT_NEW, new String[]{SHOUYILV});
+		m_daily_data_to_predict_format_legacy = FormatUtility.concatStrings(new String[]{ID},m_model_attribute_format_legacy,new String[]{CODE});
+		m_daily_data_to_predict_format = FormatUtility.concatStrings(new String[]{ID},m_model_attribute_format,new String[]{CODE});
+		String[] temp = FormatUtility.concatStrings(new String[]{ID},m_arff_data_not_in_model);
+		m_arff_data_full=FormatUtility.concatStrings(temp,m_model_attribute_format, new String[]{SHOUYILV});
+		
+		m_daily_predict_left_part=new String[]{ID,m_policy_group,BIAS5,CODE,IS_POSITIVE,SHOUYILV};
 	}
 
 	protected abstract void initializeFormat();
 	
 
-	//所有数据中需要作为nominal 处理的数据
+	//所有数据中需要作为nominal 处理的数据（这里是全量定义，与顺序无关）
 	private static final String[] NOMINAL_ATTRIBS={
 		TRADE_DATE,CODE, SELL_DATE, 
-		DATA_DATE, SELECTED_AVG_LINE, IS_POSITIVE,
+		DATA_DATE, IS_POSITIVE,
 		"zhangdieting",
-		"zhishu_code", SW_ZHISHU_CODE,IS_SZ50 ,IS_HS300 , "iszz100",
-		IS_ZZ500, "issz100", "ishgtb", "isrzbd","is_st"
+		"zhishu_code", SW_ZHISHU_CODE,IS_SZ50 ,IS_HS300 , 
+		IS_ZZ500, "is_st",
+		AvgLineDataFormat.SELECTED_AVGLINE,
+		MomentumDataFormat.MOMENTUM_PERIOD
 	};
 	
 	//返回给定数据集里与NOMINAL_ATTRIBS同名字段的位置字符串（从1开始），这主要是为filter使用
@@ -122,19 +126,17 @@ public abstract class ArffFormat {
 	// 从All Transaction Data中删除无关字段 (tradeDate到均线策略之前）
 	public  GeneralInstances prepareTransData(GeneralInstances allData)
 			throws Exception {
-		GeneralInstances result = InstanceHandler.getHandler(allData).removeAttribs(allData,TRANS_DATA_NOT_SAVED_IN_ARFF);// "3-9");
+		GeneralInstances result = InstanceHandler.getHandler(allData).removeAttribs(allData,m_arff_data_not_in_model);// "3-9");
 		return result;
 	}
 
-	// 交易ARFF数据全集数据的格式 （从ID到均线策略之前，后面都和trainingarff的相同了）
-	private String[] TRANS_DATA_LEFT_PART = { ID,
-			YEAR_MONTH, TRADE_DATE, CODE, SELL_DATE,  
-			DATA_DATE, IS_POSITIVE, SELECTED_AVG_LINE,BIAS5,IS_SZ50 ,IS_HS300 , 
-			IS_ZZ500,SHOUYILV };
-	
 	// 此方法从All Transaction Data中保留计算收益率的相关字段，以及最后的收益率，删除其他计算字段
 	public GeneralInstances getTransLeftPartFromAllTransaction(GeneralInstances allData)
 			throws Exception {
+		String[] TRANS_DATA_LEFT_PART = new String[] { ID,
+				YEAR_MONTH, TRADE_DATE, CODE, SELL_DATE,  
+				DATA_DATE, IS_POSITIVE, m_policy_group,BIAS5,IS_SZ50 ,IS_HS300 , 
+				IS_ZZ500,SHOUYILV };
 		return InstanceHandler.getHandler(allData).filterAttribs(allData,TRANS_DATA_LEFT_PART);
 	}
 	

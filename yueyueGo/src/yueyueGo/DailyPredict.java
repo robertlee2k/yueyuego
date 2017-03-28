@@ -220,7 +220,7 @@ public class DailyPredict {
 		System.out.println("");
 		System.out.println("-----now output combined predictions----------"+nModel.getIdentifyName()+" (merged with："+cModel.getIdentifyName()+")");
 		GeneralInstances left=DataIOHandler.getSuppier().loadDataFromFile(getLeftArffFileName(nModel)); //获取刚生成的左侧文件（主要存了CODE）
-		MergeClassifyResults merge=new MergeClassifyResults(this.shouyilv_thresholds, this.winrate_thresholds);
+		MergeClassifyResults merge=new MergeClassifyResults(this.shouyilv_thresholds, this.winrate_thresholds,ARFF_FORMAT.m_policy_group);
 		GeneralInstances nMergedOutput=merge.mergeResults(nInstances,cInstances,ArffFormat.RESULT_PREDICTED_PROFIT,left);
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(nMergedOutput);
 		nMergedOutput=instanceProcessor.removeAttribs(nMergedOutput, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
@@ -261,7 +261,7 @@ public class DailyPredict {
 		System.out.println("-----now output combined predictions----------"+cFullModel.getIdentifyName());
 		GeneralInstances left=DataIOHandler.getSuppier().loadDataFromFile(getLeftArffFileName(cFullModel)); //获取刚生成的左侧文件（主要存了CODE）
 
-		MergeClassifyResults merge=new MergeClassifyResults(shouyilv_thresholds, winrate_thresholds);
+		MergeClassifyResults merge=new MergeClassifyResults(shouyilv_thresholds, winrate_thresholds,ARFF_FORMAT.m_policy_group);
 		GeneralInstances mergedOutput=merge.mergeResults(cInstances,nInstances,ArffFormat.RESULT_PREDICTED_WIN_RATE,left);
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(mergedOutput);
 		mergedOutput=instanceProcessor.removeAttribs(mergedOutput, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
@@ -316,7 +316,7 @@ public class DailyPredict {
 			//保留DAILY RESULT的LEFT部分在磁盘上，主要为了保存股票代码
 			GeneralInstances left = new DataInstances(dailyData);
 			BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(left);
-			left=instanceProcessor.filterAttribs(dailyData, ARFF_FORMAT.DAILY_PREDICT_RESULT_LEFT);
+			left=instanceProcessor.filterAttribs(dailyData, ARFF_FORMAT.m_daily_predict_left_part);
 			//将LEFT中的CODE加上=""，避免输出格式中前导零消失。
 			int codeIndex=BaseInstanceProcessor.findATTPosition(left,ArffFormat.CODE);
 			left=instanceProcessor.nominalToString(left, String.valueOf(codeIndex));
@@ -370,7 +370,7 @@ public class DailyPredict {
 
 
 		//获得”均线策略"的位置属性, 如果数据集内没有“均线策略”（短线策略的fullmodel），MaIndex为-1
-		int maIndex=BaseInstanceProcessor.findATTPosition(fullData,ArffFormat.SELECTED_AVG_LINE);
+		int maIndex=BaseInstanceProcessor.findATTPosition(fullData,ARFF_FORMAT.m_policy_group);
 
 		if (clModel instanceof NominalClassifier ){
 			fullData=((NominalClassifier)clModel).processDataForNominalClassifier(fullData,false);
@@ -413,7 +413,7 @@ public class DailyPredict {
 				// remove unnecessary data,leave 均线策略 & code alone
 				GeneralInstances header = new DataInstances(newData, 0);
 				BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(header);
-				result=instanceProcessor.filterAttribs(header, ARFF_FORMAT.DAILY_PREDICT_RESULT_LEFT);
+				result=instanceProcessor.filterAttribs(header, ARFF_FORMAT.m_daily_predict_left_part);
 
 				if (clModel instanceof NominalClassifier ){
 					result = instanceProcessor.AddAttribute(result, ArffFormat.RESULT_PREDICTED_WIN_RATE,
@@ -495,13 +495,13 @@ public class DailyPredict {
 		String formatFile=null;
 		switch (formatType) {
 		case ArffFormat.LEGACY_FORMAT: //可以使用同一个Format文件，只是需要将无关字段去掉
-			formatFile=ARFF_FORMAT.TRANSACTION_ARFF_PREFIX+"-format-legacy.arff";
+			formatFile=ARFF_FORMAT.m_arff_file_prefix+"-format-legacy.arff";
 			break;
 		case ArffFormat.CURRENT_FORMAT:
-			formatFile=ARFF_FORMAT.TRANSACTION_ARFF_PREFIX+"-format.arff";
+			formatFile=ARFF_FORMAT.m_arff_file_prefix+"-format.arff";
 			break;
 		case FullModelDataFormat.FULLMODEL_FORMAT:
-			formatFile=((FullModelDataFormat)ARFF_FORMAT).TRANSACTION_ARFF_PREFIX+"-format.arff";
+			formatFile=((FullModelDataFormat)ARFF_FORMAT).m_arff_file_prefix+"-format.arff";
 			break;			
 		default:
 			throw new Exception("invalid arffFormat type");

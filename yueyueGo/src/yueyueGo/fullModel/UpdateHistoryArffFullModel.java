@@ -44,7 +44,7 @@ public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 		String endYearMonth="201612";
 		
 
-		String originFilePrefix=AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT_FULLMODEL.TRANSACTION_ARFF_PREFIX;
+		String originFilePrefix=AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT_FULLMODEL.m_arff_file_prefix;
 		
 		String newDataFileName=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group5\\onceyield_group5all_optional20160901_20161031.txt";		
 		GeneralInstances newData = loadDataFromIncrementalCSVFile(newDataFileName);
@@ -62,7 +62,7 @@ public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 	
 	protected static void callCreateFullModelInstances() throws Exception {
 
-		String arffFileName=AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT_FULLMODEL.TRANSACTION_ARFF_PREFIX;
+		String arffFileName=AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT_FULLMODEL.m_arff_file_prefix;
 		GeneralInstances rawData = mergeSrcFullModelFiles();
 		
 		//处理所有的日期字段，并插入yearmonth
@@ -167,13 +167,13 @@ public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 	
 	// 从增量的交易CSV文件中加载数据
 	protected static GeneralInstances loadDataFromIncrementalCSVFile(String fileName) throws Exception{ 
-		return DataIOHandler.getSuppier().loadDataWithFormatFromCSVFile(fileName,ARFF_FORMAT_FULLMODEL.TRANS_DATA_FORMAT_NEW);
+		return DataIOHandler.getSuppier().loadDataWithFormatFromCSVFile(fileName,ARFF_FORMAT_FULLMODEL.m_arff_data_full);
 	}
 
 	//这是处理历史全量数据，重新切割生成各种长、短以及格式文件的方法
 	private static void processHistoryFileFullModel() throws Exception {
 		System.out.println("loading history file into memory "  );
-		String originFileName=AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT_FULLMODEL.TRANSACTION_ARFF_PREFIX;
+		String originFileName=AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT_FULLMODEL.m_arff_file_prefix;
 		GeneralInstances fullSetData = DataIOHandler.getSuppier().loadDataFromFile(originFileName+".arff");
 		System.out.println("finish  loading fullset File  row : "+ fullSetData.numInstances() + " column:"+ fullSetData.numAttributes());
 		generateArffFileSetFullModel(originFileName, fullSetData);

@@ -95,7 +95,7 @@ public class WekaDataSupplier implements GeneralDataSupplier {
 
 	//如果传入的参数 dateString==null; 则取数据库中的最新数据，否则取相应交易日的数据
 	private GeneralInstances LoadFullModelDataFromDB(String dateString,FullModelDataFormat formatFullModel) throws Exception{
-		String[] validateFormat=formatFullModel.DAILY_DATA_TO_PREDICT_FORMAT_NEW;
+		String[] validateFormat=formatFullModel.m_daily_data_to_predict_format;
 	
 		//load data from database that needs predicting
 		InstanceQuery query = new InstanceQuery();
@@ -129,7 +129,7 @@ public class WekaDataSupplier implements GeneralDataSupplier {
 		String target_view=null;
 		String date_cretiriaString="";
 		
-		target_columns=formatFullModel.DAILY_DATA_TO_PREDICT_FORMAT_NEW;
+		target_columns=formatFullModel.m_daily_data_to_predict_format;
 	
 		//如果传入的参数 dateString==null; 则取数据库中的最新数据，否则取相应交易日的数据
 		if (dateString==null){
@@ -158,11 +158,11 @@ public class WekaDataSupplier implements GeneralDataSupplier {
 		
 		switch (format) {
 		case ArffFormat.LEGACY_FORMAT:
-			target_columns=arffFormat.DAILY_DATA_TO_PREDICT_FORMAT_LEGACY;
+			target_columns=arffFormat.m_daily_data_to_predict_format_legacy;
 			target_view="t_stock_avgline_increment_zuixin_group7";//"t_stock_avgline_increment_zuixin_group5";//"t_stock_avgline_increment_zuixin_v";
 			break;
 		case ArffFormat.CURRENT_FORMAT:
-			target_columns=arffFormat.DAILY_DATA_TO_PREDICT_FORMAT_NEW;
+			target_columns=arffFormat.m_daily_data_to_predict_format;
 			target_view="t_stock_avgline_increment_zuixin_group8";
 			//"t_stock_avgline_increment_zuixin_group6";  //"t_stock_avgline_increment_zuixin_group5"; //"t_stock_avgline_increment_zuixin_group5_test";
 			break;			
@@ -189,10 +189,10 @@ public class WekaDataSupplier implements GeneralDataSupplier {
 		String[] validateFormat=null;
 		switch (format) {
 		case ArffFormat.LEGACY_FORMAT:
-			validateFormat=arffFormat.DAILY_DATA_TO_PREDICT_FORMAT_LEGACY;
+			validateFormat=arffFormat.m_daily_data_to_predict_format_legacy;
 			break;
 		case ArffFormat.CURRENT_FORMAT:
-			validateFormat=arffFormat.DAILY_DATA_TO_PREDICT_FORMAT_NEW;
+			validateFormat=arffFormat.m_daily_data_to_predict_format;
 			break;			
 		default:
 			break;

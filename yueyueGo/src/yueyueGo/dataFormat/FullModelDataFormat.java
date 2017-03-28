@@ -10,13 +10,18 @@ public class FullModelDataFormat extends ArffFormat {
 	@Override
 	protected void initializeFormat() {
 		//Arff文件定义
-		TRANSACTION_ARFF_PREFIX="all20052016-ext";
-		SHORT_ARFF_FILE = TRANSACTION_ARFF_PREFIX+"-short.arff";
+		m_arff_file_prefix="all20052016-ext";
+		m_arff_ext = m_arff_file_prefix+"-short.arff";
 		
-
-
+		//单次收益率数据中不用保存在ARFF文件中的字段
+		m_arff_data_not_in_model=new String[]{ 
+				TRADE_DATE,CODE, SELL_DATE, DATA_DATE, "chicang_days",IS_POSITIVE
+		};
+		
+//		m_policy_group ="";
+		
 		//全模型用的训练字段 
-		MODEL_ATTRIB_FORMAT_NEW=new String[]{
+		m_model_attribute_format=new String[]{
 				 BIAS5, "bias10", "bias20", "bias30",
 					"bias60", "bias5_preday_dif", "bias10_preday_dif",
 					"bias20_preday_dif", "bias30_preday_dif", "bias60_preday_dif",
@@ -68,6 +73,6 @@ public class FullModelDataFormat extends ArffFormat {
 					"jun_huanhoulv_bilv5_gupiao","jun_huanhoulv_bilv10_gupiao","jun_huanhoulv_bilv20_gupiao","jun_huanhoulv_bilv30_gupiao",	"jun_huanhoulv_bilv60_gupiao",
 					"junliang_bilv5_zhishu","junliang_bilv10_zhishu","junliang_bilv20_zhishu","junliang_bilv30_zhishu","junliang_bilv60_zhishu"
 				};
-		MODEL_ATTRIB_FORMAT_LEGACY=new String[]{};
+		m_model_attribute_format_legacy=new String[]{};
 	}
 }

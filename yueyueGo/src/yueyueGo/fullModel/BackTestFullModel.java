@@ -165,7 +165,7 @@ public class BackTestFullModel extends BackTest {
 		System.out.println("start to load File for fullset from File: "+ arffFullFileName  );
 		fullSetData = DataIOHandler.getSuppier().loadDataFromFile( arffFullFileName);
 		if (applyToMaModelInTestBack==true){//用fullModel模型来测试均线模型时加载均线模型的arff
-			int pos = BaseInstanceProcessor.findATTPosition(fullSetData,ArffFormat.SELECTED_AVG_LINE);
+			int pos = BaseInstanceProcessor.findATTPosition(fullSetData,ARFF_FORMAT.m_policy_group);
 			fullSetData = InstanceHandler.getHandler(fullSetData).removeAttribs(fullSetData,""+pos );
 		}
 		System.out.println("finish loading fullset Data. row : "+fullSetData.numInstances() + " column:"+ fullSetData.numAttributes());
@@ -188,7 +188,7 @@ public class BackTestFullModel extends BackTest {
 		// 根据模型来决定是否要使用有计算字段的ARFF
 		String arffFile=null;
 		if (clModel.m_noCaculationAttrib==true){
-			arffFile=ARFF_FORMAT_FULLMODEL.SHORT_ARFF_FILE;
+			arffFile=ARFF_FORMAT_FULLMODEL.m_arff_ext;
 		}else{
 //			arffFile=ArffFormatFullModel.FULL_MODEL_LONG_ARFF_FILE;
 			throw new RuntimeException("we don't support Calculation fields any more");
@@ -211,7 +211,7 @@ public class BackTestFullModel extends BackTest {
 		// 根据模型来决定是否要使用有计算字段的ARFF
 		String arffFile=null;
 		if (clModel.m_noCaculationAttrib==true){
-			arffFile=ARFF_FORMAT.SHORT_ARFF_FILE;
+			arffFile=ARFF_FORMAT.m_arff_ext;
 		}else{
 //			arffFile=ArffFormat.LONG_ARFF_FILE;
 			throw new RuntimeException("we don't support Calculation fields any more");
@@ -226,12 +226,12 @@ public class BackTestFullModel extends BackTest {
 		GeneralInstances left=null;		
 		//读取磁盘上预先保存的左侧数据
 		if (applyToMaModelInTestBack==true){
-			left=DataIOHandler.getSuppier().loadDataFromFile(EnvConstants.AVG_LINE_ROOT_DIR+ARFF_FORMAT.TRANSACTION_ARFF_PREFIX+"-left.arff");
+			left=DataIOHandler.getSuppier().loadDataFromFile(EnvConstants.AVG_LINE_ROOT_DIR+ARFF_FORMAT.m_arff_file_prefix+"-left.arff");
 		}else{
-			left=DataIOHandler.getSuppier().loadDataFromFile(C_ROOT_DIRECTORY+ARFF_FORMAT_FULLMODEL.TRANSACTION_ARFF_PREFIX+"-left.arff");
+			left=DataIOHandler.getSuppier().loadDataFromFile(C_ROOT_DIRECTORY+ARFF_FORMAT_FULLMODEL.m_arff_file_prefix+"-left.arff");
 		}
 		
-		MergeClassifyResults merge=new MergeClassifyResults(shouyilv_thresholds, winrate_thresholds);
+		MergeClassifyResults merge=new MergeClassifyResults(shouyilv_thresholds, winrate_thresholds,ARFF_FORMAT.m_policy_group);
 		GeneralInstances mergedResult = merge.mergeResults(resultData, referenceData,dataToAdd, left);
 		
 		//返回结果之前需要按TradeDate重新排序
@@ -244,7 +244,8 @@ public class BackTestFullModel extends BackTest {
 		
 		if (applyToMaModelInTestBack==false){
 			//插入一列“均线策略”为计算程序使用
-			mergedResult=instanceProcessor.AddAttributeWithValue(mergedResult, ArffFormat.SELECTED_AVG_LINE,"numeric","0");
+			//TODO   常量化
+			mergedResult=instanceProcessor.AddAttributeWithValue(mergedResult, AvgLineDataFormat.SELECTED_AVGLINE,"numeric","0");
 		}
 		return mergedResult;
 

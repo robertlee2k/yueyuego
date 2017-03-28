@@ -252,7 +252,7 @@ public class BackTest {
 				if (result == null) {// initialize result instances
 					result = prepareResultInstances(clModel, fullSetData);
 				}
-				int policyIndex=BaseInstanceProcessor.findATTPosition(fullSetData, ArffFormat.SELECTED_AVG_LINE);
+				int policyIndex=BaseInstanceProcessor.findATTPosition(fullSetData, ARFF_FORMAT.m_policy_group);
 				String splitTrainClause = getSplitClause(policyIndex,splitTrainYearClause,policy);
 				String splitEvalClause =  getSplitClause(policyIndex,splitEvalYearClause,policy);;
 				String splitTestClause =  getSplitClause(policyIndex,splitTestYearClause, policy);
@@ -429,7 +429,7 @@ public class BackTest {
 		// 根据模型来决定是否要使用有计算字段的ARFF
 		String arffFile=null;
 		if (clModel.m_noCaculationAttrib==true){
-			arffFile=ARFF_FORMAT.SHORT_ARFF_FILE;
+			arffFile=ARFF_FORMAT.m_arff_ext;
 		}else{
 //			arffFile=ArffFormat.LONG_ARFF_FILE;
 			throw new RuntimeException("we don't support Calculation fields any more");
@@ -495,8 +495,8 @@ public class BackTest {
 //			left=FileUtility.loadDataFromFile(C_ROOT_DIRECTORY+ArffFormat.TRANSACTION_ARFF_PREFIX+"-left.arff");
 //		}
 
-		left=DataIOHandler.getSuppier().loadDataFromFile(C_ROOT_DIRECTORY+ARFF_FORMAT.TRANSACTION_ARFF_PREFIX+"-left.arff");
-		MergeClassifyResults merge=new MergeClassifyResults(shouyilv_thresholds, winrate_thresholds);
+		left=DataIOHandler.getSuppier().loadDataFromFile(C_ROOT_DIRECTORY+ARFF_FORMAT.m_arff_file_prefix+"-left.arff");
+		MergeClassifyResults merge=new MergeClassifyResults(shouyilv_thresholds, winrate_thresholds,ARFF_FORMAT.m_policy_group);
 		GeneralInstances mergedResult =merge.mergeResults(resultData, referenceData,dataToAdd, left);
 
 		//返回结果之前需要按TradeDate重新排序
@@ -655,7 +655,7 @@ public class BackTest {
 			workPath=AppContext.getNOMINAL_CLASSIFIER_DIR()+clModel.getIdentifyName()+"\\";
 		}
 		//根据不同的原始数据（策略）设置不同的模型工作目录
-		workPath+=ARFF_FORMAT.TRANSACTION_ARFF_PREFIX+"\\";
+		workPath+=ARFF_FORMAT.m_arff_file_prefix+"\\";
 		FileUtility.mkdirIfNotExist(workPath);
 		
 		//TODO 常量化
