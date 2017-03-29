@@ -128,9 +128,9 @@ public class UpdateHistoryArffFile {
 	
 		String arffFileName=AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT.m_arff_file_prefix;
 		String formatFileName=AppContext.getC_ROOT_DIRECTORY()+"fullFormat-"+ARFF_FORMAT.m_arff_ext+".arff";
-		GeneralInstances fullData=DataIOHandler.getSuppier().loadDataFromFile(formatFileName);
-		
 		System.out.println("Start to create arff. source file ="+arffFileName+" format file="+formatFileName);
+		GeneralInstances fullData=DataIOHandler.getSuppier().loadDataFromFile(formatFileName);
+
 		GeneralInstances rawData = mergeSrcTransFiles();
 	
 		//处理所有的日期字段，并插入yearmonth
