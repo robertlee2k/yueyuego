@@ -127,7 +127,7 @@ public class UpdateHistoryArffFile {
 	
 	
 		String arffFileName=AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT.m_arff_file_prefix;
-		String formatFileName=AppContext.getC_ROOT_DIRECTORY()+"fullFormat-"+ARFF_FORMAT.m_arff_ext+".arff";
+		String formatFileName=AppContext.getC_ROOT_DIRECTORY()+"fullFormat-"+ARFF_FORMAT.m_arff_file_prefix+".arff";
 		System.out.println("Start to create arff. source file ="+arffFileName+" format file="+formatFileName);
 		GeneralInstances fullData=DataIOHandler.getSuppier().loadDataFromFile(formatFileName);
 
