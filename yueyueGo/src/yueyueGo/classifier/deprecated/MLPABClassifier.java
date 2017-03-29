@@ -170,12 +170,10 @@ public class MLPABClassifier extends NominalClassifier {
 		m_skipEvalInBacktest = false;
 		
 		classifierName=ClassifyUtility.MLPAB;
-//		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
 		m_modelFileShareMode=ModelStore.YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 		
 		m_hiddenLayer="a"; //MLP的固有参数
 		
-		m_noCaculationAttrib=false; //使用计算字段
 
 	}
 		

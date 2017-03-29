@@ -76,15 +76,12 @@ public class MyNNFullModel extends MyNNClassifier {
 		modelArffFormat=FullModelDataFormat.FULLMODEL_FORMAT; //这个模型缺省是为FULLMODEL用的格式
 		
 		classifierName=ClassifyUtility.MYNN_MLP_FULLMODEL;
-//		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+classifierName+"\\");
 		m_modelFileShareMode=ModelStore.YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 		m_evalDataSplitMode=ModelStore.USE_YEAR_DATA_FOR_EVAL;//覆盖父类，设定模型和评估间隔为12个月
 		
 		m_thread=EnvConstants.CPU_CORE_NUMBER-8;
 		m_learningRate=0.3; //缺省用
 		
-		m_noCaculationAttrib=true; //不使用计算字段，注意这里尝试短格式了。
-		m_removeSWData=true; //覆盖父类，不用申万行业数据
 	}
 		
 	@Override

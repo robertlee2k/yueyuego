@@ -220,9 +220,9 @@ public class AdaboostClassifier extends NominalClassifier {
 		divided=300; //将trainingData分成多少份
 		boost_iteration=10; 	//boost特有参数
 		
-		m_noCaculationAttrib=true;//不使用计算字段 
+ 
 		m_usePCA=true; //20121223尝试不使用PCA，效果一般且建模非常慢，所以放弃
-		m_removeSWData=true; //20161222尝试不用申万行业数据
+
 		m_evalDataSplitMode=ModelStore.USE_NINE_MONTHS_DATA_FOR_EVAL; //尝试评估区间使用9个月数据（效果还不错）
 //		m_positiveLine=0.03; //尝试3%的阀值
 	}

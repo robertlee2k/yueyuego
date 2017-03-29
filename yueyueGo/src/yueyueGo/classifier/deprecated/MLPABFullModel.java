@@ -25,7 +25,7 @@ public class MLPABFullModel extends MLPABClassifier {
 		
 		m_hiddenLayer="a"; //MLP的固有参数
 
-		m_noCaculationAttrib=true; //不使用计算字段，注意这里尝试短格式了。
+
 	}
 	
 

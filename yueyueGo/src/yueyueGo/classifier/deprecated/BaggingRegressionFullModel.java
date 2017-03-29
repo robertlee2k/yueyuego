@@ -24,6 +24,6 @@ public class BaggingRegressionFullModel extends BaggingLinearRegression {
 		bagging_iteration=10;	//bagging特有参数
 		divided=EnvConstants.TRAINING_DATA_LIMIT/3000; //将trainingData分成多少份
 		
-		m_noCaculationAttrib=true; //不必添加计算字段!
+
 	}
 }

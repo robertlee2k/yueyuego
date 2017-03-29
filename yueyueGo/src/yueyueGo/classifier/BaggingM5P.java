@@ -249,18 +249,14 @@ public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunn
 
 		classifierName=ClassifyUtility.BAGGING_M5P;	
 		
-
+		m_usePCA=true; //20121223尝试不使用PCA，效果不佳，恢复PCA
 		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
-		
 
-		m_modelFileShareMode=ModelStore.QUARTER_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 		bagging_iteration=10;	//bagging特有参数
 		leafMinObjNum=300; //叶子节点最小的
 		divided=300; //将trainingData分成多少份
-		
-		m_noCaculationAttrib=true;//不使用计算字段 (20161215试过无计算字段，效果不如有计算字段好） 
-		m_usePCA=true; //20121223尝试不使用PCA，效果不佳，恢复PCA
-		m_removeSWData=true; //20161222尝试不用申万行业数据
+
+		m_modelFileShareMode=ModelStore.QUARTER_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 		m_evalDataSplitMode=ModelStore.USE_NINE_MONTHS_DATA_FOR_EVAL;//USE_YEAR_DATA_FOR_EVAL; //评估区间使用一年数据 （截止20170103，这个是效果最好的）
 	}
 

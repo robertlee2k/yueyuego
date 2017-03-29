@@ -70,7 +70,6 @@ public class BaggingLinearRegression extends ContinousClassifier implements Parr
 		bagging_iteration=10;	//bagging特有参数
 		divided=300; //将trainingData分成多少份
 		
-		m_noCaculationAttrib=true; //不必添加计算字段!
 
 	}
 

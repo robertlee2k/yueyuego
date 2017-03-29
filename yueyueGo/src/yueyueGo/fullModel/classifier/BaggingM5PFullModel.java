@@ -72,13 +72,10 @@ public class BaggingM5PFullModel extends BaggingM5P {
 		bagging_iteration=10;	//bagging特有参数
 		
 		classifierName= ClassifyUtility.BAGGING_M5P_FULLMODEL;
-//		setWorkPathAndCheck(AppContext.getCONTINOUS_CLASSIFIER_DIR()+getIdentifyName()+"\\");
 		m_modelFileShareMode=ModelStore.QUARTER_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式为半年
 		m_evalDataSplitMode=ModelStore.USE_HALF_YEAR_DATA_FOR_EVAL;//覆盖父类，设定模型和评估间隔为6个月
 		
-		m_noCaculationAttrib=true; //不使用计算字段
 		m_usePCA=true; //覆盖父类，使用PCA
 		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
-		m_removeSWData=true; //覆盖父类，不用申万行业数据
 	}
 }

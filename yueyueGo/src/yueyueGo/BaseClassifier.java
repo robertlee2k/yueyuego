@@ -37,44 +37,32 @@ public abstract class BaseClassifier implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = -5895562408723104016L;
-	//统一常量
-	public static final String MA_PREFIX = " MA ";
-	public static final String ARFF_EXTENSION = ".arff";
+	public final boolean m_noCaculationAttrib=true;  //加入的计算字段与否 ---拟取消
+	public final boolean m_removeSWData=true;  //是否需要删除行业数据--拟取消
 	
-	//名称
-	public String classifierName;
+	
+	
+	//各子分类器的可配置参数
+	public String classifierName; //名称
+    public String[] m_policySubGroup;//策略分组,在子类中赋值覆盖 = {"5","10","20","30","60" }或{""};
+    public int m_modelFileShareMode; //model文件的共享模式1,3,6,12 （表示共享的月份）
+    public int m_evalDataSplitMode;//切分构建模型和评估数据的模式 0、6、9、12 （表示评估数据的月份）
+    public int modelArffFormat; //arff的格式
+	
+	protected double m_positiveLine; // 用来定义收益率大于多少时算positive，缺省为0   
+	public boolean m_skipTrainInBacktest = true; //回测中使用，是否跳过训练模型阶段
+	public boolean m_skipEvalInBacktest = true;  //回测中使用，是否跳过评估模型阶段
 	
 
-	protected int m_modelFileShareMode; //model文件的共享模式1,3,6,12 （表示共享的月份）
-	protected int m_evalDataSplitMode;//切分构建模型和评估数据的模式 0、6、9、12 （表示评估数据的月份）
-	
-	protected ModelStore m_modelStore; //model 和 eval的持久化封装类类
-	
-	public boolean m_noCaculationAttrib;  //加入的计算字段与否
-	public boolean m_removeSWData;  //是否需要删除行业数据
-	
-	protected int modelArffFormat; //arff的格式
 
-
-	//用于策略分组
-    public String[] m_policySubGroup;//在子类构造函数中赋值覆盖 = {"5","10","20","30","60" }或{""};
+	//以下为不可配置参数，内部存储
     public EvaluationConfDefinition m_evalConf; //用于评估的对象
-
-    
-    //用于回测中使用
-	public boolean m_skipTrainInBacktest = true; //在子类构造函数中赋值覆盖
-	public boolean m_skipEvalInBacktest = true;  //在子类构造函数中赋值覆盖
-	
-	
-	protected double m_positiveLine; // 用来定义收益率大于多少时算positive，缺省为0
-
-	
+	protected ModelStore m_modelStore; //model 和 eval的持久化封装类类
 	protected ClassifySummaries classifySummaries;//分类的统计信息
 	
 	public BaseClassifier() {
 		m_positiveLine=0; //缺省的以收益率正负为二分类的正负。
-		m_noCaculationAttrib=true;  //缺省情况下，不加入计算字段 （在子类中覆盖）
-		m_removeSWData=true;  //缺省情况下，删除申万行业数据（可在子类中覆盖）
+
 		modelArffFormat=ArffFormat.CURRENT_FORMAT; //缺省使用当前的arff Format
 		m_modelFileShareMode=ModelStore.MONTHLY_MODEL; //model文件和Eval的共享模式,缺省为 回测时按yearsplit和policysplit分割使用model和eval文件
 		m_evalDataSplitMode=ModelStore.USE_YEAR_DATA_FOR_EVAL;//缺省使用倒推一年的数据作为模型评估数据，之前用于的构建模型
@@ -91,7 +79,7 @@ public abstract class BaseClassifier implements Serializable{
 	
 	//可以在子类中被覆盖
 	protected void initEvaluationConfDefinition(){
-		EvaluationConfDefinition evalConf=new EvaluationConfDefinition(this.classifierName);
+		EvaluationConfDefinition evalConf=new EvaluationConfDefinition(this.classifierName,null);
 		this.m_evalConf=evalConf;
 	}
 	

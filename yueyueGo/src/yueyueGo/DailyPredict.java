@@ -152,17 +152,13 @@ public class DailyPredict {
 		//旧格式的bagging m5p预测 
 		BaggingM5P cOldBagModel=new BaggingM5P();
 		cOldBagModel.m_usePCA=true;
-		cOldBagModel.m_noCaculationAttrib=true;
-		cOldBagModel.m_removeSWData=true;
 		cOldBagModel.setModelArffFormat(ArffFormat.LEGACY_FORMAT);
 		GeneralInstances baggingOldInstances=predictWithDB(cOldBagModel);
 
 		//Adaboost(使用PCA版本和计算字段）
 		AdaboostClassifier adaOldModel=new AdaboostClassifier();
 		adaOldModel.m_usePCA=true;
-		adaOldModel.m_noCaculationAttrib=true;
 		adaOldModel.m_positiveLine=0;
-		adaOldModel.m_removeSWData=true;
 		adaOldModel.setModelArffFormat(ArffFormat.LEGACY_FORMAT);
 		GeneralInstances adaboostOldInstances=predictWithDB(adaOldModel);		
 		combinePreditions(cOldBagModel, baggingOldInstances, adaOldModel, adaboostOldInstances);
@@ -172,16 +168,12 @@ public class DailyPredict {
 		//新格式的bagging m5p预测  (使用PCA版本和计算字段）
 		BaggingM5P cBagModel=new BaggingM5P();
 		cBagModel.m_usePCA=true;
-		cBagModel.m_noCaculationAttrib=true;
-		cBagModel.m_removeSWData=true;
 		GeneralInstances baggingInstances=predictWithDB(cBagModel);
 
 		//Adaboost(使用PCA版本和计算字段）
 		AdaboostClassifier adaModel=new AdaboostClassifier();
 		adaModel.m_usePCA=true;
-		adaModel.m_noCaculationAttrib=true;
 		adaModel.m_positiveLine=0;
-		cBagModel.m_removeSWData=true;
 		GeneralInstances adaboostInstances=predictWithDB(adaModel);		
 
 		System.out.println("******LEGACY*********** output LEGACY  prediction results**************LEGACY**********");

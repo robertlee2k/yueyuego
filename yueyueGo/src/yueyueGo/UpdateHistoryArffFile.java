@@ -5,7 +5,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 
 import yueyueGo.dataFormat.ArffFormat;
-import yueyueGo.dataFormat.AvgLineDataFormat;
+import yueyueGo.dataFormat.MomentumDataFormat;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.dataProcessor.InstanceHandler;
 import yueyueGo.databeans.DataInstance;
@@ -19,7 +19,8 @@ import yueyueGo.utility.AppContext;
 import yueyueGo.utility.FormatUtility;
 
 public class UpdateHistoryArffFile {
-	protected static ArffFormat ARFF_FORMAT=new AvgLineDataFormat(); //当前所用数据文件格式 
+	protected static ArffFormat ARFF_FORMAT=new MomentumDataFormat();
+			//new AvgLineDataFormat(); //当前所用数据文件格式 
 
 	public static void main(String[] args) {
 		try {
@@ -132,7 +133,7 @@ public class UpdateHistoryArffFile {
 		processDateColumns(rawData);
 	
 		//处理各种nominal字段
-		GeneralInstances fullData=DataIOHandler.getSuppier().loadDataFromFile(AppContext.getC_ROOT_DIRECTORY()+"fullTranFormat.arff");
+		GeneralInstances fullData=DataIOHandler.getSuppier().loadDataFromFile(AppContext.getC_ROOT_DIRECTORY()+"fullFormat-"+ARFF_FORMAT.m_arff_ext+".arff");
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(rawData);
 		
 		//全部读入后，对SWCODE做nominal处理（因为这个code可能会有持续更新）
@@ -678,11 +679,18 @@ public class UpdateHistoryArffFile {
 	 */
 	private static GeneralInstances mergeSrcTransFiles() throws Exception,
 	IllegalStateException {
-		String sourceFilePrefix=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group8\\v_onceyield_group8all";
-		GeneralInstances fullData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2005_2010.txt");
-		GeneralInstances addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2011_2017.txt");
-		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullData);
-		fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
+		
+		//动量
+		String sourceFile=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group8\\v_onceyield_group8all_momentum2008_2017.txt";
+		GeneralInstances fullData = loadDataFromIncrementalCSVFile(sourceFile);			
+		
+		//传统
+//		String sourceFilePrefix=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group8\\v_onceyield_group8all";
+//		GeneralInstances fullData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2005_2010.txt");
+//		GeneralInstances addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2011_2017.txt");
+//		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullData);
+//		fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
+		
 //		System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
 //		addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2010_2012.txt");
 //		fullData=instanceProcessor.mergeTwoInstances(fullData, addData);

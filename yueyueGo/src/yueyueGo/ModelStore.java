@@ -36,6 +36,8 @@ public class ModelStore {
 	protected String m_modelYearSplit;
 	protected String m_evalYearSplit;
 	protected String m_targetYearSplit;
+	//统一常量
+	public static final String MA_PREFIX = " MA ";
 	
 	public String getTargetYearSplit() {
 		return m_targetYearSplit;
@@ -289,7 +291,7 @@ public class ModelStore {
 	}
 	
 	public static String concatModeFilenameString(String yearSplit,String policySplit, String workFileFullPrefix, String classifierName){//BaseClassifier classifier) {
-		return workFileFullPrefix +"-"+classifierName+ "-" + yearSplit + BaseClassifier.MA_PREFIX + policySplit;
+		return workFileFullPrefix +"-"+classifierName+ "-" + yearSplit + ModelStore.MA_PREFIX + policySplit;
 	}
 
 	public String getEvalFileName() {

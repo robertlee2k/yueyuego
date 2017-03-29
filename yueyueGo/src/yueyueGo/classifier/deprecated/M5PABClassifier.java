@@ -100,8 +100,6 @@ public class M5PABClassifier extends ContinousClassifier {
 
 		leafMinObjNum=300; //叶子节点最小的
 		divided=300; //将trainingData分成多少份
-		m_noCaculationAttrib=true; //不添加计算字段
-		m_removeSWData=true; 
 
 	}
 	

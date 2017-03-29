@@ -2,7 +2,7 @@ package yueyueGo.fullModel.classifier;
 
 import yueyueGo.EnvConstants;
 import yueyueGo.ModelStore;
-import yueyueGo.classifier.BaggingJ48;
+import yueyueGo.classifier.deprecated.BaggingJ48;
 import yueyueGo.dataFormat.FullModelDataFormat;
 import yueyueGo.utility.ClassifyUtility;
 //result changed because of reference data not matched=81892 while good change number=49134
@@ -33,11 +33,9 @@ public class BaggingJ48FullModel extends BaggingJ48 {
 		
 		classifierName= ClassifyUtility.BAGGING_J48_FULLMODEL;
 		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
-//		setWorkPathAndCheck(AppContext.getNOMINAL_CLASSIFIER_DIR()+this.getIdentifyName()+"\\");
 		m_modelFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 		
 		
-		m_noCaculationAttrib=false; //使用计算字段
 
 	}
 
