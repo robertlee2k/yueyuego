@@ -39,7 +39,7 @@ public class BackTestFullModel extends BackTest {
 		if (applyToMaModelInTestBack==true){
 			ARFF_FORMAT=new AvgLineDataFormat();
 		}else{
-			ARFF_FORMAT=null; //以免误用
+			ARFF_FORMAT=ARFF_FORMAT_FULLMODEL; //以免误用
 		}
 		C_ROOT_DIRECTORY = EnvConstants.FULL_MODEL_ROOT_DIR;
 		AppContext.clearContext();
