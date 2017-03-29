@@ -18,7 +18,7 @@ public class FullModelDataFormat extends ArffFormat {
 				TRADE_DATE,CODE, SELL_DATE, DATA_DATE, "chicang_days",IS_POSITIVE
 		};
 		
-//		m_policy_group ="";
+		m_policy_group ="";
 		
 		//全模型用的训练字段 
 		m_model_attribute_format=new String[]{
