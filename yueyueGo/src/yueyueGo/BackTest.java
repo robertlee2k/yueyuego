@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 import yueyueGo.classifier.AdaboostClassifier;
 import yueyueGo.classifier.BaggingM5P;
+import yueyueGo.classifier.ClassiferInitFactory;
 import yueyueGo.dataFormat.ArffFormat;
 import yueyueGo.dataFormat.AvgLineDataFormat;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
@@ -146,7 +147,7 @@ public class BackTest {
 
 	protected void callTestBack() throws Exception {
 		//按连续分类器回测历史数据
-		BaggingM5P cModel=new BaggingM5P();
+		BaggingM5P cModel=ClassiferInitFactory.initBaggingM5P(ARFF_FORMAT, ClassiferInitFactory.FOR_BACK_TEST);
 //		BaggingLinearRegression cModel=new BaggingLinearRegression();
 //		M5PABClassifier cModel=new M5PABClassifier();
 		GeneralInstances continuousResult=testBackward(cModel);
@@ -157,7 +158,8 @@ public class BackTest {
 //		BaggingJ48 nModel=new BaggingJ48();
 //		MLPABClassifier nModel = new MLPABClassifier();
 //		MyNNClassifier nModel=new MyNNClassifier();
-		AdaboostClassifier nModel=new AdaboostClassifier();
+		AdaboostClassifier nModel=ClassiferInitFactory.initAdaboost(ARFF_FORMAT, ClassiferInitFactory.FOR_BACK_TEST);
+//				new AdaboostClassifier();
 //		RandForest nModel=new RandForest();
 		GeneralInstances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
