@@ -127,13 +127,16 @@ public class UpdateHistoryArffFile {
 	
 	
 		String arffFileName=AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT.m_arff_file_prefix;
+		String formatFileName=AppContext.getC_ROOT_DIRECTORY()+"fullFormat-"+ARFF_FORMAT.m_arff_ext+".arff";
+		GeneralInstances fullData=DataIOHandler.getSuppier().loadDataFromFile(formatFileName);
+		
+		System.out.println("Start to create arff. source file ="+arffFileName+" format file="+formatFileName);
 		GeneralInstances rawData = mergeSrcTransFiles();
 	
 		//处理所有的日期字段，并插入yearmonth
 		processDateColumns(rawData);
 	
 		//处理各种nominal字段
-		GeneralInstances fullData=DataIOHandler.getSuppier().loadDataFromFile(AppContext.getC_ROOT_DIRECTORY()+"fullFormat-"+ARFF_FORMAT.m_arff_ext+".arff");
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(rawData);
 		
 		//全部读入后，对SWCODE做nominal处理（因为这个code可能会有持续更新）
