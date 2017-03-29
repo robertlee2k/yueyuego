@@ -116,7 +116,14 @@ public abstract class BaseInstanceProcessor {
 			
 				if (copyToAttName.equals(copyFromAttName)){
 					if (copyToAtt.isNominal()) {
-						String label = copyFrom.stringValue(copyFromAtt);
+						String label =null;
+						try{
+							label=copyFrom.stringValue(copyFromAtt);
+						}catch(Exception e){
+							System.out.println("Cannot get String value for Attribute="+ copyFromAttName + " current ID ="+copyFrom.value(0));
+							System.out.println("try to get value ="+ copyFrom.value(copyFromAtt));
+							throw e;
+						}
 						if ("?".equals(label)){
 							System.out.println("Attribute value is empty. value= "+ label+" @ "+ copyFromAttName + " current ID ="+copyFrom.value(0));
 						}else {
