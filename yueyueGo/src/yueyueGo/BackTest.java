@@ -480,7 +480,15 @@ public class BackTest {
 	 */
 	protected String getSplitClause(int policyIndex,String splitYearClause,	String policy) {
 		String splitClause;
-		splitClause = splitYearClause + " and (ATT"+policyIndex+" is '"	+ policy + "')";
+		String splitPolicy;
+		
+		//如果没有splitPolicy则不需要对policy的部分处理
+		if ("".equals(policy) || policy==null){
+			splitPolicy="";
+		}else{
+			splitPolicy=" and (ATT"+policyIndex+" is '"	+ policy + "')";
+		}
+		splitClause = splitYearClause + splitPolicy ;
 		return splitClause;
 	}
 

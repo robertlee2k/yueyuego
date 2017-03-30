@@ -133,15 +133,15 @@ public class BackTestFullModel extends BackTest {
 		System.out.println("-----end of test backward------");
 	}
 
-	/**
-	 * 隐藏父类的函数。
-	 * @param splitTrainYearClause
-	 * @param policy
-	 * @return
-	 */
-	protected String getSplitClause(int policyIndex,String splitYearClause,	String policy) {
-		return splitYearClause;
-	}
+//	/**
+//	 * 隐藏父类的函数。
+//	 * @param splitTrainYearClause
+//	 * @param policy
+//	 * @return
+//	 */
+//	protected String getSplitClause(int policyIndex,String splitYearClause,	String policy) {
+//		return splitYearClause;
+//	}
 	
 	
 
