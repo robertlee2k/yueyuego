@@ -96,23 +96,23 @@ public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 
 
 	private static GeneralInstances mergeSrcFullModelFiles() throws Exception,	IllegalStateException {
-		String sourceFilePrefix=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\短线策略全量数据\\onceyield_group7all_optional";
-		GeneralInstances fullData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2005_2007.txt");
+		String sourceFilePrefix=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group8\\v_onceyield_group8all_optional";
+		GeneralInstances fullData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2005_2010.txt");
 
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullData);
 		GeneralInstances addData = null;
 
-		addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2008_2010.txt");
+		addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2011_2017.txt");
 		fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
 		System.out.println("FULLMODEL...merged another File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
 
-		addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2011_2013.txt");
-		fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
-		System.out.println("FULLMODEL...merged another File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
-		
-		addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2014_2016.txt");
-		fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
-		System.out.println("FULLMODEL...merged another File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
+//		addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2011_2013.txt");
+//		fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
+//		System.out.println("FULLMODEL...merged another File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
+//		
+//		addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2014_2016.txt");
+//		fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
+//		System.out.println("FULLMODEL...merged another File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
 		
 
 //		int startYear=2014;
