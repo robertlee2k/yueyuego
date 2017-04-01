@@ -44,6 +44,9 @@ public abstract class BaseInstanceProcessor {
 	//在数据集的指定位置上插入新的属性 （position计数从0开始），并返回新的数据集
 	public abstract GeneralInstances AddAttribute(GeneralInstances data, String attributeName, int position);
 
+	//将属性改名 
+	public abstract GeneralInstances renameAttribute(GeneralInstances data, String attributeName,String newName);
+	
 	// 根据给定表达式公式，获取数据集的子集并返回
 	public abstract GeneralInstances getInstancesSubset(GeneralInstances data, String expression)
 			throws Exception;

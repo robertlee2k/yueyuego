@@ -32,7 +32,7 @@ import yueyueGo.classifier.AdaboostClassifier;
 import yueyueGo.classifier.BaggingM5P;
 import yueyueGo.classifier.ClassiferInitFactory;
 import yueyueGo.dataFormat.ArffFormat;
-import yueyueGo.dataFormat.MomentumDataFormat;
+import yueyueGo.dataFormat.AvgLineDataFormat;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.dataProcessor.InstanceHandler;
 import yueyueGo.dataProcessor.WekaInstanceProcessor;
@@ -66,7 +66,7 @@ public class BackTest {
 	protected double[] shouyilv_thresholds=null; //对于胜率优先算法的收益率筛选阀值
 	protected double[] winrate_thresholds=null; //对于收益率优先算法的胜率筛选阀值
 
-	protected String m_startYear= "2010";//"2008";
+	protected String m_startYear= "2008";
 	protected String m_endYearMonth="201703";
 	
 	protected String[] m_handSetSplitYear=new String[] {
@@ -88,8 +88,12 @@ public class BackTest {
 	//初始化环境参数，运行本类的方法必须先调用它
 	public void init(){
 		
-		STRAGEY_NAME="动量策略";//"均线策略";
-		ARFF_FORMAT=new MomentumDataFormat(); //new AvgLineDataFormat();
+		STRAGEY_NAME=
+//				"动量策略";
+				"均线策略";
+		ARFF_FORMAT=
+//				new MomentumDataFormat(); 
+				new AvgLineDataFormat();
 		AppContext.clearContext();
 		AppContext.createContext(this.C_ROOT_DIRECTORY);	
 		BACKTEST_RESULT_DIR=AppContext.getBACKTEST_RESULT_DIR();
@@ -519,6 +523,10 @@ public class BackTest {
 		mergedResult=instanceProcessor.removeAttribs(mergedResult, attributeToRemove);
 
 
+		// 将策略分组改名为外部收益率计算程序所需要的名字
+		if (AvgLineDataFormat.SELECTED_AVGLINE.equals(ARFF_FORMAT.m_policy_group)==false){
+			mergedResult=instanceProcessor.renameAttribute(mergedResult, ARFF_FORMAT.m_policy_group, AvgLineDataFormat.SELECTED_AVGLINE);
+		}
 		return mergedResult;
 	}
 

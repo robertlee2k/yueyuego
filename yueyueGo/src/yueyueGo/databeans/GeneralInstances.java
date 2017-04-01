@@ -27,6 +27,7 @@ public interface GeneralInstances {
 	public abstract GeneralInstance get(int index);
 
 	public abstract void insertAttributeAt(GeneralAttribute arg0, int arg1);
+	public abstract void renameAttribute(GeneralAttribute att,String name);
 
 	public abstract GeneralInstance instance(int index);
 

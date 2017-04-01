@@ -14,6 +14,9 @@ public class WekaInstances implements Serializable, GeneralInstances{
 	 */
 	private static final long serialVersionUID = 3704902897369927844L;
 	Instances internalStore;
+	
+	
+
 
 	//根据输入Instance格式创建instance的wrapper
 	public WekaInstances(Instances instances) {
@@ -151,6 +154,12 @@ public class WekaInstances implements Serializable, GeneralInstances{
 	@Override
 	public void insertAttributeAt(GeneralAttribute att, int arg1) {
 		internalStore.insertAttributeAt(((WekaAttribute)att).getInteranalWekaAttribute(), arg1);
+	}
+	
+	
+	@Override	
+	public void renameAttribute(GeneralAttribute att,String name){
+		internalStore.renameAttribute(((WekaAttribute)att).getInteranalWekaAttribute(), name);
 	}
 
 	/* (non-Javadoc)
