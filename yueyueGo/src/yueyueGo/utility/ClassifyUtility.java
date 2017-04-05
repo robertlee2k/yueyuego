@@ -97,8 +97,8 @@ public class ClassifyUtility {
 	    if (executionSlots>bagging_iteration){ //无须超过iteration个数
 	    	executionSlots=bagging_iteration;
 	    }		
-	    if (executionSlots>EnvConstants.CPU_CORE_NUMBER-1){ //不要超过CPU个数
-	    	executionSlots=EnvConstants.CPU_CORE_NUMBER-1;
+	    if (executionSlots>EnvConstants.CPU_CORE_NUMBER-2){ //不要超过CPU个数，留点余量
+	    	executionSlots=EnvConstants.CPU_CORE_NUMBER-2;
 	    }
 	    if (executionSlots<1){//至少应该有一个执行线程（哪怕内存不够也可以试试）
 	    	System.err.println("WARNING! momeory may not enough for this bagging, anyway we try executionSlot=1");

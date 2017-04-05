@@ -123,30 +123,44 @@ public class BackTest {
 	}
 	
 	/**
-	 * 根据最新这个月的增量数据刷新模型
+	 * 根据最新月的增量数据刷新模型
 	 * @throws Exception
 	 */
 	protected void callRefreshModelUseLatestData() throws Exception{
 		BaseClassifier model=null;
-		m_handSetSplitYear=new String[] {"201610","201702"};
+		m_handSetSplitYear=new String[] {"201701"};
 		RUNNING_THREADS=5;
 		
-		//逐次刷新数据
+		//逐次构建新的模型
 		model=new AdaboostClassifier();
 		model.m_skipTrainInBacktest=false;
 		model.m_skipEvalInBacktest=false;
 		testBackward(model);
-		
-//		model=new MyNNClassifier();
-//		model.m_skipTrainInBacktest=true;
-//		model.m_skipEvalInBacktest=false;
-//		testBackward(model);
 		
 		model=new BaggingM5P();
 		model.m_skipTrainInBacktest=false;
 		model.m_skipEvalInBacktest=false;
 		testBackward(model);
 
+		//重新评估模型
+		m_handSetSplitYear=
+				new String[] {"201602","201603","201604","201605","201606","201607",
+						"201608","201609","201610","201611","201612",
+						"201701","201702","201703"};
+		RUNNING_THREADS=15;
+		
+		//逐次构建新的模型
+		model=new AdaboostClassifier();
+		model.m_skipTrainInBacktest=true;
+		model.m_skipEvalInBacktest=false;
+		testBackward(model);
+		
+		model=new BaggingM5P();
+		model.m_skipTrainInBacktest=true;
+		model.m_skipEvalInBacktest=false;
+		testBackward(model);
+		
+		
 	}
 
 	protected void callTestBack() throws Exception {
