@@ -133,7 +133,7 @@ public class WekaDataSupplier implements GeneralDataSupplier {
 	
 		//如果传入的参数 dateString==null; 则取数据库中的最新数据，否则取相应交易日的数据
 		if (dateString==null){
-			target_view="t_stock_avgline_increment_zuixin_group7_optional";//"t_stock_avgline_increment_zuixin_group5_optional";//"t_stock_avgline_increment_zuixin_group4_optional";
+			target_view="t_stock_avgline_increment_zuixin_group8_optional";//"t_stock_avgline_increment_zuixin_group5_optional";//"t_stock_avgline_increment_zuixin_group4_optional";
 		}else{
 			target_view="v_increment_all";
 			date_cretiriaString=" where date='"+dateString+"'";
