@@ -67,7 +67,7 @@ public class BackTest {
 	protected double[] winrate_thresholds=null; //对于收益率优先算法的胜率筛选阀值
 
 	protected String m_startYear= "2008";
-	protected String m_endYearMonth="201703";
+	protected String m_endYearMonth="201704";
 	
 	protected String[] m_handSetSplitYear=new String[] {
 
@@ -146,7 +146,7 @@ public class BackTest {
 		m_handSetSplitYear=
 				new String[] {"201602","201603","201604","201605","201606","201607",
 						"201608","201609","201610","201611","201612",
-						"201701","201702","201703"};
+						"201701","201702","201703","201704"};
 		RUNNING_THREADS=15;
 		
 		//逐次构建新的模型

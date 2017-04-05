@@ -45,7 +45,7 @@ public class UpdateHistoryArffFile {
 
 	protected static void callRefreshInstances() throws Exception {
 		String startYearMonth="201601";
-		String endYearMonth="201703";
+		String endYearMonth="201704";
 
 		String originFilePrefix=AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT.m_arff_file_prefix;
 		
