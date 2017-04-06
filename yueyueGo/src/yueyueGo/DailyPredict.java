@@ -71,11 +71,11 @@ public class DailyPredict {
 			format=FullModelDataFormat.FULLMODEL_FORMAT;
 			//BaggingM5PFullModel当前使用的预测模型---------FullMODEL
 			classifierName=ClassifyUtility.BAGGING_M5P_FULLMODEL+ClassifyUtility.MULTI_PCA_SURFIX;
-			addModelData(classifierName,format,"\\extData2005-2016-BaggingM5PABFullModel-2016 MA ", "\\extData2005-2016-BaggingM5PABFullModel-201605 MA ");
+			addModelData(classifierName,format,"\\extData2005-2016-BaggingM5PABFullModel-201607 MA ", "\\extData2005-2016-BaggingM5PABFullModel-201607 MA ");
 
 			//BaggingJ48FullModel当前使用的预测模型---------FullMODEL
 			classifierName=ClassifyUtility.MYNN_MLP_FULLMODEL;
-			addModelData(classifierName,format,"\\extData2005-2016-myNNFullModel-2015 MA ", "\\extData2005-2016-myNNFullModel-201511 MA ");
+			addModelData(classifierName,format,"\\extData2005-2016-myNNFullModel-2016 MA ", "\\extData2005-2016-myNNFullModel-201603 MA ");
 		}
 	}
 
