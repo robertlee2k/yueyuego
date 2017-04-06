@@ -114,6 +114,8 @@ public class BackTest {
 
 			//调用回测函数回测
 			worker.callTestBack();
+			
+//			worker.callRefreshModelUseLatestData();
 //			worker.testForModelStore();
 			
 		} catch (Exception e) {
