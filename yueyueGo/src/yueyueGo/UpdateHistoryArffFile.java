@@ -29,13 +29,13 @@ public class UpdateHistoryArffFile {
 			worker.init();
 			
 			//重新创建ARFF文件
-//			callCreateTransInstances();
+			callCreateTransInstances();
 			
 //			//用最新的单次交易数据，更新原始的交易数据文件
 //			UpdateHistoryArffFile.callRefreshInstances();
 //
 //			//刷新最新月份的模型
-			worker.callRefreshModelUseLatestData();
+//			worker.callRefreshModelUseLatestData();
 			
 			
 		} catch (Exception e) {
@@ -685,17 +685,17 @@ public class UpdateHistoryArffFile {
 	IllegalStateException {
 		
 		//动量
-		String sourceFile=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group8\\v_onceyield_group8all_momentum2008_2017.txt";
-		GeneralInstances fullData = loadDataFromIncrementalCSVFile(sourceFile);			
+//		String sourceFile=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group9\\v_onceyield_group8all_momentum2008_2017.txt";
+//		GeneralInstances fullData = loadDataFromIncrementalCSVFile(sourceFile);			
 		
 		//传统
-//		String sourceFilePrefix=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group8\\v_onceyield_group8all";
-//		GeneralInstances fullData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2005_2010.txt");
-//		GeneralInstances addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2011_2017.txt");
-//		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullData);
-//		fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
+		String sourceFilePrefix=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group8\\v_onceyield_group9all";
+		GeneralInstances fullData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2005_2011.txt");
+		GeneralInstances addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2012_2017.txt");
+		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullData);
+		fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
 		
-//		System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
+		System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
 //		addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2010_2012.txt");
 //		fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
 //		System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());

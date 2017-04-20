@@ -10,8 +10,8 @@ import yueyueGo.utility.FormatUtility;
 public abstract class ArffFormat {
 	
 	// 常量定义
-	public static final int LEGACY_FORMAT=7;
-	public static final int CURRENT_FORMAT=8;
+	public static final int LEGACY_FORMAT=8;
+	public static final int CURRENT_FORMAT=9;
 
 
 	public static final String IS_HS300 = "ishs300";

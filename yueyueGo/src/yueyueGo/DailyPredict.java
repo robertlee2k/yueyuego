@@ -49,11 +49,13 @@ public class DailyPredict {
 			//旧格式预测模型
 			//BaggingM5P上次使用的预测模型
 			classifierName=ClassifyUtility.BAGGING_M5P+ClassifyUtility.MULTI_PCA_SURFIX;
-			addModelData(classifierName,format,"\\extData2005-2016-baggingM5P-2016 MA ","\\extData2005-2016-baggingM5P-201602 MA ");
-
+//			addModelData(classifierName,format,"\\extData2005-2016-baggingM5P-2016 MA ","\\extData2005-2016-baggingM5P-201602 MA ");
+			addModelData(classifierName,format,"\\extData2005-2016-baggingM5P-201604 MA ","\\extData2005-2016-baggingM5P-201606 MA ");
+			
 			//adaboost上次使用的预测模型
 			classifierName=ClassifyUtility.ADABOOST;
-			addModelData(classifierName,format,"\\extData2005-2016-adaboost-2016 MA ","\\extData2005-2016-adaboost-201602 MA ");
+//			addModelData(classifierName,format,"\\extData2005-2016-adaboost-2016 MA ","\\extData2005-2016-adaboost-201602 MA ");
+			addModelData(classifierName,format,"\\extData2005-2016-adaboost-201604 MA ","\\extData2005-2016-adaboost-201606 MA ");
 			
 			//=========================EXT FORMAT 部分========================
 			format=ArffFormat.CURRENT_FORMAT;
