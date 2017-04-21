@@ -58,7 +58,7 @@ public class AvgLineDataFormat extends ArffFormat {
 				//以下为第九组新增
 				"zhangdiefu_gupiao_gears",
 				"leijizhangdiefu5_gupiao_gears","leijizhangdiefu10_gupiao_gears","leijizhangdiefu20_gupiao_gears","leijizhangdiefu30_gupiao_gears","leijizhangdiefu60_gupiao_gears",
-				"amount_gupiao_gears",
+				"mount_gupiao_gears",
 				"leijiamount5_gupiao_gears","leijiamount10_gupiao_gears","leijiamount20_gupiao_gears","leijiamount30_gupiao_gears","leijiamount60_gupiao_gears",
 				"zhishu_zhangdiefu"
 
