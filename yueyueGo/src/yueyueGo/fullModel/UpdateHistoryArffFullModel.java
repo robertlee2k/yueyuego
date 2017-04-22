@@ -96,13 +96,13 @@ public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 
 
 	private static GeneralInstances mergeSrcFullModelFiles() throws Exception,	IllegalStateException {
-		String sourceFilePrefix=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group8\\v_onceyield_group8all_optional";
-		GeneralInstances fullData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2005_2010.txt");
+		String sourceFilePrefix=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group9\\v_onceyield_group9all_optional";
+		GeneralInstances fullData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2005_2011.txt");
 
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullData);
 		GeneralInstances addData = null;
 
-		addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2011_2017.txt");
+		addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2012_20170331.txt");
 		fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
 		System.out.println("FULLMODEL...merged another File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
 
