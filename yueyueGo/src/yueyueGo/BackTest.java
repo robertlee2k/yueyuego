@@ -664,6 +664,8 @@ public class BackTest {
 	
 		int size=0;
 		int pos=0;
+		
+		//size计算有bug interval=3时201704会多算出一个位置导致null
 		size=(currentYear-startYear)*(12/interval)+(currentMonth-1)/interval+1-1/interval; //当前月是没有数据的，最新数据是上月的
 		result=new String[size];
 		pos=0;
