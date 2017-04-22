@@ -67,7 +67,7 @@ public class BackTest {
 	protected double[] winrate_thresholds=null; //对于收益率优先算法的胜率筛选阀值
 
 	protected String m_startYear= "2008";
-	protected String m_endYearMonth="201704";
+	protected String m_endYearMonth="201704"; //结尾月一般是当前月，这个月是没有数据的，最新数据是上月的
 	
 	protected String[] m_handSetSplitYear=new String[] {
 
@@ -665,8 +665,9 @@ public class BackTest {
 		int size=0;
 		int pos=0;
 		
-		//size计算有bug interval=3时201704会多算出一个位置导致null
-		size=(currentYear-startYear)*(12/interval)+(currentMonth-1)/interval+1-1/interval; //当前月是没有数据的，最新数据是上月的
+		//计算有多少个周期，当前月是没有数据的，最新数据是上月的currentMonth-1,然后再去减1的原因是超过了interval才会周期进位加一（比如201703除以interval 3 为1，但不进位）
+		size=(currentYear-startYear)*(12/interval)+(currentMonth-1-1)/interval+1; 
+		
 		result=new String[size];
 		pos=0;
 		for (int year=startYear;year<=currentYear;year++){
