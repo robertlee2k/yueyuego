@@ -11,6 +11,7 @@ import yueyueGo.databeans.WekaInstances;
 import yueyueGo.utility.ClassifyUtility;
 import yueyueGo.utility.FormatUtility;
 
+
 //1.  20160912结果
 //  全市场10-50单元格 ，收益率优先年平均（非年化）21%/20%/18%/17%：累计净值 3.75、3.37、3.24、3.20
 // 胜率优先的明显弱于收益率优先， 累计净值在2-3之间

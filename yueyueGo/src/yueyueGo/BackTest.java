@@ -664,10 +664,8 @@ public class BackTest {
 	
 		int size=0;
 		int pos=0;
-		
 		//计算有多少个周期，当前月是没有数据的，最新数据是上月的currentMonth-1,然后再去减1的原因是超过了interval才会周期进位加一（比如201703除以interval 3 为1，但不进位）
 		size=(currentYear-startYear)*(12/interval)+(currentMonth-1-1)/interval+1; 
-		
 		result=new String[size];
 		pos=0;
 		for (int year=startYear;year<=currentYear;year++){
