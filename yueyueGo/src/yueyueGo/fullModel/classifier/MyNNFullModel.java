@@ -80,7 +80,7 @@ public class MyNNFullModel extends MyNNClassifier {
 		m_evalDataSplitMode=ModelStore.USE_YEAR_DATA_FOR_EVAL;//覆盖父类，设定模型和评估间隔为12个月
 		
 		m_thread=EnvConstants.CPU_CORE_NUMBER/2;
-		m_learningRate=0.1; //缺省用
+		m_learningRate=0.03; //缺省用
 		
 	}
 		

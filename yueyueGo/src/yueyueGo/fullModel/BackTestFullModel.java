@@ -29,7 +29,8 @@ public class BackTestFullModel extends BackTest {
 	//覆盖父类
 	public void init() {
 		m_handSetSplitYear=new String[] {
-			//"201610"	
+				//手工指定短线模型所回测的范围
+			"201704","201604"
 		};
 		
 		STRAGEY_NAME="短线策略";

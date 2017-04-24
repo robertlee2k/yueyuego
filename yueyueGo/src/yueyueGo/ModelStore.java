@@ -346,30 +346,21 @@ public class ModelStore {
 			
 			Object savedHeaderObject=v.get(1);
 			GeneralInstances header =null;
-//			if (savedHeaderObject instanceof DataInstances){
 			header=(DataInstances)savedHeaderObject;
-//			}else{ // interface化之前的旧模型的legacy数据强转为Instances
-//				header=new DataInstances((Instances)savedHeaderObject);
-//			}
 			System.out.println("Classifier Model and Format Loaded from: "+ modelFileName);
 			m_model=model;
 			m_modelFormat=header;
 			if ( m_modelYearSplit!=null ){ //每日预测时跳过
 				//如果model文件里存有构建model的数据时间段，则校验之
 				String savedModelYearSplit=null;
-				try {
-					savedModelYearSplit=(String)v.get(2);
-				}catch (Exception ee){
-					//TODO 因为201701之前的构建模型里没有存入这个数据，对旧数据兼容的目的来说，可以忽略
-					//ignore it;
+				savedModelYearSplit=(String)v.get(2);
+//				if (savedModelYearSplit!=null){ //如果有数据，则校验之 20170424注释掉，因为目前模型里应该都存有这个校验位
+				if (savedModelYearSplit.equals(this.m_modelYearSplit)==false){
+					throw new Exception(" savedModelYearSplit in model file="+savedModelYearSplit+" while m_modelYearSplit="+m_modelYearSplit);
+				}else{
+					System.out.println(" modelYearSplit verified for loaded model ");
 				}
-				if (savedModelYearSplit!=null){ //如果有数据，则校验之
-					if (savedModelYearSplit.equals(this.m_modelYearSplit)==false){
-						throw new Exception(" savedModelYearSplit in model file="+savedModelYearSplit+" while m_modelYearSplit="+m_modelYearSplit);
-					}else{
-						System.out.println(" modelYearSplit verified for loaded model ");
-					}
-				}
+//				}
 			}
 			return m_model;
 		} catch(IOException e){
