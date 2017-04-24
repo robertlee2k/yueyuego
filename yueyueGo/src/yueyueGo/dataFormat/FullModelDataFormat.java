@@ -2,7 +2,7 @@ package yueyueGo.dataFormat;
 
 public class FullModelDataFormat extends ArffFormat {
 	
-	public static final int FULLMODEL_FORMAT=3;
+	public static final int FULLMODEL_FORMAT=1009;
 	
 	
 //	protected final static String FULL_MODEL_AVG_LINE = "chicang_days"; // 输入输出文件中的“持仓天数”名称
