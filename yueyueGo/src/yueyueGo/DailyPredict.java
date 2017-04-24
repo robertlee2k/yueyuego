@@ -62,11 +62,11 @@ public class DailyPredict {
 
 			//BaggingM5P当前使用的预测模型
 			classifierName=ClassifyUtility.BAGGING_M5P+ClassifyUtility.MULTI_PCA_SURFIX;
-			addModelData(classifierName,format,"\\extData2005-2016-baggingM5P-201604 MA ","\\extData2005-2016-baggingM5P-201606 MA ");
+			addModelData(classifierName,format,"\\trans20052017(9)-baggingM5P-201604 MA ","\\trans20052017(9)-baggingM5P-201606 MA ");
 
 			//adaboost当前使用的预测模型
 			classifierName=ClassifyUtility.ADABOOST;
-			addModelData(classifierName,format,"\\extData2005-2016-adaboost-201604 MA ","\\extData2005-2016-adaboost-201606 MA ");
+			addModelData(classifierName,format,"\\trans20052017(9)-adaboost-201604 MA ","\\trans20052017(9)-adaboost-201606 MA ");
 			
 		}else if(EnvConstants.FULL_MODEL_ROOT_DIR.equals(type)){
 			// fullmodel不保留legacy
@@ -433,16 +433,18 @@ public class DailyPredict {
 	}
 
 	private static String getDirPrefixByType(int modelFormatType){
-		switch (modelFormatType) {
-		case ArffFormat.LEGACY_FORMAT:
-			return "\\00-legacy\\";
-		case ArffFormat.CURRENT_FORMAT:
-			return "";
-		case FullModelDataFormat.FULLMODEL_FORMAT:
-			return "";
-		default:
-			return "";
-		}
+//		switch (modelFormatType) {
+//		case ArffFormat.LEGACY_FORMAT:
+//			return "\\00-legacy\\";
+//		case ArffFormat.CURRENT_FORMAT:
+//			return "";
+//		case FullModelDataFormat.FULLMODEL_FORMAT:
+//			return "";
+//		default:
+//			return "";
+//		}
+		//legacy与current model 合并到统一目录下，用文件名区分
+		return "";
 	}
 	
 	//这是对增量数据nominal label的处理 （因为增量数据中的nominal数据，label会可能不全）
@@ -489,10 +491,10 @@ public class DailyPredict {
 		String formatFile=null;
 		switch (formatType) {
 		case ArffFormat.LEGACY_FORMAT: //可以使用同一个Format文件，只是需要将无关字段去掉
-			formatFile=ARFF_FORMAT.m_arff_file_prefix+"-format-legacy.arff";
+			formatFile=ARFF_FORMAT.m_arff_file_prefix+"("+ArffFormat.LEGACY_FORMAT+")-format.arff";
 			break;
 		case ArffFormat.CURRENT_FORMAT:
-			formatFile=ARFF_FORMAT.m_arff_file_prefix+"-format.arff";
+			formatFile=ARFF_FORMAT.m_arff_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")-format.arff";
 			break;
 		case FullModelDataFormat.FULLMODEL_FORMAT:
 			formatFile=((FullModelDataFormat)ARFF_FORMAT).m_arff_file_prefix+"-format.arff";
