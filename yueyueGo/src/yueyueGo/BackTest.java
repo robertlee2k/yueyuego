@@ -693,8 +693,8 @@ public class BackTest {
 		workPath+=ARFF_FORMAT.m_arff_file_prefix+"\\";
 		FileUtility.mkdirIfNotExist(workPath);
 		
-		//TODO 常量化
-		String modelPrefix="extData2005-2016";
+
+		String modelPrefix=ARFF_FORMAT.m_arff_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")-"; //"extData2005-2016";
 		return workPath+modelPrefix;
 	}
 

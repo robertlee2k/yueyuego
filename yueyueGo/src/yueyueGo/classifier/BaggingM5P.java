@@ -228,6 +228,45 @@ import yueyueGo.utility.ClassifyUtility;
 //shouyilv average for full market=0.6578%
 //selected shouyilv average for full market =2.0902% count=29233
 
+
+//***************************************CLASSIFY DATE=2017-04-24 
+//ClassifyIdentity=baggingM5P-multiPCA
+//m_skipTrainInBacktest=true
+//m_skipEvalInBacktest=false
+//m_noCaculationAttrib=true
+//m_removeSWData=true
+//m_positiveLine=0.0
+//m_modelDataSplitMode=9
+//m_modelEvalFileShareMode=3
+//modelArffFormat=9
+//SAMPLE_LOWER_LIMIT={0.03,0.03,0.03,0.03,0.03,}
+//SAMPLE_UPPER_LIMIT={0.06,0.06,0.07,0.08,0.09,}
+//LIFT_UP_TARGET=1.8
+//***************************************
+//......................
+//===============================output summary===================================== for : baggingM5P-multiPCA format=9
+//Monthly selected_TPR mean: 29.21% standard deviation=23.88% Skewness=0.88 Kurtosis=0.46
+//Monthly selected_LIFT mean : 1.01
+//Monthly selected_positive summary: 25,038
+//Monthly selected_count summary: 68,738
+//Monthly selected_shouyilv average: 0.70% standard deviation=6.28% Skewness=2.44 Kurtosis=12.52
+//Monthly total_shouyilv average: 0.74% standard deviation=5.92% Skewness=3.14 Kurtosis=16.5
+//mixed selected positive rate: 36.43%
+//Monthly summary_judge_result summary: good number= 316 bad number=239
+//===============================end of summary=====================================for : baggingM5P-multiPCA format=9
+//......................
+//-----now output continuous predictions----------baggingM5P-multiPCA (filtered by nominal: adaboost)
+//incoming resultData size, row=1548274 column=6
+//incoming referenceData size, row=1548274 column=6
+//Left data loaded, row=1831136 column=12
+//number of results merged and processed: 1548274
+//###### Finally selected count=30995  ######
+// result changed because of reference data not matched=37743 while good change number=25012
+// good ratio=66.27% average changed shouyilv=1.40%
+// @ WINRATE_FILTER_FOR_SHOUYILV={40.00%,40.00%,35.00%,35.00%,30.00%, }
+//number of records for full market=1548274
+//shouyilv average for full market=0.5761%
+//selected shouyilv average for full market =2.0438% count=30995
 public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunning{
 	/**
 	 * 

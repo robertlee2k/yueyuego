@@ -197,6 +197,46 @@ import yueyueGo.utility.FormatUtility;
 //selected shouyilv average for full market =2.5346% count=20088
 //-----end of test backward------
 
+
+//***************************************CLASSIFY DATE=2017-04-24 
+//ClassifyIdentity=adaboost
+//m_skipTrainInBacktest=true
+//m_skipEvalInBacktest=false
+//m_noCaculationAttrib=true
+//m_removeSWData=true
+//m_positiveLine=0.0
+//m_modelDataSplitMode=9
+//m_modelEvalFileShareMode=3
+//modelArffFormat=9
+//SAMPLE_LOWER_LIMIT={0.03,0.03,0.03,0.03,0.03,}
+//SAMPLE_UPPER_LIMIT={0.06,0.06,0.07,0.08,0.09,}
+//LIFT_UP_TARGET=1.8
+//***************************************
+//......................
+//===============================output summary===================================== for : adaboost format=9
+//Monthly selected_TPR mean: 31.33% standard deviation=21.55% Skewness=0.64 Kurtosis=-0.15
+//Monthly selected_LIFT mean : 1.1
+//Monthly selected_positive summary: 21,062
+//Monthly selected_count summary: 57,789
+//Monthly selected_shouyilv average: 1.01% standard deviation=6.55% Skewness=2.71 Kurtosis=11.99
+//Monthly total_shouyilv average: 0.74% standard deviation=5.92% Skewness=3.14 Kurtosis=16.5
+//mixed selected positive rate: 36.45%
+//Monthly summary_judge_result summary: good number= 321 bad number=234
+//===============================end of summary=====================================for : adaboost format=9
+//......................
+//-----now output nominal predictions----------adaboost (filtered by continuous: baggingM5P-multiPCA)
+//incoming resultData size, row=1548274 column=6
+//incoming referenceData size, row=1548274 column=6
+//Left data loaded, row=1831136 column=12
+//number of results merged and processed: 1548274
+//###### Finally selected count=21742  ######
+// result changed because of reference data not matched=36047 while good change number=26995
+// good ratio=74.89% average changed shouyilv=1.13%
+// @ SHOUYILV_FILTER_FOR_WINRATE={1.00%,2.00%,3.00%,3.00%,4.00%, }
+//number of records for full market=1548274
+//shouyilv average for full market=0.5761%
+//selected shouyilv average for full market =1.9868% count=21742
+//-----end of test backward------
 public class AdaboostClassifier extends NominalClassifier {
 
 	/**
