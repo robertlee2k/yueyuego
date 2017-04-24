@@ -694,7 +694,7 @@ public class BackTest {
 		FileUtility.mkdirIfNotExist(workPath);
 		
 
-		String modelPrefix=ARFF_FORMAT.m_arff_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")-"; //"extData2005-2016";
+		String modelPrefix=ARFF_FORMAT.m_arff_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")"; //"extData2005-2016";
 		return workPath+modelPrefix;
 	}
 
