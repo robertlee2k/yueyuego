@@ -30,7 +30,7 @@ public class BackTestFullModel extends BackTest {
 	public void init() {
 		m_handSetSplitYear=new String[] {
 				//手工指定短线模型所回测的范围
-			"201704","201604"
+			"201703"
 		};
 		
 		STRAGEY_NAME="短线策略";
@@ -102,9 +102,9 @@ public class BackTestFullModel extends BackTest {
 			cModel.m_skipEvalInBacktest=true;
 		}
 
-//		GeneralInstances continuousResult=testBackward(cModel);
+		GeneralInstances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
-		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
+//		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 
 		//按二分类器回测历史数据
 //		BaggingJ48FullModel nModel=new BaggingJ48FullModel();
@@ -245,16 +245,15 @@ public class BackTestFullModel extends BackTest {
 		
 		if (applyToMaModelInTestBack==false){
 			//插入一列“均线策略”为计算程序使用
-			//TODO   常量化
 			mergedResult=instanceProcessor.AddAttributeWithValue(mergedResult, AvgLineDataFormat.SELECTED_AVGLINE,"numeric","0");
 		}
 		return mergedResult;
 
-		
-
 	}
+
+	
 	//设置历史回测的目录
-	//TODO 子类fullModel的这个函数需要重写，将fullModel的处理统一化
+	//TODO 子类fullModel的这个函数需要重写，将fullModel的处理统一化 （因为它跟父类只有注释掉的建子目录那行不一样）
 	protected String prepareModelWorkPath(BaseClassifier clModel){
 		String workPath=null;
 		if (clModel instanceof ContinousClassifier){
@@ -262,10 +261,12 @@ public class BackTestFullModel extends BackTest {
 		}else if (clModel instanceof NominalClassifier){
 			workPath=AppContext.getNOMINAL_CLASSIFIER_DIR()+clModel.getIdentifyName()+"\\";
 		}
-//		workPath+=ARFF_FORMAT.TRANSACTION_ARFF_PREFIX+"\\";
+		//根据不同的原始数据（策略）设置不同的模型工作目录
+//		workPath+=ARFF_FORMAT.m_arff_file_prefix+"\\";
 		FileUtility.mkdirIfNotExist(workPath);
 		
-		String modelPrefix="extData2005-2016";
+
+		String modelPrefix=ARFF_FORMAT.m_arff_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")"; //"extData2005-2016";
 		return workPath+modelPrefix;
 	}
 }
