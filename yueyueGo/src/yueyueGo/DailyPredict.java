@@ -501,7 +501,7 @@ public class DailyPredict {
 			formatFile=ARFF_FORMAT.m_arff_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")-format.arff";
 			break;
 		case FullModelDataFormat.FULLMODEL_FORMAT:
-			formatFile=((FullModelDataFormat)ARFF_FORMAT).m_arff_file_prefix+"-format.arff";
+			formatFile=((FullModelDataFormat)ARFF_FORMAT).m_arff_file_prefix+"("+FullModelDataFormat.FULLMODEL_FORMAT+")-format.arff";
 			break;			
 		default:
 			throw new Exception("invalid arffFormat type");
