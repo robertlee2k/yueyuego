@@ -152,21 +152,23 @@ public class DailyPredict {
 //		//新格式的神经网络预测
 //		MyNNClassifier nnModel=new MyNNClassifier();
 //		GeneralInstances nnInstances=predictWithDB(nnModel);
-		System.out.println("******LEGACY*********** output LEGACY  prediction results**************LEGACY**********");
-		//旧格式的bagging m5p预测 
-		BaggingM5P cOldBagModel=new BaggingM5P();
-		cOldBagModel.m_usePCA=true;
-		cOldBagModel.setModelArffFormat(ArffFormat.LEGACY_FORMAT);
-		GeneralInstances baggingOldInstances=predictWithDB(cOldBagModel);
-
-		//Adaboost(使用PCA版本和计算字段）
-		AdaboostClassifier adaOldModel=new AdaboostClassifier();
-		adaOldModel.m_usePCA=true;
-		adaOldModel.m_positiveLine=0;
-		adaOldModel.setModelArffFormat(ArffFormat.LEGACY_FORMAT);
-		GeneralInstances adaboostOldInstances=predictWithDB(adaOldModel);		
-		combinePreditions(cOldBagModel, baggingOldInstances, adaOldModel, adaboostOldInstances);
-		System.out.println("******LEGACY*********** end of output LEGACY prediction results**********LEGACY**************");
+		
+//		//数据库迁移，暂时停止第八组数据的预测
+//		System.out.println("******LEGACY*********** output LEGACY  prediction results**************LEGACY**********");
+//		//旧格式的bagging m5p预测 
+//		BaggingM5P cOldBagModel=new BaggingM5P();
+//		cOldBagModel.m_usePCA=true;
+//		cOldBagModel.setModelArffFormat(ArffFormat.LEGACY_FORMAT);
+//		GeneralInstances baggingOldInstances=predictWithDB(cOldBagModel);
+//
+//		//Adaboost(使用PCA版本和计算字段）
+//		AdaboostClassifier adaOldModel=new AdaboostClassifier();
+//		adaOldModel.m_usePCA=true;
+//		adaOldModel.m_positiveLine=0;
+//		adaOldModel.setModelArffFormat(ArffFormat.LEGACY_FORMAT);
+//		GeneralInstances adaboostOldInstances=predictWithDB(adaOldModel);		
+//		combinePreditions(cOldBagModel, baggingOldInstances, adaOldModel, adaboostOldInstances);
+//		System.out.println("******LEGACY*********** end of output LEGACY prediction results**********LEGACY**************");
 		
 		
 		//新格式的bagging m5p预测  (使用PCA版本和计算字段）
@@ -180,10 +182,10 @@ public class DailyPredict {
 		adaModel.m_positiveLine=0;
 		GeneralInstances adaboostInstances=predictWithDB(adaModel);		
 
-		System.out.println("******LEGACY*********** output LEGACY  prediction results**************LEGACY**********");
-		cOldBagModel.outputClassifySummary();
-		adaOldModel.outputClassifySummary();
-		System.out.println("******LEGACY*********** end of output LEGACY prediction results**********LEGACY**************");
+//		System.out.println("******LEGACY*********** output LEGACY  prediction results**************LEGACY**********");
+//		cOldBagModel.outputClassifySummary();
+//		adaOldModel.outputClassifySummary();
+//		System.out.println("******LEGACY*********** end of output LEGACY prediction results**********LEGACY**************");
 
 		System.out.println("***************** now output prediction results************************");
 //		lBagModel.outputClassifySummary();

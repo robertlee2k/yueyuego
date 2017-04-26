@@ -252,8 +252,7 @@ public class BackTestFullModel extends BackTest {
 	}
 
 	
-	//设置历史回测的目录
-	//TODO 子类fullModel的这个函数需要重写，将fullModel的处理统一化 （因为它跟父类只有注释掉的建子目录那行不一样）
+	//override 父类，设置历史回测的目录
 	protected String prepareModelWorkPath(BaseClassifier clModel){
 		String workPath=null;
 		if (clModel instanceof ContinousClassifier){
@@ -266,7 +265,7 @@ public class BackTestFullModel extends BackTest {
 		FileUtility.mkdirIfNotExist(workPath);
 		
 
-		String modelPrefix=ARFF_FORMAT.m_arff_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")"; //"extData2005-2016";
+		String modelPrefix=ARFF_FORMAT.m_arff_file_prefix+"("+FullModelDataFormat.FULLMODEL_FORMAT+")"; //"extData2005-2016";
 		return workPath+modelPrefix;
 	}
 }
