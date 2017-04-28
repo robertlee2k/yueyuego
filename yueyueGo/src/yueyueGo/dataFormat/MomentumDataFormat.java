@@ -49,10 +49,16 @@ public class MomentumDataFormat extends ArffFormat {
 				"kurtosis5_zhishu","kurtosis10_zhishu","kurtosis20_zhishu","kurtosis30_zhishu","kurtosis60_zhishu",
 				"HV5_gupiao","HV10_gupiao","HV20_gupiao","HV30_gupiao","HV60_gupiao",
 				"HV5_zhishu","HV10_zhishu","HV20_zhishu","HV30_zhishu","HV60_zhishu",
-				"leijizhangdiefu5_gupiao_new","leijizhangdiefu10_gupiao_new","leijizhangdiefu20_gupiao_new","leijizhangdiefu30_gupiao_new","leijizhangdiefu60_gupiao_new",
+				"leijizhangdiefu5_gupiao","leijizhangdiefu10_gupiao","leijizhangdiefu20_gupiao","leijizhangdiefu30_gupiao","leijizhangdiefu60_gupiao",
 				"leijizhangdiefu5_zhishu","leijizhangdiefu10_zhishu","leijizhangdiefu20_zhishu","leijizhangdiefu30_zhishu","leijizhangdiefu60_zhishu",
 				"jun_huanhoulv_bilv5_gupiao","jun_huanhoulv_bilv10_gupiao","jun_huanhoulv_bilv20_gupiao","jun_huanhoulv_bilv30_gupiao",	"jun_huanhoulv_bilv60_gupiao",
-				"junliang_bilv5_zhishu","junliang_bilv10_zhishu","junliang_bilv20_zhishu","junliang_bilv30_zhishu","junliang_bilv60_zhishu"
+				"junliang_bilv5_zhishu","junliang_bilv10_zhishu","junliang_bilv20_zhishu","junliang_bilv30_zhishu","junliang_bilv60_zhishu",
+				//第九组新增
+				"zhangdiefu_gupiao_gears",
+				"leijizhangdiefu5_gupiao_gears","leijizhangdiefu10_gupiao_gears","leijizhangdiefu20_gupiao_gears","leijizhangdiefu30_gupiao_gears","leijizhangdiefu60_gupiao_gears",
+				"mount_gupiao_gears",
+				"leijiamount5_gupiao_gears","leijiamount10_gupiao_gears","leijiamount20_gupiao_gears","leijiamount30_gupiao_gears","leijiamount60_gupiao_gears",
+				"zhishu_zhangdiefu"
 
 		};
 		m_model_attribute_format_legacy=new String[]{};
