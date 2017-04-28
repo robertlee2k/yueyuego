@@ -5,7 +5,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 
 import yueyueGo.dataFormat.ArffFormat;
-import yueyueGo.dataFormat.AvgLineDataFormat;
+import yueyueGo.dataFormat.MomentumDataFormat;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.dataProcessor.InstanceHandler;
 import yueyueGo.databeans.DataInstance;
@@ -20,8 +20,8 @@ import yueyueGo.utility.FormatUtility;
 
 public class UpdateHistoryArffFile {
 	protected static ArffFormat ARFF_FORMAT=
-		//	new MomentumDataFormat();
-			new AvgLineDataFormat(); //当前所用数据文件格式 
+			new MomentumDataFormat();
+//			new AvgLineDataFormat(); //当前所用数据文件格式 
 
 	public static void main(String[] args) {
 		try {
@@ -685,15 +685,15 @@ public class UpdateHistoryArffFile {
 	IllegalStateException {
 		
 		//动量
-//		String sourceFile=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group9\\v_onceyield_group8all_momentum2008_2017.txt";
-//		GeneralInstances fullData = loadDataFromIncrementalCSVFile(sourceFile);			
+		String sourceFile=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group9\\onceyield_group9all_momentum2005_2017.txt";
+		GeneralInstances fullData = loadDataFromIncrementalCSVFile(sourceFile);			
 		
 		//传统
-		String sourceFilePrefix=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group9\\v_onceyield_group9all";
-		GeneralInstances fullData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2005_2011.txt");
-		GeneralInstances addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2012_2017.txt");
-		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullData);
-		fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
+//		String sourceFilePrefix=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group9\\v_onceyield_group9all";
+//		GeneralInstances fullData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2005_2011.txt");
+//		GeneralInstances addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2012_2017.txt");
+//		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullData);
+//		fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
 		
 		System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
 //		addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2010_2012.txt");
