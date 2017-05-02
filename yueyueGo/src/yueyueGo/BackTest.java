@@ -390,7 +390,7 @@ public class BackTest {
 			threadResult.removeAllElements(); //释放内存
 		}
         
-		FileUtility.write(BACKTEST_RESULT_DIR+clModel.getIdentifyName()+"-monthlySummary.csv",  modelSummaries.getEvaluationSummary(), "GBK");
+		FileUtility.write(BACKTEST_RESULT_DIR+ARFF_FORMAT.m_arff_file_prefix+"-"+clModel.getIdentifyName()+"-Summary.csv",  modelSummaries.getEvaluationSummary(), "GBK");
 		
 		//保存评估结果至文件
 		saveBacktestResultFile(result,clModel.getIdentifyName());
@@ -539,10 +539,10 @@ public class BackTest {
 
 
 	private void saveBacktestResultFile(GeneralInstances result,String classiferName) throws IOException{
-		DataIOHandler.getSaver().SaveDataIntoFile(result, BACKTEST_RESULT_DIR+"回测结果-"+ classiferName+".arff" );
+		DataIOHandler.getSaver().SaveDataIntoFile(result, BACKTEST_RESULT_DIR+"回测结果-"+ARFF_FORMAT.m_arff_file_prefix+"-"+ classiferName+".arff" );
 	}
 	protected GeneralInstances loadBackTestResultFromFile(String classiferName) throws Exception{
-		GeneralInstances result=DataIOHandler.getSuppier().loadDataFromFile(BACKTEST_RESULT_DIR+"回测结果-"+ classiferName+".arff" );
+		GeneralInstances result=DataIOHandler.getSuppier().loadDataFromFile(BACKTEST_RESULT_DIR+"回测结果-"+ARFF_FORMAT.m_arff_file_prefix+"-"+ classiferName+".arff" );
 		return result;
 	}
 
@@ -560,7 +560,7 @@ public class BackTest {
 		GeneralInstances fullMarketSelected=instanceProcessor.getInstancesSubset(fullOutput, WekaInstanceProcessor.WEKA_ATT_PREFIX +pos+" = 1");
 		shouyilvAttribute=fullMarketSelected.attribute(ArffFormat.SHOUYILV);
 		System.out.println("selected shouyilv average for full market ="+FormatUtility.formatPercent(fullMarketSelected.meanOrMode(shouyilvAttribute),2,4)+" count="+fullMarketSelected.numInstances());
-		dataSaver.saveCSVFile(fullMarketSelected, BACKTEST_RESULT_DIR+"选股-"+ classiferName+"-full" + RESULT_EXTENSION );
+		dataSaver.saveCSVFile(fullMarketSelected, BACKTEST_RESULT_DIR+"选股-"+ ARFF_FORMAT.m_arff_file_prefix+"-"+classiferName+ RESULT_EXTENSION );
 		//保存评估结果至数据库
 //		DataIOHandler.getSaver().saveToDatabase(fullMarketSelected, "result_"+classiferName);
 		
