@@ -89,8 +89,7 @@ public class M5PABClassifier extends ContinousClassifier {
 	
 	@Override
 	protected void initializeParams() {
-		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = false;
+
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 		
 		classifierName=ClassifyUtility.M5PAB;

@@ -62,8 +62,7 @@ public class BaggingM5PFullModel extends BaggingM5P {
 	private static final long serialVersionUID = 8505755558382340493L;
 	@Override
 	protected void initializeParams() {
-		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = false;
+
 		m_policySubGroup = new String[]{""};
 		modelArffFormat=FullModelDataFormat.FULLMODEL_FORMAT; //这个模型缺省是为FULLMODEL用的格式
 		
@@ -83,9 +82,9 @@ public class BaggingM5PFullModel extends BaggingM5P {
 	public int recommendRunningThreads(int runningThreads){
 		int recommendThreads=1; //缺省值
 		if (runningThreads>1){ //如果外部调用者是多线程运行
-			if (this.m_skipTrainInBacktest==false){ //如果要重新构建模型，那最多1个线程
+			if (this.is_skipTrainInBacktest()==false){ //如果要重新构建模型，那最多1个线程
 				recommendThreads=1;
-			}else if (this.m_skipEvalInBacktest==false){ //如果不需要构建模型，但需要重新评估模型，那将并发数简单设为2
+			}else if (this.is_skipEvalInBacktest()==false){ //如果不需要构建模型，但需要重新评估模型，那将并发数简单设为2
 				recommendThreads=2;
 			}else{ //如果只需要回测，那将并发数折半。
 				recommendThreads=runningThreads/2;

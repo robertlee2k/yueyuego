@@ -46,7 +46,7 @@ public class ProcessFlowExecutor implements Callable<String> {
 		
 
 		//是否build model 
-		if (clModel.m_skipTrainInBacktest == false) {
+		if (clModel.is_skipTrainInBacktest() == false) {
 			System.out.println("start to build model");
 			String msg=clModel.validateTrainingData(dataTags[0]);
 			if (msg!=null){
@@ -70,7 +70,7 @@ public class ProcessFlowExecutor implements Callable<String> {
 		model=null; //释放内存
 
 		//是否需要重做评估阶段
-		if (clModel.m_skipEvalInBacktest == false) {
+		if (clModel.is_skipEvalInBacktest() == false) {
 			String msg=clModel.validateEvalData(dataTags[1]);
 			if (msg!=null){
 				throw new Exception(msg);

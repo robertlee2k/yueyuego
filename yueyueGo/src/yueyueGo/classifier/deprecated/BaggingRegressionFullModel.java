@@ -13,8 +13,7 @@ public class BaggingRegressionFullModel extends BaggingLinearRegression {
 	private static final long serialVersionUID = 4153988848299621988L;
 	@Override
 	protected void initializeParams() {
-		m_skipTrainInBacktest = false;
-		m_skipEvalInBacktest = false;
+
 		m_policySubGroup = new String[]{""};
 		modelArffFormat=FullModelDataFormat.FULLMODEL_FORMAT; //这个模型缺省是为FULLMODEL用的格式
 		

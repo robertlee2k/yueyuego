@@ -61,8 +61,7 @@ public class BaggingLinearRegression extends ContinousClassifier implements Parr
 
 	@Override
 	protected void initializeParams() {
-		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = true;
+
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 		classifierName=ClassifyUtility.BAGGING_LINEAR_REGRESSION;	
 		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
@@ -116,9 +115,9 @@ public class BaggingLinearRegression extends ContinousClassifier implements Parr
 	public int recommendRunningThreads(int runningThreads){
 		int recommendThreads=0; 
 		if (runningThreads>1){ //如果外部调用者是多线程运行
-			if (this.m_skipTrainInBacktest==false){ //如果要重新构建模型，外部线程
+			if (this.is_skipTrainInBacktest()==false){ //如果要重新构建模型，外部线程
 				recommendThreads=runningThreads/3;
-			}else if (this.m_skipEvalInBacktest==false){ //如果不需要构建模型，但需要重新评估模型，那将并发数折半
+			}else if (this.is_skipEvalInBacktest()==false){ //如果不需要构建模型，但需要重新评估模型，那将并发数折半
 				recommendThreads=runningThreads/2;
 			}else{ //如果只需要回测，简单减一后返回。
 				recommendThreads=runningThreads-1;

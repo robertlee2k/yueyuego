@@ -13,8 +13,7 @@ public class M5PABFullModel extends M5PABClassifier {
 
 	@Override
 	protected void initializeParams() {
-		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = true;
+
 		m_policySubGroup = new String[]{""};
 		modelArffFormat=FullModelDataFormat.FULLMODEL_FORMAT; //这个模型缺省是为FULLMODEL用的格式
 		

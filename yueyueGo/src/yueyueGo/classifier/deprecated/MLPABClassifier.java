@@ -166,8 +166,6 @@ public class MLPABClassifier extends NominalClassifier {
 	@Override
 	protected void initializeParams() {
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
-		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = false;
 		
 		classifierName=ClassifyUtility.MLPAB;
 		m_modelFileShareMode=ModelStore.YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式

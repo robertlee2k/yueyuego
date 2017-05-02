@@ -41,8 +41,6 @@ public class MyNNClassifier extends NominalClassifier implements ParrallelizedRu
 	@Override
 	protected void initializeParams()  {
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
-		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = false;
 		
 		classifierName=ClassifyUtility.MYNN_MLP;
 		m_modelFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL;//SEPERATE_MODEL_AND_EVAL;// YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
@@ -89,9 +87,9 @@ public class MyNNClassifier extends NominalClassifier implements ParrallelizedRu
 	public int recommendRunningThreads(int runningThreads){
 		int recommendThreads=1; //缺省值
 		if (runningThreads>1){ //如果外部调用者是多线程运行
-			if (this.m_skipTrainInBacktest==false){ //如果要重新构建模型，那最多1个线程在外面
+			if (this.is_skipTrainInBacktest()==false){ //如果要重新构建模型，那最多1个线程在外面
 				recommendThreads=1;
-			}else if (this.m_skipEvalInBacktest==false){ //如果不需要构建模型，但需要重新评估模型，那将并发数折半
+			}else if (this.is_skipEvalInBacktest()==false){ //如果不需要构建模型，但需要重新评估模型，那将并发数折半
 				recommendThreads=runningThreads/2;
 			}else{ //如果只需要回测，简单减一后返回。
 				recommendThreads=runningThreads-1;

@@ -80,13 +80,11 @@ public class BackTestFullModel extends BackTest {
 		//逐次刷新数据
 		
 		model=new BaggingM5PFullModel();
-		model.m_skipTrainInBacktest=true;
-		model.m_skipEvalInBacktest=false;
+		model.initModelPurpose(BaseClassifier.FOR_EVALUATE_MODEL);
 		testBackward(model);
 		
 		model=new MyNNFullModel();
-		model.m_skipTrainInBacktest=true;
-		model.m_skipEvalInBacktest=false;
+		model.initModelPurpose(BaseClassifier.FOR_EVALUATE_MODEL);
 		testBackward(model);
 	}
 	/**
@@ -98,8 +96,7 @@ public class BackTestFullModel extends BackTest {
 		BaggingM5PFullModel cModel=new BaggingM5PFullModel();
 //		BaggingRegressionFullModel cModel=new BaggingRegressionFullModel();
 		if (applyToMaModelInTestBack==true){//用fullModel模型来测试均线模型时不用重新build和评估
-			cModel.m_skipTrainInBacktest=true;
-			cModel.m_skipEvalInBacktest=true;
+			cModel.initModelPurpose(BaseClassifier.FOR_BACKTEST_MODEL);
 		}
 
 		GeneralInstances continuousResult=testBackward(cModel);
@@ -111,8 +108,7 @@ public class BackTestFullModel extends BackTest {
 //		AdaboostFullModel nModel=new AdaboostFullModel();
 		MyNNFullModel nModel=new MyNNFullModel();
 		if (applyToMaModelInTestBack==true){//用fullModel模型来测试均线模型时不用重新build和评估
-			nModel.m_skipTrainInBacktest=true;
-			nModel.m_skipEvalInBacktest=true;
+			nModel.initModelPurpose(BaseClassifier.FOR_BACKTEST_MODEL);
 		}	
 		
 		GeneralInstances nominalResult=testBackward(nModel);

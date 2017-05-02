@@ -30,7 +30,6 @@ import java.util.concurrent.TimeUnit;
 
 import yueyueGo.classifier.AdaboostClassifier;
 import yueyueGo.classifier.BaggingM5P;
-import yueyueGo.classifier.ClassiferInitFactory;
 import yueyueGo.dataFormat.ArffFormat;
 import yueyueGo.dataFormat.AvgLineDataFormat;
 import yueyueGo.dataFormat.MomentumDataFormat;
@@ -46,6 +45,7 @@ import yueyueGo.datasource.DataIOHandler;
 import yueyueGo.datasource.GeneralDataSaver;
 import yueyueGo.utility.AppContext;
 import yueyueGo.utility.BlockedThreadPoolExecutor;
+import yueyueGo.utility.ClassiferInitFactory;
 import yueyueGo.utility.ClassifySummaries;
 import yueyueGo.utility.EvaluationConfDefinition;
 import yueyueGo.utility.FileUtility;
@@ -136,13 +136,11 @@ public class BackTest {
 		
 		//逐次构建新的模型
 		model=new AdaboostClassifier();
-		model.m_skipTrainInBacktest=false;
-		model.m_skipEvalInBacktest=false;
+		model.initModelPurpose(BaseClassifier.FOR_BUILD_MODEL);
 		testBackward(model);
 		
 		model=new BaggingM5P();
-		model.m_skipTrainInBacktest=false;
-		model.m_skipEvalInBacktest=false;
+		model.initModelPurpose(BaseClassifier.FOR_BUILD_MODEL);
 		testBackward(model);
 
 		//重新评估模型
@@ -154,13 +152,11 @@ public class BackTest {
 		
 		//逐次构建新的模型
 		model=new AdaboostClassifier();
-		model.m_skipTrainInBacktest=true;
-		model.m_skipEvalInBacktest=false;
+		model.initModelPurpose(BaseClassifier.FOR_EVALUATE_MODEL);
 		testBackward(model);
 		
 		model=new BaggingM5P();
-		model.m_skipTrainInBacktest=true;
-		model.m_skipEvalInBacktest=false;
+		model.initModelPurpose(BaseClassifier.FOR_EVALUATE_MODEL);
 		testBackward(model);
 		
 		
@@ -168,23 +164,16 @@ public class BackTest {
 
 	protected void callTestBack() throws Exception {
 		//按连续分类器回测历史数据
-		BaggingM5P cModel=ClassiferInitFactory.initBaggingM5P(ARFF_FORMAT, ClassiferInitFactory.FOR_BACK_TEST);
-//		BaggingLinearRegression cModel=new BaggingLinearRegression();
-//		M5PABClassifier cModel=new M5PABClassifier();
-		GeneralInstances continuousResult=testBackward(cModel);
+		BaggingM5P cModel=ClassiferInitFactory.initBaggingM5P(ARFF_FORMAT, BaseClassifier.FOR_BACKTEST_MODEL);
+//		GeneralInstances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
-//		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
+		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 		
 		//按二分类器回测历史数据
-//		BaggingJ48 nModel=new BaggingJ48();
-//		MLPABClassifier nModel = new MLPABClassifier();
-//		MyNNClassifier nModel=new MyNNClassifier();
-		AdaboostClassifier nModel=ClassiferInitFactory.initAdaboost(ARFF_FORMAT, ClassiferInitFactory.FOR_BACK_TEST);
-//				new AdaboostClassifier();
-//		RandForest nModel=new RandForest();
-		GeneralInstances nominalResult=testBackward(nModel);
+		AdaboostClassifier nModel=ClassiferInitFactory.initAdaboost(ARFF_FORMAT, BaseClassifier.FOR_BACKTEST_MODEL);
+//		GeneralInstances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
-//		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
+		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 		
 
 		//统一输出统计结果
@@ -282,7 +271,7 @@ public class BackTest {
 				
 				GeneralInstances trainingData = null;
 				
-				if (clModel.m_skipTrainInBacktest == false ){ //如果需要训练模型，则取训练数据 
+				if (clModel.is_skipTrainInBacktest() == false ){ //如果需要训练模型，则取训练数据 
 					System.out.println("start to split training set from data: "+ splitTrainClause);
 					trainingData=instanceProcessor.getInstancesSubset(fullSetData,splitTrainClause);
 					int trainingDataSize=trainingData.numInstances();
@@ -301,7 +290,7 @@ public class BackTest {
 				}
 
 				GeneralInstances evaluationData = null;
-				if (clModel.m_skipEvalInBacktest==false || clModel.m_skipTrainInBacktest == false  ){//如果需要评估模型，则取评估数据（训练时缺省要做一次评估）
+				if (clModel.is_skipEvalInBacktest()==false || clModel.is_skipTrainInBacktest() == false  ){//如果需要评估模型，则取评估数据（训练时缺省要做一次评估）
 					System.out.println("start to split evaluation set from  data: "+ splitEvalClause);
 					evaluationData=instanceProcessor.getInstancesSubset(fullSetData,splitEvalClause);
 					//对于二分类器，这里要把输入的收益率转换为分类变量
@@ -332,7 +321,7 @@ public class BackTest {
 						+ testingData.numAttributes());
 				
 				//在不够强的机器上做模型训练时释放内存，改为每次从硬盘加载的方式
-				if (clModel.m_skipTrainInBacktest == false){
+				if (clModel.is_skipTrainInBacktest() == false){
 					fullSetData=null; //释放内存
 				}				
 				
@@ -588,39 +577,39 @@ public class BackTest {
 	}
 
 
-	protected void testForModelStore(){
-		AdaboostClassifier nModel=new AdaboostClassifier();
-		boolean[] mode=new boolean[] {true,false};
-		int[] evalDataSplitMode=new int[]{0,6,9,12};
-		int[] modelFileShareMode=new int[]{1,3,6,12};
-	
-	
-		for (int m : modelFileShareMode) {
-			for (int j : evalDataSplitMode) {
-				for (boolean k : mode) {
-					nModel.m_skipTrainInBacktest=k;
-					nModel.m_evalDataSplitMode=j;
-					nModel.m_modelFileShareMode=m;
-					System.out.println("=====================================================================================");
-					System.out.println("参数设置：跳过构建="+k+"/评估数据模式="+j+"/模型共享模式="+m);
-					String[] splitYear =generateSplitYearForModel(nModel,m_startYear,m_endYearMonth);
-					for (int i = 0; i < splitYear.length; i++) { 
-						String splitMark = splitYear[i];
-						System.out.println("=====");
-						getSplitYearTags(nModel,splitMark);
-					}
-					System.out.println("=====================================================================================");
-				}
-			}
-			
-		}
-	}
+//	protected void testForModelStore(){
+//		AdaboostClassifier nModel=new AdaboostClassifier();
+//		boolean[] mode=new boolean[] {true,false};
+//		int[] evalDataSplitMode=new int[]{0,6,9,12};
+//		int[] modelFileShareMode=new int[]{1,3,6,12};
+//	
+//	
+//		for (int m : modelFileShareMode) {
+//			for (int j : evalDataSplitMode) {
+//				for (boolean k : mode) {
+//					nModel.m_skipTrainInBacktest=k;
+//					nModel.m_evalDataSplitMode=j;
+//					nModel.m_modelFileShareMode=m;
+//					System.out.println("=====================================================================================");
+//					System.out.println("参数设置：跳过构建="+k+"/评估数据模式="+j+"/模型共享模式="+m);
+//					String[] splitYear =generateSplitYearForModel(nModel,m_startYear,m_endYearMonth);
+//					for (int i = 0; i < splitYear.length; i++) { 
+//						String splitMark = splitYear[i];
+//						System.out.println("=====");
+//						getSplitYearTags(nModel,splitMark);
+//					}
+//					System.out.println("=====================================================================================");
+//				}
+//			}
+//			
+//		}
+//	}
 
 
 	protected String[] generateSplitYearForModel(BaseClassifier clModel,String startYear,String endYearMonth){
 	
 		String[] result=null;
-		if(clModel.m_skipTrainInBacktest==false){ //需要构建模型
+		if(clModel.is_skipTrainInBacktest()==false){ //需要构建模型
 			switch (clModel.m_modelFileShareMode){
 			case ModelStore.MONTHLY_MODEL: //这个是全量模型
 				result=manipulateYearMonth(startYear,endYearMonth,1);

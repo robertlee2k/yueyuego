@@ -243,16 +243,14 @@ public class AdaboostClassifier extends NominalClassifier {
 	 * 
 	 */
 	private static final long serialVersionUID = 2704022707088213011L;
-	protected int leafMinObjNum; 	//j48树最小节点叶子数
-	protected int divided; //将trainingData分成多少份
-	protected int boost_iteration; 	//boost特有参数
+	public int leafMinObjNum; 	//j48树最小节点叶子数
+	public int divided; //将trainingData分成多少份
+	public int boost_iteration; 	//boost特有参数
 	public boolean m_usePCA;
 	
 	@Override
 	protected void initializeParams() {
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
-		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = true;
 
 		classifierName=ClassifyUtility.ADABOOST;
 		m_modelFileShareMode=ModelStore.QUARTER_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式

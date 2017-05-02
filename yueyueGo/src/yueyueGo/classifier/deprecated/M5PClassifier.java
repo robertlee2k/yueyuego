@@ -127,8 +127,6 @@ public class M5PClassifier extends ContinousClassifier {
 	@Override
 	protected void initializeParams() {
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
-		m_skipTrainInBacktest = false;
-		m_skipEvalInBacktest = false;
 		
 		classifierName="m5p";
 

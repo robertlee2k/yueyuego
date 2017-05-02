@@ -50,9 +50,18 @@ public abstract class BaseClassifier implements Serializable{
     public int modelArffFormat; //arff的格式
 	
 	protected double m_positiveLine; // 用来定义收益率大于多少时算positive，缺省为0   
-	public boolean m_skipTrainInBacktest = true; //回测中使用，是否跳过训练模型阶段
-	public boolean m_skipEvalInBacktest = true;  //回测中使用，是否跳过评估模型阶段
+	private boolean m_skipTrainInBacktest = true; //回测中使用，是否跳过训练模型阶段
+	private boolean m_skipEvalInBacktest = true;  //回测中使用，是否跳过评估模型阶段
 	
+
+	public boolean is_skipTrainInBacktest() {
+		return m_skipTrainInBacktest;
+	}
+
+	public boolean is_skipEvalInBacktest() {
+		return m_skipEvalInBacktest;
+	}
+
 
 
 	//以下为不可配置参数，内部存储
@@ -573,4 +582,30 @@ public abstract class BaseClassifier implements Serializable{
 	public void cleanUp(){
 		
 	}
+	
+	
+	public static final int FOR_BUILD_MODEL=1;
+	public static final int FOR_EVALUATE_MODEL=2;
+	public static final int FOR_BACKTEST_MODEL=3;
+	public static final int FOR_DAILY_PREDICT=0;
+
+	public void initModelPurpose(int purpose){
+		switch (purpose) {
+		case FOR_BUILD_MODEL:
+			m_skipTrainInBacktest=false;
+			m_skipEvalInBacktest=false;
+			break;
+		case FOR_EVALUATE_MODEL:
+			m_skipTrainInBacktest=true;
+			m_skipEvalInBacktest=false;
+			break;	
+		case FOR_BACKTEST_MODEL:
+			m_skipTrainInBacktest=true;
+			m_skipEvalInBacktest=true;
+		case FOR_DAILY_PREDICT:
+			break;
+		}
+		
+	}
+	
 }

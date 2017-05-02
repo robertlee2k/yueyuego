@@ -22,8 +22,7 @@ public class BaggingJ48FullModel extends BaggingJ48 {
 	private static final long serialVersionUID = -3884731573181625031L;
 	@Override
 	protected void initializeParams() {
-		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = true;
+
 		m_policySubGroup = new String[]{""};
 		modelArffFormat=FullModelDataFormat.FULLMODEL_FORMAT; //这个模型缺省是为FULLMODEL用的格式
 

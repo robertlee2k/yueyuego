@@ -77,8 +77,6 @@ public class MLPClassifier extends NominalClassifier {
 	protected void initializeParams() {
 
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
-		m_skipTrainInBacktest = true;
-		m_skipEvalInBacktest = true;
 
 		classifierName="mlp";
 		m_modelFileShareMode=ModelStore.YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式

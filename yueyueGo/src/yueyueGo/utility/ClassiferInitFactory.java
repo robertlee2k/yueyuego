@@ -1,15 +1,15 @@
-package yueyueGo.classifier;
+package yueyueGo.utility;
 
 
 import yueyueGo.ModelStore;
+import yueyueGo.classifier.AdaboostClassifier;
+import yueyueGo.classifier.BaggingM5P;
 import yueyueGo.dataFormat.ArffFormat;
 import yueyueGo.dataFormat.MomentumDataFormat;
-import yueyueGo.utility.EvaluationConfDefinition;
 
 public class ClassiferInitFactory {
-	public static final int FOR_BACK_TEST=1;
-	public static final int FOR_PREDICT=2;
 
+	
 	public static BaggingM5P initBaggingM5P(ArffFormat format,int purpose){
 		BaggingM5P model=null;
 		model=new BaggingM5P();
@@ -17,17 +17,10 @@ public class ClassiferInitFactory {
 		EvaluationConfDefinition evalConf=new EvaluationConfDefinition(model.classifierName,format);
 		model.m_evalConf=evalConf;			
 
+		model.initModelPurpose(purpose);
+
 		if (format instanceof MomentumDataFormat){
 			//设置动量策略参数
-			switch (purpose) {
-			case FOR_BACK_TEST:
-				model.m_skipTrainInBacktest=false;
-				model.m_skipEvalInBacktest=false;
-				break;
-			case FOR_PREDICT:
-				break;
-			}
-
 			model.m_policySubGroup = new String[]{"" };
 			model.m_usePCA=true; 
 			model.useMultiPCA=true;
@@ -49,18 +42,9 @@ public class ClassiferInitFactory {
 		EvaluationConfDefinition evalConf=new EvaluationConfDefinition(model.classifierName,format);
 		model.m_evalConf=evalConf;			
 
-		
+		model.initModelPurpose(purpose);
 		if (format instanceof MomentumDataFormat){
 			//设置动量策略参数
-			switch (purpose) {
-			case FOR_BACK_TEST:
-				model.m_skipTrainInBacktest=false;
-				model.m_skipEvalInBacktest=false;
-				break;
-			case FOR_PREDICT:
-				break;
-			}
-
 			model.m_policySubGroup = new String[]{"" };
 
 			model.m_modelFileShareMode=ModelStore.QUARTER_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
