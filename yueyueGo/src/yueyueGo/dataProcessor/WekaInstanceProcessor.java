@@ -112,7 +112,7 @@ public class WekaInstanceProcessor extends BaseInstanceProcessor {
 	//将属性改名 
 	@Override
 	public GeneralInstances renameAttribute(GeneralInstances data, String attributeName,String newName) {
-		data.renameAttribute(new WekaAttribute(attributeName), newName);
+		data.renameAttribute(data.attribute(attributeName), newName);
 		return data;
 	}
 	
