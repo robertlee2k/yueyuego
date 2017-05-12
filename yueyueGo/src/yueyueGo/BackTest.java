@@ -32,7 +32,6 @@ import yueyueGo.classifier.AdaboostClassifier;
 import yueyueGo.classifier.BaggingM5P;
 import yueyueGo.dataFormat.ArffFormat;
 import yueyueGo.dataFormat.AvgLineDataFormat;
-import yueyueGo.dataFormat.MomentumDataFormat;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.dataProcessor.InstanceHandler;
 import yueyueGo.dataProcessor.WekaInstanceProcessor;
@@ -90,11 +89,11 @@ public class BackTest {
 	public void init(){
 		
 		STRAGEY_NAME=
-				"动量策略";
-//				"均线策略";
+//				"动量策略";
+				"均线策略";
 		ARFF_FORMAT=
-				new MomentumDataFormat(); 
-//				new AvgLineDataFormat();
+//				new MomentumDataFormat(); 
+				new AvgLineDataFormat();
 		AppContext.clearContext();
 		AppContext.createContext(this.C_ROOT_DIRECTORY);	
 		BACKTEST_RESULT_DIR=AppContext.getBACKTEST_RESULT_DIR();
