@@ -20,7 +20,7 @@ public class EvaluationConfDefinition implements Serializable{
 	private static final long serialVersionUID = 4464388266024527544L;
 	//对于收益率优先算法的胜率筛选阀值 
 	
-	//TODO 要针对这个做分析
+	//TODO 要针对这个做分析 。
 	//尝试过下面的数据全部调整至{0.55,0.55,0.5,0.5,0.45};，会让牛市收益减少，熊市增加，因此恢复原状，目前最好的是{0.4,0.4,0.35,0.35,0.3}
 	public final static double[] WINRATE_FILTER_FOR_SHOUYILV=new double[] {0.4,0.4,0.35,0.35,0.3};//{0.5,0.5,0.45,0.45,0.4};////{0.35,0.35,0.3,0.3,0.3};//{0.4,0.4,0.4,0.35,0.35};//{0.5,0.5,0.5,0.5,0.5};//{0,0,0,0,0};//{0.3,0.3,0.3,0.3,0.3};
 	//对于胜率优先算法的收益率筛选阀值

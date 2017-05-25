@@ -158,7 +158,6 @@ public class BackTest {
 		model.initModelPurpose(BaseClassifier.FOR_EVALUATE_MODEL);
 		testBackward(model);
 		
-		
 	}
 
 	protected void callTestBack() throws Exception {
