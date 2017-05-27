@@ -5,7 +5,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 
 import yueyueGo.dataFormat.ArffFormat;
-import yueyueGo.dataFormat.MomentumDataFormat;
+import yueyueGo.dataFormat.AvgLineDataFormat;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.dataProcessor.InstanceHandler;
 import yueyueGo.databeans.DataInstance;
@@ -20,8 +20,8 @@ import yueyueGo.utility.FormatUtility;
 
 public class UpdateHistoryArffFile {
 	protected static ArffFormat ARFF_FORMAT=
-			new MomentumDataFormat();
-//			new AvgLineDataFormat(); //当前所用数据文件格式 
+//			new MomentumDataFormat();
+			new AvgLineDataFormat(); //当前所用数据文件格式 
 
 	public static void main(String[] args) {
 		try {
