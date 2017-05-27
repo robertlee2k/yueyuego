@@ -67,7 +67,7 @@ public class BackTest {
 	protected double[] winrate_thresholds=null; //对于收益率优先算法的胜率筛选阀值
 
 	protected String m_startYear= "2008";
-	protected String m_endYearMonth="201704"; //结尾月一般是当前月，这个月是没有数据的，最新数据是上月的
+	protected String m_endYearMonth="201706"; //结尾月一般是当前月，这个月是没有数据的，最新数据是上月的
 	
 	protected String[] m_handSetSplitYear=new String[] {
 
@@ -130,23 +130,28 @@ public class BackTest {
 	 */
 	protected void callRefreshModelUseLatestData() throws Exception{
 		BaseClassifier model=null;
-		m_handSetSplitYear=new String[] {"201701"};
+		
+		m_startYear= "2017";
+		m_endYearMonth="201706"; //结尾月一般是当前月，这个月是没有数据的，最新数据是上月的
+//		m_handSetSplitYear=new String[] {"201701"};
 		RUNNING_THREADS=5;
 		
 		//逐次构建新的模型
 		model=new AdaboostClassifier();
 		model.initModelPurpose(BaseClassifier.FOR_BUILD_MODEL);
+		
 		testBackward(model);
 		
 		model=new BaggingM5P();
 		model.initModelPurpose(BaseClassifier.FOR_BUILD_MODEL);
 		testBackward(model);
 
-		//重新评估模型
-		m_handSetSplitYear=
-				new String[] {"201602","201603","201604","201605","201606","201607",
-						"201608","201609","201610","201611","201612",
-						"201701","201702","201703"};
+		//重新评估模型 （因为模型的评估数据受影响比构建数据受影响多，所以这里前推一年
+		m_startYear= "2016";
+//		m_handSetSplitYear=
+//				new String[] {"201602","201603","201604","201605","201606","201607",
+//						"201608","201609","201610","201611","201612",
+//						"201701","201702","201703","201704","201705"};
 		RUNNING_THREADS=15;
 		
 		//逐次构建新的模型
@@ -163,15 +168,15 @@ public class BackTest {
 	protected void callTestBack() throws Exception {
 		//按连续分类器回测历史数据
 		BaggingM5P cModel=ClassiferInitFactory.initBaggingM5P(ARFF_FORMAT, BaseClassifier.FOR_BACKTEST_MODEL);
-//		GeneralInstances continuousResult=testBackward(cModel);
+		GeneralInstances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
-		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
+//		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 		
 		//按二分类器回测历史数据
 		AdaboostClassifier nModel=ClassiferInitFactory.initAdaboost(ARFF_FORMAT, BaseClassifier.FOR_BACKTEST_MODEL);
-//		GeneralInstances nominalResult=testBackward(nModel);
+		GeneralInstances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
-		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
+//		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 		
 
 		//统一输出统计结果

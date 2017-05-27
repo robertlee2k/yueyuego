@@ -29,13 +29,13 @@ public class UpdateHistoryArffFile {
 			worker.init();
 			
 			//重新创建ARFF文件
-			callCreateTransInstances();
+//			callCreateTransInstances();
 			
 //			//用最新的单次交易数据，更新原始的交易数据文件
-//			UpdateHistoryArffFile.callRefreshInstances();
+			UpdateHistoryArffFile.callRefreshInstances();
 //
 //			//刷新最新月份的模型
-//			worker.callRefreshModelUseLatestData();
+			worker.callRefreshModelUseLatestData();
 			
 			
 		} catch (Exception e) {
@@ -46,11 +46,11 @@ public class UpdateHistoryArffFile {
 
 	protected static void callRefreshInstances() throws Exception {
 		String startYearMonth="201601";
-		String endYearMonth="201704";
+		String endYearMonth="201705";
 
 		String originFilePrefix=AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT.m_arff_file_prefix;
 		
-		String newDataFileName=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group8\\v_onceyield_group8all20162017.txt";
+		String newDataFileName=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group9\\onceyield_group9all20160101-20170430.txt";
 		GeneralInstances newData = loadDataFromIncrementalCSVFile(newDataFileName);
 		
 
