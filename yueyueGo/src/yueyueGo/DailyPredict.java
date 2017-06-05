@@ -374,7 +374,15 @@ public class DailyPredict {
 			fullData=((NominalClassifier)clModel).processDataForNominalClassifier(fullData,false);
 		}
 
+		//获取预定义的model文件
+		String id=clModel.getIdentifyName()+clModel.modelArffFormat;
+		PredictModelData modelData=this.PREDICT_MODELS.get(id);
+		String modelPredifined=modelData.getModelFileName();
+		String evalPredefined=modelData.getEvalFileName();
+		int formatType=modelData.getModelFormatType();
+		String predictPath=PREDICT_WORK_DIR+getDirPrefixByType(formatType)+"\\"+clModel.getIdentifyName();
 
+		//分策略组预测
 		for (int j = 0; j < clModel.m_policySubGroup.length; j++) {
 
 			System.out.println("start to load data for policy : "	+ clModel.m_policySubGroup[j]);
@@ -387,20 +395,8 @@ public class DailyPredict {
 				newData=fullData;
 			}
 
-
-
-			String id=clModel.getIdentifyName()+clModel.modelArffFormat;
-			PredictModelData modelData=this.PREDICT_MODELS.get(id);
-			String modelFileName=modelData.getModelFileName();
-			String evalFileName=modelData.getEvalFileName();
-//			String modelSplitYear=modelData.getModelSplitYear();
-//			String evalSplitYear=modelData.getEvalSplitYear();
-			
-			int formatType=modelData.getModelFormatType();
-			modelFileName = PREDICT_WORK_DIR+getDirPrefixByType(formatType)+"\\"+clModel.getIdentifyName()+ modelFileName
-					+ clModel.m_policySubGroup[j]	;				
-			evalFileName = PREDICT_WORK_DIR+getDirPrefixByType(formatType)+"\\"+clModel.getIdentifyName()+evalFileName
-					+ clModel.m_policySubGroup[j]+ModelStore.THRESHOLD_EXTENSION	;				
+			String modelFileName = predictPath+ modelPredifined	+ clModel.m_policySubGroup[j]	;				
+			String evalFileName = predictPath+ evalPredefined + clModel.m_policySubGroup[j]+ModelStore.THRESHOLD_EXTENSION;				
 			ModelStore modelStore=new ModelStore(modelFileName,evalFileName);
 			clModel.setModelStore(modelStore);
 
@@ -427,11 +423,12 @@ public class DailyPredict {
 
 			clModel.predictData(newData, result,clModel.m_policySubGroup[j]);
 			System.out.println("accumulated predicted rows: "+ result.numInstances());
-			System.out.println("预测所使用模型文件： "+modelFileName);
-			System.out.println("预测所使用评估文件： "+evalFileName);
 			System.out.println("complete for : "+ clModel.m_policySubGroup[j]);
 			
 		}
+		System.out.println("本次预测所使用目录： "+predictPath);
+		System.out.println("本次预测所使用模型文件： "+modelPredifined);
+		System.out.println("本次预测所使用评估文件： "+evalPredefined);
 		if (result.numInstances()!=inData.numInstances()) {
 			throw new Exception("not all data have been processed!!!!! incoming Data number = " +inData.numInstances() + " while predicted number is "+result.numInstances());
 		}
