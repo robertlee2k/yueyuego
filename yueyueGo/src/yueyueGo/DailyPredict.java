@@ -62,11 +62,11 @@ public class DailyPredict {
 
 			//BaggingM5P当前使用的预测模型
 			classifierName=ClassifyUtility.BAGGING_M5P+ClassifyUtility.MULTI_PCA_SURFIX;
-			addModelData(classifierName,format,"\\trans20052017(9)-baggingM5P-201604 MA ","\\trans20052017(9)-baggingM5P-201606 MA ");
+			addModelData(classifierName,format,"\\trans20052017(9)-baggingM5P-201607 MA ","\\trans20052017(9)-baggingM5P-201608 MA ");
 
 			//adaboost当前使用的预测模型
 			classifierName=ClassifyUtility.ADABOOST;
-			addModelData(classifierName,format,"\\trans20052017(9)-adaboost-201604 MA ","\\trans20052017(9)-adaboost-201606 MA ");
+			addModelData(classifierName,format,"\\trans20052017(9)-adaboost-201607 MA ","\\trans20052017(9)-adaboost-201608 MA ");
 			
 		}else if(EnvConstants.FULL_MODEL_ROOT_DIR.equals(type)){
 			// fullmodel不保留legacy
@@ -427,7 +427,10 @@ public class DailyPredict {
 
 			clModel.predictData(newData, result,clModel.m_policySubGroup[j]);
 			System.out.println("accumulated predicted rows: "+ result.numInstances());
+			System.out.println("预测所使用模型文件： "+modelFileName);
+			System.out.println("预测所使用评估文件： "+evalFileName);
 			System.out.println("complete for : "+ clModel.m_policySubGroup[j]);
+			
 		}
 		if (result.numInstances()!=inData.numInstances()) {
 			throw new Exception("not all data have been processed!!!!! incoming Data number = " +inData.numInstances() + " while predicted number is "+result.numInstances());
