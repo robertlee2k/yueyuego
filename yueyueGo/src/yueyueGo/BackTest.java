@@ -23,6 +23,9 @@
 ************************************************/
 package yueyueGo;
 
+/*
+ * 谢谢悦悦的冠名支持
+ */
 import java.io.IOException;
 import java.util.Vector;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -53,19 +56,15 @@ import yueyueGo.utility.MergeClassifyResults;
 
 public class BackTest {
 	protected String C_ROOT_DIRECTORY =EnvConstants.AVG_LINE_ROOT_DIR;
-	protected String BACKTEST_RESULT_DIR=null;
-	protected int RUNNING_THREADS; //doOneModel时的并发，1表示仅有主线程单线运行。
-	
-	public static final String RESULT_EXTENSION = "-Test Result.csv";
-	
-	protected String STRAGEY_NAME; // 策略的名称，只是用于输出。
-	protected ArffFormat ARFF_FORMAT; //当前所用数据文件格式 
-
-	private final static int BEGIN_FROM_POLICY=0; // 当回测需要跳过某些均线时，0表示不跳过
-	
+	protected int RUNNING_THREADS; //并发控制，1表示仅有主线程单线运行。
 	protected double[] shouyilv_thresholds=null; //对于胜率优先算法的收益率筛选阀值
 	protected double[] winrate_thresholds=null; //对于收益率优先算法的胜率筛选阀值
-
+	
+	protected String BACKTEST_RESULT_DIR=null;	
+	public static final String RESULT_EXTENSION = "-Test Result.csv";
+	protected String STRAGEY_NAME; // 策略的名称，只是用于输出。
+	protected ArffFormat ARFF_FORMAT; //当前所用数据文件格式 
+	private final static int BEGIN_FROM_POLICY=0; // 当回测需要跳过某些均线时，0表示不跳过
 	protected String m_startYear= "2008";
 	protected String m_endYearMonth="201706"; //结尾月一般是当前月，这个月是没有数据的，最新数据是上月的
 	
