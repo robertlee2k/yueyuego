@@ -173,7 +173,7 @@ public class UpdateHistoryArffFile {
 	//从文件中读取指定区间的数据，刷新原有数据，再用processHistoryData生成有计算字段之后的数据
 	final protected static void refreshArffFile(String startYearMonth, String endYearMonth,String originFilePrefix,GeneralInstances newData) throws Exception {
 		System.out.println("loading original history file into memory "  );
-		GeneralInstances fullData = DataIOHandler.getSuppier().loadDataFromFile(originFilePrefix+"-origin.arff");
+		GeneralInstances fullData = DataIOHandler.getSuppier().loadDataFromFile(originFilePrefix+".arff");
 
 
 		//将股票代码，交易日期之类的字段变换为String格式
