@@ -45,12 +45,12 @@ public class UpdateHistoryArffFile {
 	}
 
 	protected static void callRefreshInstances() throws Exception {
-		String startYearMonth="201601";
-		String endYearMonth="201706";
+		String startYearMonth="201601"; //刷新开始月份（包括该月份）
+		String endYearMonth="201707";  //刷新结束月份（包括该月份数据）
 
 		String originFilePrefix=AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT.m_arff_file_prefix;
 		
-		String newDataFileName=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group9\\onceyield_group9all20160101-20170430.txt";
+		String newDataFileName=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group9\\onceyield_group9all20160101_20170630.txt";
 		GeneralInstances newData = loadDataFromIncrementalCSVFile(newDataFileName);
 		
 

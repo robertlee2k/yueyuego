@@ -131,7 +131,7 @@ public class BackTest {
 		BaseClassifier model=null;
 		
 		m_startYear= "2017";
-		m_endYearMonth="201706"; //结尾月一般是当前月，这个月是没有数据的，最新数据是上月的
+		m_endYearMonth="201707"; //结尾月一般是当前月，这个月是没有数据的，最新数据是上月的
 //		m_handSetSplitYear=new String[] {"201701"};
 		RUNNING_THREADS=5;
 		
