@@ -59,11 +59,11 @@ public class UpdateHistoryArffFile {
 		//为原始的历史文件Arff添加计算变量，并分拆。
 		processHistoryFile();
 
-		//以百分之一抽检率检查未被刷新数据（抽样部分）
-		int lastYear=Integer.valueOf(startYearMonth.substring(0, 4))-1; 
-		compareRefreshedInstancesForPeriod(String.valueOf(lastYear)+"01",String.valueOf(lastYear)+"12",originFilePrefix,100);
-		//以五分之一抽检率抽样检测刷新过的数据
-		compareRefreshedInstancesForPeriod(startYearMonth,endYearMonth,originFilePrefix,5);
+//		//以百分之一抽检率检查未被刷新数据（抽样部分）
+//		int lastYear=Integer.valueOf(startYearMonth.substring(0, 4))-1; 
+//		compareRefreshedInstancesForPeriod(String.valueOf(lastYear)+"01",String.valueOf(lastYear)+"12",originFilePrefix,100);
+//		//以五分之一抽检率抽样检测刷新过的数据
+//		compareRefreshedInstancesForPeriod(startYearMonth,endYearMonth,originFilePrefix,5);
 	}
 
 
