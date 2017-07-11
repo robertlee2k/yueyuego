@@ -50,14 +50,14 @@ public class UpdateHistoryArffFile {
 
 		String originFilePrefix=AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT.m_arff_file_prefix;
 		
-		String newDataFileName=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group9\\onceyield_group9all20160101_20170630.txt";
-		GeneralInstances newData = loadDataFromIncrementalCSVFile(newDataFileName);
-		
-
-		//刷新的Arff文件
-		refreshArffFile(startYearMonth,endYearMonth,originFilePrefix,newData);
-		//为原始的历史文件Arff添加计算变量，并分拆。
-		processHistoryFile();
+//		String newDataFileName=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group9\\onceyield_group9all20160101_20170630.txt";
+//		GeneralInstances newData = loadDataFromIncrementalCSVFile(newDataFileName);
+//		
+//
+//		//刷新的Arff文件
+//		refreshArffFile(startYearMonth,endYearMonth,originFilePrefix,newData);
+//		//为原始的历史文件Arff添加计算变量，并分拆。
+//		processHistoryFile();
 
 		//以百分之一抽检率检查未被刷新数据（抽样部分）
 		int lastYear=Integer.valueOf(startYearMonth.substring(0, 4))-1; 
@@ -326,15 +326,15 @@ public class UpdateHistoryArffFile {
 
 			int refreshedDailyDataSize=refreshedDailyData.numInstances();
 			int originDailyDataSize=originDailyData.numInstances();
-
+			//对于均线策略，将同一天的数据按均线排序,对于短线策略，这里什么都不用做。
+			if (maIndex>0){
+				originDailyData.sort(maIndex-1);
+				refreshedDailyData.sort(maIndex-1);
+			}
+			
 			//如果新旧数据同时存在，记录条数应该一致 （也就是说新数据要么是完全新增的日期，要么需要整个替换之前的旧数据）
 			if (refreshedDailyDataSize==originDailyDataSize || originDailyDataSize==0){
 				//System.out.println("ready to compare data on date "+ tradeDate+" for code:"+code+" origin/refreshed data number= "+originDailyDataSize);
-				//对于均线策略，将同一天的数据按均线排序,对于短线策略，这里什么都不用做。
-				if (maIndex>0){
-					originDailyData.sort(maIndex-1);
-					refreshedDailyData.sort(maIndex-1);
-				}
 				//按天、股票代码、均线对比
 				for(int i=0;i<refreshedDailyDataSize;i++){
 					if (originDailyDataSize>0){ //新旧数据同时存在，比较新旧数据
@@ -358,6 +358,13 @@ public class UpdateHistoryArffFile {
 				cursor+=refreshedDailyDataSize+checkSample-1;
 			}else{
 				System.out.println("daily data size in origin and refreshed data are not same on date "+tradeDate+" for code:"+code+" origin/refreshed data number= "+originDailyDataSize+" vs. "+refreshedDailyDataSize);
+				
+				for(int i=0;i<originDailyDataSize;i++){
+					System.out.println("原数据第【"+(i+1)+"】行："+originDailyData.instance(i).toString());
+				}
+				for(int i=0;i<refreshedDailyDataSize;i++){
+					System.out.println("新数据第【"+(i+1)+"】行："+refreshedDailyData.instance(i).toString());
+				}
 				rowDiffer+=originDailyDataSize-refreshedDailyDataSize;
 				cursor+=checkSample;
 			}			
