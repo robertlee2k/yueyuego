@@ -203,7 +203,7 @@ public class UpdateHistoryArffFile {
 		fullData=instanceProcessor.getInstancesSubset(fullData, splitCurrentYearClause);
 		int filteredNumber=fullData.numInstances() ;
 		if (removedNumber!=(originInstancesNum-filteredNumber)){
-			System.err.println("删除的数据数量与过滤的数据数量不一致： 删除的="+removedData+ "过滤掉的="+ (originInstancesNum-filteredNumber));
+			System.err.println("删除的数据数量与过滤的数据数量不一致： 删除的="+removedNumber+ "过滤掉的="+ (originInstancesNum-filteredNumber));
 		}
 		System.out.println("number of rows removed = "+ (originInstancesNum-filteredNumber));
 
@@ -216,8 +216,8 @@ public class UpdateHistoryArffFile {
 		if (newDataNumber==0){
 			System.err.println("attention!!  No records have been retrieved from the new file. ");
 		}
-		if (newDataNumber < filteredNumber){
-			System.err.println("attention!!  new(refreshed) records are less than the removed records. normally this indicates something wrong with the new data");
+		if (newDataNumber < removedNumber){
+			System.err.println("attention!!  new(refreshed) records="+newDataNumber +" are less than the removed records="+removedNumber+". normally this indicates something wrong with the new data");
 		}
 
 		instanceProcessor.calibrateAttributes(newData,fullData);
