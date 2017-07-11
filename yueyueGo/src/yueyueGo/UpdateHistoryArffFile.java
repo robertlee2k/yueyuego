@@ -200,9 +200,13 @@ public class UpdateHistoryArffFile {
 		processDateColumns(newData);
 
 		System.out.println("verifying new data format , you should read this .... "+ fullData.equalHeadersMsg(newData));
-		System.out.println("number of new rows added or updated= "+ newData.numInstances());
-		if (newData.numInstances()==0){
+		int newDataNumber=newData.numInstances();
+		System.out.println("number of new rows added or updated= "+ newDataNumber);
+		if (newDataNumber==0){
 			System.err.println("attention!!  No records have been retrieved from the new file. ");
+		}
+		if (newDataNumber < filteredNumber){
+			System.err.println("attention!!  new(refreshed) records are less than the removed records. normally this indicates something wrong with the new data");
 		}
 
 		instanceProcessor.calibrateAttributes(newData,fullData);
