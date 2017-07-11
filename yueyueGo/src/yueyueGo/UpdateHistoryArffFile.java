@@ -189,7 +189,7 @@ public class UpdateHistoryArffFile {
 		
 		//将原始文件里属于该时间段的数据保留下来供后期对比
 		//TODO ATT should be processed
-		String splitRemovedDataClause = "( ATT" + ArffFormat.YEAR_MONTH_INDEX + " >= " + startYearMonth+ ") or ( ATT" + ArffFormat.YEAR_MONTH_INDEX+ " <= " + endYearMonth + ") ";
+		String splitRemovedDataClause = "( ATT" + ArffFormat.YEAR_MONTH_INDEX + " >= " + startYearMonth+ ") AND ( ATT" + ArffFormat.YEAR_MONTH_INDEX+ " <= " + endYearMonth + ") ";
 		GeneralInstances removedData=instanceProcessor.getInstancesSubset(fullData, splitRemovedDataClause);
 		int removedNumber=removedData.numInstances();
 		System.out.println("number of rows removed = "+ removedNumber+" Now saving it to -removed.arff for future comparision");
