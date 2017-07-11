@@ -50,20 +50,20 @@ public class UpdateHistoryArffFile {
 
 		String originFilePrefix=AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT.m_arff_file_prefix;
 		
-//		String newDataFileName=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group9\\onceyield_group9all20160101_20170630.txt";
-//		GeneralInstances newData = loadDataFromIncrementalCSVFile(newDataFileName);
-//		
-//
-//		//刷新的Arff文件
-//		refreshArffFile(startYearMonth,endYearMonth,originFilePrefix,newData);
-//		//为原始的历史文件Arff添加计算变量，并分拆。
-//		processHistoryFile();
+		String newDataFileName=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group9\\onceyield_group9all20160101_20170630.txt";
+		GeneralInstances newData = loadDataFromIncrementalCSVFile(newDataFileName);
+		
 
-		//以百分之一抽检率检查未被刷新数据（抽样部分）
-		int lastYear=Integer.valueOf(startYearMonth.substring(0, 4))-1; 
-		compareRefreshedInstancesForPeriod(String.valueOf(lastYear)+"01",String.valueOf(lastYear)+"12",originFilePrefix,100);
-		//以十分之一抽检率抽样检测刷新过的数据
-		compareRefreshedInstancesForPeriod(startYearMonth,endYearMonth,originFilePrefix,10);
+		//刷新的Arff文件
+		refreshArffFile(startYearMonth,endYearMonth,originFilePrefix,newData);
+		//为原始的历史文件Arff添加计算变量，并分拆。
+		processHistoryFile();
+
+//		//以百分之一抽检率检查未被刷新数据（抽样部分）
+//		int lastYear=Integer.valueOf(startYearMonth.substring(0, 4))-1; 
+//		compareRefreshedInstancesForPeriod(String.valueOf(lastYear)+"01",String.valueOf(lastYear)+"12",originFilePrefix,100);
+		//以五分之一抽检率抽样检测刷新过的数据
+		compareRefreshedInstancesForPeriod(startYearMonth,endYearMonth,originFilePrefix,5);
 	}
 
 
@@ -187,13 +187,24 @@ public class UpdateHistoryArffFile {
 		int originInstancesNum=fullData.numInstances();
 		System.out.println ("refreshing period from: "+ startYearMonth+" to:" +endYearMonth+ "while fullsize ="+ originInstancesNum);
 		
-
+		//将原始文件里属于该时间段的数据保留下来供后期对比
+		//TODO ATT should be processed
+		String splitRemovedDataClause = "( ATT" + ArffFormat.YEAR_MONTH_INDEX + " >= " + startYearMonth+ ") or ( ATT" + ArffFormat.YEAR_MONTH_INDEX+ " <= " + endYearMonth + ") ";
+		GeneralInstances removedData=instanceProcessor.getInstancesSubset(fullData, splitRemovedDataClause);
+		int removedNumber=removedData.numInstances();
+		DataIOHandler.getSaver().SaveDataIntoFile(removedData, originFilePrefix+"-removed.arff");
+		//释放内存
+		removedData=null;
+		
+		//下面才是真正处理
 		//将原始文件里不属于该时间段的数据过滤出来（相当于把属于该段时间的原有数据删除）
 		//TODO ATT should be processed
 		String splitCurrentYearClause = "( ATT" + ArffFormat.YEAR_MONTH_INDEX + " < " + startYearMonth+ ") or ( ATT" + ArffFormat.YEAR_MONTH_INDEX+ " > " + endYearMonth + ") ";
 		fullData=instanceProcessor.getInstancesSubset(fullData, splitCurrentYearClause);
-
 		int filteredNumber=fullData.numInstances() ;
+		if (removedNumber!=(originInstancesNum-filteredNumber)){
+			System.err.println("删除的数据数量与过滤的数据数量不一致： 删除的="+removedData+ "过滤掉的="+ (originInstancesNum-filteredNumber));
+		}
 		System.out.println("number of rows removed = "+ (originInstancesNum-filteredNumber));
 
 		
@@ -221,12 +232,10 @@ public class UpdateHistoryArffFile {
 		DataIOHandler.getSaver().SaveDataIntoFile(fullData, originFilePrefix+".arff");
 		System.out.println("refreshed arff file saved. ");
 
-		//取出最后一年的数据作为验证的sample数据
-		//TODO ATT should be processed
-		String splitSampleClause = "( ATT" + ArffFormat.YEAR_MONTH_INDEX + " >= " + endYearMonth.subSequence(0, 4) + "01) and ( ATT" + ArffFormat.YEAR_MONTH_INDEX+ " <= "	+ endYearMonth + ") ";
-
-		GeneralInstances sampleData=instanceProcessor.getInstancesSubset(fullData, splitSampleClause);
-		DataIOHandler.getSaver().SaveDataIntoFile(sampleData, originFilePrefix+"-sample.arff");
+//		//取出最后一年的数据作为验证的sample数据
+//		String splitSampleClause = "( ATT" + ArffFormat.YEAR_MONTH_INDEX + " >= " + endYearMonth.subSequence(0, 4) + "01) and ( ATT" + ArffFormat.YEAR_MONTH_INDEX+ " <= "	+ endYearMonth + ") ";
+//		GeneralInstances sampleData=instanceProcessor.getInstancesSubset(fullData, splitSampleClause);
+//		DataIOHandler.getSaver().SaveDataIntoFile(sampleData, originFilePrefix+"-sample.arff");
 	}
 
 
@@ -269,8 +278,8 @@ public class UpdateHistoryArffFile {
 		
 
 		String splitSampleClause = "( ATT" + ArffFormat.YEAR_MONTH_INDEX + " >= " + startYearMonth + ") and ( ATT" + ArffFormat.YEAR_MONTH_INDEX+ " <= "	+ endYearMonth + ") ";
-		System.out.println("start to compare refreshed data, try to get sample data using clause: "+splitSampleClause);
-		GeneralInstances originData=DataIOHandler.getSuppier().loadDataFromFile(filePrefix+"-origin.arff");
+		System.out.println("start to compare refreshed data, try to get removed sample data using clause: "+splitSampleClause);
+		GeneralInstances originData=DataIOHandler.getSuppier().loadDataFromFile(filePrefix+"-removed.arff");
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(originData);
 		originData=instanceProcessor.getInstancesSubset(originData, splitSampleClause);
 
