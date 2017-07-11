@@ -192,6 +192,7 @@ public class UpdateHistoryArffFile {
 		String splitRemovedDataClause = "( ATT" + ArffFormat.YEAR_MONTH_INDEX + " >= " + startYearMonth+ ") or ( ATT" + ArffFormat.YEAR_MONTH_INDEX+ " <= " + endYearMonth + ") ";
 		GeneralInstances removedData=instanceProcessor.getInstancesSubset(fullData, splitRemovedDataClause);
 		int removedNumber=removedData.numInstances();
+		System.out.println("number of rows removed = "+ removedNumber+" Now saving it to -removed.arff for future comparision");
 		DataIOHandler.getSaver().SaveDataIntoFile(removedData, originFilePrefix+"-removed.arff");
 		//释放内存
 		removedData=null;
@@ -205,7 +206,7 @@ public class UpdateHistoryArffFile {
 		if (removedNumber!=(originInstancesNum-filteredNumber)){
 			System.err.println("删除的数据数量与过滤的数据数量不一致： 删除的="+removedNumber+ "过滤掉的="+ (originInstancesNum-filteredNumber));
 		}
-		System.out.println("number of rows removed = "+ (originInstancesNum-filteredNumber));
+		System.out.println("number of rows filtered out = "+ (originInstancesNum-filteredNumber));
 
 		
 		processDateColumns(newData);
