@@ -29,13 +29,13 @@ public class UpdateHistoryArffFile {
 			worker.init();
 			
 			//重新创建ARFF文件
-//			callCreateTransInstances();
+			callCreateTransInstances();
 			
 //			//用最新的单次交易数据，更新原始的交易数据文件
-			UpdateHistoryArffFile.callRefreshInstances();
+//			UpdateHistoryArffFile.callRefreshInstances();
 //
 //			//刷新最新月份的模型
-			worker.callRefreshModelUseLatestData();
+//			worker.callRefreshModelUseLatestData();
 			
 			
 		} catch (Exception e) {
@@ -157,7 +157,7 @@ public class UpdateHistoryArffFile {
 		System.out.println("trans arff file saved. ");
 	
 		//取出前半年的旧数据和当年的新数据作为验证的sample数据
-		String splitSampleClause = "( ATT" + ArffFormat.YEAR_MONTH_INDEX + " >= 201506) and ( ATT" + ArffFormat.YEAR_MONTH_INDEX+ " <= 201612) ";
+		String splitSampleClause = "( ATT" + ArffFormat.YEAR_MONTH_INDEX + " >= 201606) and ( ATT" + ArffFormat.YEAR_MONTH_INDEX+ " <= 201712) ";
 		GeneralInstances sampleData=instanceProcessor.getInstancesSubset(fullData, splitSampleClause);
 		DataIOHandler.getSaver().SaveDataIntoFile(sampleData, arffFileName+"-sample.arff");
 		System.out.println("sample arff file saved. ");
@@ -705,21 +705,21 @@ public class UpdateHistoryArffFile {
 	private static GeneralInstances mergeSrcTransFiles() throws Exception,
 	IllegalStateException {
 		
-		//动量
-		String sourceFile=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group9\\onceyield_group9all_momentum2005_2017.txt";
-		GeneralInstances fullData = loadDataFromIncrementalCSVFile(sourceFile);			
+//		//动量
+//		String sourceFile=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group9\\onceyield_group9all_momentum2005_2017.txt";
+//		GeneralInstances fullData = loadDataFromIncrementalCSVFile(sourceFile);			
 		
 		//传统
-//		String sourceFilePrefix=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group9\\v_onceyield_group9all";
-//		GeneralInstances fullData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2005_2011.txt");
-//		GeneralInstances addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2012_2017.txt");
-//		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullData);
-//		fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
+		String sourceFilePrefix=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group9\\v_onceyield_group9all_";
+		GeneralInstances fullData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2005-2009.txt");
+		GeneralInstances addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2010-2014.txt");
+		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullData);
+		fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
 		
 		System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
-//		addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2010_2012.txt");
-//		fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
-//		System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
+		addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2015-2017.txt");
+		fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
+		System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
 //
 //		int startYear=2013;
 //		int endYear=2015;
