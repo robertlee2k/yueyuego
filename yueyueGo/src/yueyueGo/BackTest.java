@@ -56,7 +56,7 @@ import yueyueGo.utility.MergeClassifyResults;
 
 public class BackTest {
 	protected String C_ROOT_DIRECTORY =EnvConstants.AVG_LINE_ROOT_DIR;
-	protected int RUNNING_THREADS=-1; //并发控制，1表示仅有主线程单线运行。
+	protected int RUNNING_THREADS; //并发控制，1表示仅有主线程单线运行。
 	protected double[] shouyilv_thresholds=null; //对于胜率优先算法的收益率筛选阀值
 	protected double[] winrate_thresholds=null; //对于收益率优先算法的胜率筛选阀值
 	
