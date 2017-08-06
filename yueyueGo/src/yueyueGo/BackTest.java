@@ -98,8 +98,9 @@ public class BackTest {
 			worker.init();
 
 			//调用回测函数回测
-//			worker.callTestBack();
-			worker.callRebuildModels();
+			worker.callReEvaluateModels();
+			worker.callTestBack();
+//			worker.callRebuildModels();
 //			worker.callRefreshModelUseLatestData();
 //			worker.testForModelStore();
 			
@@ -171,12 +172,37 @@ public class BackTest {
 		
 		//按连续分类器回测历史数据
 		BaggingM5P cModel=ClassiferInitFactory.initBaggingM5P(ARFF_FORMAT, BaseClassifier.FOR_BUILD_MODEL);
-		GeneralInstances continuousResult=testBackward(cModel);
+		testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
 //		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 		
 		//按二分类器回测历史数据
 		AdaboostClassifier nModel=ClassiferInitFactory.initAdaboost(ARFF_FORMAT, BaseClassifier.FOR_BUILD_MODEL);
+		testBackward(nModel);
+		//不真正回测了，直接从以前的结果文件中加载
+//		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
+		
+
+		//统一输出统计结果
+		nModel.outputClassifySummary();
+		cModel.outputClassifySummary();
+
+	}	
+	/**
+	 * 重新评估全部模型
+	 * @throws Exception
+	 */	
+	protected void callReEvaluateModels() throws Exception {
+		RUNNING_THREADS=25;
+		
+		//按连续分类器回测历史数据
+		BaggingM5P cModel=ClassiferInitFactory.initBaggingM5P(ARFF_FORMAT, BaseClassifier.FOR_EVALUATE_MODEL);
+		GeneralInstances continuousResult=testBackward(cModel);
+		//不真正回测了，直接从以前的结果文件中加载
+//		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
+		
+		//按二分类器回测历史数据
+		AdaboostClassifier nModel=ClassiferInitFactory.initAdaboost(ARFF_FORMAT, BaseClassifier.FOR_EVALUATE_MODEL);
 		GeneralInstances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
 //		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
@@ -199,7 +225,6 @@ public class BackTest {
 		saveSelectedFileForMarkets(mlpOutput,nModel.getIdentifyName());
 		System.out.println("-----end of test backward------");
 	}	
-	
 
 	protected void callTestBack() throws Exception {
 		//按连续分类器回测历史数据
