@@ -6,6 +6,7 @@ import java.io.Serializable;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import weka.classifiers.Classifier;
+import weka.classifiers.evaluation.ThresholdCurve;
 import weka.core.SerializedObject;
 import yueyueGo.dataFormat.ArffFormat;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
@@ -16,6 +17,7 @@ import yueyueGo.databeans.GeneralAttribute;
 import yueyueGo.databeans.GeneralDataTag;
 import yueyueGo.databeans.GeneralInstance;
 import yueyueGo.databeans.GeneralInstances;
+import yueyueGo.databeans.WekaInstances;
 import yueyueGo.utility.ClassifySummaries;
 import yueyueGo.utility.EvaluationBenchmark;
 import yueyueGo.utility.EvaluationConfDefinition;
@@ -162,6 +164,9 @@ public abstract class BaseClassifier implements Serializable{
 
 		GeneralInstances result = getROCInstances(evalData, model);
 //		FileUtility.SaveDataIntoFile(result, this.WORK_PATH+"\\ROCresult.arff");
+		double modelAUC=ThresholdCurve.getROCArea( WekaInstances.convertToWekaInstances(result));
+		System.out.println("model AUC="+modelAUC);
+		
 		int round=1;
 
 		ThresholdData thresholdData=null;
