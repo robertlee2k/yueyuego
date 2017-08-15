@@ -443,7 +443,7 @@ public abstract class BaseClassifier implements Serializable{
 		}else{
 			//这是进行历史回测数据时，根据历史收益率数据进行阶段评估
 			classifySummaries.computeClassifySummaries(yearSplit,policySplit,totalPositiveShouyilv,totalNegativeShouyilv,selectedPositiveShouyilv,selectedNegativeShouyilv);
-			String evalSummary=","+FormatUtility.formatDouble(thresholdMin,0,3)+","+FormatUtility.formatPercent(startPercent/100)+","+defaultThresholdUsed+" ,modelAUC="+FormatUtility.formatDouble(modelAUC,0,4)+"\r\n";  //输出评估结果及所使用阀值及期望样本百分比
+			String evalSummary=","+FormatUtility.formatDouble(thresholdMin,0,3)+","+FormatUtility.formatPercent(startPercent/100)+","+defaultThresholdUsed+","+FormatUtility.formatDouble(modelAUC,0,4)+"\r\n";  //输出评估结果及所使用阀值及期望样本百分比
 			classifySummaries.appendEvaluationSummary(evalSummary);
 		}
 	}
