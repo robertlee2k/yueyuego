@@ -24,7 +24,7 @@ public class ClassifySummaries {
 	
 	//重置evaluationSummary CSV为Header信息
 	private void setEvaluationSummaryHeader(){
-		String sHeader="时间段,均线策略,整体正收益股数,整体股数,整体TPR,选股比率,所选正收益股数,所选总股数,所选股TPR,提升率,所选股平均收益率,整体平均收益率,收益率差,是否改善,阀值下限,阀值百分比,阀值使用缺省值\r\n";
+		String sHeader="时间段,均线策略,整体正收益股数,整体股数,整体TPR,选股比率,所选正收益股数,所选总股数,所选股TPR,提升率,所选股平均收益率,整体平均收益率,收益率差,是否改善,阈值下限,阈值百分比,阈值使用缺省值,模型AUC\r\n";
 		this.evaluationSummary = sHeader;
 	}
 	

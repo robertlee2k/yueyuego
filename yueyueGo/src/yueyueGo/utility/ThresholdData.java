@@ -17,7 +17,16 @@ public class ThresholdData implements Serializable{
 	private String targetYearSplit=null; //当前评估数据对应的目标测试月份
 	private String evalYearSplit=null; //当前评估数据对应的评估起始月份
 	private String modelYearSplit=null; //当前评估数据对应的模型数据截止月份
+	private double modelAUC=0; //当前评估数据应用于对应Model所计算的AUC
 	
+	public double getModelAUC() {
+		return modelAUC;
+	}
+
+	public void setModelAUC(double modelAUC) {
+		this.modelAUC = modelAUC;
+	}
+
 	public String getTargetYearSplit() {
 		return targetYearSplit;
 	}

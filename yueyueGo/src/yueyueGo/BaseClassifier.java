@@ -155,6 +155,7 @@ public abstract class BaseClassifier implements Serializable{
 		thresholdData.setEvalYearSplit(m_modelStore.getEvalYearSplit());
 		thresholdData.setModelYearSplit(m_modelStore.getModelYearSplit());
 		ThresholdData.saveEvaluationToFile(m_modelStore.getEvalFileName(), thresholdData);
+		System.out.println("所评估model AUC="+thresholdData.getModelAUC()+" modelYearsplit="+thresholdData.getModelYearSplit()+" evalYearSplit="+thresholdData.getEvalYearSplit()+" policySplit="+policySplit);
 
 	}
 	
@@ -165,7 +166,7 @@ public abstract class BaseClassifier implements Serializable{
 		GeneralInstances result = getROCInstances(evalData, model);
 //		FileUtility.SaveDataIntoFile(result, this.WORK_PATH+"\\ROCresult.arff");
 		double modelAUC=ThresholdCurve.getROCArea( WekaInstances.convertToWekaInstances(result));
-		System.out.println("model AUC="+modelAUC);
+
 		
 		int round=1;
 
@@ -189,6 +190,9 @@ public abstract class BaseClassifier implements Serializable{
 			thresholdData=computeDefaultThresholds(evalParams,result);//设置下限
 			
 		}
+		
+		//将ModelAUC保存
+		thresholdData.setModelAUC(modelAUC);
 
 		return thresholdData;
 	}
@@ -352,7 +356,8 @@ public abstract class BaseClassifier implements Serializable{
 		else 
 			throw new Exception(msg);
 		double thresholdMin=thresholdData.getThresholdMin();
-		double thresholdMax=thresholdData.getThresholdMax();		
+		double thresholdMax=thresholdData.getThresholdMax();	
+		double modelAUC=thresholdData.getModelAUC();
 
 		//开始用分类模型和阀值进行预测
 		System.out.println("actual -> predicted....... ");
@@ -432,13 +437,13 @@ public abstract class BaseClassifier implements Serializable{
 		if ("".equals(yearSplit) ){
 			//这是预测每日数据时，没有实际收益率数据可以做评估 (上述逻辑会让所有的数据都进入negative的分支）
 			classifySummaries.savePredictSummaries(policySplit,totalNegativeShouyilv,selectedNegativeShouyilv);
-			String evalSummary="( with params: thresholdMin="+FormatUtility.formatDouble(thresholdMin,0,3)+" , startPercent="+FormatUtility.formatPercent(startPercent/100)+" ,defaultThresholdUsed="+defaultThresholdUsed+" )\r\n";  //输出评估结果及所使用阀值及期望样本百分比
+			String evalSummary="( with params: thresholdMin="+FormatUtility.formatDouble(thresholdMin,0,3)+" , startPercent="+FormatUtility.formatPercent(startPercent/100)+" ,defaultThresholdUsed="+defaultThresholdUsed+" ,modelAUC="+FormatUtility.formatDouble(modelAUC,0,4)+" )\r\n";  //输出评估结果及所使用阀值及期望样本百分比
 			classifySummaries.appendEvaluationSummary(evalSummary);
 
 		}else{
 			//这是进行历史回测数据时，根据历史收益率数据进行阶段评估
 			classifySummaries.computeClassifySummaries(yearSplit,policySplit,totalPositiveShouyilv,totalNegativeShouyilv,selectedPositiveShouyilv,selectedNegativeShouyilv);
-			String evalSummary=","+FormatUtility.formatDouble(thresholdMin,0,3)+","+FormatUtility.formatPercent(startPercent/100)+","+defaultThresholdUsed+"\r\n";  //输出评估结果及所使用阀值及期望样本百分比
+			String evalSummary=","+FormatUtility.formatDouble(thresholdMin,0,3)+","+FormatUtility.formatPercent(startPercent/100)+","+defaultThresholdUsed+" ,modelAUC="+FormatUtility.formatDouble(modelAUC,0,4)+"\r\n";  //输出评估结果及所使用阀值及期望样本百分比
 			classifySummaries.appendEvaluationSummary(evalSummary);
 		}
 	}
