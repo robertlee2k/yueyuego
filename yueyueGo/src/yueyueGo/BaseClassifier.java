@@ -165,17 +165,13 @@ public abstract class BaseClassifier implements Serializable{
 	
 
 
-	private ArrayList<Prediction> getEvalPreditions(GeneralInstances evalData, Classifier model,double focusAreaRatio) throws Exception{
+	private ArrayList<Prediction> getEvalPreditions(GeneralInstances evalData, Classifier model) throws Exception{
 		EvaluationUtils eUtils=new EvaluationUtils();
 		ArrayList<Prediction> predictions=eUtils.getTestPredictions(model, WekaInstances.convertToWekaInstances(evalData));
-		
 		return predictions;
-		
-
 	}
 	
 	public static ArrayList<Prediction> getTopPredictedValues(ArrayList<Prediction> predictions,double ratio) {
-		
 		
 		DescriptiveStatistics probs=new DescriptiveStatistics();
 		for (int i = 0; i < predictions.size(); i++) {
@@ -206,27 +202,29 @@ public abstract class BaseClassifier implements Serializable{
 		/*
 		 * 用ROC的方法评价模型质量
 		 * 在实际问题域中，我们并不关心整体样本的ROC curve，我们只关心预测值排序在头部区间内的ROC表现（top前N%）
-		 */		
+		 */
+		ArrayList<Prediction> fullPredictions=getEvalPreditions(evalData, model);
 		double focusAreaRatio;
 		double modelAUC;
-		
+		ArrayList<Prediction> topPedictions;
+
 		focusAreaRatio=0.03;
-		ArrayList<Prediction> predictions=getEvalPreditions(evalData, model,focusAreaRatio);
-		GeneralInstances result =getROCInstances(predictions);
+		topPedictions=getTopPredictedValues(fullPredictions,focusAreaRatio);
+		GeneralInstances result =getROCInstances(topPedictions);
 		modelAUC=ThresholdCurve.getROCArea( WekaInstances.convertToWekaInstances(result));
-		System.out.println("MoDELAUC="+modelAUC+ " where focusAreaRatio="+focusAreaRatio);
+		System.out.println("thread:"+Thread.currentThread().getName()+" MoDELAUC="+modelAUC+ " where focusAreaRatio="+focusAreaRatio);
 		
 		focusAreaRatio=0.1;
-		predictions=getEvalPreditions(evalData, model,focusAreaRatio);
-		result =getROCInstances(predictions);
+		topPedictions=getTopPredictedValues(fullPredictions,focusAreaRatio);
+		result =getROCInstances(topPedictions);
 		modelAUC=ThresholdCurve.getROCArea( WekaInstances.convertToWekaInstances(result));
-		System.out.println("MoDELAUC="+modelAUC+ " where focusAreaRatio="+focusAreaRatio);
+		System.out.println("thread:"+Thread.currentThread().getName()+" MoDELAUC="+modelAUC+ " where focusAreaRatio="+focusAreaRatio);
 		
 		focusAreaRatio=1;
-		predictions=getEvalPreditions(evalData, model,focusAreaRatio);
-		result =getROCInstances(predictions);
+		topPedictions=getTopPredictedValues(fullPredictions,focusAreaRatio);
+		result =getROCInstances(topPedictions);
 		modelAUC=ThresholdCurve.getROCArea( WekaInstances.convertToWekaInstances(result));
-		System.out.println("MoDELAUC="+modelAUC+ " where focusAreaRatio="+focusAreaRatio);
+		System.out.println("thread:"+Thread.currentThread().getName()+" MoDELAUC="+modelAUC+ " where focusAreaRatio="+focusAreaRatio);
 //		FileUtility.SaveDataIntoFile(result, this.WORK_PATH+"\\ROCresult.arff");
 
 		
