@@ -173,6 +173,11 @@ public abstract class BaseClassifier implements Serializable{
 	
 	public static ArrayList<Prediction> getTopPredictedValues(ArrayList<Prediction> predictions,double ratio) {
 		
+		//如果是全部则返回全量数据
+		if (ratio>=1){
+			return predictions;
+		}
+		
 		DescriptiveStatistics probs=new DescriptiveStatistics();
 		for (int i = 0; i < predictions.size(); i++) {
 			Prediction pred =  predictions.get(i);
