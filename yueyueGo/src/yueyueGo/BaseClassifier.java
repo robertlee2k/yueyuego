@@ -2,10 +2,13 @@ package yueyueGo;
 
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import weka.classifiers.Classifier;
+import weka.classifiers.evaluation.EvaluationUtils;
+import weka.classifiers.evaluation.Prediction;
 import weka.classifiers.evaluation.ThresholdCurve;
 import weka.core.SerializedObject;
 import yueyueGo.dataFormat.ArffFormat;
@@ -85,7 +88,8 @@ public abstract class BaseClassifier implements Serializable{
 	//一系列需要子类实现的抽象方法
 	protected abstract void initializeParams();
 	protected abstract Classifier buildModel(GeneralInstances trainData) throws Exception;
-	protected abstract GeneralInstances getROCInstances(GeneralInstances evalData, Classifier model) throws Exception; 
+	
+	protected abstract GeneralInstances getROCInstances(ArrayList<Prediction> predictions)throws Exception; 
 	protected abstract double classify(Classifier model,GeneralInstance curr) throws Exception ;
 	
 	//可以在子类中被覆盖
@@ -159,14 +163,73 @@ public abstract class BaseClassifier implements Serializable{
 
 	}
 	
+
+
+	private ArrayList<Prediction> getEvalPreditions(GeneralInstances evalData, Classifier model,double focusAreaRatio) throws Exception{
+		EvaluationUtils eUtils=new EvaluationUtils();
+		ArrayList<Prediction> predictions=eUtils.getTestPredictions(model, WekaInstances.convertToWekaInstances(evalData));
+		
+		return predictions;
+		
+
+	}
+	
+	public static ArrayList<Prediction> getTopPredictedValues(ArrayList<Prediction> predictions,double ratio) {
+		
+		
+		DescriptiveStatistics probs=new DescriptiveStatistics();
+		for (int i = 0; i < predictions.size(); i++) {
+			Prediction pred =  predictions.get(i);
+			probs.addValue(pred.predicted());
+		}
+		
+		double judgePoint=probs.getPercentile((1-ratio)*100);
+		
+		// 根据阈值截取数据
+		ArrayList<Prediction> topPredictions=new ArrayList<Prediction>();
+		for (int i = 0; i < predictions.size(); i++) {
+			Prediction pred =  predictions.get(i);
+			if (pred.predicted() >=judgePoint) {
+				topPredictions.add(pred);
+			}
+		}
+		System.out.println("number of preditions selected="+topPredictions.size()+" from total ("+predictions.size()+") by using top ratio="+ratio+" where predicted value ="+judgePoint);
+		return topPredictions;
+
+
+	}
+	
 	//具体的模型评估方法
 	private ThresholdData doModelEvaluation(EvaluationBenchmark benchmark ,GeneralInstances evalData,Classifier model,EvaluationParams evalParams)
 			throws Exception {
-
-		GeneralInstances result = getROCInstances(evalData, model);
+		
+		/*
+		 * 用ROC的方法评价模型质量
+		 * 在实际问题域中，我们并不关心整体样本的ROC curve，我们只关心预测值排序在头部区间内的ROC表现（top前N%）
+		 */		
+		double focusAreaRatio;
+		double modelAUC;
+		
+		focusAreaRatio=0.03;
+		ArrayList<Prediction> predictions=getEvalPreditions(evalData, model,focusAreaRatio);
+		GeneralInstances result =getROCInstances(predictions);
+		modelAUC=ThresholdCurve.getROCArea( WekaInstances.convertToWekaInstances(result));
+		System.out.println("MoDELAUC="+modelAUC+ " where focusAreaRatio="+focusAreaRatio);
+		
+		focusAreaRatio=0.1;
+		predictions=getEvalPreditions(evalData, model,focusAreaRatio);
+		result =getROCInstances(predictions);
+		modelAUC=ThresholdCurve.getROCArea( WekaInstances.convertToWekaInstances(result));
+		System.out.println("MoDELAUC="+modelAUC+ " where focusAreaRatio="+focusAreaRatio);
+		
+		focusAreaRatio=1;
+		predictions=getEvalPreditions(evalData, model,focusAreaRatio);
+		result =getROCInstances(predictions);
+		modelAUC=ThresholdCurve.getROCArea( WekaInstances.convertToWekaInstances(result));
+		System.out.println("MoDELAUC="+modelAUC+ " where focusAreaRatio="+focusAreaRatio);
 //		FileUtility.SaveDataIntoFile(result, this.WORK_PATH+"\\ROCresult.arff");
-		double modelAUC=ThresholdCurve.getROCArea( WekaInstances.convertToWekaInstances(result));
 
+		
 		
 		int round=1;
 

@@ -3,7 +3,6 @@ package yueyueGo;
 import java.util.ArrayList;
 
 import weka.classifiers.Classifier;
-import weka.classifiers.evaluation.EvaluationUtils;
 import weka.classifiers.evaluation.Prediction;
 import weka.classifiers.evaluation.ThresholdCurve;
 import yueyueGo.dataFormat.ArffFormat;
@@ -17,7 +16,6 @@ import yueyueGo.databeans.GeneralInstance;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaAttribute;
 import yueyueGo.databeans.WekaInstance;
-import yueyueGo.databeans.WekaInstances;
 import yueyueGo.utility.FormatUtility;
 
 public abstract class NominalClassifier extends BaseClassifier{
@@ -28,16 +26,15 @@ public abstract class NominalClassifier extends BaseClassifier{
 
 	private GeneralInstances m_cachedOldClassInstances=null;
 	
+
 	/**
-	 * @param evalData
-	 * @param model
+	 * implementation of abstract method in super class
+	 * @param predictions
 	 * @return
 	 * @throws Exception
 	 */
-	protected GeneralInstances getROCInstances(GeneralInstances evalData, Classifier model)
+	protected GeneralInstances getROCInstances(ArrayList<Prediction> predictions)
 			throws Exception {
-		EvaluationUtils eUtils=new EvaluationUtils();
-		ArrayList<Prediction> predictions=eUtils.getTestPredictions(model, WekaInstances.convertToWekaInstances(evalData));
 		ThresholdCurve tc = new ThresholdCurve();
 		int classIndex = 1;
 		GeneralInstances result = new DataInstances(tc.getCurve(predictions, classIndex));

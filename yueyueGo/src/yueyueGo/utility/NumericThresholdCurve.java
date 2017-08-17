@@ -41,6 +41,9 @@ public class NumericThresholdCurve {
 	  public static final String LIFT_NAME = "Lift";
 	  /** attribute name: Threshold */
 	  public static final String THRESHOLD_NAME = "Threshold";
+	  
+	  
+
 	public Instances getCurve(ArrayList<Prediction> predictions) {
 		return getCurve( predictions, 0);
 	}
