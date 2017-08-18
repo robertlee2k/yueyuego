@@ -180,9 +180,16 @@ public abstract class BaseClassifier implements Serializable{
 		}
 		
 		DescriptiveStatistics probs=new DescriptiveStatistics();
+		double predicted=0.0;
 		for (int i = 0; i < predictions.size(); i++) {
 			Prediction pred =  predictions.get(i);
-			probs.addValue(pred.predicted());
+			if (isNominalPred){
+				//对于二分类变量，返回分类1的预测可能性
+				predicted=((NominalPrediction)pred).distribution()[1];
+			}else{
+				predicted=pred.predicted(); 
+			}
+			probs.addValue(predicted);
 		}
 		
 		double judgePoint=probs.getPercentile((1-ratio)*100);
@@ -191,7 +198,6 @@ public abstract class BaseClassifier implements Serializable{
 		ArrayList<Prediction> topPredictions=new ArrayList<Prediction>();
 		for (int i = 0; i < predictions.size(); i++) {
 			Prediction pred =  predictions.get(i);
-			double predicted=0.0;
 			if (isNominalPred){
 				//对于二分类变量，返回分类1的预测可能性
 				predicted=((NominalPrediction)pred).distribution()[1];
