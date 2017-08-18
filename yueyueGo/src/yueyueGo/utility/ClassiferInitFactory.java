@@ -31,6 +31,9 @@ public class ClassiferInitFactory {
 			model.m_evalDataSplitMode=ModelStore.USE_NINE_MONTHS_DATA_FOR_EVAL;//USE_YEAR_DATA_FOR_EVAL; //评估区间使用一年数据 （截止20170103，这个是效果最好的）
 		}else{
 			//否则返回缺省值
+			model.m_usePCA=false;
+			model.bagging_iteration=6;
+			model.divided=600; //将trainingData分成多少份
 		}
 		return model;
 	}
@@ -56,6 +59,9 @@ public class ClassiferInitFactory {
 			model.m_evalDataSplitMode=ModelStore.USE_NINE_MONTHS_DATA_FOR_EVAL; //尝试评估区间使用9个月数据（效果还不错）
 		}else{
 			//否则返回缺省值
+			model.m_usePCA=false;
+			model.boost_iteration=6;
+			model.divided=600; //将trainingData分成多少份
 		}
 		return model;
 	}
