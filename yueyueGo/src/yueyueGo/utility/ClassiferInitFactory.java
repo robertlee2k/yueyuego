@@ -32,8 +32,11 @@ public class ClassiferInitFactory {
 		}else{
 			//否则返回缺省值
 			model.m_usePCA=false;
-			model.bagging_iteration=6;
+			model.bagging_iteration=5;
 			model.divided=600; //将trainingData分成多少份
+			model.m_modelFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
+			model.m_evalDataSplitMode=ModelStore.USE_YEAR_DATA_FOR_EVAL;
+
 		}
 		return model;
 	}
@@ -60,8 +63,10 @@ public class ClassiferInitFactory {
 		}else{
 			//否则返回缺省值
 			model.m_usePCA=false;
-			model.boost_iteration=6;
+			model.boost_iteration=5;
 			model.divided=600; //将trainingData分成多少份
+			model.m_modelFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
+			model.m_evalDataSplitMode=ModelStore.USE_YEAR_DATA_FOR_EVAL;
 		}
 		return model;
 	}
