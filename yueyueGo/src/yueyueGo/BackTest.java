@@ -156,7 +156,7 @@ public class BackTest {
 	 * @throws Exception
 	 */	
 	protected void callRebuildModels() throws Exception {
-		RUNNING_THREADS=1;
+		RUNNING_THREADS=2;
 		
 //		m_handSetSplitYear=
 //		new String[] {
