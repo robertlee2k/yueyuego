@@ -1,7 +1,14 @@
 package yueyueGo.utility;
 
+import java.util.ArrayList;
+
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
+import weka.classifiers.evaluation.EvaluationUtils;
+import weka.classifiers.evaluation.NominalPrediction;
+import weka.classifiers.evaluation.Prediction;
 import weka.classifiers.meta.Bagging;
 import weka.classifiers.trees.J48;
 import weka.classifiers.trees.M5P;
@@ -241,5 +248,54 @@ public class ClassifyUtility {
 		}
 	
 		return eval;
+	}
+
+	public static ArrayList<Prediction> getEvalPreditions(GeneralInstances evalData, Classifier model) throws Exception{
+		EvaluationUtils eUtils=new EvaluationUtils();
+		ArrayList<Prediction> predictions=eUtils.getTestPredictions(model, WekaInstances.convertToWekaInstances(evalData));
+		return predictions;
+	}
+
+	public static ArrayList<Prediction> getTopPredictedValues(boolean isNominalPred,ArrayList<Prediction> predictions,double ratio) {
+		
+		//如果是全部则返回全量数据
+		if (ratio>=1){
+			return predictions;
+		}
+		
+		DescriptiveStatistics probs=new DescriptiveStatistics();
+		double predicted=0.0;
+		for (int i = 0; i < predictions.size(); i++) {
+			Prediction pred =  predictions.get(i);
+			if (isNominalPred){
+				//对于二分类变量，返回分类1的预测可能性
+				predicted=((NominalPrediction)pred).distribution()[1];
+			}else{
+				predicted=pred.predicted(); 
+			}
+			probs.addValue(predicted);
+		}
+		
+		double judgePoint=probs.getPercentile((1-ratio)*100);
+		
+		// 根据阈值截取数据
+		ArrayList<Prediction> topPredictions=new ArrayList<Prediction>();
+		for (int i = 0; i < predictions.size(); i++) {
+			Prediction pred =  predictions.get(i);
+			if (isNominalPred){
+				//对于二分类变量，返回分类1的预测可能性
+				predicted=((NominalPrediction)pred).distribution()[1];
+			}else{
+				predicted=pred.predicted(); 
+			}
+	
+			if (predicted>=judgePoint) {
+				topPredictions.add(pred);
+			}
+		}
+		System.out.println("number of preditions selected="+topPredictions.size()+" from total ("+predictions.size()+") by using top ratio="+ratio+" where predicted value ="+judgePoint);
+		return topPredictions;
+	
+	
 	}
 }
