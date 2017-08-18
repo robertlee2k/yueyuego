@@ -65,7 +65,7 @@ public class BackTest {
 	protected String STRAGEY_NAME; // 策略的名称，只是用于输出。
 	protected ArffFormat ARFF_FORMAT; //当前所用数据文件格式 
 	private final static int BEGIN_FROM_POLICY=0; // 当回测需要跳过某些均线时，0表示不跳过
-	protected String m_startYear= "2016";
+	protected String m_startYear= "2017";
 	protected String m_endYearMonth="201708"; //结尾月一般是当前月，这个月是没有数据的，最新数据是上月的
 	
 	protected String[] m_handSetSplitYear=new String[] {};
