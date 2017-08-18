@@ -8,6 +8,7 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.evaluation.EvaluationUtils;
+import weka.classifiers.evaluation.NominalPrediction;
 import weka.classifiers.evaluation.Prediction;
 import weka.classifiers.evaluation.ThresholdCurve;
 import weka.core.SerializedObject;
@@ -171,7 +172,7 @@ public abstract class BaseClassifier implements Serializable{
 		return predictions;
 	}
 	
-	public static ArrayList<Prediction> getTopPredictedValues(ArrayList<Prediction> predictions,double ratio) {
+	public static ArrayList<Prediction> getTopPredictedValues(boolean isNominalPred,ArrayList<Prediction> predictions,double ratio) {
 		
 		//如果是全部则返回全量数据
 		if (ratio>=1){
@@ -190,7 +191,15 @@ public abstract class BaseClassifier implements Serializable{
 		ArrayList<Prediction> topPredictions=new ArrayList<Prediction>();
 		for (int i = 0; i < predictions.size(); i++) {
 			Prediction pred =  predictions.get(i);
-			if (pred.predicted() >=judgePoint) {
+			double predicted=0.0;
+			if (isNominalPred){
+				//对于二分类变量，返回分类1的预测可能性
+				predicted=((NominalPrediction)pred).distribution()[1];
+			}else{
+				predicted=pred.predicted(); 
+			}
+
+			if (predicted>=judgePoint) {
 				topPredictions.add(pred);
 			}
 		}
@@ -212,21 +221,24 @@ public abstract class BaseClassifier implements Serializable{
 		double focusAreaRatio;
 		double modelAUC;
 		ArrayList<Prediction> topPedictions;
-
+		boolean isNominal=false;
+		if ( this instanceof NominalClassifier){
+			isNominal=true;
+		}
 		focusAreaRatio=0.03;
-		topPedictions=getTopPredictedValues(fullPredictions,focusAreaRatio);
+		topPedictions=getTopPredictedValues(isNominal,fullPredictions,focusAreaRatio);
 		GeneralInstances result =getROCInstances(topPedictions);
 		modelAUC=ThresholdCurve.getROCArea( WekaInstances.convertToWekaInstances(result));
 		System.out.println("thread:"+Thread.currentThread().getName()+" MoDELAUC="+modelAUC+ " where focusAreaRatio="+focusAreaRatio);
 		
 		focusAreaRatio=0.1;
-		topPedictions=getTopPredictedValues(fullPredictions,focusAreaRatio);
+		topPedictions=getTopPredictedValues(isNominal,fullPredictions,focusAreaRatio);
 		result =getROCInstances(topPedictions);
 		modelAUC=ThresholdCurve.getROCArea( WekaInstances.convertToWekaInstances(result));
 		System.out.println("thread:"+Thread.currentThread().getName()+" MoDELAUC="+modelAUC+ " where focusAreaRatio="+focusAreaRatio);
 		
 		focusAreaRatio=1;
-		topPedictions=getTopPredictedValues(fullPredictions,focusAreaRatio);
+		topPedictions=getTopPredictedValues(isNominal,fullPredictions,focusAreaRatio);
 		result =getROCInstances(topPedictions);
 		modelAUC=ThresholdCurve.getROCArea( WekaInstances.convertToWekaInstances(result));
 		System.out.println("thread:"+Thread.currentThread().getName()+" MoDELAUC="+modelAUC+ " where focusAreaRatio="+focusAreaRatio);
