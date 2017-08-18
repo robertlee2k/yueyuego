@@ -1,3 +1,4 @@
+
 package yueyueGo.classifier;
 
 import weka.classifiers.Classifier;
@@ -89,6 +90,7 @@ import yueyueGo.utility.MyRandomForestClassifer;
 //shouyilv average for full market=0.6076%
 //selected shouyilv average for full market =2.2911% count=27392
 //-----now output nominal predictions----------RandForest (filtered by continuous: baggingM5P-multiPCA)
+@Deprecated 
 public class RandForest extends NominalClassifier implements ParrallelizedRunning{
 
 	/**
@@ -117,7 +119,7 @@ public class RandForest extends NominalClassifier implements ParrallelizedRunnin
 	protected Classifier buildModel(GeneralInstances trainData) throws Exception {
 		MyRandomForestClassifer rForest=new MyRandomForestClassifer();
 		rForest.setSeed(888);
-		rForest.setNumTrees(1000);
+//		rForest.setNumTrees(1000);
 		int features=trainData.numAttributes();
 		int threads=ClassifyUtility.calculateExecutionSlots(trainData.numInstances(),features,20,100);
 		rForest.setNumExecutionSlots(threads);
