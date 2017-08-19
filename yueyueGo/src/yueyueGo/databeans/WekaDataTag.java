@@ -33,13 +33,11 @@ public class WekaDataTag extends GeneralDataTag {
 		
 		switch (dataType) {
 		case TRAINING_DATA:
-			this.splitClause="(" + attPos + " < "+ toPeriod + ") ";
-			break;
 		case EVALUATION_DATA:
 			this.splitClause="(" + attPos + " >= "+ fromPeriod + ") and (" + attPos + " < "	+ toPeriod + ") ";
 			break;
 		case TESTING_DATA:
-			this.splitClause="(" + attPos + " = "+ toPeriod + ") ";
+			this.splitClause="(" + attPos + " >= "+ fromPeriod + ") and (" + attPos + " <= " + toPeriod + ") ";
 			break;	
 			
 		default:
