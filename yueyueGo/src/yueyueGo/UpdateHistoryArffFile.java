@@ -712,12 +712,15 @@ public class UpdateHistoryArffFile {
 		//传统
 		String sourceFilePrefix=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group9\\v_onceyield_group9all_";
 		GeneralInstances fullData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2005-2009.txt");
-		GeneralInstances addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2010-2014.txt");
+		GeneralInstances addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2010-2012.txt");
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullData);
 		fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
 		
 		System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
-		addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2015-2017.txt");
+		addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2013-2015.txt");
+		fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
+		System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
+		addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2016-2017.txt");
 		fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
 		System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
 //
