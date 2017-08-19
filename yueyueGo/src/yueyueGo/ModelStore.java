@@ -29,11 +29,13 @@ public class ModelStore {
 	public static final int USE_YEAR_DATA_FOR_EVAL=12; //使用倒推一年的数据作为模型评估数据，之前用于的构建模型（缺省值）
 	public static final int USE_HALF_YEAR_DATA_FOR_EVAL=6;//使用倒推半年的数据作为模型评估数据，之前用于的构建模型
 	public static final int USE_NINE_MONTHS_DATA_FOR_EVAL=9;//使用倒推半年的数据作为模型评估数据，之前用于的构建模型
-
+	
+		
 	protected String m_modelFileName;
 	protected String m_evalFileName;
 	
-	protected String m_modelYearSplit;
+	protected String m_modelYearSplit;          //构建模型数据的结束年月
+	protected String m_modelDataStartYearSplit; //构建模型数据的起始年月
 	protected String m_evalYearSplit;
 	protected String m_targetYearSplit;
 	//统一常量
@@ -203,10 +205,19 @@ public class ModelStore {
 		default:
 			throw new RuntimeException("undefined m_modelEvalFileShareMode ");
 		}
-		System.out.println("模型构建数据切分日期="+modelYearSplit+"（评估数据切分日期="+evalYearSplit+" 模型共享模式="+modelFileShareMode+"）");
+		
 		return modelYearSplit;
 	}	
 	
+	/*
+	 * 取modelYearEndSplit的前noOfYears的yearmonth值
+	 * 如201203的前5年为200703
+	 */
+	public static String modelDataStartYearSplit(String modelYearEndSplit, int noOfYears){
+		int yearMonth=Integer.valueOf(modelYearEndSplit).intValue();
+		yearMonth-=noOfYears*100;
+		return String.valueOf(yearMonth);
+	}
 
 	/*
 	 * 校验构建模型阶段准备用于Training的data是否符合要求

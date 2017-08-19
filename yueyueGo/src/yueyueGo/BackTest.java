@@ -65,7 +65,7 @@ public class BackTest {
 	protected String STRAGEY_NAME; // 策略的名称，只是用于输出。
 	protected ArffFormat ARFF_FORMAT; //当前所用数据文件格式 
 	private final static int BEGIN_FROM_POLICY=0; // 当回测需要跳过某些均线时，0表示不跳过
-	protected String m_startYear= "2017";
+	protected String m_startYear= "2008";
 	protected String m_endYearMonth="201708"; //结尾月一般是当前月，这个月是没有数据的，最新数据是上月的
 	
 	protected String[] m_handSetSplitYear=new String[] {};
@@ -98,9 +98,9 @@ public class BackTest {
 			worker.init();
 
 			//调用回测函数回测
-//			worker.callReEvaluateModels();
-//			worker.callTestBack();
 			worker.callRebuildModels();
+			worker.callReEvaluateModels();
+//			worker.callTestBack();
 //			worker.callRefreshModelUseLatestData();
 //			worker.testForModelStore();
 			
@@ -156,7 +156,7 @@ public class BackTest {
 	 * @throws Exception
 	 */	
 	protected void callRebuildModels() throws Exception {
-		RUNNING_THREADS=2;
+		RUNNING_THREADS=5;
 		
 //		m_handSetSplitYear=
 //		new String[] {
@@ -531,10 +531,12 @@ public class BackTest {
 		String evalYearSplit=ModelStore.caculateEvalYearSplit(targetYearSplit, clModel.m_evalDataSplitMode);
 		String modelYearSplit=ModelStore.caculateModelYearSplit(evalYearSplit, clModel.m_modelFileShareMode);
 
-
+		//TODO 缺省用5年的训练数据
+		String modelDataStartYearSplit=ModelStore.modelDataStartYearSplit(modelYearSplit, 5);
+		System.out.println("模型构建数据 from "+modelDataStartYearSplit+" to "+modelYearSplit+"（评估数据切分日期="+evalYearSplit+" 模型共享模式="+clModel.m_modelFileShareMode+"）");
 		GeneralDataTag[] dataTags=new WekaDataTag[3];
 		
-		dataTags[0]=new WekaDataTag(GeneralDataTag.TRAINING_DATA,GeneralDataTag.LONG_LONG_AGO,modelYearSplit);
+		dataTags[0]=new WekaDataTag(GeneralDataTag.TRAINING_DATA,modelDataStartYearSplit,modelYearSplit);
 		dataTags[1]=new WekaDataTag(GeneralDataTag.EVALUATION_DATA,evalYearSplit,targetYearSplit);
 		dataTags[2]=new WekaDataTag(GeneralDataTag.TESTING_DATA,targetYearSplit,targetYearSplit);
 		
