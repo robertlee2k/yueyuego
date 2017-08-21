@@ -274,7 +274,7 @@ public class BackTest {
 		
 		//创建存储评估结果的数据容器
 		ClassifySummaries modelSummaries=new ClassifySummaries(clModel.getIdentifyName()+" format="+clModel.modelArffFormat,false);
-		clModel.setClassifySummaries(modelSummaries);
+		clModel.initClassifySummaries(modelSummaries);
 
 		System.out.println("test backward using classifier : "+clModel.getIdentifyName()+" @ model work path prefix:"+modelFilePrefix);
 		
@@ -395,10 +395,10 @@ public class BackTest {
 
 					//多线程的时候clone一个clModel执行任务，当前的Model继续走下去。
 					ClassifySummaries commonSummaries=clModel.getClassifySummaries();
-					clModel.setClassifySummaries(null); //不要clone classifySummaries，这个需要各线程同用一个对象
+					clModel.initClassifySummaries(null); //不要clone classifySummaries，这个需要各线程同用一个对象
 					BaseClassifier clModelClone=BaseClassifier.makeCopy(clModel);//利用序列化方法完整深度复制
-					clModel.setClassifySummaries(commonSummaries);
-					clModelClone.setClassifySummaries(commonSummaries);
+					clModel.initClassifySummaries(commonSummaries);
+					clModelClone.initClassifySummaries(commonSummaries);
 					
 					
 					//多线程的时候clone一个空result执行分配给线程。
@@ -455,7 +455,7 @@ public class BackTest {
 			threadResult.removeAllElements(); //释放内存
 		}
         
-		FileUtility.write(BACKTEST_RESULT_DIR+ARFF_FORMAT.m_arff_file_prefix+"-"+clModel.getIdentifyName()+"-Summary.csv",  modelSummaries.getEvaluationSummary(), "GBK");
+		FileUtility.write(BACKTEST_RESULT_DIR+ARFF_FORMAT.m_arff_file_prefix+"-"+clModel.getIdentifyName()+"-Summary.csv", modelSummaries.getEvaluationHeader()+modelSummaries.getEvaluationSummary(), "GBK");
 		
 		//保存评估结果至文件
 		saveBacktestResultFile(result,clModel.getIdentifyName());

@@ -58,6 +58,7 @@ public abstract class BaseClassifier implements Serializable{
 	private boolean m_skipTrainInBacktest = true; //回测中使用，是否跳过训练模型阶段
 	private boolean m_skipEvalInBacktest = true;  //回测中使用，是否跳过评估模型阶段
 	
+	private double[] m_focusAreaRatio={0.01,0.03,0.05,0.1,0.2,0.5,1};//评估时关注评估数据的不同Top 比例（缺省为0.01、0.03、0.05、0.1、0.2、0.5、1);
 
 	public boolean is_skipTrainInBacktest() {
 		return m_skipTrainInBacktest;
@@ -174,38 +175,26 @@ public abstract class BaseClassifier implements Serializable{
 		 * 在实际问题域中，我们并不关心整体样本的ROC curve，我们只关心预测值排序在头部区间内的ROC表现（top前N%）
 		 */
 		ArrayList<Prediction> fullPredictions=ClassifyUtility.getEvalPreditions(evalData, model);
-		double focusAreaRatio;
-		double modelAUC;
-		ArrayList<Prediction> topPedictions;
+		
+		double[] modelAUC=new double[m_focusAreaRatio.length];
 		boolean isNominal=false;
 		if ( this instanceof NominalClassifier){
 			isNominal=true;
 		}
-		focusAreaRatio=0.03;
-		topPedictions=ClassifyUtility.getTopPredictedValues(isNominal,fullPredictions,focusAreaRatio);
-		GeneralInstances result =getROCInstances(topPedictions);
-		modelAUC=ThresholdCurve.getROCArea( WekaInstances.convertToWekaInstances(result));
-		System.out.println("thread:"+Thread.currentThread().getName()+" MoDELAUC="+modelAUC+ " where focusAreaRatio="+focusAreaRatio);
-		
-		focusAreaRatio=0.1;
-		topPedictions=ClassifyUtility.getTopPredictedValues(isNominal,fullPredictions,focusAreaRatio);
-		result =getROCInstances(topPedictions);
-		modelAUC=ThresholdCurve.getROCArea( WekaInstances.convertToWekaInstances(result));
-		System.out.println("thread:"+Thread.currentThread().getName()+" MoDELAUC="+modelAUC+ " where focusAreaRatio="+focusAreaRatio);
-		
-		focusAreaRatio=1;
-		topPedictions=ClassifyUtility.getTopPredictedValues(isNominal,fullPredictions,focusAreaRatio);
-		result =getROCInstances(topPedictions);
-		modelAUC=ThresholdCurve.getROCArea( WekaInstances.convertToWekaInstances(result));
-		System.out.println("thread:"+Thread.currentThread().getName()+" MoDELAUC="+modelAUC+ " where focusAreaRatio="+focusAreaRatio);
+		ArrayList<Prediction> topPedictions;
+		GeneralInstances result=null;
+		for (int i=0;i<m_focusAreaRatio.length;i++){
+			topPedictions=ClassifyUtility.getTopPredictedValues(isNominal,fullPredictions,m_focusAreaRatio[i]);
+			result=getROCInstances(topPedictions);
+			modelAUC[i]=ThresholdCurve.getROCArea( WekaInstances.convertToWekaInstances(result));
+			System.out.println("thread:"+Thread.currentThread().getName()+" MoDELAUC="+modelAUC[i]+ " where focusAreaRatio="+m_focusAreaRatio[i]);
+		}
 //		FileUtility.SaveDataIntoFile(result, this.WORK_PATH+"\\ROCresult.arff");
-
 		
-		
-		int round=1;
 
 		ThresholdData thresholdData=null;
-		
+
+		int round=1;
 		double tp_fp_bottom_line=benchmark.getEval_tp_fp_ratio();  
 		System.out.println("use the tp_fp_bottom_line based on training history data = "+tp_fp_bottom_line);
 		double trying_tp_fp=benchmark.getEval_tp_fp_ratio()*evalParams.getLift_up_target();
@@ -225,7 +214,8 @@ public abstract class BaseClassifier implements Serializable{
 			
 		}
 		
-		//将ModelAUC保存
+		//将focusAreaRatio及对应的ModelAUC保存
+		thresholdData.setFocosAreaRatio(m_focusAreaRatio);
 		thresholdData.setModelAUC(modelAUC);
 
 		return thresholdData;
@@ -275,10 +265,10 @@ public abstract class BaseClassifier implements Serializable{
 		double sample_upper=evalParams.getUpper_limit();
 
 		double thresholdBottom = 0.0;
-		double lift_max = 0.0;
-		double lift_max_tp=0.0;
-		double lift_max_fp=0.0;
-		double lift_max_sample=0.0;
+//		double lift_max = 0.0;
+//		double lift_max_tp=0.0;
+//		double lift_max_fp=0.0;
+//		double lift_max_sample=0.0;
 		
 		double finalSampleSize = 0.0;
 		double sampleSize = 0.0;
@@ -288,7 +278,7 @@ public abstract class BaseClassifier implements Serializable{
 		double final_fp=0.0;
 		GeneralAttribute att_tp = result.attribute(NumericThresholdCurve.TRUE_POS_NAME);
 		GeneralAttribute att_fp = result.attribute(NumericThresholdCurve.FALSE_POS_NAME);
-		GeneralAttribute att_lift = result.attribute(NumericThresholdCurve.LIFT_NAME);
+//		GeneralAttribute att_lift = result.attribute(NumericThresholdCurve.LIFT_NAME);
 		GeneralAttribute att_threshold = result.attribute(NumericThresholdCurve.THRESHOLD_NAME);
 		GeneralAttribute att_samplesize = result.attribute(NumericThresholdCurve.SAMPLE_SIZE_NAME);
 
@@ -301,13 +291,13 @@ public abstract class BaseClassifier implements Serializable{
 				fp = curr.value(att_fp);
 				
 				//统计该范围内lift最大的值是多少（仅为输出用）
-				double current_lift=curr.value(att_lift);
-				if (current_lift>lift_max){
-					lift_max=current_lift;
-					lift_max_tp=tp;
-					lift_max_fp=fp;
-					lift_max_sample=sampleSize;
-				}
+//				double current_lift=curr.value(att_lift);
+//				if (current_lift>lift_max){
+//					lift_max=current_lift;
+//					lift_max_tp=tp;
+//					lift_max_fp=fp;
+//					lift_max_sample=sampleSize;
+//				}
 				
 				//查找合适的阀值
 				if (tp>fp*tp_fp_ratio ){
@@ -337,12 +327,12 @@ public abstract class BaseClassifier implements Serializable{
 			thresholdData.setEndPercent(100);
 
 		}else{
-			double max_tp_fp_ratio=Double.NaN;
-			if (lift_max_fp>0){
-				max_tp_fp_ratio=lift_max_tp/lift_max_fp;
-			}
-			System.out.println("###possible lift max in range is : " + FormatUtility.formatDouble(lift_max) + "@ sample="+FormatUtility.formatDouble(lift_max_sample)+" where tp="+lift_max_tp+" /fp="+lift_max_fp);
-			System.out.println("### max tp fp ratio="+max_tp_fp_ratio+ " while trying threshold="+tp_fp_ratio+ " isNormal="+(max_tp_fp_ratio<tp_fp_ratio));
+//			double max_tp_fp_ratio=Double.NaN;
+//			if (lift_max_fp>0){
+//				max_tp_fp_ratio=lift_max_tp/lift_max_fp;
+//			}
+//			System.out.println("###possible lift max in range is : " + FormatUtility.formatDouble(lift_max) + "@ sample="+FormatUtility.formatDouble(lift_max_sample)+" where tp="+lift_max_tp+" /fp="+lift_max_fp);
+//			System.out.println("### max tp fp ratio="+max_tp_fp_ratio+ " while trying threshold="+tp_fp_ratio+ " isNormal="+(max_tp_fp_ratio<tp_fp_ratio));
 		}
 
 		return thresholdData;
@@ -391,7 +381,7 @@ public abstract class BaseClassifier implements Serializable{
 			throw new Exception(msg);
 		double thresholdMin=thresholdData.getThresholdMin();
 		double thresholdMax=thresholdData.getThresholdMax();	
-		double modelAUC=thresholdData.getModelAUC();
+
 
 		//开始用分类模型和阀值进行预测
 		System.out.println("actual -> predicted....... ");
@@ -468,16 +458,33 @@ public abstract class BaseClassifier implements Serializable{
 		if (isGuessed){
 			defaultThresholdUsed="Y";
 		}		
+		
+		double[] modelAUC=thresholdData.getModelAUC();
+		
+		
 		if ("".equals(yearSplit) ){
 			//这是预测每日数据时，没有实际收益率数据可以做评估 (上述逻辑会让所有的数据都进入negative的分支）
 			classifySummaries.savePredictSummaries(policySplit,totalNegativeShouyilv,selectedNegativeShouyilv);
-			String evalSummary="( with params: thresholdMin="+FormatUtility.formatDouble(thresholdMin,0,3)+" , startPercent="+FormatUtility.formatPercent(startPercent/100)+" ,defaultThresholdUsed="+defaultThresholdUsed+" ,modelAUC="+FormatUtility.formatDouble(modelAUC,0,4)+" )\r\n";  //输出评估结果及所使用阀值及期望样本百分比
+			//输出评估结果及所使用阀值及期望样本百分比
+			String evalSummary="( with params: thresholdMin="+FormatUtility.formatDouble(thresholdMin,0,3)+" , startPercent="+FormatUtility.formatPercent(startPercent/100)+" ,defaultThresholdUsed="+defaultThresholdUsed;  
+			evalSummary+=" ,modelAUC@focusAreaRatio=";
+			double[] focusAreaRatio=thresholdData.getFocosAreaRatio();
+			for (int i=0;i<focusAreaRatio.length;i++) {
+				evalSummary+=FormatUtility.formatDouble(modelAUC[i],0,4)+"@"+FormatUtility.formatPercent(focusAreaRatio[i], 2, 0)+", " ;	
+			}
+			evalSummary+=" )\r\n";
 			classifySummaries.appendEvaluationSummary(evalSummary);
 
 		}else{
 			//这是进行历史回测数据时，根据历史收益率数据进行阶段评估
 			classifySummaries.computeClassifySummaries(yearSplit,policySplit,totalPositiveShouyilv,totalNegativeShouyilv,selectedPositiveShouyilv,selectedNegativeShouyilv);
-			String evalSummary=","+FormatUtility.formatDouble(thresholdMin,0,3)+","+FormatUtility.formatPercent(startPercent/100)+","+defaultThresholdUsed+","+FormatUtility.formatDouble(modelAUC,0,4)+"\r\n";  //输出评估结果及所使用阀值及期望样本百分比
+			
+			
+			 //输出评估结果及所使用阀值及期望样本百分比
+			String evalSummary=","+FormatUtility.formatDouble(thresholdMin,0,3)+","+FormatUtility.formatPercent(startPercent/100)+","+defaultThresholdUsed+",";
+			for (double d : modelAUC) {
+				evalSummary+=FormatUtility.formatDouble(d,0,4)+","; 
+			}
 			classifySummaries.appendEvaluationSummary(evalSummary);
 		}
 	}
@@ -571,8 +578,14 @@ public abstract class BaseClassifier implements Serializable{
 		return classifySummaries;
 	}
 
-	public void setClassifySummaries(ClassifySummaries classifySummaries) {
+	public void initClassifySummaries(ClassifySummaries classifySummaries) {
+		String headerToAppend="";
+		for (double d : m_focusAreaRatio) {
+			headerToAppend+="AUC"+FormatUtility.formatPercent(d,2,0)+","; 
+		}
+		classifySummaries.appendHeader(headerToAppend);
 		this.classifySummaries = classifySummaries;
+		
 	}
 
 	

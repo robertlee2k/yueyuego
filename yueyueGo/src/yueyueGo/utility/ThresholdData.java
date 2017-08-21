@@ -17,13 +17,22 @@ public class ThresholdData implements Serializable{
 	private String targetYearSplit=null; //当前评估数据对应的目标测试月份
 	private String evalYearSplit=null; //当前评估数据对应的评估起始月份
 	private String modelYearSplit=null; //当前评估数据对应的模型数据截止月份
-	private double modelAUC=0; //当前评估数据应用于对应Model所计算的AUC
+	private double[] focosAreaRatio;//当前评估数据的不同Top 比例
+	private double[] modelAUC; //当前评估数据的不同Top 比例应用于对应Model所计算的AUC列表
 	
-	public double getModelAUC() {
+	public double[] getFocosAreaRatio() {
+		return focosAreaRatio;
+	}
+
+	public void setFocosAreaRatio(double[] focosAreaRatio) {
+		this.focosAreaRatio = focosAreaRatio;
+	}
+
+	public double[] getModelAUC() {
 		return modelAUC;
 	}
 
-	public void setModelAUC(double modelAUC) {
+	public void setModelAUC(double[] modelAUC) {
 		this.modelAUC = modelAUC;
 	}
 
