@@ -356,7 +356,7 @@ public class DailyPredict {
 
 		//创建存储评估结果的数据容器
 		ClassifySummaries modelSummaries=new ClassifySummaries(clModel.getIdentifyName()+" format="+clModel.modelArffFormat,true);
-		clModel.initClassifySummaries(modelSummaries);
+		clModel.setClassifySummaries(modelSummaries);
 
 		GeneralInstances fullData=calibrateAttributesForDailyData(inData,clModel);
 

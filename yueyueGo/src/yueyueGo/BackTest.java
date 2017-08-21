@@ -99,7 +99,7 @@ public class BackTest {
 
 			//调用回测函数回测
 //			worker.callRebuildModels();
-			worker.callReEvaluateModels();
+//			worker.callReEvaluateModels();
 			worker.callTestBack();
 //			worker.callRefreshModelUseLatestData();
 //			worker.testForModelStore();
@@ -274,7 +274,14 @@ public class BackTest {
 		
 		//创建存储评估结果的数据容器
 		ClassifySummaries modelSummaries=new ClassifySummaries(clModel.getIdentifyName()+" format="+clModel.modelArffFormat,false);
-		clModel.initClassifySummaries(modelSummaries);
+		//TODO 添加表头
+		String headerToAppend="";
+		for (double d : clModel.m_focusAreaRatio) {
+			headerToAppend+="AUC"+FormatUtility.formatPercent(d,2,0)+","; 
+		}
+		modelSummaries.appendHeader(headerToAppend);
+
+		clModel.setClassifySummaries(modelSummaries);
 
 		System.out.println("test backward using classifier : "+clModel.getIdentifyName()+" @ model work path prefix:"+modelFilePrefix);
 		
@@ -395,10 +402,10 @@ public class BackTest {
 
 					//多线程的时候clone一个clModel执行任务，当前的Model继续走下去。
 					ClassifySummaries commonSummaries=clModel.getClassifySummaries();
-					clModel.initClassifySummaries(null); //不要clone classifySummaries，这个需要各线程同用一个对象
+					clModel.setClassifySummaries(null); //不要clone classifySummaries，这个需要各线程同用一个对象
 					BaseClassifier clModelClone=BaseClassifier.makeCopy(clModel);//利用序列化方法完整深度复制
-					clModel.initClassifySummaries(commonSummaries);
-					clModelClone.initClassifySummaries(commonSummaries);
+					clModel.setClassifySummaries(commonSummaries);
+					clModelClone.setClassifySummaries(commonSummaries);
 					
 					
 					//多线程的时候clone一个空result执行分配给线程。

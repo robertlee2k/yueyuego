@@ -58,7 +58,7 @@ public abstract class BaseClassifier implements Serializable{
 	private boolean m_skipTrainInBacktest = true; //回测中使用，是否跳过训练模型阶段
 	private boolean m_skipEvalInBacktest = true;  //回测中使用，是否跳过评估模型阶段
 	
-	private double[] m_focusAreaRatio={0.01,0.03,0.05,0.1,0.2,0.5,1};//评估时关注评估数据的不同Top 比例（缺省为0.01、0.03、0.05、0.1、0.2、0.5、1);
+	protected double[] m_focusAreaRatio={0.01,0.03,0.05,0.1,0.2,0.5,1};//评估时关注评估数据的不同Top 比例（缺省为0.01、0.03、0.05、0.1、0.2、0.5、1);
 
 	public boolean is_skipTrainInBacktest() {
 		return m_skipTrainInBacktest;
@@ -485,6 +485,7 @@ public abstract class BaseClassifier implements Serializable{
 			for (double d : modelAUC) {
 				evalSummary+=FormatUtility.formatDouble(d,0,4)+","; 
 			}
+			evalSummary+="\r\n";
 			classifySummaries.appendEvaluationSummary(evalSummary);
 		}
 	}
@@ -578,14 +579,7 @@ public abstract class BaseClassifier implements Serializable{
 		return classifySummaries;
 	}
 
-	public void initClassifySummaries(ClassifySummaries classifySummaries) {
-		if (classifySummaries!=null){
-			String headerToAppend="";
-			for (double d : m_focusAreaRatio) {
-				headerToAppend+="AUC"+FormatUtility.formatPercent(d,2,0)+","; 
-			}
-			classifySummaries.appendHeader(headerToAppend);
-		}
+	public void setClassifySummaries(ClassifySummaries classifySummaries) {
 		this.classifySummaries = classifySummaries;
 		
 	}
