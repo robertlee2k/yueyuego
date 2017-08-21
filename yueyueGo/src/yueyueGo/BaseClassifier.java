@@ -224,21 +224,29 @@ public abstract class BaseClassifier implements Serializable{
 	//无法根据liftup获取阀值时，缺省用最小的sampleSize处阀值
 	private ThresholdData computeDefaultThresholds(EvaluationParams evalParams, GeneralInstances result){
 		double sample_limit=evalParams.getLower_limit(); 
-		double sampleSize;
+		double sampleSize=0;
+		double lastSampleSize=0;
 		double threshold=-100;
 		GeneralAttribute att_threshold = result.attribute(NumericThresholdCurve.THRESHOLD_NAME);
 		GeneralAttribute att_samplesize = result.attribute(NumericThresholdCurve.SAMPLE_SIZE_NAME);
 
 		for (int i = 0; i < result.numInstances(); i++) {
 			GeneralInstance curr = result.instance(i);
+			lastSampleSize=sampleSize;
 			sampleSize = curr.value(att_samplesize); // to get sample range
 			if (FormatUtility.compareDouble(sampleSize,sample_limit)==0) {
 				threshold = curr.value(att_threshold);
 				break;
 			}
+			//暂存转折点
+			if ( lastSampleSize< sample_limit && sampleSize>sample_limit || lastSampleSize>sample_limit && sampleSize<sample_limit){
+				threshold=curr.value(att_threshold);
+				System.err.println("cannot get threshold at sample_limit="+sample_limit+ " use nearest SampleSize="+sampleSize);
+			}
+			
 		}
 		if (threshold==-100){
-			System.err.println("seems error! cannot get threshold at sample_limit="+sample_limit);
+			System.err.println("fatal error!!!!! cannot get threshold at sample_limit="+sample_limit);
 		}else {
 			System.err.println("got default threshold "+ threshold+" at sample_limit="+sample_limit);
 		}
