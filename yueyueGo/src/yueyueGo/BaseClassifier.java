@@ -579,11 +579,13 @@ public abstract class BaseClassifier implements Serializable{
 	}
 
 	public void initClassifySummaries(ClassifySummaries classifySummaries) {
-		String headerToAppend="";
-		for (double d : m_focusAreaRatio) {
-			headerToAppend+="AUC"+FormatUtility.formatPercent(d,2,0)+","; 
+		if (classifySummaries!=null){
+			String headerToAppend="";
+			for (double d : m_focusAreaRatio) {
+				headerToAppend+="AUC"+FormatUtility.formatPercent(d,2,0)+","; 
+			}
+			classifySummaries.appendHeader(headerToAppend);
 		}
-		classifySummaries.appendHeader(headerToAppend);
 		this.classifySummaries = classifySummaries;
 		
 	}
