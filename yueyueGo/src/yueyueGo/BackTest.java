@@ -193,7 +193,7 @@ public class BackTest {
 	 * @throws Exception
 	 */	
 	protected void callReEvaluateModels() throws Exception {
-		RUNNING_THREADS=15;
+		RUNNING_THREADS=25;
 		//按二分类器回测历史数据
 		AdaboostClassifier nModel=ClassiferInitFactory.initAdaboost(ARFF_FORMAT, BaseClassifier.FOR_EVALUATE_MODEL);
 		GeneralInstances nominalResult=testBackward(nModel);
