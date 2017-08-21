@@ -224,8 +224,8 @@ public abstract class BaseClassifier implements Serializable{
 	//无法根据liftup获取阀值时，缺省用最小的sampleSize处阀值
 	private ThresholdData computeDefaultThresholds(EvaluationParams evalParams, GeneralInstances result){
 		double sample_limit=evalParams.getLower_limit(); 
-		double sampleSize=0;
-		double lastSampleSize=0;
+		double sampleSize=1.0;  //SampleSize应该是倒序下来的
+		double lastSampleSize=1.0;
 		double threshold=-100;
 		GeneralAttribute att_threshold = result.attribute(NumericThresholdCurve.THRESHOLD_NAME);
 		GeneralAttribute att_samplesize = result.attribute(NumericThresholdCurve.SAMPLE_SIZE_NAME);
@@ -241,7 +241,7 @@ public abstract class BaseClassifier implements Serializable{
 			//暂存转折点
 			if ( lastSampleSize< sample_limit && sampleSize>sample_limit || lastSampleSize>sample_limit && sampleSize<sample_limit){
 				threshold=curr.value(att_threshold);
-				System.err.println("cannot get threshold at sample_limit="+sample_limit+ " use nearest SampleSize="+sampleSize);
+				System.out.println("cannot get threshold at sample_limit="+sample_limit+ " use nearest SampleSize between"+sampleSize +" and "+lastSampleSize);
 			}
 			
 		}
