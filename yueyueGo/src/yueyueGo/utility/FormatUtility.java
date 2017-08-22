@@ -145,10 +145,10 @@ public class FormatUtility {
 	        sb.append(Utils.padLeft("C[" + i + "]", 10));
 	      }
 	    }else{
-	    	sb.append(Utils.padLeft("Min",8));
-	    	sb.append(Utils.padLeft("Max",8));
-	    	sb.append(Utils.padLeft("Mean",8));
-	    	sb.append(Utils.padLeft("StdDev",8));
+	    	sb.append(Utils.padLeft("Min",9));
+	    	sb.append(Utils.padLeft("Max",9));
+	    	sb.append(Utils.padLeft("Mean",9));
+	    	sb.append(Utils.padLeft("StdDev",9));
 	    }
 	    sb.append('\n');
 
@@ -179,10 +179,14 @@ public class FormatUtility {
 	    }else {
 	    	
 	    	weka.experiment.Stats numericStatus=status.numericStats;
-	    	sb.append(Utils.doubleToString(numericStatus.min, 8));
-	    	sb.append(Utils.doubleToString(numericStatus.max, 8));
-	    	sb.append(Utils.doubleToString(numericStatus.mean, 8));
-	    	sb.append(Utils.doubleToString(numericStatus.stdDev, 8));
+	    	sb.append(Utils.padLeft(""+numericStatus.min, 8));
+	    	sb.append(' ');
+	    	sb.append(Utils.padLeft(""+numericStatus.max, 8));
+	    	sb.append(' ');
+	    	sb.append(Utils.padLeft(""+numericStatus.mean, 8));
+	    	sb.append(' ');
+	    	sb.append(Utils.padLeft(""+numericStatus.stdDev, 8));
+	    	sb.append(' ');
 
 	    }
 	    sb.append('\n');
