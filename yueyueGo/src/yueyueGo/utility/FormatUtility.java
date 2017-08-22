@@ -157,10 +157,10 @@ public class FormatUtility {
 	    if (status.nominalCounts != null) {
 	      sb.append(Utils.padLeft("Nom", 4)).append(' ');
 	      sb.append(Utils.padLeft("" + percent, 5)).append("% ");
-	      sb.append(Utils.padLeft("" + 0, 3)).append("% ");
+	      sb.append(Utils.padLeft("" + 0, 5)).append("% ");
 	    } else {
 	      sb.append(Utils.padLeft("Num", 4)).append(' ');
-	      sb.append(Utils.padLeft("" + 0, 3)).append("% ");
+	      sb.append(Utils.padLeft("" + 0, 5)).append("% ");
 	      sb.append(Utils.padLeft("" + percent, 5)).append("% ");
 	    }
 	    percent = formatDouble((100.0 * status.realCount / status.totalCount),3,1);
