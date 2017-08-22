@@ -134,11 +134,11 @@ public class FormatUtility {
 	  public static String printAttributeStatus(AttributeStats status) {
 
 	    StringBuffer sb = new StringBuffer();
-	    sb.append(Utils.padLeft("Type", 4)).append(Utils.padLeft("Nom", 5));
-	    sb.append(Utils.padLeft("Int", 5)).append(Utils.padLeft("Real", 5));
-	    sb.append(Utils.padLeft("Missing", 15));
-	    sb.append(Utils.padLeft("Unique", 15));
-	    sb.append(Utils.padLeft("Dist", 9));
+	    sb.append(Utils.padLeft("Type", 4)).append(Utils.padLeft("Nom", 7));
+	    sb.append(Utils.padLeft("Int", 7)).append(Utils.padLeft("Real", 7));
+	    sb.append(Utils.padLeft("Missing", 17));
+	    sb.append(Utils.padLeft("Unique", 17));
+	    sb.append(Utils.padLeft("Distinct", 9));
 	    sb.append(' ');
 	    if (status.nominalCounts != null) {
 	      for (int i = 0; i < status.nominalCounts.length; i++) {
@@ -152,25 +152,25 @@ public class FormatUtility {
 	    }
 	    sb.append('\n');
 
-	    long percent;
-	    percent = Math.round(100.0 * status.intCount / status.totalCount);
+	    String percent;
+	    percent = formatDouble((100.0 * status.intCount / status.totalCount),3,1);
 	    if (status.nominalCounts != null) {
 	      sb.append(Utils.padLeft("Nom", 4)).append(' ');
-	      sb.append(Utils.padLeft("" + percent, 3)).append("% ");
+	      sb.append(Utils.padLeft("" + percent, 5)).append("% ");
 	      sb.append(Utils.padLeft("" + 0, 3)).append("% ");
 	    } else {
 	      sb.append(Utils.padLeft("Num", 4)).append(' ');
 	      sb.append(Utils.padLeft("" + 0, 3)).append("% ");
-	      sb.append(Utils.padLeft("" + percent, 3)).append("% ");
+	      sb.append(Utils.padLeft("" + percent, 5)).append("% ");
 	    }
-	    percent = Math.round(100.0 * status.realCount / status.totalCount);
-	    sb.append(Utils.padLeft("" + percent, 3)).append("% ");
+	    percent = formatDouble((100.0 * status.realCount / status.totalCount),3,1);
+	    sb.append(Utils.padLeft("" + percent, 5)).append("% ");
 	    sb.append(Utils.padLeft("" + status.missingCount, 8)).append(" /");
-	    percent = Math.round(100.0 * status.missingCount / status.totalCount);
-	    sb.append(Utils.padLeft("" + percent, 3)).append("% ");
+	    percent = formatDouble((100.0 * status.missingCount / status.totalCount),3,1);
+	    sb.append(Utils.padLeft("" + percent, 5)).append("% ");
 	    sb.append(Utils.padLeft("" + status.uniqueCount, 8)).append(" /");
-	    percent = Math.round(100.0 * status.uniqueCount / status.totalCount);
-	    sb.append(Utils.padLeft("" + percent, 3)).append("% ");
+	    percent = formatDouble((100.0 * status.uniqueCount / status.totalCount),3,1);
+	    sb.append(Utils.padLeft("" + percent, 5)).append("% ");
 	    sb.append(Utils.padLeft("" + status.distinctCount, 8)).append(' ');
 	    if (status.nominalCounts != null) {
 	      for (int i = 0; i < status.nominalCounts.length; i++) {
