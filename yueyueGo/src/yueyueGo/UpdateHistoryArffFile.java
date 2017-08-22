@@ -60,9 +60,9 @@ public class UpdateHistoryArffFile {
 		for (int index=0; index<data.numAttributes();index++){
 			String name=data.attribute(index).name();
 			AttributeStats status= data.attributeStats(index);
-			System.out.println("====output attribute status for attribute: "+name + " @Column No.= "+(index+1));
+			System.out.println("====output attribute status for attribute: "+name + " @Column "+(index+1));
 			System.out.print(FormatUtility.printAttributeStatus(status));
-			System.out.println("====end of attribute status for attribute: "+name + " @Column No.= "+(index+1));
+			System.out.println("====end of attribute status for attribute: "+name + " @Column "+(index+1));
 			System.out.println("");
 		}
 		
