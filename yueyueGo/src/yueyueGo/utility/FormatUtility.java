@@ -138,11 +138,11 @@ public class FormatUtility {
 	    sb.append(Utils.padLeft("Int", 5)).append(Utils.padLeft("Real", 5));
 	    sb.append(Utils.padLeft("Missing", 15));
 	    sb.append(Utils.padLeft("Unique", 15));
-	    sb.append(Utils.padLeft("Dist", 15));
+	    sb.append(Utils.padLeft("Dist", 9));
 	    if (status.nominalCounts != null) {
 	      sb.append(' ');
 	      for (int i = 0; i < status.nominalCounts.length; i++) {
-	        sb.append(Utils.padLeft("C[" + i + "]", 15));
+	        sb.append(Utils.padLeft("C[" + i + "]", 10));
 	      }
 	    }
 	    sb.append('\n');
@@ -166,13 +166,14 @@ public class FormatUtility {
 	    sb.append(Utils.padLeft("" + status.uniqueCount, 8)).append(" /");
 	    percent = Math.round(100.0 * status.uniqueCount / status.totalCount);
 	    sb.append(Utils.padLeft("" + percent, 3)).append("% ");
-	    sb.append(Utils.padLeft("" + status.distinctCount, 14)).append(' ');
+	    sb.append(Utils.padLeft("" + status.distinctCount, 8)).append(' ');
 	    if (status.nominalCounts != null) {
 	      for (int i = 0; i < status.nominalCounts.length; i++) {
-	        sb.append(Utils.padLeft("" + status.nominalCounts[i], 15));
+	        sb.append(Utils.padLeft("" + status.nominalCounts[i], 10));
 	      }
 		  sb.append('\n');
 	    }else {
+	    	sb.append('\n');
 	    	weka.experiment.Stats numericStatus=status.numericStats;
 	    	sb.append(numericStatus.toString());
 	    }
