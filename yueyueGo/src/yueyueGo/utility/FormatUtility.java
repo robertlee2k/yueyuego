@@ -6,6 +6,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import weka.core.AttributeStats;
+import weka.core.Utils;
 import yueyueGo.dataFormat.ArffFormat;
 
 public class FormatUtility {
@@ -123,4 +125,58 @@ public class FormatUtility {
 		String[] resultString=concatStrings(firstTwo,third);
 		return resultString;
 	}
+	
+	/**
+	   * Returns a human readable representation of this AttributeStats instance.
+	   *
+	   * @return a String represtinging these AttributeStats.
+	   */
+	  public static String printAttributeStatus(AttributeStats status) {
+
+	    StringBuffer sb = new StringBuffer();
+	    sb.append(Utils.padLeft("Type", 4)).append(Utils.padLeft("Nom", 5));
+	    sb.append(Utils.padLeft("Int", 5)).append(Utils.padLeft("Real", 5));
+	    sb.append(Utils.padLeft("Missing", 15));
+	    sb.append(Utils.padLeft("Unique", 15));
+	    sb.append(Utils.padLeft("Dist", 15));
+	    if (status.nominalCounts != null) {
+	      sb.append(' ');
+	      for (int i = 0; i < status.nominalCounts.length; i++) {
+	        sb.append(Utils.padLeft("C[" + i + "]", 15));
+	      }
+	    }
+	    sb.append('\n');
+
+	    long percent;
+	    percent = Math.round(100.0 * status.intCount / status.totalCount);
+	    if (status.nominalCounts != null) {
+	      sb.append(Utils.padLeft("Nom", 4)).append(' ');
+	      sb.append(Utils.padLeft("" + percent, 3)).append("% ");
+	      sb.append(Utils.padLeft("" + 0, 3)).append("% ");
+	    } else {
+	      sb.append(Utils.padLeft("Num", 4)).append(' ');
+	      sb.append(Utils.padLeft("" + 0, 3)).append("% ");
+	      sb.append(Utils.padLeft("" + percent, 3)).append("% ");
+	    }
+	    percent = Math.round(100.0 * status.realCount / status.totalCount);
+	    sb.append(Utils.padLeft("" + percent, 3)).append("% ");
+	    sb.append(Utils.padLeft("" + status.missingCount, 8)).append(" /");
+	    percent = Math.round(100.0 * status.missingCount / status.totalCount);
+	    sb.append(Utils.padLeft("" + percent, 3)).append("% ");
+	    sb.append(Utils.padLeft("" + status.uniqueCount, 8)).append(" /");
+	    percent = Math.round(100.0 * status.uniqueCount / status.totalCount);
+	    sb.append(Utils.padLeft("" + percent, 3)).append("% ");
+	    sb.append(Utils.padLeft("" + status.distinctCount, 14)).append(' ');
+	    if (status.nominalCounts != null) {
+	      for (int i = 0; i < status.nominalCounts.length; i++) {
+	        sb.append(Utils.padLeft("" + status.nominalCounts[i], 15));
+	      }
+		  sb.append('\n');
+	    }else {
+	    	weka.experiment.Stats numericStatus=status.numericStats;
+	    	sb.append(numericStatus.toString());
+	    }
+	    return sb.toString();
+	  }
+	
 }
