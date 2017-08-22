@@ -179,14 +179,14 @@ public class FormatUtility {
 	    }else {
 	    	
 	    	weka.experiment.Stats numericStatus=status.numericStats;
-	    	sb.append(Utils.padLeft(""+numericStatus.min, 8));
-	    	sb.append(' ');
-	    	sb.append(Utils.padLeft(""+numericStatus.max, 8));
-	    	sb.append(' ');
-	    	sb.append(Utils.padLeft(""+numericStatus.mean, 8));
-	    	sb.append(' ');
-	    	sb.append(Utils.padLeft(""+numericStatus.stdDev, 8));
-	    	sb.append(' ');
+	    	sb.append("   ");
+	    	sb.append(Utils.padLeft(""+numericStatus.min, 6));
+	    	sb.append("   ");
+	    	sb.append(Utils.padLeft(""+numericStatus.max, 6));
+	    	sb.append("   ");
+	    	sb.append(Utils.padLeft(""+numericStatus.mean, 6));
+	    	sb.append("   ");
+	    	sb.append(Utils.padLeft(""+numericStatus.stdDev, 6));
 
 	    }
 	    sb.append('\n');
