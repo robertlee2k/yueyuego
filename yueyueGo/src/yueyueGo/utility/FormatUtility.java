@@ -139,11 +139,16 @@ public class FormatUtility {
 	    sb.append(Utils.padLeft("Missing", 15));
 	    sb.append(Utils.padLeft("Unique", 15));
 	    sb.append(Utils.padLeft("Dist", 9));
+	    sb.append(' ');
 	    if (status.nominalCounts != null) {
-	      sb.append(' ');
 	      for (int i = 0; i < status.nominalCounts.length; i++) {
 	        sb.append(Utils.padLeft("C[" + i + "]", 10));
 	      }
+	    }else{
+	    	sb.append(Utils.padLeft("Min",8));
+	    	sb.append(Utils.padLeft("Max",8));
+	    	sb.append(Utils.padLeft("Mean",8));
+	    	sb.append(Utils.padLeft("StdDev",8));
 	    }
 	    sb.append('\n');
 
@@ -171,12 +176,16 @@ public class FormatUtility {
 	      for (int i = 0; i < status.nominalCounts.length; i++) {
 	        sb.append(Utils.padLeft("" + status.nominalCounts[i], 10));
 	      }
-		  sb.append('\n');
 	    }else {
-	    	sb.append('\n');
+	    	
 	    	weka.experiment.Stats numericStatus=status.numericStats;
-	    	sb.append(numericStatus.toString());
+	    	sb.append(Utils.doubleToString(numericStatus.min, 8));
+	    	sb.append(Utils.doubleToString(numericStatus.max, 8));
+	    	sb.append(Utils.doubleToString(numericStatus.mean, 8));
+	    	sb.append(Utils.doubleToString(numericStatus.stdDev, 8));
+
 	    }
+	    sb.append('\n');
 	    return sb.toString();
 	  }
 	
