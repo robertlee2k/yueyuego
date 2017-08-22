@@ -61,7 +61,7 @@ public class FormatUtility {
 			int fractionDigits) {
 		NumberFormat df = NumberFormat.getNumberInstance();
 		df.setMaximumIntegerDigits(integerDigits);// 小数点前保留几位
-		df.setMinimumFractionDigits(fractionDigits);// 小数点后保留几位
+		df.setMaximumFractionDigits(fractionDigits);// 小数点后保留几位
 		return df.format(d);
 	}
 
