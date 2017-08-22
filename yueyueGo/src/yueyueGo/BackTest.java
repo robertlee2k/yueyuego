@@ -329,7 +329,7 @@ public class BackTest {
 				policy = clModel.m_policySubGroup[j];
 				// 加载原始arff文件
 				if (fullSetData == null) {
-					fullSetData = getBacktestInstances(clModel,splitMark,policy);
+					fullSetData = getBacktestInstances(clModel);
 				}
 				BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullSetData);
 				// 准备输出数据格式
@@ -507,7 +507,7 @@ public class BackTest {
 	 * @return
 	 * @throws Exception
 	 */
-	protected  GeneralInstances getBacktestInstances(BaseClassifier clModel,String splitMark,String policy)
+	protected  GeneralInstances getBacktestInstances(BaseClassifier clModel)
 			throws Exception {
 		GeneralInstances fullSetData;
 		// 根据模型来决定是否要使用有计算字段的ARFF

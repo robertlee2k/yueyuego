@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 
+import weka.core.AttributeStats;
+import weka.core.Instances;
 import yueyueGo.dataFormat.ArffFormat;
 import yueyueGo.dataFormat.AvgLineDataFormat;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
@@ -29,7 +31,7 @@ public class UpdateHistoryArffFile {
 			worker.init();
 			
 			//重新创建ARFF文件
-			callCreateTransInstances();
+//			callCreateTransInstances();
 			
 //			//用最新的单次交易数据，更新原始的交易数据文件
 //			UpdateHistoryArffFile.callRefreshInstances();
@@ -37,11 +39,32 @@ public class UpdateHistoryArffFile {
 //			//刷新最新月份的模型
 //			worker.callRefreshModelUseLatestData();
 			
+			//校验数据文件
+			checkDataAttribStatus(AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT.m_arff_ext);
 			
 		} catch (Exception e) {
 			
 			e.printStackTrace();
 		}
+	}
+	
+	
+	protected static void checkDataAttribStatus(String arffFile) throws Exception{
+		
+		System.out.println("start to load File for fullset from File: "+ arffFile  );
+		GeneralInstances fullSetData = DataIOHandler.getSuppier().loadDataFromFile(arffFile);
+		System.out.println("finish loading fullset Data. row : "+ fullSetData.numInstances() + " column:"+ fullSetData.numAttributes());
+		
+		Instances  data=WekaInstances.convertToWekaInstances(fullSetData);
+		
+		for (int index=0; index<data.numAttributes();index++){
+			String name=data.attribute(index).name();
+			AttributeStats status= data.attributeStats(index);
+			System.out.println("==attribute status for attribute:"+name);
+			System.out.println(status.toString());
+		}
+		
+		
 	}
 
 	protected static void callRefreshInstances() throws Exception {

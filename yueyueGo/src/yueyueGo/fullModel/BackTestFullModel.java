@@ -149,7 +149,7 @@ public class BackTestFullModel extends BackTest {
 	 * @throws Exception
 	 */
 	@Override
-	protected GeneralInstances getBacktestInstances(BaseClassifier clModel,String splitMark,String policy)
+	protected GeneralInstances getBacktestInstances(BaseClassifier clModel)
 			throws Exception {
 
 		String arffFullFileName = null;
