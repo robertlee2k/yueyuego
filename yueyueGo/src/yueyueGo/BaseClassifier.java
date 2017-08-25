@@ -376,7 +376,7 @@ public abstract class BaseClassifier implements Serializable{
 		System.out.println("m_modelDataSplitMode="+m_evalDataSplitMode);
 		System.out.println("m_modelEvalFileShareMode="+m_modelFileShareMode);
 		System.out.println("modelArffFormat="+modelArffFormat);
-		System.out.println(m_evaluationStore.showEvaluationParameters());
+//		System.out.println(m_evaluationStore.showEvaluationParameters());
 	    System.out.println("***************************************");
 	}
 	

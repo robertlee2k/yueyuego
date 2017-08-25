@@ -27,7 +27,11 @@ public class EvaluationStore {
 	protected String[] m_modelFilesToEval;
 	protected String m_modelFilepathPrefix;
 	protected boolean m_isNominal=false;
-	protected double[] m_focusAreaRatio={0.05,1};//评估时关注评估数据的不同Top 比例（缺省为0.01、0.03、0.05、0.1、0.2、0.5、1); 
+	protected double[] m_focusAreaRatio={0.05,1};//评估时关注评估数据的不同Top 比例（缺省为0.01、0.03、0.05、0.1、0.2、0.5、1);
+	
+	public static final int PREVIOUS_MODELS_NUM=5; 	//暂时选取之前的5个文件
+	public static final int YEAR_SPLIT_LIMIT=2007; //回测模型的起始点， 在这之前无数据	
+	
 	//以下为不可配置参数，内部存储
 	public EvaluationConfDefinition m_evalConf; //用于评估的对象
 	
@@ -104,20 +108,38 @@ public class EvaluationStore {
 	}
 	
 
+	/*
+	 * 根据当前评估数据的年份，倒推取N个历史模型用于比较
+	 */
 	protected String[] findModelFilesToEvaluate(int modelFileShareMode,String evalYearSplit,String policySplit,String workFileFullPrefix,String classifierName){
-		int numberOfModels=3; 	//TODO: 暂时选取之前的3个文件 
-		String[] modelYears=new String[numberOfModels];
+		 
+		String[] modelYears=new String[PREVIOUS_MODELS_NUM];
 		
+		int numberofValidModels=0;
 		//根据modelYear的Share情况，向前查找N个模型的年份。
 		String startYear=evalYearSplit;
-		for (int i=0;i<numberOfModels;i++){
+		int currentYearSplit=0;
+		
+		//尝试获得有效的前PREVIOUS_MODELS_NUM个用于评估的ModelYearSplit
+		for (int i=0;i<PREVIOUS_MODELS_NUM;i++){
 			modelYears[i]=ModelStore.caculateModelYearSplit(startYear,modelFileShareMode);
-			startYear=getNMonthsForYearSplit(1, modelYears[i]); //向前推一个月循环找前面的模型
-			//TODO 这里可以加个判断把2007年之前的去重
+			if (modelYears[i].length()==6){ //201708格式
+				currentYearSplit=Integer.valueOf(modelYears[i]).intValue();
+			}else{// 2017格式
+				currentYearSplit=Integer.valueOf(modelYears[i]).intValue()*100+1;
+			}
+			if (currentYearSplit<=YEAR_SPLIT_LIMIT*100+1){
+				//这里把200701之前的去重				
+				continue;
+			}else{
+				numberofValidModels++;
+				startYear=getNMonthsForYearSplit(1, modelYears[i]); //向前推一个月循环找前面的模型
+			}
+			
 		}
-		//获得所有需要评估的文件列表
-		String[] modelFiles=new String[numberOfModels];
-		for (int i=0;i<numberOfModels;i++){
+		//获得所有需要评估的模型文件列表
+		String[] modelFiles=new String[numberofValidModels];
+		for (int i=0;i<numberofValidModels;i++){
 			modelYears[i]=ModelStore.legacyModelName(modelYears[i]); //TODO
 			modelFiles[i]=ModelStore.concatModeFilenameString( modelYears[i], policySplit, workFileFullPrefix, classifierName);
 		}
@@ -189,24 +211,20 @@ public class EvaluationStore {
 
 	/**
 	 * 选择最大AUC的MODEL
-	 * @param classifier 
 	 * @param evalData
-	 * @param yearSplit
-	 * @param modelFilesToEval
 	 * @throws Exception
 	 * @throws RuntimeException
 	 */
 	public ModelStore selectModelByAUC( GeneralInstances evalData)
 			throws Exception, RuntimeException {
 		String yearSplit=this.getTargetYearSplit();
-		String[] modelFilesToEval=this.getModelFilesToEval();
-		double[] modelsAUC=new double[modelFilesToEval.length];
-		ModelStore[] modelStores=new ModelStore[modelFilesToEval.length];
+		double[] modelsAUC=new double[m_modelFilesToEval.length];
+		ModelStore[] modelStores=new ModelStore[m_modelFilesToEval.length];
 		double maxModelAUC=0;
 		int maxModelIndex=0;
 		
-		for (int i=0;i<modelFilesToEval.length;i++) {
-			modelStores[i]=ModelStore.loadModelFromFile(modelFilesToEval[i], yearSplit);
+		for (int i=0;i<m_modelFilesToEval.length;i++) {
+			modelStores[i]=ModelStore.loadModelFromFile(m_modelFilesToEval[i], yearSplit);
 			Classifier model =modelStores[i].getModel();
 			GeneralInstances header =modelStores[i].getModelFormat();
 			GeneralInstances evalFormat=new DataInstances(evalData,0);
@@ -229,26 +247,32 @@ public class EvaluationStore {
 			topPedictions=ClassifyUtility.getTopPredictedValues(m_isNominal,fullPredictions,0.05);
 			result=getROCInstances(topPedictions);
 			modelsAUC[i]=ThresholdCurve.getROCArea( WekaInstances.convertToWekaInstances(result));
-			System.out.println("thread:"+Thread.currentThread().getName()+" modelsAUC="+modelsAUC[i]+ " where modelFile="+modelFilesToEval[i]);
+			System.out.println("thread:"+Thread.currentThread().getName()+" modelsAUC="+modelsAUC[i]+ " where modelFile="+m_modelFilesToEval[i]);
 			if (modelsAUC[i]>maxModelAUC){
 				maxModelAUC=modelsAUC[i];
 				maxModelIndex=i;
 			}
 	
 		}
-		System.out.println("thread:"+Thread.currentThread().getName()+" MaxAUC selected="+maxModelAUC+"@"+modelFilesToEval[maxModelIndex]);
+		System.out.println("thread:"+Thread.currentThread().getName()+" MaxAUC selected="+maxModelAUC+"@"+m_modelFilesToEval[maxModelIndex]);
+		if (maxModelIndex!=0){
+			System.out.println("thread:"+Thread.currentThread().getName()+ " MaxAUC selected is not the latest one for TargetYearSplit("+yearSplit+") ModelYearSplit used="+modelStores[maxModelIndex].getModelYearSplit());
+		}
+		if (maxModelAUC<0.5){
+			System.err.println(" MaxAUC selected is less than random classifer. MAXAUC="+maxModelAUC);
+		}
 		return modelStores[maxModelIndex];
 	}
 
 	//	当前周期前推N个月的分隔线，比如 如果N=9是201003 则返回200909
 	public static String getNMonthsForYearSplit(int nMonths,String yearSplit){
-		int limit=2007; //回测模型的起始点， 在这之前无数据
+
 		int lastPeriod=0;
 		if (yearSplit.length()==4){ //最后一位-1 （2010-1=2009）再拼接一个12-nMonth+1
 			lastPeriod=Integer.valueOf(yearSplit).intValue();
 			lastPeriod=lastPeriod-1;
-			if (lastPeriod<limit) {
-				lastPeriod=limit;
+			if (lastPeriod<YEAR_SPLIT_LIMIT) {
+				lastPeriod=YEAR_SPLIT_LIMIT;
 			}
 			lastPeriod=lastPeriod*100+12-nMonths+1;
 		}else {//最后两位数（n）大于nMonths的话减nMonths，小于等于的话向年借位12
@@ -261,8 +285,8 @@ public class EvaluationStore {
 				inputYear=inputYear-1;
 			}
 			lastPeriod=inputYear*100+inputMonth;
-			if (lastPeriod<limit*100+1){ 
-				lastPeriod=limit*100+1;
+			if (lastPeriod<YEAR_SPLIT_LIMIT*100+1){ 
+				lastPeriod=YEAR_SPLIT_LIMIT*100+1;
 			}
 		}
 		return String.valueOf(lastPeriod);

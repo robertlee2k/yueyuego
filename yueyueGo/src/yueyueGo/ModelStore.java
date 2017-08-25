@@ -239,8 +239,6 @@ public class ModelStore {
 				//比较不晚于目标年份即可
 				if (savedYear>targetYear){
 					throw new Exception(" savedModelYearSplit in model file="+savedModelYearSplit+" while target_year="+a_targetYearSplit);
-				}else{
-					System.out.println(" modelYearSplit verified for loaded model,no future data are used ");
 				}
 			}
 			return loadedModel;
