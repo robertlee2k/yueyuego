@@ -1,14 +1,8 @@
 package yueyueGo;
 
-import java.util.ArrayList;
-
 import weka.classifiers.Classifier;
-import weka.classifiers.evaluation.Prediction;
-import yueyueGo.databeans.DataInstances;
 import yueyueGo.databeans.GeneralInstance;
-import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaInstance;
-import yueyueGo.utility.NumericThresholdCurve;
 
 public abstract class ContinousClassifier extends BaseClassifier {
 
@@ -19,22 +13,6 @@ public abstract class ContinousClassifier extends BaseClassifier {
 	 * 
 	 */
 	private static final long serialVersionUID = 6815050020696161183L;
-
-
-	/**
-	 * implementation of abstract method in super class
-	 * @param predictions
-	 * @return
-	 * @throws Exception
-	 */
-	protected GeneralInstances getROCInstances(ArrayList<Prediction> predictions)
-			throws Exception {
-		// generate curve
-		NumericThresholdCurve tc = new NumericThresholdCurve();
-		GeneralInstances result = new DataInstances(tc.getCurve(predictions));
-		return result;
-	}
-	
 
 	//	//具体的模型评估方法
 	//	protected Vector<Double> doModelEvaluation_old(EvaluationBenchmark benchmark ,Instances train,

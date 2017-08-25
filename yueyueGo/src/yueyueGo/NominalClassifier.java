@@ -3,8 +3,6 @@ package yueyueGo;
 import java.util.ArrayList;
 
 import weka.classifiers.Classifier;
-import weka.classifiers.evaluation.Prediction;
-import weka.classifiers.evaluation.ThresholdCurve;
 import yueyueGo.dataFormat.ArffFormat;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.dataProcessor.InstanceHandler;
@@ -27,19 +25,7 @@ public abstract class NominalClassifier extends BaseClassifier{
 	private GeneralInstances m_cachedOldClassInstances=null;
 	
 
-	/**
-	 * implementation of abstract method in super class
-	 * @param predictions
-	 * @return
-	 * @throws Exception
-	 */
-	protected GeneralInstances getROCInstances(ArrayList<Prediction> predictions)
-			throws Exception {
-		ThresholdCurve tc = new ThresholdCurve();
-		int classIndex = 1;
-		GeneralInstances result = new DataInstances(tc.getCurve(predictions, classIndex));
-		return result;
-	}
+
 
 
 	//对于二分类变量，返回分类1的预测可能性

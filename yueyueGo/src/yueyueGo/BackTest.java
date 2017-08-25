@@ -98,8 +98,8 @@ public class BackTest {
 			worker.init();
 
 			//调用回测函数回测
-//			worker.callRebuildModels();
-			worker.callReEvaluateModels();
+			worker.callRebuildModels();
+//			worker.callReEvaluateModels();
 			worker.callTestBack();
 //			worker.callRefreshModelUseLatestData();
 //			worker.testForModelStore();
@@ -274,12 +274,12 @@ public class BackTest {
 		
 		//创建存储评估结果的数据容器
 		ClassifySummaries modelSummaries=new ClassifySummaries(clModel.getIdentifyName()+" format="+clModel.modelArffFormat,false);
-		//TODO 添加表头
-		String headerToAppend="";
-		for (double d : clModel.m_focusAreaRatio) {
-			headerToAppend+="AUC"+FormatUtility.formatPercent(d,2,0)+","; 
-		}
-		modelSummaries.appendHeader(headerToAppend);
+//		//TODO 添加表头
+//		String headerToAppend="";
+//		for (double d : clModel.m_focusAreaRatio) {
+//			headerToAppend+="AUC"+FormatUtility.formatPercent(d,2,0)+","; 
+//		}
+//		modelSummaries.appendHeader(headerToAppend);
 
 		clModel.setClassifySummaries(modelSummaries);
 
@@ -536,7 +536,7 @@ public class BackTest {
 	 * train和eval的逻辑由ModelStore定义:
 	 */
 	protected final GeneralDataTag[] getSplitYearTags(BaseClassifier clModel,String targetYearSplit) {
-		String evalYearSplit=ModelStore.caculateEvalYearSplit(targetYearSplit, clModel.m_evalDataSplitMode);
+		String evalYearSplit=EvaluationStore.caculateEvalYearSplit(targetYearSplit, clModel.m_evalDataSplitMode);
 		String modelYearSplit=ModelStore.caculateModelYearSplit(evalYearSplit, clModel.m_modelFileShareMode);
 
 		//TODO 缺省用5年的训练数据
@@ -745,7 +745,9 @@ public class BackTest {
 	}
 
 
-	//设置历史回测的目录
+	 /*
+	  * 设置回测时模型和评估文件的存储位置
+	  */
 	protected String prepareModelWorkPath(BaseClassifier clModel){
 		String workPath=null;
 		if (clModel instanceof ContinousClassifier){
@@ -756,7 +758,7 @@ public class BackTest {
 		//根据不同的原始数据（策略）设置不同的模型工作目录
 		workPath+=ARFF_FORMAT.m_arff_file_prefix+"\\";
 		FileUtility.mkdirIfNotExist(workPath);
-		
+
 
 		String modelPrefix=ARFF_FORMAT.m_arff_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")"; //"extData2005-2016";
 		return workPath+modelPrefix;

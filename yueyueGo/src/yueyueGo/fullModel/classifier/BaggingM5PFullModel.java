@@ -1,6 +1,7 @@
 package yueyueGo.fullModel.classifier;
 
 import yueyueGo.EnvConstants;
+import yueyueGo.EvaluationStore;
 import yueyueGo.ModelStore;
 import yueyueGo.classifier.BaggingM5P;
 import yueyueGo.dataFormat.FullModelDataFormat;
@@ -72,7 +73,7 @@ public class BaggingM5PFullModel extends BaggingM5P {
 		
 		classifierName= ClassifyUtility.BAGGING_M5P_FULLMODEL;
 		m_modelFileShareMode=ModelStore.QUARTER_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式为半年
-		m_evalDataSplitMode=ModelStore.USE_HALF_YEAR_DATA_FOR_EVAL;//覆盖父类，设定模型和评估间隔为6个月
+		m_evalDataSplitMode=EvaluationStore.USE_HALF_YEAR_DATA_FOR_EVAL;//覆盖父类，设定模型和评估间隔为6个月
 		
 		m_usePCA=true; //覆盖父类，使用PCA
 		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA

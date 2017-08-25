@@ -3,6 +3,7 @@ package yueyueGo.classifier;
 import weka.classifiers.Classifier;
 import weka.classifiers.trees.M5P;
 import yueyueGo.ContinousClassifier;
+import yueyueGo.EvaluationStore;
 import yueyueGo.ModelStore;
 import yueyueGo.ParrallelizedRunning;
 import yueyueGo.databeans.GeneralInstances;
@@ -295,7 +296,7 @@ public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunn
 		divided=300; //将trainingData分成多少份
 
 		m_modelFileShareMode=ModelStore.QUARTER_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
-		m_evalDataSplitMode=ModelStore.USE_NINE_MONTHS_DATA_FOR_EVAL;//USE_YEAR_DATA_FOR_EVAL; //评估区间使用一年数据 （截止20170103，这个是效果最好的）
+		m_evalDataSplitMode=EvaluationStore.USE_NINE_MONTHS_DATA_FOR_EVAL;//USE_YEAR_DATA_FOR_EVAL; //评估区间使用一年数据 （截止20170103，这个是效果最好的）
 	}
 
 	

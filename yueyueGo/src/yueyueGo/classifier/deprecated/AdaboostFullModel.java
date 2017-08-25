@@ -31,19 +31,19 @@ public class AdaboostFullModel extends AdaboostClassifier {
 		m_usePCA=true; //覆盖父类，使用PCA
 	}
 
-	@Override
-	//TODO 此类可以在子类中被覆盖（通过把yearsplit的值做处理，实现临时多年使用一个模型）
-	public void locateModelStore(String targetYearSplit,String policySplit,String modelFilepathPrefix) {
-		int inputYear=Integer.parseInt(targetYearSplit.substring(0, 4));
-		String inputMonth="";
-		if (targetYearSplit.length()==6){
-			inputMonth=targetYearSplit.substring(4, 6);
-		}
-		// 临时用2011模型替代2012、2013年的模型
-		if (inputYear==2012 || inputYear==2013){
-			targetYearSplit="2011"+inputMonth;
-		}
-		ModelStore modelStore=new ModelStore(targetYearSplit,policySplit,modelFilepathPrefix,this);
-		m_modelStore=modelStore;
-	}
+//	@Override
+//	//TODO 此类可以在子类中被覆盖（通过把yearsplit的值做处理，实现临时多年使用一个模型）
+//	public void locateModelStore(String targetYearSplit,String policySplit,String modelFilepathPrefix) {
+//		int inputYear=Integer.parseInt(targetYearSplit.substring(0, 4));
+//		String inputMonth="";
+//		if (targetYearSplit.length()==6){
+//			inputMonth=targetYearSplit.substring(4, 6);
+//		}
+//		// 临时用2011模型替代2012、2013年的模型
+//		if (inputYear==2012 || inputYear==2013){
+//			targetYearSplit="2011"+inputMonth;
+//		}
+//		ModelStore modelStore=new ModelStore(targetYearSplit,policySplit,modelFilepathPrefix,this);
+//		m_modelStore=modelStore;
+//	}
 }

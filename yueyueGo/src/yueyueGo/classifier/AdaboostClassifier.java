@@ -3,6 +3,7 @@ package yueyueGo.classifier;
 import weka.classifiers.Classifier;
 import weka.classifiers.meta.AdaBoostM1;
 import weka.classifiers.trees.J48;
+import yueyueGo.EvaluationStore;
 import yueyueGo.ModelStore;
 import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.NominalClassifier;
@@ -262,7 +263,7 @@ public class AdaboostClassifier extends NominalClassifier {
  
 		m_usePCA=true; //20121223尝试不使用PCA，效果一般且建模非常慢，所以放弃
 
-		m_evalDataSplitMode=ModelStore.USE_NINE_MONTHS_DATA_FOR_EVAL; //尝试评估区间使用9个月数据（效果还不错）
+		m_evalDataSplitMode=EvaluationStore.USE_NINE_MONTHS_DATA_FOR_EVAL; //尝试评估区间使用9个月数据（效果还不错）
 //		m_positiveLine=0.03; //尝试3%的阀值
 	}
 		

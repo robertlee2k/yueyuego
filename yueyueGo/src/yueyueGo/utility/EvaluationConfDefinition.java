@@ -34,11 +34,14 @@ public class EvaluationConfDefinition implements Serializable{
 
 	protected double[] SAMPLE_LOWER_LIMIT; // 各条均线选择样本的下限
 	protected double[] SAMPLE_UPPER_LIMIT; // 各条均线选择样本的上限  
+	
+	protected String[] m_policyGroup;
 
 	public static double LIFT_UP_TARGET=1.8; //选择样本阀值时TP FP RATIO从何开始，这个是常量
 
 
-	public EvaluationConfDefinition(String classifierName,ArffFormat format) {
+	public EvaluationConfDefinition(String classifierName,String[] a_policyGroup,ArffFormat format) {
+		m_policyGroup=a_policyGroup;
 		// 缺省的配置
 		if (format==null || format instanceof AvgLineDataFormat || format instanceof FullModelDataFormat){
 			if (classifierName.equals(ClassifyUtility.BAGGING_M5P)){
@@ -89,9 +92,19 @@ public class EvaluationConfDefinition implements Serializable{
 		}
 	}
 
-	public EvaluationParams getEvaluationInstance(int policyIndex){
-		return new EvaluationParams(SAMPLE_LOWER_LIMIT[policyIndex],
-				SAMPLE_UPPER_LIMIT[policyIndex], LIFT_UP_TARGET);
+	public EvaluationParams getEvaluationInstance(String policy){
+		int pos=-1;
+		for (int i=0;i<m_policyGroup.length;i++){
+			if (m_policyGroup[i].equals(policy)){
+				pos=i;
+				break;
+			}
+		}
+		if (pos==-1) {
+			throw new RuntimeException("cannot find policy ["+policy+"]in m_policySubGroup");
+		}
+		return new EvaluationParams(SAMPLE_LOWER_LIMIT[pos],
+				SAMPLE_UPPER_LIMIT[pos], LIFT_UP_TARGET);
 	}
 
 

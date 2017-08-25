@@ -1,6 +1,7 @@
 package yueyueGo.utility;
 
 
+import yueyueGo.EvaluationStore;
 import yueyueGo.ModelStore;
 import yueyueGo.classifier.AdaboostClassifier;
 import yueyueGo.classifier.BaggingM5P;
@@ -13,9 +14,7 @@ public class ClassiferInitFactory {
 	public static BaggingM5P initBaggingM5P(ArffFormat format,int purpose){
 		BaggingM5P model=null;
 		model=new BaggingM5P();
-		//获取评估参数设置  
-		EvaluationConfDefinition evalConf=new EvaluationConfDefinition(model.classifierName,format);
-		model.m_evalConf=evalConf;			
+
 
 		model.initModelPurpose(purpose);
 
@@ -28,14 +27,14 @@ public class ClassiferInitFactory {
 			model.leafMinObjNum=300; //叶子节点最小的
 			model.divided=300; //将trainingData分成多少份
 			model.m_modelFileShareMode=ModelStore.QUARTER_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
-			model.m_evalDataSplitMode=ModelStore.USE_NINE_MONTHS_DATA_FOR_EVAL;//USE_YEAR_DATA_FOR_EVAL; //评估区间使用一年数据 （截止20170103，这个是效果最好的）
+			model.m_evalDataSplitMode=EvaluationStore.USE_NINE_MONTHS_DATA_FOR_EVAL;//USE_YEAR_DATA_FOR_EVAL; //评估区间使用一年数据 （截止20170103，这个是效果最好的）
 		}else{
 			//否则返回缺省值
 			
 			model.bagging_iteration=5;
 			model.divided=500; //将trainingData分成多少份
 			model.m_modelFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
-			model.m_evalDataSplitMode=ModelStore.USE_HALF_YEAR_DATA_FOR_EVAL;
+			model.m_evalDataSplitMode=EvaluationStore.USE_HALF_YEAR_DATA_FOR_EVAL;
 
 		}
 		return model;
@@ -44,9 +43,7 @@ public class ClassiferInitFactory {
 	public static AdaboostClassifier initAdaboost(ArffFormat format,int purpose){
 		AdaboostClassifier model=null;
 		model=new AdaboostClassifier();
-		//获取评估参数设置  
-		EvaluationConfDefinition evalConf=new EvaluationConfDefinition(model.classifierName,format);
-		model.m_evalConf=evalConf;			
+	
 
 		model.initModelPurpose(purpose);
 		if (format instanceof MomentumDataFormat){
@@ -59,14 +56,14 @@ public class ClassiferInitFactory {
 			model.divided=300; //将trainingData分成多少份
 			model.boost_iteration=10; 	//boost特有参数
 			model.m_usePCA=true; //20121223尝试不使用PCA，效果一般且建模非常慢，所以放弃
-			model.m_evalDataSplitMode=ModelStore.USE_NINE_MONTHS_DATA_FOR_EVAL; //尝试评估区间使用9个月数据（效果还不错）
+			model.m_evalDataSplitMode=EvaluationStore.USE_NINE_MONTHS_DATA_FOR_EVAL; //尝试评估区间使用9个月数据（效果还不错）
 		}else{
 			//否则返回缺省值
 			
 			model.boost_iteration=5;
 			model.divided=500; //将trainingData分成多少份
 			model.m_modelFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
-			model.m_evalDataSplitMode=ModelStore.USE_HALF_YEAR_DATA_FOR_EVAL;
+			model.m_evalDataSplitMode=EvaluationStore.USE_HALF_YEAR_DATA_FOR_EVAL;
 		}
 		return model;
 	}

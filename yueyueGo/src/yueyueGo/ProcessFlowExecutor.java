@@ -3,9 +3,9 @@ package yueyueGo;
 import java.util.concurrent.Callable;
 
 import weka.classifiers.Classifier;
+import yueyueGo.databeans.DataInstances;
 import yueyueGo.databeans.GeneralDataTag;
 import yueyueGo.databeans.GeneralInstances;
-import yueyueGo.utility.ClassifyUtility;
 
 public class ProcessFlowExecutor implements Callable<String> {
 	private BaseClassifier clModel;
@@ -40,42 +40,55 @@ public class ProcessFlowExecutor implements Callable<String> {
 		System.out.println("----Entering ProcessFlowExecutor for " + yearSplit + "------policy=" + policySplit);
 
 		Classifier model = null;
-		//初始化回测创建模型时使用的modelStore对象（按yearSplit和policysplit分割处理）
-		clModel.locateModelStore(yearSplit,policySplit,modelFilepathPrefix);
+
 		
 		
 
-		//是否build model 
+		//基于数据构建模型 
 		if (clModel.is_skipTrainInBacktest() == false) {
+			//初始化回测创建模型时使用的modelStore对象（按yearSplit和policysplit分割处理）
+			ModelStore modelStore=new ModelStore(yearSplit,policySplit,modelFilepathPrefix,clModel);
+			
 			System.out.println("start to build model");
-			String msg=clModel.validateTrainingData(dataTags[0]);
+			String msg=modelStore.validateTrainingData(dataTags[0]);
 			if (msg!=null){
 				throw new Exception(msg);
 			}
+
 			model=clModel.trainData(trainingData);
-			
-			//输出模型的confusionMatrix
-			boolean isNominal=false;
-			if (clModel instanceof NominalClassifier){
-				isNominal=true;
-			}
-			
-			msg=clModel.validateEvalData(dataTags[1]);
-			if (msg!=null){
-				throw new Exception(msg);
-			}
-			ClassifyUtility.getConfusionMatrix(trainingData,evalData, model,isNominal);
+			// save model + header
+			modelStore.setModel(model);
+			modelStore.setModelFormat(new DataInstances(trainingData, 0));
+			modelStore.saveModelToFiles();
+			System.out.println("Training finished!");
+
+			//TODO confusion matrix何时输出？
+//			//输出模型的confusionMatrix
+//			boolean isNominal=false;
+//			if (clModel instanceof NominalClassifier){
+//				isNominal=true;
+//			}
+//			
+//			msg=clModel.validateEvalData(dataTags[1]);
+//			if (msg!=null){
+//				throw new Exception(msg);
+//			}
+//			ClassifyUtility.getConfusionMatrix(trainingData,evalData, model,isNominal);
 		} 
 		trainingData=null;//释放内存 （不管是不是用到了）
 		model=null; //释放内存
 
+		
+		//设置评估或测试时所用的EvaluationStore
+		clModel.locateEvalutationStore(yearSplit,policySplit,modelFilepathPrefix);
+		
 		//是否需要重做评估阶段
 		if (clModel.is_skipEvalInBacktest() == false) {
 			String msg=clModel.validateEvalData(dataTags[1]);
 			if (msg!=null){
 				throw new Exception(msg);
 			}
-			clModel.evaluateModel(evalData, policySplit);
+			clModel.evaluateModel(evalData);
 		}
 		
 		evalData=null;//释放内存 （不管是不是用到了）

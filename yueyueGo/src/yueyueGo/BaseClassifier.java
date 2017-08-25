@@ -2,13 +2,10 @@ package yueyueGo;
 
 
 import java.io.Serializable;
-import java.util.ArrayList;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import weka.classifiers.Classifier;
-import weka.classifiers.evaluation.Prediction;
-import weka.classifiers.evaluation.ThresholdCurve;
 import weka.core.SerializedObject;
 import yueyueGo.dataFormat.ArffFormat;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
@@ -19,14 +16,8 @@ import yueyueGo.databeans.GeneralAttribute;
 import yueyueGo.databeans.GeneralDataTag;
 import yueyueGo.databeans.GeneralInstance;
 import yueyueGo.databeans.GeneralInstances;
-import yueyueGo.databeans.WekaInstances;
 import yueyueGo.utility.ClassifySummaries;
-import yueyueGo.utility.ClassifyUtility;
-import yueyueGo.utility.EvaluationBenchmark;
-import yueyueGo.utility.EvaluationConfDefinition;
-import yueyueGo.utility.EvaluationParams;
 import yueyueGo.utility.FormatUtility;
-import yueyueGo.utility.NumericThresholdCurve;
 import yueyueGo.utility.ThresholdData;
 
 /**
@@ -58,8 +49,6 @@ public abstract class BaseClassifier implements Serializable{
 	private boolean m_skipTrainInBacktest = true; //回测中使用，是否跳过训练模型阶段
 	private boolean m_skipEvalInBacktest = true;  //回测中使用，是否跳过评估模型阶段
 	
-	protected double[] m_focusAreaRatio={0.01,0.03,0.05,0.1,0.2,0.5,1};//评估时关注评估数据的不同Top 比例（缺省为0.01、0.03、0.05、0.1、0.2、0.5、1);
-
 	public boolean is_skipTrainInBacktest() {
 		return m_skipTrainInBacktest;
 	}
@@ -70,9 +59,7 @@ public abstract class BaseClassifier implements Serializable{
 
 
 
-	//以下为不可配置参数，内部存储
-    public EvaluationConfDefinition m_evalConf; //用于评估的对象
-	protected ModelStore m_modelStore; //model 和 eval的持久化封装类类
+	protected EvaluationStore m_evaluationStore;//eval的持久化封装类类
 	protected ClassifySummaries classifySummaries;//分类的统计信息
 	
 	public BaseClassifier() {
@@ -80,273 +67,50 @@ public abstract class BaseClassifier implements Serializable{
 
 		modelArffFormat=ArffFormat.CURRENT_FORMAT; //缺省使用当前的arff Format
 		m_modelFileShareMode=ModelStore.MONTHLY_MODEL; //model文件和Eval的共享模式,缺省为 回测时按yearsplit和policysplit分割使用model和eval文件
-		m_evalDataSplitMode=ModelStore.USE_YEAR_DATA_FOR_EVAL;//缺省使用倒推一年的数据作为模型评估数据，之前用于的构建模型
+		m_evalDataSplitMode=EvaluationStore.USE_YEAR_DATA_FOR_EVAL;//缺省使用倒推一年的数据作为模型评估数据，之前用于的构建模型
 		initializeParams();		// 留给子类的初始化参数函数
-
-		initEvaluationConfDefinition(); //初始化evaluation的常量定义
 	}
 	
 	//一系列需要子类实现的抽象方法
 	protected abstract void initializeParams();
 	protected abstract Classifier buildModel(GeneralInstances trainData) throws Exception;
-	
-	protected abstract GeneralInstances getROCInstances(ArrayList<Prediction> predictions)throws Exception; 
 	protected abstract double classify(Classifier model,GeneralInstance curr) throws Exception ;
 	
-	//可以在子类中被覆盖
-	protected void initEvaluationConfDefinition(){
-		EvaluationConfDefinition evalConf=new EvaluationConfDefinition(this.classifierName,null);
-		this.m_evalConf=evalConf;
-	}
-	
-	protected EvaluationParams getEvaluationInstance(String policy){
-		int pos=-1;
-		for (int i=0;i<m_policySubGroup.length;i++){
-			if (m_policySubGroup[i].equals(policy)){
-				pos=i;
-				break;
-			}
-		}
-		if (pos==-1) {
-			throw new RuntimeException("cannot find policy ["+policy+"]in m_policySubGroup");
-		}
-		return this.m_evalConf.getEvaluationInstance(pos);
-	}
 	
 	public Classifier trainData(GeneralInstances train) throws Exception {
 		Classifier model=buildModel(train);
-		// save model + header
-		m_modelStore.setModel(model);
-		m_modelStore.setModelFormat(new DataInstances(train, 0));
-		m_modelStore.saveModelToFiles();
-		System.out.println("Training finished!");
 		return model;
 	}
 	
 
 	
-	//评估模型
-	public void evaluateModel(GeneralInstances evalData,String policySplit) throws Exception{
+	/*
+	 * 评估模型
+	 */
+	public void evaluateModel(GeneralInstances evalData) throws Exception{
 
 		
-		Classifier model =m_modelStore.loadModelFromFile();
-		GeneralInstances header =m_modelStore.getModelFormat();
-		GeneralInstances evalFormat=new DataInstances(evalData,0);
-		//验证评估数据格式是否一致
-		String verify=verifyDataFormat(evalFormat, header);
-		if (verify!=null){
-			throw new Exception("attention! model and evaluation data structure is not the same. Here is the difference: "+verify);
-		}
-		
+		ModelStore selectedModel=m_evaluationStore.selectModelByAUC(evalData);
 
 //		eval.evaluateModel(model, evalData); // evaluate on the sample data to get threshold
 //		ThresholdCurve tc = new ThresholdCurve();
 //		int classIndex = 1;
 //		Instances predictions=tc.getCurve(eval.predictions(), classIndex);
-//		FileUtility.SaveDataIntoFile(predictions, this.WORK_PATH+"\\ROCresult-withTrain.arff");
 		
-		//基于evalData 生成评估模型的基准值
-		boolean isNominal=false;
-		if (this instanceof NominalClassifier){
-			isNominal=true;
-		}
-		EvaluationBenchmark benchmark=new EvaluationBenchmark(evalData, isNominal);
 		
 		System.out.println(" try to get best threshold for model...");
-		EvaluationParams evalParams=getEvaluationInstance(policySplit);
-		ThresholdData thresholdData = doModelEvaluation(benchmark,evalData, model, evalParams);
+		
+		ThresholdData thresholdData = m_evaluationStore.doModelEvaluation(evalData, selectedModel.getModel());
 		//将相应的数据区段值存入评估数据文件中，以备日后校验
-		thresholdData.setTargetYearSplit(m_modelStore.getTargetYearSplit());
-		thresholdData.setEvalYearSplit(m_modelStore.getEvalYearSplit());
-		thresholdData.setModelYearSplit(m_modelStore.getModelYearSplit());
-		ThresholdData.saveEvaluationToFile(m_modelStore.getEvalFileName(), thresholdData);
-		System.out.println("所评估model AUC="+thresholdData.getModelAUC()+" modelYearsplit="+thresholdData.getModelYearSplit()+" evalYearSplit="+thresholdData.getEvalYearSplit()+" policySplit="+policySplit);
+		thresholdData.setTargetYearSplit(m_evaluationStore.getTargetYearSplit());
+		thresholdData.setEvalYearSplit(m_evaluationStore.getEvalYearSplit());
+		thresholdData.setPolicySplit(m_evaluationStore.getPolicySplit());
+		thresholdData.setModelYearSplit(selectedModel.getModelYearSplit());
+		thresholdData.setModelFileName(selectedModel.getModelFileName());
+		ThresholdData.saveEvaluationToFile(m_evaluationStore.getEvalFileName(), thresholdData);
+		System.out.println("所评估model AUC="+thresholdData.getModelAUC()+" evalYearSplit="+thresholdData.getEvalYearSplit()+" policySplit="+thresholdData.getPolicySplit()+" modelYearsplit="+thresholdData.getModelYearSplit());
 
 	}
-	
-
-
-	//具体的模型评估方法
-	private ThresholdData doModelEvaluation(EvaluationBenchmark benchmark ,GeneralInstances evalData,Classifier model,EvaluationParams evalParams)
-			throws Exception {
-		
-		/*
-		 * 用ROC的方法评价模型质量
-		 * 在实际问题域中，我们并不关心整体样本的ROC curve，我们只关心预测值排序在头部区间内的ROC表现（top前N%）
-		 */
-		ArrayList<Prediction> fullPredictions=ClassifyUtility.getEvalPreditions(evalData, model);
-		
-		double[] modelAUC=new double[m_focusAreaRatio.length];
-		boolean isNominal=false;
-		if ( this instanceof NominalClassifier){
-			isNominal=true;
-		}
-		ArrayList<Prediction> topPedictions;
-		GeneralInstances result=null;
-		for (int i=0;i<m_focusAreaRatio.length;i++){
-			topPedictions=ClassifyUtility.getTopPredictedValues(isNominal,fullPredictions,m_focusAreaRatio[i]);
-			result=getROCInstances(topPedictions);
-			modelAUC[i]=ThresholdCurve.getROCArea( WekaInstances.convertToWekaInstances(result));
-			System.out.println("thread:"+Thread.currentThread().getName()+" MoDELAUC="+modelAUC[i]+ " where focusAreaRatio="+m_focusAreaRatio[i]);
-		}
-//		FileUtility.SaveDataIntoFile(result, this.WORK_PATH+"\\ROCresult.arff");
-		
-
-		ThresholdData thresholdData=null;
-
-		int round=1;
-		double tp_fp_bottom_line=benchmark.getEval_tp_fp_ratio();  
-		System.out.println("use the tp_fp_bottom_line based on training history data = "+tp_fp_bottom_line);
-		double trying_tp_fp=benchmark.getEval_tp_fp_ratio()*evalParams.getLift_up_target();
-		System.out.println("start from the trying_tp_fp based on training history data = "+trying_tp_fp + " / while  lift up target="+evalParams.getLift_up_target());
-		while (thresholdData == null && trying_tp_fp > tp_fp_bottom_line){
-			thresholdData= computeThresholds(trying_tp_fp,evalParams, result);
-			if (thresholdData!=null){
-				System.out.println(" threshold got at trying round No.: "+round);
-				break;
-			}else {
-				trying_tp_fp=trying_tp_fp*0.95;
-				round++;
-			}
-		}// end while;
-		if (thresholdData==null){  //如果已达到TPFP_BOTTOM_LINE但无法找到合适的阀值
-			thresholdData=computeDefaultThresholds(evalParams,result);//设置下限
-			
-		}
-		
-		//将focusAreaRatio及对应的ModelAUC保存
-		thresholdData.setFocosAreaRatio(m_focusAreaRatio);
-		thresholdData.setModelAUC(modelAUC);
-
-		return thresholdData;
-	}
-	
-	//无法根据liftup获取阀值时，缺省用最小的sampleSize处阀值
-	private ThresholdData computeDefaultThresholds(EvaluationParams evalParams, GeneralInstances result){
-		double sample_limit=evalParams.getLower_limit(); 
-		double sampleSize=1.0;  //SampleSize应该是倒序下来的
-		double lastSampleSize=1.0;
-		double threshold=-100;
-		GeneralAttribute att_threshold = result.attribute(NumericThresholdCurve.THRESHOLD_NAME);
-		GeneralAttribute att_samplesize = result.attribute(NumericThresholdCurve.SAMPLE_SIZE_NAME);
-
-		for (int i = 0; i < result.numInstances(); i++) {
-			GeneralInstance curr = result.instance(i);
-			lastSampleSize=sampleSize;
-			sampleSize = curr.value(att_samplesize); // to get sample range
-			if (FormatUtility.compareDouble(sampleSize,sample_limit)==0) {
-				threshold = curr.value(att_threshold);
-				break;
-			}
-			//暂存转折点
-			if ( lastSampleSize< sample_limit && sampleSize>sample_limit || lastSampleSize>sample_limit && sampleSize<sample_limit){
-				threshold=curr.value(att_threshold);
-				System.out.println("cannot get threshold at sample_limit="+sample_limit+ " use nearest SampleSize between"+sampleSize +" and "+lastSampleSize);
-			}
-			
-		}
-		if (threshold==-100){
-			System.err.println("fatal error!!!!! cannot get threshold at sample_limit="+sample_limit);
-		}else {
-			System.err.println("got default threshold "+ threshold+" at sample_limit="+sample_limit);
-		}
-		ThresholdData thresholdData=new ThresholdData();
-		thresholdData.setThresholdMin(threshold);
-		double startPercent=100*(1-evalParams.getLower_limit()); //将sampleSize转换为percent
-		thresholdData.setStartPercent(startPercent);
-		//先将模型阀值上限设为100，以后找到合适的算法再计算。
-		thresholdData.setThresholdMax(100);
-		//先将模型end percent设为100，以后找到合适的算法再计算。
-		thresholdData.setEndPercent(100);
-		
-		//使用缺省值时设置此标志位
-		thresholdData.setIsGuessed(true);
-
-		return thresholdData;
-		
-	}
-	
-	//具体的模型阀值计算方法，找不到阀值的时候返回null对象
-	private ThresholdData computeThresholds(double tp_fp_ratio,EvaluationParams evalParams, GeneralInstances result) {
-
-		double sample_limit=evalParams.getLower_limit(); 
-		double sample_upper=evalParams.getUpper_limit();
-
-		double thresholdBottom = 0.0;
-//		double lift_max = 0.0;
-//		double lift_max_tp=0.0;
-//		double lift_max_fp=0.0;
-//		double lift_max_sample=0.0;
-		
-		double finalSampleSize = 0.0;
-		double sampleSize = 0.0;
-		double tp = 0.0;
-		double fp = 0.0;
-		double final_tp=0.0;
-		double final_fp=0.0;
-		GeneralAttribute att_tp = result.attribute(NumericThresholdCurve.TRUE_POS_NAME);
-		GeneralAttribute att_fp = result.attribute(NumericThresholdCurve.FALSE_POS_NAME);
-//		GeneralAttribute att_lift = result.attribute(NumericThresholdCurve.LIFT_NAME);
-		GeneralAttribute att_threshold = result.attribute(NumericThresholdCurve.THRESHOLD_NAME);
-		GeneralAttribute att_samplesize = result.attribute(NumericThresholdCurve.SAMPLE_SIZE_NAME);
-
-
-		for (int i = 0; i < result.numInstances(); i++) {
-			GeneralInstance curr = result.instance(i);
-			sampleSize = curr.value(att_samplesize); // to get sample range
-			if (sampleSize >= sample_limit && sampleSize <=sample_upper) {
-				tp = curr.value(att_tp);
-				fp = curr.value(att_fp);
-				
-				//统计该范围内lift最大的值是多少（仅为输出用）
-//				double current_lift=curr.value(att_lift);
-//				if (current_lift>lift_max){
-//					lift_max=current_lift;
-//					lift_max_tp=tp;
-//					lift_max_fp=fp;
-//					lift_max_sample=sampleSize;
-//				}
-				
-				//查找合适的阀值
-				if (tp>fp*tp_fp_ratio ){
-					thresholdBottom = curr.value(att_threshold);
-					finalSampleSize = sampleSize;
-					final_tp=tp;
-					final_fp=fp;
-				}
-			}
-		}
-		
-		
-		ThresholdData thresholdData=null;
-		if (thresholdBottom>0){ //找到阀值时输出并设置对象的值
-			System.out.print("#############################thresholdBottom is : " + FormatUtility.formatDouble(thresholdBottom));
-			System.out.print("/samplesize is : " + FormatUtility.formatPercent(finalSampleSize) );
-			System.out.print("/True Positives is : " + final_tp);
-			System.out.println("/False Positives is : " + final_fp);
-			
-			thresholdData=new ThresholdData();
-			thresholdData.setThresholdMin(thresholdBottom);
-			double startPercent=100*(1-finalSampleSize); //将sampleSize转换为percent
-			thresholdData.setStartPercent(startPercent);
-			//先将模型阀值上限设为100，以后找到合适的算法再计算。
-			thresholdData.setThresholdMax(100);
-			//先将模型end percent设为100，以后找到合适的算法再计算。
-			thresholdData.setEndPercent(100);
-
-		}else{
-//			double max_tp_fp_ratio=Double.NaN;
-//			if (lift_max_fp>0){
-//				max_tp_fp_ratio=lift_max_tp/lift_max_fp;
-//			}
-//			System.out.println("###possible lift max in range is : " + FormatUtility.formatDouble(lift_max) + "@ sample="+FormatUtility.formatDouble(lift_max_sample)+" where tp="+lift_max_tp+" /fp="+lift_max_fp);
-//			System.out.println("### max tp fp ratio="+max_tp_fp_ratio+ " while trying threshold="+tp_fp_ratio+ " isNormal="+(max_tp_fp_ratio<tp_fp_ratio));
-		}
-
-		return thresholdData;
-	}
-	
-
 
 	//为每日预测用，这时候没有yearSplit （policySplit是存在的）
 	// result parameter will be changed in this method!
@@ -359,9 +123,24 @@ public abstract class BaseClassifier implements Serializable{
 	public  void predictData(GeneralInstances test, GeneralInstances result,String yearSplit,String policySplit)
 			throws Exception {
 
-		// 从保存的数据文件中加载分类用的model and header
-		Classifier model =m_modelStore.loadModelFromFile(); //模型数据的校验会在加载方法内部进行，此处下面仅校验格式
-		GeneralInstances header =m_modelStore.getModelFormat();
+		//先找对应的评估结果
+		//获取评估数据
+		ThresholdData thresholdData=ThresholdData.loadDataFromFile(m_evaluationStore.getEvalFileName());
+		//校验读入的thresholdData内容是否可以用于目前评估
+		String msg=m_evaluationStore.validateThresholdData(thresholdData);
+		if (msg==null)
+			System.out.println("ThresholdData verified for target yearsplit "+yearSplit);
+		else 
+			throw new Exception(msg);
+		double thresholdMin=thresholdData.getThresholdMin();
+		double thresholdMax=thresholdData.getThresholdMax();	
+
+		//从评估结果中找到模型文件。
+		ModelStore modelStore=ModelStore.loadModelFromFile(thresholdData.getModelFileName(), yearSplit);
+		// 从保存的数据文件中加载分类用的model and header		
+		Classifier model =modelStore.getModel();
+		//模型数据的校验会在加载方法内部进行，此处下面仅校验格式
+		GeneralInstances header =modelStore.getModelFormat();
 		// There is additional ID attribute in test instances, so we should save it and remove before doing prediction
 		double[] ids=test.attributeToDoubleArray(ArffFormat.ID_POSITION - 1);  
 		//删除已保存的ID 列，让待分类数据与模型数据一致 （此处的index是从1开始）
@@ -378,17 +157,6 @@ public abstract class BaseClassifier implements Serializable{
 			//再比一次
 			BaseInstanceProcessor.compareInstancesFormat(test, header);
 		}
-
-		//获取评估数据
-		ThresholdData thresholdData=ThresholdData.loadDataFromFile(m_modelStore.getEvalFileName());
-		//校验读入的thresholdData内容是否可以用于目前评估
-		String msg=m_modelStore.validateThresholdData(thresholdData);
-		if (msg==null)
-			System.out.println("ThresholdData verified for target yearsplit "+yearSplit);
-		else 
-			throw new Exception(msg);
-		double thresholdMin=thresholdData.getThresholdMin();
-		double thresholdMax=thresholdData.getThresholdMax();	
 
 
 		//开始用分类模型和阀值进行预测
@@ -509,7 +277,7 @@ public abstract class BaseClassifier implements Serializable{
 	}
 
 	
-	protected String verifyDataFormat(GeneralInstances test, GeneralInstances header) throws Exception {
+	public static String verifyDataFormat(GeneralInstances test, GeneralInstances header) throws Exception {
 //		//在使用旧格式时，如果有使用旧字段名的模型，试着将其改名后使用
 //		if (modelArffFormat==ArffFormat.LEGACY_FORMAT){
 //			header=ArffFormat.renameOldArffName(header);
@@ -518,21 +286,15 @@ public abstract class BaseClassifier implements Serializable{
 	}
 
 	
-	//找到回测评估、预测时应该使用modelStore对象（主要为获取model文件和eval文件名称）
-	//此类可以在子类中被覆盖（通过把yearsplit的值做处理，实现临时指定使用某个模型，可以多年使用一个模型，也可以特殊指定某年月使用某模型）
-	public void locateModelStore(String targetYearSplit,String policySplit,String modelFilepathPrefix) {
-		ModelStore modelStore=new ModelStore(targetYearSplit,policySplit,modelFilepathPrefix,this);
-		m_modelStore=modelStore;
+	//找到回测评估、预测时应该使用evaluationStore对象（主要为获取model文件和eval文件名称）
+	public void locateEvalutationStore(String targetYearSplit,String policySplit,String modelFilepathPrefix) {
+		EvaluationStore evaluationStore=new EvaluationStore(targetYearSplit,policySplit,modelFilepathPrefix,this);
+		m_evaluationStore=evaluationStore;
 	}
-
 	
-	/**
-	 * @param dataTag
-	 * @return
-	 * @see yueyueGo.ModelStore#validateTrainingData(yueyueGo.databeans.GeneralDataTag)
-	 */
-	public String validateTrainingData(GeneralDataTag dataTag) {
-		return m_modelStore.validateTrainingData(dataTag);
+	//为每日预测时使用
+	public void setEvaluationStore(EvaluationStore m_evaluationStore) {
+		this.m_evaluationStore = m_evaluationStore;
 	}
 
 	/**
@@ -541,7 +303,7 @@ public abstract class BaseClassifier implements Serializable{
 	 * @see yueyueGo.ModelStore#validateEvalData(yueyueGo.databeans.GeneralDataTag)
 	 */
 	public String validateEvalData(GeneralDataTag dataTag) {
-		return m_modelStore.validateEvalData(dataTag);
+		return m_evaluationStore.validateEvalData(dataTag);
 	}
 
 	/**
@@ -550,12 +312,7 @@ public abstract class BaseClassifier implements Serializable{
 	 * @see yueyueGo.ModelStore#validateTestingData(yueyueGo.databeans.GeneralDataTag)
 	 */
 	public String validateTestingData(GeneralDataTag dataTag) {
-		return m_modelStore.validateTestingData(dataTag);
-	}
-
-	//生成日常预测时使用的model文件和eval文件名称
-	public void setModelStore(ModelStore m){
-		m_modelStore=m;
+		return m_evaluationStore.validateTestingData(dataTag);
 	}
 
 	
@@ -593,6 +350,8 @@ public abstract class BaseClassifier implements Serializable{
 	}
 
 	
+
+
 	public void cleanUpClassifySummaries(){
 		ClassifySummaries c=getClassifySummaries();
 		if (c!=null){
@@ -617,7 +376,7 @@ public abstract class BaseClassifier implements Serializable{
 		System.out.println("m_modelDataSplitMode="+m_evalDataSplitMode);
 		System.out.println("m_modelEvalFileShareMode="+m_modelFileShareMode);
 		System.out.println("modelArffFormat="+modelArffFormat);
-		System.out.println(m_evalConf.showEvaluationParameters());
+		System.out.println(m_evaluationStore.showEvaluationParameters());
 	    System.out.println("***************************************");
 	}
 	
@@ -669,4 +428,6 @@ public abstract class BaseClassifier implements Serializable{
 		
 	}
 	
+	
+
 }

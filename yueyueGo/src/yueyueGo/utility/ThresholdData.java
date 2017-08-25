@@ -14,12 +14,32 @@ public class ThresholdData implements Serializable{
 	private double startPercent=99999;
 	private double endPercent=99999;
 	private boolean isGuessed=false; //阀值是使用的缺省值
+	private String policySplit=null; //当前评估数据对应的Policy；
 	private String targetYearSplit=null; //当前评估数据对应的目标测试月份
 	private String evalYearSplit=null; //当前评估数据对应的评估起始月份
-	private String modelYearSplit=null; //当前评估数据对应的模型数据截止月份
 	private double[] focosAreaRatio;//当前评估数据的不同Top 比例
 	private double[] modelAUC; //当前评估数据的不同Top 比例应用于对应Model所计算的AUC列表
 	
+	private String modelYearSplit; //当前评估数据下所选择的模型数据结束年月 （于下面的ModelFileName其实冗余了）
+	private String modelFileName=null;//当前评估数据下所选择的模型文件名称
+	
+	
+	public String getPolicySplit() {
+		return policySplit;
+	}
+
+	public void setPolicySplit(String policySplit) {
+		this.policySplit = policySplit;
+	}
+
+	public String getModelYearSplit() {
+		return modelYearSplit;
+	}
+
+	public void setModelYearSplit(String modelYearSplit) {
+		this.modelYearSplit = modelYearSplit;
+	}
+
 	public double[] getFocosAreaRatio() {
 		return focosAreaRatio;
 	}
@@ -58,18 +78,14 @@ public class ThresholdData implements Serializable{
 		this.evalYearSplit = evalYearSplit;
 	}
 
-	/**
-	 * @return the modelYearSplit
-	 */
-	public String getModelYearSplit() {
-		return modelYearSplit;
+
+
+	public String getModelFileName() {
+		return modelFileName;
 	}
 
-	/**
-	 * @param modelYearSplit the modelYearSplit to set
-	 */
-	public void setModelYearSplit(String modelYearSplit) {
-		this.modelYearSplit = modelYearSplit;
+	public void setModelFileName(String modelFileName) {
+		this.modelFileName = modelFileName;
 	}
 
 	public static ThresholdData loadDataFromFile(String evalFileName) throws Exception{

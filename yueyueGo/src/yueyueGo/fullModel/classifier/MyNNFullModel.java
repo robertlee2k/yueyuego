@@ -3,6 +3,7 @@ package yueyueGo.fullModel.classifier;
 import ext.WekaNeuralNetwork;
 import weka.classifiers.Classifier;
 import yueyueGo.EnvConstants;
+import yueyueGo.EvaluationStore;
 import yueyueGo.ModelStore;
 import yueyueGo.classifier.MyNNClassifier;
 import yueyueGo.dataFormat.FullModelDataFormat;
@@ -76,7 +77,7 @@ public class MyNNFullModel extends MyNNClassifier {
 		
 		classifierName=ClassifyUtility.MYNN_MLP_FULLMODEL;
 		m_modelFileShareMode=ModelStore.YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
-		m_evalDataSplitMode=ModelStore.USE_YEAR_DATA_FOR_EVAL;//覆盖父类，设定模型和评估间隔为12个月
+		m_evalDataSplitMode=EvaluationStore.USE_YEAR_DATA_FOR_EVAL;//覆盖父类，设定模型和评估间隔为12个月
 		
 		m_thread=EnvConstants.CPU_CORE_NUMBER/2;
 		m_learningRate=0.03; //缺省用

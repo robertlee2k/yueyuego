@@ -2,6 +2,7 @@
 package yueyueGo.classifier;
 
 import weka.classifiers.Classifier;
+import yueyueGo.EvaluationStore;
 import yueyueGo.ModelStore;
 import yueyueGo.NominalClassifier;
 import yueyueGo.ParrallelizedRunning;
@@ -109,7 +110,7 @@ public class RandForest extends NominalClassifier implements ParrallelizedRunnin
 		classifierName=ClassifyUtility.RANDOM_FOREST;	
 
 		m_modelFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
-		m_evalDataSplitMode=ModelStore.USE_HALF_YEAR_DATA_FOR_EVAL; //评估区间使用半年数据 		
+		m_evalDataSplitMode=EvaluationStore.USE_HALF_YEAR_DATA_FOR_EVAL; //评估区间使用半年数据 		
 
 		leafMinObjNum=300;
 	}

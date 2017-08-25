@@ -396,9 +396,10 @@ public class DailyPredict {
 			}
 
 			String modelFileName = predictPath+ modelPredifined	+ clModel.m_policySubGroup[j]	;				
-			String evalFileName = predictPath+ evalPredefined + clModel.m_policySubGroup[j]+ModelStore.THRESHOLD_EXTENSION;				
-			ModelStore modelStore=new ModelStore(modelFileName,evalFileName);
-			clModel.setModelStore(modelStore);
+			String evalFileName = predictPath+ evalPredefined + clModel.m_policySubGroup[j]+EvaluationStore.THRESHOLD_EXTENSION;
+			EvaluationStore evaluation=new EvaluationStore(evalFileName,modelFileName);
+			
+			clModel.setEvaluationStore(evaluation);
 
 
 
