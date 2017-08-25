@@ -108,7 +108,7 @@ public abstract class BaseClassifier implements Serializable{
 		thresholdData.setModelYearSplit(selectedModel.getModelYearSplit());
 		thresholdData.setModelFileName(selectedModel.getModelFileName());
 		ThresholdData.saveEvaluationToFile(m_evaluationStore.getEvalFileName(), thresholdData);
-		System.out.println("所评估model AUC="+thresholdData.getModelAUC()+" evalYearSplit="+thresholdData.getEvalYearSplit()+" policySplit="+thresholdData.getPolicySplit()+" modelYearsplit="+thresholdData.getModelYearSplit());
+		System.out.println(thresholdData.toString());
 
 	}
 

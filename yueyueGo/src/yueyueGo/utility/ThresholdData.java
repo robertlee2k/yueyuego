@@ -2,6 +2,7 @@ package yueyueGo.utility;
 import java.io.Serializable;
 
 import weka.core.SerializationHelper;
+import yueyueGo.ModelStore;
 
 
 public class ThresholdData implements Serializable{
@@ -23,7 +24,24 @@ public class ThresholdData implements Serializable{
 	private String modelYearSplit; //当前评估数据下所选择的模型数据结束年月 （于下面的ModelFileName其实冗余了）
 	private String modelFileName=null;//当前评估数据下所选择的模型文件名称
 	
-	
+	public String toString(){
+		StringBuffer data=new StringBuffer();
+		data.append("model AUC=");
+		for (double auc : modelAUC) {
+			data.append(auc);
+			data.append(',');
+		}
+		data.append("@focus Area Ratio=");
+		for (double d : focosAreaRatio) {
+			data.append(d);
+			data.append(',');
+		}
+		data.append("\r\n"+" policySplit="+policySplit+" targetYearSplit="+targetYearSplit+
+				" evalYearSplit="+evalYearSplit+" modelYearsplit="+modelYearSplit+"\r\n");
+		data.append(" modelFileName="+modelFileName);
+		
+		return data.toString();
+	}
 	public String getPolicySplit() {
 		return policySplit;
 	}
@@ -96,7 +114,8 @@ public class ThresholdData implements Serializable{
 	
 	public static void saveEvaluationToFile(String evalFileName,ThresholdData thresholdData) throws Exception {
 		SerializationHelper.write( evalFileName, thresholdData);
-		System.out.println("evaluation saved to :"+ evalFileName);
+		FileUtility.write(evalFileName+ModelStore.TXT_EXTENSION, thresholdData.toString(), "utf-8");
+//		System.out.println("evaluation saved to :"+ evalFileName);
 	}
 	
 //	public void loadDataFromFile(String evalFileName) throws Exception{

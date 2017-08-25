@@ -207,7 +207,7 @@ public class ModelStore {
 			//写入构建model的数据时间，供日后校验
 			v.add(m_modelYearSplit);
 			SerializationHelper.write(modelFileName+ModelStore.MODEL_FILE_EXTENSION, v);
-			System.out.println("models saved to :"+ modelFileName);
+//			System.out.println("models saved to :"+ modelFileName);
 		} catch(IOException e){
 			System.err.println("error when saving: "+modelFileName);
 			throw e;
