@@ -118,6 +118,7 @@ public class EvaluationStore {
 		//获得所有需要评估的文件列表
 		String[] modelFiles=new String[numberOfModels];
 		for (int i=0;i<numberOfModels;i++){
+			modelYears[i]=ModelStore.legacyModelName(modelYears[i]); //TODO
 			modelFiles[i]=ModelStore.concatModeFilenameString( modelYears[i], policySplit, workFileFullPrefix, classifierName);
 		}
 		return modelFiles;

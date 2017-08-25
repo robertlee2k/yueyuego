@@ -56,16 +56,26 @@ public class ModelStore {
 
 		this.m_modelYearSplit=modelYearSplit;//记录下用于构建的模型月份，以便校验输入的数据
 		
-//		//根据历史习惯， 如果模型是第一个月时将其文件名变换为年的形式（如应该把200801变为2008）
-//		if (modelYearSplit.length()==6){
-//			int inputMonth=Integer.parseInt(modelYearSplit.substring(4,6)); 
-//			if (inputMonth==1){
-//				modelYearSplit=modelYearSplit.substring(0,4);
-//			}
-//		}
+		modelYearSplit = legacyModelName(modelYearSplit);
 
 		m_modelFileName=concatModeFilenameString(modelYearSplit, policySplit, workFileFullPrefix, classifierName);
 
+	}
+
+	/**
+	 * @param modelYearSplit
+	 * @return
+	 * @throws NumberFormatException
+	 */
+	public static String legacyModelName(String modelYearSplit) throws NumberFormatException {
+		//根据历史习惯， 如果模型是第一个月时将其文件名变换为年的形式（如应该把200801变为2008）
+		if (modelYearSplit.length()==6){
+			int inputMonth=Integer.parseInt(modelYearSplit.substring(4,6)); 
+			if (inputMonth==1){
+				modelYearSplit=modelYearSplit.substring(0,4);
+			}
+		}
+		return modelYearSplit;
 	}
 
 	public String getModelFileName() {
