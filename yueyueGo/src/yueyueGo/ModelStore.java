@@ -226,7 +226,7 @@ public class ModelStore {
 			Object savedHeaderObject=v.get(1);
 			GeneralInstances header =null;
 			header=(DataInstances)savedHeaderObject;
-			System.out.println("Classifier Model and Format Loaded from: "+ modelFileName);
+//			System.out.println("Classifier Model and Format Loaded from: "+ modelFileName);
 			loadedModel.m_model=model;
 			loadedModel.m_modelFormat=header;
 			String savedModelYearSplit=null;

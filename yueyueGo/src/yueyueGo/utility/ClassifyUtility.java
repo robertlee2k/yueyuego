@@ -293,7 +293,7 @@ public class ClassifyUtility {
 				topPredictions.add(pred);
 			}
 		}
-		System.out.println("number of preditions selected="+topPredictions.size()+" from total ("+predictions.size()+") by using top ratio="+ratio+" where predicted value ="+judgePoint);
+		System.out.println("number of preditions selected="+topPredictions.size()+" from total ("+predictions.size()+") by using  predicted value("+judgePoint+") and top ratio="+ratio);
 		return topPredictions;
 	
 	

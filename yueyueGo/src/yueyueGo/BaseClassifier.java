@@ -98,7 +98,7 @@ public abstract class BaseClassifier implements Serializable{
 //		Instances predictions=tc.getCurve(eval.predictions(), classIndex);
 		
 		
-		System.out.println(" try to get best threshold for model...");
+//		System.out.println(" try to get best threshold for model...");
 		
 		ThresholdData thresholdData = m_evaluationStore.doModelEvaluation(evalData, selectedModel.getModel());
 		//将相应的数据区段值存入评估数据文件中，以备日后校验
@@ -128,8 +128,9 @@ public abstract class BaseClassifier implements Serializable{
 		ThresholdData thresholdData=ThresholdData.loadDataFromFile(m_evaluationStore.getEvalFileName());
 		//校验读入的thresholdData内容是否可以用于目前评估
 		String msg=m_evaluationStore.validateThresholdData(thresholdData);
-		if (msg==null)
+		if (msg==null){
 			System.out.println("ThresholdData verified for target yearsplit "+yearSplit);
+		}
 		else 
 			throw new Exception(msg);
 		double thresholdMin=thresholdData.getThresholdMin();

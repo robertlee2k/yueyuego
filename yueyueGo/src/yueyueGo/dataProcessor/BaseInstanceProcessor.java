@@ -160,9 +160,9 @@ public abstract class BaseInstanceProcessor {
 	 */
 	public static String compareInstancesFormat(GeneralInstances test, GeneralInstances header) {
 		String result=header.equalHeadersMsg(test);
-		if (result==null){
-			System.out.println("model and testing data structure compared,everything is just the same");
-		}
+//		if (result!=null){
+//			System.err.println("model and testing data structure is not the same:+"+result);
+//		}
 		return result;
 	}
 

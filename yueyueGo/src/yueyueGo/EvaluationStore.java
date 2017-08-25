@@ -247,7 +247,7 @@ public class EvaluationStore {
 			topPedictions=ClassifyUtility.getTopPredictedValues(m_isNominal,fullPredictions,0.05);
 			result=getROCInstances(topPedictions);
 			modelsAUC[i]=ThresholdCurve.getROCArea( WekaInstances.convertToWekaInstances(result));
-			System.out.println("thread:"+Thread.currentThread().getName()+" modelsAUC="+modelsAUC[i]+ " where modelFile="+m_modelFilesToEval[i]);
+			System.out.println("thread:"+Thread.currentThread().getName()+" modelsAUC="+modelsAUC[i]+ " @ ModelYearSplit="+modelStores[i].getModelYearSplit());
 			if (modelsAUC[i]>maxModelAUC){
 				maxModelAUC=modelsAUC[i];
 				maxModelIndex=i;
@@ -477,7 +477,7 @@ public class EvaluationStore {
 			topPedictions=ClassifyUtility.getTopPredictedValues(m_isNominal,fullPredictions,m_focusAreaRatio[i]);
 			result=getROCInstances(topPedictions);
 			modelAUC[i]=ThresholdCurve.getROCArea( WekaInstances.convertToWekaInstances(result));
-			System.out.println("thread:"+Thread.currentThread().getName()+" MoDELAUC="+modelAUC[i]+ " where focusAreaRatio="+m_focusAreaRatio[i]);
+			System.out.println("thread:"+Thread.currentThread().getName()+" MoDELAUC="+modelAUC[i]+ " @ focusAreaRatio="+m_focusAreaRatio[i]);
 		}
 	
 	
