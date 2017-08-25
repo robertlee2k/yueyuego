@@ -33,8 +33,8 @@ public class ClassiferInitFactory {
 			
 			model.bagging_iteration=5;
 			model.divided=500; //将trainingData分成多少份
-			model.m_modelFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
-			model.m_evalDataSplitMode=EvaluationStore.USE_HALF_YEAR_DATA_FOR_EVAL;
+//			model.m_modelFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
+//			model.m_evalDataSplitMode=EvaluationStore.USE_HALF_YEAR_DATA_FOR_EVAL;
 
 		}
 		return model;
@@ -62,8 +62,8 @@ public class ClassiferInitFactory {
 			
 			model.boost_iteration=5;
 			model.divided=500; //将trainingData分成多少份
-			model.m_modelFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
-			model.m_evalDataSplitMode=EvaluationStore.USE_HALF_YEAR_DATA_FOR_EVAL;
+//			model.m_modelFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
+//			model.m_evalDataSplitMode=EvaluationStore.USE_HALF_YEAR_DATA_FOR_EVAL;
 		}
 		return model;
 	}

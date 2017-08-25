@@ -27,7 +27,10 @@ public class EvaluationStore {
 	protected String[] m_modelFilesToEval;
 	protected String m_modelFilepathPrefix;
 	protected boolean m_isNominal=false;
-	protected double[] m_focusAreaRatio={0.05,1};//评估时关注评估数据的不同Top 比例（缺省为0.01、0.03、0.05、0.1、0.2、0.5、1);
+	
+	public static final double TOP_AREA_RATIO=0.05; //缺省定义头部为5%
+	public static final double REVERSED_TOP_AREA_RATIO=0.3; //缺省定义反向头部为30%
+	protected double[] m_focusAreaRatio={TOP_AREA_RATIO,1};//评估时关注评估数据的不同Top 比例（缺省为0.01、0.03、0.05、0.1、0.2、0.5、1);
 	
 	public static final int PREVIOUS_MODELS_NUM=5; 	//暂时选取之前的5个文件
 	public static final int YEAR_SPLIT_LIMIT=2007; //回测模型的起始点， 在这之前无数据	
@@ -140,7 +143,7 @@ public class EvaluationStore {
 		//获得所有需要评估的模型文件列表
 		String[] modelFiles=new String[numberofValidModels];
 		for (int i=0;i<numberofValidModels;i++){
-			modelYears[i]=ModelStore.legacyModelName(modelYears[i]); //TODO
+			modelYears[i]=ModelStore.legacyModelName(modelYears[i]); 
 			modelFiles[i]=ModelStore.concatModeFilenameString( modelYears[i], policySplit, workFileFullPrefix, classifierName);
 		}
 		return modelFiles;
@@ -215,13 +218,14 @@ public class EvaluationStore {
 	 * @throws Exception
 	 * @throws RuntimeException
 	 */
-	public ModelStore selectModelByAUC( GeneralInstances evalData)
+	public ModelStore selectModelByAUC( GeneralInstances evalData,boolean isReversed)
 			throws Exception, RuntimeException {
 		String yearSplit=this.getTargetYearSplit();
 		double[] modelsAUC=new double[m_modelFilesToEval.length];
 		ModelStore[] modelStores=new ModelStore[m_modelFilesToEval.length];
 		double maxModelAUC=0;
 		int maxModelIndex=0;
+		
 		
 		for (int i=0;i<m_modelFilesToEval.length;i++) {
 			modelStores[i]=ModelStore.loadModelFromFile(m_modelFilesToEval[i], yearSplit);
@@ -241,27 +245,54 @@ public class EvaluationStore {
 			ArrayList<Prediction> fullPredictions=ClassifyUtility.getEvalPreditions(evalData, model);
 	
 
-			ArrayList<Prediction> topPedictions;
-			GeneralInstances result=null;
-	
-			topPedictions=ClassifyUtility.getTopPredictedValues(m_isNominal,fullPredictions,0.05);
-			result=getROCInstances(topPedictions);
-			modelsAUC[i]=ThresholdCurve.getROCArea( WekaInstances.convertToWekaInstances(result));
-			System.out.println("thread:"+Thread.currentThread().getName()+" modelsAUC="+modelsAUC[i]+ " @ ModelYearSplit="+modelStores[i].getModelYearSplit());
-			if (modelsAUC[i]>maxModelAUC){
-				maxModelAUC=modelsAUC[i];
-				maxModelIndex=i;
+			//根据reversed与否决定是取正向还是反向的AUC
+			if (isReversed==false){
+				modelsAUC[i]=caculateAUC(fullPredictions,TOP_AREA_RATIO, isReversed);
+			}else{
+				modelsAUC[i]=caculateAUC(fullPredictions,REVERSED_TOP_AREA_RATIO, isReversed);
 			}
-	
+			System.out.println("thread:"+Thread.currentThread().getName()+" modelsAUC="+modelsAUC[i]+" isReversed="+isReversed+ " @ ModelYearSplit="+modelStores[i].getModelYearSplit());
+			if (isReversed==false){
+				if (modelsAUC[i]>maxModelAUC){
+					maxModelAUC=modelsAUC[i];
+					maxModelIndex=i;
+				}
+			}else { //反向时用最小的AUC
+				if (modelsAUC[i]<maxModelAUC){
+					maxModelAUC=modelsAUC[i];
+					maxModelIndex=i;
+				}
+			}
+			
 		}
-		System.out.println("thread:"+Thread.currentThread().getName()+" MaxAUC selected="+maxModelAUC+"@"+m_modelFilesToEval[maxModelIndex]);
+		System.out.println("thread:"+Thread.currentThread().getName()+" MaxAUC selected="+maxModelAUC+" isReversed="+isReversed+"@"+m_modelFilesToEval[maxModelIndex]);
 		if (maxModelIndex!=0){
 			System.out.println("thread:"+Thread.currentThread().getName()+ " MaxAUC selected is not the latest one for TargetYearSplit("+yearSplit+") ModelYearSplit used="+modelStores[maxModelIndex].getModelYearSplit());
 		}
-		if (maxModelAUC<0.5){
-			System.err.println(" MaxAUC selected is less than random classifer. MAXAUC="+maxModelAUC);
+		if (maxModelAUC<0.5 && isReversed==false || maxModelAUC>0.5 && isReversed==true){
+			System.err.println(" MaxAUC selected is less than random classifer. MAXAUC="+maxModelAUC+" isReversed="+isReversed);
 		}
 		return modelStores[maxModelIndex];
+	}
+
+	/**
+	 * @param modelsAUC
+	 * @param modelStores
+	 * @param i
+	 * @param fullPredictions
+	 * @param reverse
+	 * @throws Exception
+	 * @throws RuntimeException
+	 */
+	private double caculateAUC(  ArrayList<Prediction> fullPredictions, double ratio,
+			boolean reverse) throws Exception, RuntimeException {
+		ArrayList<Prediction> topPedictions;
+		GeneralInstances result;
+		topPedictions=ClassifyUtility.getTopPredictedValues(m_isNominal,fullPredictions,ratio,reverse);
+		result=getROCInstances(topPedictions);
+		double auc=ThresholdCurve.getROCArea( WekaInstances.convertToWekaInstances(result));
+
+		return auc;
 	}
 
 	//	当前周期前推N个月的分隔线，比如 如果N=9是201003 则返回200909
@@ -369,10 +400,7 @@ public class EvaluationStore {
 		thresholdData.setThresholdMin(threshold);
 		double startPercent=100*(1-evalParams.getLower_limit()); //将sampleSize转换为percent
 		thresholdData.setStartPercent(startPercent);
-		//先将模型阀值上限设为100，以后找到合适的算法再计算。
-		thresholdData.setThresholdMax(100);
-		//先将模型end percent设为100，以后找到合适的算法再计算。
-		thresholdData.setEndPercent(100);
+
 		
 		//使用缺省值时设置此标志位
 		thresholdData.setIsGuessed(true);
@@ -443,10 +471,7 @@ public class EvaluationStore {
 			thresholdData.setThresholdMin(thresholdBottom);
 			double startPercent=100*(1-finalSampleSize); //将sampleSize转换为percent
 			thresholdData.setStartPercent(startPercent);
-			//先将模型阀值上限设为100，以后找到合适的算法再计算。
-			thresholdData.setThresholdMax(100);
-			//先将模型end percent设为100，以后找到合适的算法再计算。
-			thresholdData.setEndPercent(100);
+
 	
 		}else{
 	//			double max_tp_fp_ratio=Double.NaN;
@@ -471,18 +496,18 @@ public class EvaluationStore {
 		
 		double[] modelAUC=new double[m_focusAreaRatio.length];
 
-		ArrayList<Prediction> topPedictions;
-		GeneralInstances result=null;
+
+		//获取确定模型的不同阈值表现
 		for (int i=0;i<m_focusAreaRatio.length;i++){
-			topPedictions=ClassifyUtility.getTopPredictedValues(m_isNominal,fullPredictions,m_focusAreaRatio[i]);
-			result=getROCInstances(topPedictions);
-			modelAUC[i]=ThresholdCurve.getROCArea( WekaInstances.convertToWekaInstances(result));
+			modelAUC[i]=caculateAUC(fullPredictions,TOP_AREA_RATIO, false);
 			System.out.println("thread:"+Thread.currentThread().getName()+" MoDELAUC="+modelAUC[i]+ " @ focusAreaRatio="+m_focusAreaRatio[i]);
 		}
 	
-	
+
+		//查找评估Threshold
 		ThresholdData thresholdData=null;
-	
+		GeneralInstances result=getROCInstances(fullPredictions);
+		
 		EvaluationBenchmark benchmark=new EvaluationBenchmark(evalData, m_isNominal);		 
 		EvaluationParams evalParams=m_evalConf.getEvaluationInstance(m_policySplit);
 		

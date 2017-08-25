@@ -90,16 +90,8 @@ public abstract class BaseClassifier implements Serializable{
 	public void evaluateModel(GeneralInstances evalData) throws Exception{
 
 		
-		ModelStore selectedModel=m_evaluationStore.selectModelByAUC(evalData);
-
-//		eval.evaluateModel(model, evalData); // evaluate on the sample data to get threshold
-//		ThresholdCurve tc = new ThresholdCurve();
-//		int classIndex = 1;
-//		Instances predictions=tc.getCurve(eval.predictions(), classIndex);
-		
-		
-//		System.out.println(" try to get best threshold for model...");
-		
+		//先查正向评估
+		ModelStore selectedModel=m_evaluationStore.selectModelByAUC(evalData,false);
 		ThresholdData thresholdData = m_evaluationStore.doModelEvaluation(evalData, selectedModel.getModel());
 		//将相应的数据区段值存入评估数据文件中，以备日后校验
 		thresholdData.setTargetYearSplit(m_evaluationStore.getTargetYearSplit());
@@ -107,6 +99,11 @@ public abstract class BaseClassifier implements Serializable{
 		thresholdData.setPolicySplit(m_evaluationStore.getPolicySplit());
 		thresholdData.setModelYearSplit(selectedModel.getModelYearSplit());
 		thresholdData.setModelFileName(selectedModel.getModelFileName());
+		
+		//再查反向评估
+		ModelStore selectedReversedModel=m_evaluationStore.selectModelByAUC(evalData,true);
+		
+
 		ThresholdData.saveEvaluationToFile(m_evaluationStore.getEvalFileName(), thresholdData);
 		System.out.println(thresholdData.toString());
 
@@ -134,7 +131,7 @@ public abstract class BaseClassifier implements Serializable{
 		else 
 			throw new Exception(msg);
 		double thresholdMin=thresholdData.getThresholdMin();
-		double thresholdMax=thresholdData.getThresholdMax();	
+
 
 		//从评估结果中找到模型文件。
 		ModelStore modelStore=ModelStore.loadModelFromFile(thresholdData.getModelFileName(), yearSplit);
@@ -211,10 +208,10 @@ public abstract class BaseClassifier implements Serializable{
 
 
 			double t_min=thresholdMin;
-			double t_max=thresholdMax;
+
 			double selected = 0.0;
 			
-			if (pred >=t_min  && pred <= t_max) {
+			if (pred >=t_min ) {
 				selected = 1.0;
 
 				if (shouyilv>getPositiveLine()){ //这里的positive是个相对于positiveLine的相对概念

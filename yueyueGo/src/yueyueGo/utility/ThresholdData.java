@@ -10,10 +10,10 @@ public class ThresholdData implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = 6309018541536909105L;
+
+	
 	private double thresholdMin=99999;
-	private double thresholdMax=99999;
 	private double startPercent=99999;
-	private double endPercent=99999;
 	private boolean isGuessed=false; //阀值是使用的缺省值
 	private String policySplit=null; //当前评估数据对应的Policy；
 	private String targetYearSplit=null; //当前评估数据对应的目标测试月份
@@ -24,6 +24,30 @@ public class ThresholdData implements Serializable{
 	private String modelYearSplit; //当前评估数据下所选择的模型数据结束年月 （于下面的ModelFileName其实冗余了）
 	private String modelFileName=null;//当前评估数据下所选择的模型文件名称
 	
+	
+	//下面是反向评估的数据
+	private String reversedModelYearSplit;
+	private String reversedModelFileName=null;
+	private double reversedThreshold=99999;
+	
+	public String getReversedModelYearSplit() {
+		return reversedModelYearSplit;
+	}
+	public void setReversedModelYearSplit(String reversedModelYearSplit) {
+		this.reversedModelYearSplit = reversedModelYearSplit;
+	}
+	public String getReversedModelFileName() {
+		return reversedModelFileName;
+	}
+	public void setReversedModelFileName(String reversedModelFileName) {
+		this.reversedModelFileName = reversedModelFileName;
+	}
+	public double getReversedThreshold() {
+		return reversedThreshold;
+	}
+	public void setReversedThreshold(double reversedThreshold) {
+		this.reversedThreshold = reversedThreshold;
+	}
 	public String toString(){
 		StringBuffer data=new StringBuffer();
 		data.append("model AUC=");
@@ -118,43 +142,6 @@ public class ThresholdData implements Serializable{
 //		System.out.println("evaluation saved to :"+ evalFileName);
 	}
 	
-//	public void loadDataFromFile(String evalFileName) throws Exception{
-//		//读取Threshold数据文件
-//		
-//		@SuppressWarnings("unchecked")
-//		Vector<Object> v_threshold = (Vector<Object>) SerializationHelper.read( evalFileName);
-//		System.out.println("Classifier Threshold Loaded From: "+ evalFileName);
-//
-//		thresholdMin = ((Double) v_threshold.get(0)).doubleValue();
-//		// 是否真的要设置上限需要评估8888
-//		thresholdMax = ((Double) v_threshold.get(1)).doubleValue();
-//		System.out.println("full market thresholding value：between "	+ thresholdMin + " , "+ thresholdMax);
-//		try{
-//			startPercent = ((Double) v_threshold.get(2)).doubleValue();
-//			// 是否真的要设置上限需要评估8888
-//			endPercent = ((Double) v_threshold.get(3)).doubleValue();
-//			System.out.println("full market percentile value：between "	+ startPercent + " , "+ endPercent);
-//
-//			//		thresholdMin_hs300=-1;
-//			//		thresholdMax_hs300=-1;
-//			//		if (seperate_classify_HS300==true){
-//			//			thresholdMin_hs300=((Double) v_threshold.get(2)).doubleValue();
-//			//			// 是否真的要设置上限需要评估
-//			//			thresholdMax_hs300=((Double) v_threshold.get(3)).doubleValue();
-//			//			System.out.println("HS300 index thresholding value：between "	+ thresholdMin_hs300 + " , "+ thresholdMax_hs300);
-//			//		}
-//		} catch (java.lang.ArrayIndexOutOfBoundsException e){ //兼容旧的模型
-//			System.err.println(e);
-//			System.err.println("let's continue using threshold min="+thresholdMin+"  max="+thresholdMax);
-//		}
-//	}
-	
-
-	
-//	public static void saveEvaluationToFile(String evalFileName,Vector<Double> v) throws Exception {
-//		SerializationHelper.write( evalFileName, v);
-//		System.out.println("evaluation saved to :"+ evalFileName);
-//	}
 	
 	public double getThresholdMin() {
 		return thresholdMin;
@@ -164,29 +151,17 @@ public class ThresholdData implements Serializable{
 		this.startPercent = startPercent;
 	}
 
-	public void setEndPercent(double endPercent) {
-		this.endPercent = endPercent;
-	}
 
 	public void setThresholdMin(double thresholdMin) {
 		this.thresholdMin = thresholdMin;
 	}
 
-	public double getThresholdMax() {
-		return thresholdMax;
-	}
 
-	public void setThresholdMax(double thresholdMax) {
-		this.thresholdMax = thresholdMax;
-	}
 
 	public double getStartPercent() {
 		return startPercent;
 	}
 
-	public double getEndPercent() {
-		return endPercent;
-	}
 
 	public boolean isGuessed() {
 		return isGuessed;

@@ -23,7 +23,8 @@ public abstract class NominalClassifier extends BaseClassifier{
 	private static final long serialVersionUID = 5570283670170193026L;
 
 	private GeneralInstances m_cachedOldClassInstances=null;
-	
+	public static final int CLASS_POSITIVE_INDEX=1;
+	public static final int CLASS_NEGATIVE_INDEX=0;
 
 
 
@@ -31,9 +32,8 @@ public abstract class NominalClassifier extends BaseClassifier{
 	//对于二分类变量，返回分类1的预测可能性
 	@Override
 	protected  double classify(Classifier model,GeneralInstance curr) throws Exception {
-		//TODO
 		double[] problity =  model.distributionForInstance(WekaInstance.convertToWekaInstance(curr));
-		return problity[1];
+		return problity[CLASS_POSITIVE_INDEX];
 	}
 	
 	//将原始数据变换为nominal Classifier需要的形式（更换class 变量等等）
@@ -44,6 +44,7 @@ public abstract class NominalClassifier extends BaseClassifier{
 			throw new Exception("fatal error! class index should be at the last column");
 		}
 		ArrayList<String> values=new ArrayList<String>();
+		//CLASS_POSITIVE_INDEX=1时这里必须按照这个顺序添加！ 
 		values.add(ArffFormat.VALUE_NO);
 		values.add(ArffFormat.VALUE_YES);
 		WekaAttribute newClassAtt=new WekaAttribute(ArffFormat.IS_POSITIVE,values);

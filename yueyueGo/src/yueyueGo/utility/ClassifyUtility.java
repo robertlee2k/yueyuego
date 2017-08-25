@@ -14,6 +14,7 @@ import weka.classifiers.trees.J48;
 import weka.classifiers.trees.M5P;
 import yueyueGo.EnvConstants;
 import yueyueGo.MyAttributionSelectorWithPCA;
+import yueyueGo.NominalClassifier;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaInstances;
 
@@ -256,7 +257,11 @@ public class ClassifyUtility {
 		return predictions;
 	}
 
-	public static ArrayList<Prediction> getTopPredictedValues(boolean isNominalPred,ArrayList<Prediction> predictions,double ratio) {
+	/*
+	 * 对二分类变量，正分布选最大的ratio，负分布选最小的这部分ratio
+	 * 对连续分类变量，正分布选最大的ratio，负分布选最小的这部分ratio
+	 */
+	public static ArrayList<Prediction> getTopPredictedValues(boolean isNominalPred,ArrayList<Prediction> predictions,double ratio,boolean reverse) {
 		
 		//如果是全部则返回全量数据
 		if (ratio>=1){
@@ -265,33 +270,52 @@ public class ClassifyUtility {
 		
 		DescriptiveStatistics probs=new DescriptiveStatistics();
 		double predicted=0.0;
+		
+		double targetPercentile=0.0;
+
+		//连续分类变量要根据是否reverse来判断分位数
+		if (reverse==false){ //非反转时用普通分位数
+			targetPercentile=(1-ratio)*100;
+		}else{ //反转时取最小的位置
+			targetPercentile=ratio*100;
+		}
+
+		
+		//加入所有的数据，查找分界点
 		for (int i = 0; i < predictions.size(); i++) {
 			Prediction pred =  predictions.get(i);
 			if (isNominalPred){
-				//对于二分类变量，返回分类1的预测可能性
-				predicted=((NominalPrediction)pred).distribution()[1];
+				predicted=((NominalPrediction)pred).distribution()[NominalClassifier.CLASS_POSITIVE_INDEX];
 			}else{
 				predicted=pred.predicted(); 
 			}
 			probs.addValue(predicted);
 		}
-		
-		double judgePoint=probs.getPercentile((1-ratio)*100);
+		double judgePoint=probs.getPercentile(targetPercentile);		
+
 		
 		// 根据阈值截取数据
 		ArrayList<Prediction> topPredictions=new ArrayList<Prediction>();
 		for (int i = 0; i < predictions.size(); i++) {
 			Prediction pred =  predictions.get(i);
 			if (isNominalPred){
-				//对于二分类变量，返回分类1的预测可能性
-				predicted=((NominalPrediction)pred).distribution()[1];
+				//对于二分类变量，返回目标分类的预测可能性
+				predicted=((NominalPrediction)pred).distribution()[NominalClassifier.CLASS_POSITIVE_INDEX];
+
 			}else{
-				predicted=pred.predicted(); 
+				predicted=pred.predicted();
 			}
-	
-			if (predicted>=judgePoint) {
-				topPredictions.add(pred);
-			}
+			
+			
+			if (reverse==false){//非反转时用普通分位数
+				if (predicted>=judgePoint) {
+					topPredictions.add(pred);
+				}
+			}else{//反转时用小于改分位数来选取
+				if (predicted<=judgePoint) {
+					topPredictions.add(pred);
+				}
+			}	
 		}
 		System.out.println("number of preditions selected="+topPredictions.size()+" from total ("+predictions.size()+") by using  predicted value("+judgePoint+") and top ratio="+ratio);
 		return topPredictions;

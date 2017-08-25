@@ -56,12 +56,13 @@ public class ModelStore {
 
 		this.m_modelYearSplit=modelYearSplit;//记录下用于构建的模型月份，以便校验输入的数据
 		
-		modelYearSplit = legacyModelName(modelYearSplit);
+//		modelYearSplit = legacyModelName(modelYearSplit);
 
 		m_modelFileName=concatModeFilenameString(modelYearSplit, policySplit, workFileFullPrefix, classifierName);
 
 	}
 
+	@Deprecated
 	/**
 	 * @param modelYearSplit
 	 * @return
