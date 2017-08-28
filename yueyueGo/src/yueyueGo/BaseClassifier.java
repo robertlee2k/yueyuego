@@ -120,12 +120,21 @@ public abstract class BaseClassifier implements Serializable{
 			throw new Exception("fatal error!!! reversedThreshold("+reversedThresholdMax+") > threshold("+thresholdMin+")");
 		}
 
-		//从评估结果中找到模型文件。
-		ModelStore modelStore=ModelStore.loadModelFromFile(thresholdData.getModelFileName(), yearSplit);
-		// 从保存的数据文件中加载分类用的model and header		
+
+		//获取预测文件中的应该用哪个modelYearSplit的模型
+		String modelYearSplit=thresholdData.getModelYearSplit();
+		//从评估结果中找到模型文件。		
+		ModelStore modelStore=new ModelStore(thresholdData.getModelFileName(), modelYearSplit);
+
+		// 从保存的数据文件中加载分类用的model and header，此加载方法内部有对modelYear的校验		
+		modelStore.loadModelFromFile(yearSplit);
+		//获取model
 		Classifier model =modelStore.getModel();
 		//模型数据的校验会在加载方法内部进行，此处下面仅校验格式
 		GeneralInstances header =modelStore.getModelFormat();
+		
+
+		
 		// There is additional ID attribute in test instances, so we should save it and remove before doing prediction
 		double[] ids=test.attributeToDoubleArray(ArffFormat.ID_POSITION - 1);  
 		//删除已保存的ID 列，让待分类数据与模型数据一致 （此处的index是从1开始）
@@ -215,7 +224,10 @@ public abstract class BaseClassifier implements Serializable{
 		}
 		
 		
-		double startPercent=thresholdData.getPercent();
+		//获取输出用的信息
+		String reversedModelYearSplit=thresholdData.getReversedModelYearSplit();
+		
+		double percentile=thresholdData.getPercent();
 		boolean isGuessed=thresholdData.isGuessed();
 		String defaultThresholdUsed=" ";
 		if (isGuessed){
@@ -223,13 +235,16 @@ public abstract class BaseClassifier implements Serializable{
 		}		
 		
 		double[] modelAUC=thresholdData.getModelAUC();
+		double reversedPercentile=thresholdData.getReversedPercent();
+		
 		
 		
 		if ("".equals(yearSplit) ){
 			//这是预测每日数据时，没有实际收益率数据可以做评估 (上述逻辑会让所有的数据都进入negative的分支）
 			classifySummaries.savePredictSummaries(policySplit,totalNegativeShouyilv,selectedNegativeShouyilv);
 			//输出评估结果及所使用阀值及期望样本百分比
-			String evalSummary="( with params: thresholdMin="+FormatUtility.formatDouble(thresholdMin,0,3)+" , startPercent="+FormatUtility.formatPercent(startPercent/100)+" ,defaultThresholdUsed="+defaultThresholdUsed;  
+			String evalSummary="( with params: modelYearSplit="+modelYearSplit+"threshold="+FormatUtility.formatDouble(thresholdMin,0,3)+" , percentile="+FormatUtility.formatPercent(percentile/100)+" ,defaultThresholdUsed="+defaultThresholdUsed;
+			evalSummary+=" ,reversedModelYearSplit="+reversedModelYearSplit+" ,reversedThreshold="+FormatUtility.formatDouble(reversedThresholdMax,0,3)+" , reversedPercentile="+FormatUtility.formatPercent(reversedPercentile/100);
 			evalSummary+=" ,modelAUC@focusAreaRatio=";
 			double[] focusAreaRatio=thresholdData.getFocosAreaRatio();
 			for (int i=0;i<focusAreaRatio.length;i++) {
@@ -244,7 +259,8 @@ public abstract class BaseClassifier implements Serializable{
 			
 			
 			 //输出评估结果及所使用阀值及期望样本百分比
-			String evalSummary=","+FormatUtility.formatDouble(thresholdMin,0,3)+","+FormatUtility.formatPercent(startPercent/100)+","+defaultThresholdUsed+",";
+			String evalSummary=","+modelYearSplit+","+FormatUtility.formatDouble(thresholdMin,0,3)+","+FormatUtility.formatPercent(percentile/100)+","+defaultThresholdUsed+",";
+			evalSummary+=","+reversedModelYearSplit+","+FormatUtility.formatDouble(reversedThresholdMax,0,3)+","+FormatUtility.formatPercent(reversedPercentile/100);
 			for (double d : modelAUC) {
 				evalSummary+=FormatUtility.formatDouble(d,0,4)+","; 
 			}

@@ -27,8 +27,20 @@ public class ModelStore {
 	protected String m_modelYearSplit;          //构建模型数据的结束年月
 
 
+	public void setModelFileName(String m_modelFileName) {
+		this.m_modelFileName = m_modelFileName;
+	}
+
+	public void setModelYearSplit(String m_modelYearSplit) {
+		this.m_modelYearSplit = m_modelYearSplit;
+	}
+
 	public String getModelYearSplit() {
 		return m_modelYearSplit;
+	}
+
+	public String getModelFileName() {
+		return m_modelFileName;
 	}
 
 	//统一常量
@@ -37,8 +49,9 @@ public class ModelStore {
 
 
 	//从已有模型文件中加载时调用的
-	public ModelStore(String model_filename) {
+	public ModelStore(String model_filename,String modelYearSplit) {
 		this.m_modelFileName = model_filename;
+		this.m_modelYearSplit=modelYearSplit; 
 	}
 
 	//回测时调用的，新建模型时设置model文件名称
@@ -77,10 +90,6 @@ public class ModelStore {
 			}
 		}
 		return modelYearSplit;
-	}
-
-	public String getModelFileName() {
-		return m_modelFileName;
 	}
 
 	/*
@@ -215,10 +224,10 @@ public class ModelStore {
 		}
 	}
 
-	public static ModelStore loadModelFromFile(String modelFilePrefix,String a_targetYearSplit) throws Exception{
-		ModelStore loadedModel=new ModelStore(modelFilePrefix);
+	public void loadModelFromFile(String a_targetYearSplit) throws Exception{
+		
 
-		String modelFileName=modelFilePrefix+ ModelStore.MODEL_FILE_EXTENSION;
+		String modelFileName=this.m_modelFileName+ ModelStore.MODEL_FILE_EXTENSION;
 		try{
 			@SuppressWarnings("unchecked")
 			Vector<Object> v = (Vector<Object>) SerializationHelper.read(modelFileName);
@@ -228,13 +237,13 @@ public class ModelStore {
 			GeneralInstances header =null;
 			header=(DataInstances)savedHeaderObject;
 //			System.out.println("Classifier Model and Format Loaded from: "+ modelFileName);
-			loadedModel.m_model=model;
-			loadedModel.m_modelFormat=header;
+			this.m_model=model;
+			this.m_modelFormat=header;
 			String savedModelYearSplit=null;
 			savedModelYearSplit=(String)v.get(2);
-			loadedModel.m_modelYearSplit=savedModelYearSplit;
+			
 			if ( a_targetYearSplit!=null ){ //每日预测时跳过
-				//如果model文件里存有构建model的数据时间段，则校验之
+				//校验model文件里的构建model的数据时间段
 				int savedYear=Integer.valueOf(savedModelYearSplit).intValue();
 				int targetYear=Integer.valueOf(a_targetYearSplit).intValue();
 				//比较不晚于目标年份即可
@@ -242,7 +251,15 @@ public class ModelStore {
 					throw new Exception(" savedModelYearSplit in model file="+savedModelYearSplit+" while target_year="+a_targetYearSplit);
 				}
 			}
-			return loadedModel;
+			//校验model文件里的构建model的数据时间段
+			if (this.m_modelYearSplit!=null){ //评估时跳过
+				if (this.m_modelYearSplit.equals(savedModelYearSplit)==false){
+					throw new Exception(" savedModelYearSplit in model file="+savedModelYearSplit+" not equal to m_modelYearSplit="+m_modelYearSplit);
+				}
+			}else{ //如果当前modelYear为空则直接设为从文件里读取的值
+				this.m_modelYearSplit=savedModelYearSplit;
+			}
+
 		} catch(IOException e){
 			System.err.println("error when loading: "+modelFileName);
 			throw e;

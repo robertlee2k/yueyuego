@@ -20,17 +20,22 @@ import yueyueGo.utility.EvaluationParams;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.NumericThresholdCurve;
 import yueyueGo.utility.ThresholdData;
+import yueyueGo.utility.TpFpStatistics;
 
 public class EvaluationStore {
 	protected String m_evalFileName;
 	protected String m_evalYearSplit;
 	protected String m_targetYearSplit;
 	protected String m_policySplit;
-	protected String[] m_modelFilesToEval;
+	protected String m_classifierName;
 	protected String m_modelFilepathPrefix;
+	
+	protected int m_modelFileShareMode;
+	protected int m_evalDataSplitMode;
+
 	protected boolean m_isNominal=false;
 
-	public static final double TOP_AREA_RATIO=0.05; //缺省定义头部为5%
+	public static final double TOP_AREA_RATIO=0.1; //缺省定义头部为5%
 	public static final double REVERSED_TOP_AREA_RATIO=0.3; //缺省定义反向头部为30%
 	protected double[] m_focusAreaRatio={TOP_AREA_RATIO,1};//评估时关注评估数据的不同Top 比例（缺省为0.01、0.03、0.05、0.1、0.2、0.5、1);
 
@@ -60,10 +65,6 @@ public class EvaluationStore {
 		return m_evalFileName;
 	}
 
-	public String[] getModelFilesToEval() {
-		return m_modelFilesToEval;
-	}
-
 
 	public String getModelFilepathPrefix() {
 		return m_modelFilepathPrefix;
@@ -89,13 +90,13 @@ public class EvaluationStore {
 
 	//回测时调用的，设置model文件和eval文件名称
 	public  EvaluationStore(String targetYearSplit,String policySplit,String modelFilepathPrefix, BaseClassifier clModel){
-		String workFileFullPrefix=modelFilepathPrefix;
-		String classifierName=clModel.classifierName;
-		int modelFileShareMode=clModel.m_modelFileShareMode;
-		int evalDataSplitMode=clModel.m_evalDataSplitMode;
+		
+		
+		this.m_modelFileShareMode=clModel.m_modelFileShareMode;
+		this.m_evalDataSplitMode=clModel.m_evalDataSplitMode;
 
 		//根据modelDataSplitMode推算出评估数据的起始区间 （目前主要有三种： 最近6个月、9个月、12个月）
-		String evalYearSplit=caculateEvalYearSplit(targetYearSplit,evalDataSplitMode);
+		String evalYearSplit=caculateEvalYearSplit(targetYearSplit,m_evalDataSplitMode);
 
 		if ( clModel instanceof NominalClassifier){
 			this.m_isNominal=true; //记录评估的目标类型（是否为二分类）
@@ -104,11 +105,11 @@ public class EvaluationStore {
 		this.m_evalYearSplit=evalYearSplit;//记录下用于评估的起始月份，以便校验输入的数据
 		this.m_modelFilepathPrefix=modelFilepathPrefix; //记录下回测模型的目录路径，以便日后使用
 		this.m_policySplit=policySplit; //记录下策略分类
+		this.m_classifierName=clModel.classifierName;
+		this.m_evalFileName=ModelStore.concatModeFilenameString(evalYearSplit, policySplit, m_modelFilepathPrefix, m_classifierName)+EvaluationStore.THRESHOLD_EXTENSION;
+		
 
-		this.m_evalFileName=ModelStore.concatModeFilenameString(evalYearSplit, policySplit, workFileFullPrefix, classifierName)+EvaluationStore.THRESHOLD_EXTENSION;
-		this.m_modelFilesToEval=findModelFilesToEvaluate(modelFileShareMode,evalYearSplit,  policySplit, workFileFullPrefix, classifierName);
-
-		EvaluationConfDefinition evalConf=new EvaluationConfDefinition(classifierName,clModel.m_policySubGroup,null);
+		EvaluationConfDefinition evalConf=new EvaluationConfDefinition(m_classifierName,clModel.m_policySubGroup,null);
 		this.m_evalConf=evalConf;
 	}
 
@@ -181,12 +182,13 @@ public class EvaluationStore {
 	 * @throws RuntimeException
 	 */
 	public void evaluateModels(GeneralInstances evalData) throws Exception, RuntimeException {
-
+	
 		/*
 		  用ROC的方法比较不同模型的质量，选择表现最好的那个模型
 		 在实际问题域中，我们并不关心整体样本的ROC curve，我们只关心预测值排序在头部区间内的ROC表现（top前N%）
 		 */
-		ModelStore selectedModel=selectModelByAUC(evalData,false);
+		ModelStore[] modelStores=findModelsToEvaluate();
+		ModelStore selectedModel=selectModelByAUC(modelStores,evalData,false);
 
 		
 		//确定好模型后，先查正向评估
@@ -204,9 +206,12 @@ public class EvaluationStore {
 
 		//获取正向全部的评估结果（要全部的原因是评估的sample_rate是占全部数据的rate）
 		GeneralInstances result=getROCInstances(fullPredictions,1,false);
-		//TODO ：利用EvalData数据统计？
-		//		TpFpStatistics benchmark=new TpFpStatistics(evalData, m_isNominal);	
-		double tp_fp_bottom_line=0.6;//benchmark.getEval_tp_fp_ratio();		
+		//TODO ：利用EvalData数据统计bottomLine还是固定值0.6？
+		TpFpStatistics benchmark=new TpFpStatistics(evalData, m_isNominal);	
+		double tp_fp_bottom_line=benchmark.getEval_tp_fp_ratio();
+		if (tp_fp_bottom_line<0.3){ //too small
+			tp_fp_bottom_line=0.3;
+		}
 		EvaluationParams evalParams=m_evalConf.getEvaluationInstance(m_policySplit);
 		thresholdData=doModelEvaluation(result,evalParams,tp_fp_bottom_line);
 
@@ -222,13 +227,13 @@ public class EvaluationStore {
 		thresholdData.setModelFileName(selectedModel.getModelFileName());
 
 		//再查反向评估
-		ModelStore reversedModel=selectModelByAUC(evalData,true);
+		ModelStore reversedModel=selectModelByAUC(modelStores,evalData,true);
 		//获取反向评估结果
 		fullPredictions=ClassifyUtility.getEvalPreditions(evalData, reversedModel.getModel());
 
 		//获取反向全部的评估结果（要全部的原因是评估的sample_rate是占全部数据的rate），这里用0.999是一个walkaround，因为如果传1进去，函数内部会不处理反向的预测收益率
 		GeneralInstances reversedResult=getROCInstances(fullPredictions,0.999,true);
-		EvaluationParams reversedEvalParams=new EvaluationParams(REVERSED_TOP_AREA_RATIO*0.7, REVERSED_TOP_AREA_RATIO, 2);
+		EvaluationParams reversedEvalParams=new EvaluationParams(REVERSED_TOP_AREA_RATIO*0.8, REVERSED_TOP_AREA_RATIO, 2);
 		ThresholdData reversedThresholdData=doModelEvaluation(reversedResult,reversedEvalParams,1/tp_fp_bottom_line);
 
 		//将反向评估结果的阈值恢复取反前的值
@@ -287,39 +292,42 @@ public class EvaluationStore {
 	/*
 	 * 根据当前评估数据的年份，倒推取N个历史模型用于比较
 	 */
-	private String[] findModelFilesToEvaluate(int modelFileShareMode,String evalYearSplit,String policySplit,String workFileFullPrefix,String classifierName){
+	private ModelStore[] findModelsToEvaluate(){
 
-		String[] modelYears=new String[PREVIOUS_MODELS_NUM];
+		ArrayList<String> modelYears= new ArrayList<String>();//new String[PREVIOUS_MODELS_NUM];
 
-		int numberofValidModels=0;
+		
 		//根据modelYear的Share情况，向前查找N个模型的年份。
-		String startYear=evalYearSplit;
+		String startYear=m_evalYearSplit;
 		int currentYearSplit=0;
 
 		//尝试获得有效的前PREVIOUS_MODELS_NUM个用于评估的ModelYearSplit
+		
 		for (int i=0;i<PREVIOUS_MODELS_NUM;i++){
-			modelYears[i]=ModelStore.caculateModelYearSplit(startYear,modelFileShareMode);
-			if (modelYears[i].length()==6){ //201708格式
-				currentYearSplit=Integer.valueOf(modelYears[i]).intValue();
+			String modelYearSplit=ModelStore.caculateModelYearSplit(startYear,this.m_modelFileShareMode);
+			if (modelYearSplit.length()==6){ //201708格式
+				currentYearSplit=Integer.valueOf(modelYearSplit).intValue();
 			}else{// 2017格式
-				currentYearSplit=Integer.valueOf(modelYears[i]).intValue()*100+1;
+				currentYearSplit=Integer.valueOf(modelYearSplit).intValue()*100+1;
 			}
 			if (currentYearSplit<=YEAR_SPLIT_LIMIT*100+1){
 				//这里把200701之前的去重				
 				continue;
 			}else{
-				numberofValidModels++;
-				startYear=getNMonthsForYearSplit(1, modelYears[i]); //向前推一个月循环找前面的模型
+				modelYears.add(modelYearSplit);
+				startYear=getNMonthsForYearSplit(1, modelYearSplit); //向前推一个月循环找前面的模型
 			}
 
 		}
-		//获得所有需要评估的模型文件列表
-		String[] modelFiles=new String[numberofValidModels];
+		
+		//获得所有需要评估的模型文件列表及模型年份年份
+		int numberofValidModels=modelYears.size();
+		ModelStore[] modelStores=new ModelStore[numberofValidModels];
 		for (int i=0;i<numberofValidModels;i++){
-			//			modelYears[i]=ModelStore.legacyModelName(modelYears[i]); 
-			modelFiles[i]=ModelStore.concatModeFilenameString( modelYears[i], policySplit, workFileFullPrefix, classifierName);
+			String modelFiles=ModelStore.concatModeFilenameString( modelYears.get(i), m_policySplit, m_modelFilepathPrefix, m_classifierName);
+			modelStores[i]=new ModelStore(modelFiles,modelYears.get(i));
 		}
-		return modelFiles;
+		return modelStores;
 
 	}
 
@@ -330,17 +338,17 @@ public class EvaluationStore {
 	 *  isReversed 参数是选取反向的最好表现 （即对0值有最准确顶部预测的模型）
 	 * @throws Exception
 	 */
-	private ModelStore selectModelByAUC( GeneralInstances evalData,boolean isReversed)
+	private ModelStore selectModelByAUC(ModelStore[] modelStores, GeneralInstances evalData,boolean isReversed)
 			throws Exception{
+
 		String yearSplit=this.getTargetYearSplit();
-		double[] modelsAUC=new double[m_modelFilesToEval.length];
-		ModelStore[] modelStores=new ModelStore[m_modelFilesToEval.length];
+		double[] modelsAUC=new double[modelStores.length];
 		double maxModelAUC=0;
 		int maxModelIndex=0;
 
 
-		for (int i=0;i<m_modelFilesToEval.length;i++) {
-			modelStores[i]=ModelStore.loadModelFromFile(m_modelFilesToEval[i], yearSplit);
+		for (int i=0;i<modelStores.length;i++) {
+			modelStores[i].loadModelFromFile(yearSplit);
 			Classifier model =modelStores[i].getModel();
 			GeneralInstances header =modelStores[i].getModelFormat();
 			GeneralInstances evalFormat=new DataInstances(evalData,0);
@@ -365,7 +373,7 @@ public class EvaluationStore {
 			 */
 			GeneralInstances result=getROCInstances(fullPredictions,ratio,isReversed);
 			modelsAUC[i]=caculateAUC(result);
-			System.out.println("thread:"+Thread.currentThread().getName()+" modelsAUC="+modelsAUC[i]+" isReversed="+isReversed+ " @ ModelYearSplit="+modelStores[i].getModelYearSplit());
+			System.out.println("thread:"+Thread.currentThread().getName()+" modelsAUC="+modelsAUC[i]+" isReversed="+isReversed+ " @"+modelStores[i].getModelYearSplit());
 
 			//不管正向还是反向，都是取最大的AUC
 			if (modelsAUC[i]>maxModelAUC){
@@ -374,7 +382,7 @@ public class EvaluationStore {
 			}
 
 		}
-		System.out.println("thread:"+Thread.currentThread().getName()+" MaxAUC selected="+maxModelAUC+" isReversed="+isReversed+"@"+m_modelFilesToEval[maxModelIndex]);
+		System.out.println("thread:"+Thread.currentThread().getName()+" MaxAUC selected="+maxModelAUC+" isReversed="+isReversed+" @"+modelStores[maxModelIndex].getModelYearSplit());
 		if (maxModelIndex!=0){
 			System.out.println("thread:"+Thread.currentThread().getName()+ " MaxAUC selected is not the latest one for TargetYearSplit("+yearSplit+") ModelYearSplit used="+modelStores[maxModelIndex].getModelYearSplit());
 		}

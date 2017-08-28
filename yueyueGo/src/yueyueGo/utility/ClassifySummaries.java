@@ -7,7 +7,7 @@ import org.apache.commons.math3.stat.descriptive.SynchronizedDescriptiveStatisti
 public class ClassifySummaries {
 
 	//ClassifySummary的表头部分
-	public static final String SUMMARY_HEADER="时间段,均线策略,整体正收益股数,整体股数,整体TPR,选股比率,所选正收益股数,所选总股数,所选股TPR,提升率,所选股平均收益率,整体平均收益率,收益率差,是否改善,阈值下限,阈值百分比,阈值使用缺省值,";
+	public static final String SUMMARY_HEADER="时间段,均线策略,整体正收益股数,整体股数,整体TPR,选股比率,所选正收益股数,所选总股数,所选股TPR,提升率,所选股平均收益率,整体平均收益率,收益率差,是否改善,正向模型时间，正向阈值,阈值百分比,阈值使用缺省值,反向模型时间，反向阀值，反向阀值百分比,";
 	//统计信息
 	protected SynchronizedDescriptiveStatistics summary_selected_TPR;
 	protected SynchronizedDescriptiveStatistics summary_selected_positive;
