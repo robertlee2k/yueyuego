@@ -114,7 +114,7 @@ public abstract class BaseClassifier implements Serializable{
 		}
 		else 
 			throw new Exception(msg);
-		double thresholdMin=thresholdData.getThresholdMin();
+		double thresholdMin=thresholdData.getThreshold();
 
 
 		//从评估结果中找到模型文件。
@@ -210,7 +210,7 @@ public abstract class BaseClassifier implements Serializable{
 		}
 		
 		
-		double startPercent=thresholdData.getStartPercent();
+		double startPercent=thresholdData.getPercent();
 		boolean isGuessed=thresholdData.isGuessed();
 		String defaultThresholdUsed=" ";
 		if (isGuessed){

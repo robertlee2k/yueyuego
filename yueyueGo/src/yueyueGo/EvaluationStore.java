@@ -218,28 +218,29 @@ public class EvaluationStore {
 		thresholdData.setModelFileName(selectedModel.getModelFileName());
 
 		//再查反向评估
-		ModelStore selectedReversedModel=selectModelByAUC(evalData,true);
+		ModelStore reversedModel=selectModelByAUC(evalData,true);
 		//获取反向评估结果
-		fullPredictions=ClassifyUtility.getEvalPreditions(evalData, selectedReversedModel.getModel());
+		fullPredictions=ClassifyUtility.getEvalPreditions(evalData, reversedModel.getModel());
 		ArrayList<Prediction> reversedTopPedictions=ClassifyUtility.getTopPredictedValues(m_isNominal,fullPredictions,REVERSED_TOP_AREA_RATIO,true);
 		GeneralInstances reversedResult=getROCInstances(reversedTopPedictions,true);
 		EvaluationParams reversedEvalParams=new EvaluationParams(REVERSED_TOP_AREA_RATIO*0.7, REVERSED_TOP_AREA_RATIO, 2);
 		ThresholdData reversedThresholdData=doModelEvaluation(reversedResult,reversedEvalParams,1/tp_fp_bottom_line);
 
-		//将反向评估结果存入数据中
+		//将反向评估结果的阈值恢复取反前的值
 		double reversedThreshold;
 		if (m_isNominal){
-			reversedThreshold=1-reversedThresholdData.getThresholdMin();
+			reversedThreshold=1-reversedThresholdData.getThreshold();
 		}else{
-			reversedThreshold=reversedThresholdData.getThresholdMin()*-1;
+			reversedThreshold=reversedThresholdData.getThreshold()*-1;
 		}
+		//将反向评估结果存入数据中
 		thresholdData.setReversedThreshold(reversedThreshold);
-		thresholdData.setReversedStartPercent(reversedThresholdData.getStartPercent());
-		thresholdData.setModelYearSplit(selectedReversedModel.getModelYearSplit());
-		thresholdData.setReversedModelFileName(selectedReversedModel.getModelFileName());
+		thresholdData.setReversedPercent(reversedThresholdData.getPercent());
+		thresholdData.setReversedModelYearSplit(reversedModel.getModelYearSplit());
+		thresholdData.setReversedModelFileName(reversedModel.getModelFileName());
 
 
-		//保存ThresholdData
+		//保存包含正向和反向的ThresholdData到数据文件中
 		ThresholdData.saveEvaluationToFile(getEvalFileName(), thresholdData);
 		System.out.println(thresholdData.toString());
 	}
@@ -496,9 +497,9 @@ public class EvaluationStore {
 			System.err.println("got default threshold "+ threshold+" at sample_limit="+sample_limit);
 		}
 		ThresholdData thresholdData=new ThresholdData();
-		thresholdData.setThresholdMin(threshold);
+		thresholdData.setThreshold(threshold);
 		double startPercent=100*(1-evalParams.getLower_limit()); //将sampleSize转换为percent
-		thresholdData.setStartPercent(startPercent);
+		thresholdData.setPercent(startPercent);
 
 
 		//使用缺省值时设置此标志位
@@ -567,9 +568,9 @@ public class EvaluationStore {
 			System.out.println("/False Positives is : " + final_fp);
 
 			thresholdData=new ThresholdData();
-			thresholdData.setThresholdMin(thresholdBottom);
+			thresholdData.setThreshold(thresholdBottom);
 			double startPercent=100*(1-finalSampleSize); //将sampleSize转换为percent
-			thresholdData.setStartPercent(startPercent);
+			thresholdData.setPercent(startPercent);
 
 
 		}else{

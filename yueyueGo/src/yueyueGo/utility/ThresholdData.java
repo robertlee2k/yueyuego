@@ -12,15 +12,17 @@ public class ThresholdData implements Serializable{
 	private static final long serialVersionUID = 6309018541536909105L;
 
 	
-	private double thresholdMin=99999;
-	private double startPercent=99999;
-	private boolean isGuessed=false; //阀值是使用的缺省值
+
 	private String policySplit=null; //当前评估数据对应的Policy；
 	private String targetYearSplit=null; //当前评估数据对应的目标测试月份
 	private String evalYearSplit=null; //当前评估数据对应的评估起始月份
 	private double[] focosAreaRatio;//当前评估数据的不同Top 比例
 	private double[] modelAUC; //当前评估数据的不同Top 比例应用于对应Model所计算的AUC列表
-	
+
+	//正向评估数据
+	private double threshold=99999;
+	private double percent=99999;
+	private boolean isGuessed=false; //阀值是使用的缺省值
 	private String modelYearSplit; //当前评估数据下所选择的模型数据结束年月 （于下面的ModelFileName其实冗余了）
 	private String modelFileName=null;//当前评估数据下所选择的模型文件名称
 	
@@ -29,7 +31,7 @@ public class ThresholdData implements Serializable{
 	private String reversedModelYearSplit;
 	private String reversedModelFileName=null;
 	private double reversedThreshold=99999;
-	private double reversedStartPercent=99999;
+	private double reversedPercent=99999;
 	
 	
 	public String getReversedModelYearSplit() {
@@ -62,22 +64,22 @@ public class ThresholdData implements Serializable{
 			data.append(d);
 			data.append(',');
 		}
-		data.append("\r\n threshold="+thresholdMin+" startPercent="+startPercent);
+		data.append("\r\n threshold="+threshold+" startPercent="+percent);
 		data.append("\r\n"+" policySplit="+policySplit+" targetYearSplit="+targetYearSplit+
 				" evalYearSplit="+evalYearSplit+" modelYearsplit="+modelYearSplit+"\r\n");
 		data.append(" modelFileName="+modelFileName);
-		data.append("\r\n reversedthreshold="+reversedThreshold+" reversedStartPercent="+reversedStartPercent);
+		data.append("\r\n reversedthreshold="+reversedThreshold+" reversedStartPercent="+reversedPercent);
 		data.append(" reversedModelYearsplit="+reversedModelYearSplit+"\r\n");
 		data.append(" reversedModelFileName="+reversedModelFileName);
 		return data.toString();
 	}
 	
 	
-	public double getReversedStartPercent() {
-		return reversedStartPercent;
+	public double getReversedPercent() {
+		return reversedPercent;
 	}
-	public void setReversedStartPercent(double reversedStartPercent) {
-		this.reversedStartPercent = reversedStartPercent;
+	public void setReversedPercent(double reversedStartPercent) {
+		this.reversedPercent = reversedStartPercent;
 	}
 	public String getPolicySplit() {
 		return policySplit;
@@ -156,23 +158,23 @@ public class ThresholdData implements Serializable{
 	}
 	
 	
-	public double getThresholdMin() {
-		return thresholdMin;
+	public double getThreshold() {
+		return threshold;
 	}
 
-	public void setStartPercent(double startPercent) {
-		this.startPercent = startPercent;
-	}
-
-
-	public void setThresholdMin(double thresholdMin) {
-		this.thresholdMin = thresholdMin;
+	public void setPercent(double startPercent) {
+		this.percent = startPercent;
 	}
 
 
+	public void setThreshold(double thresholdMin) {
+		this.threshold = thresholdMin;
+	}
 
-	public double getStartPercent() {
-		return startPercent;
+
+
+	public double getPercent() {
+		return percent;
 	}
 
 
