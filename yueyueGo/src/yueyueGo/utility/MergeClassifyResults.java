@@ -143,16 +143,22 @@ public class MergeClassifyResults {
 						//根据传入的参数判断需要当前有什么，需要补充的数据是什么
 						double profit;
 						double winrate;
-						double selected=resultCurr.value(resultSelectedAtt);
+						if (dataToAdd.equals(ArffFormat.RESULT_PREDICTED_WIN_RATE)){
+							//当前结果集里有什么数据
+							profit=resultCurr.value(resultData.attribute(ArffFormat.RESULT_PREDICTED_PROFIT));
+							//需要考虑参考结果集里的数据
+							winrate=referenceCurr.value(referenceData.attribute(ArffFormat.RESULT_PREDICTED_WIN_RATE));
+						}else{
+							//当前结果集里有什么数据
+							winrate=resultCurr.value(resultData.attribute(ArffFormat.RESULT_PREDICTED_WIN_RATE));
+							//需要添加参考集里的什么数据
+							profit=referenceCurr.value(referenceData.attribute(ArffFormat.RESULT_PREDICTED_PROFIT));							
+						}
 						
+						//当前结果集的选股结果
+						double selected=resultCurr.value(resultSelectedAtt);
 						//参考结果的选股结果（-1.0的排除）
 						double referenceSelected=referenceCurr.value(referenceData.attribute(ArffFormat.RESULT_SELECTED));
-	
-						//当前结果集里有什么数据
-						profit=resultCurr.value(resultData.attribute(ArffFormat.RESULT_PREDICTED_PROFIT));
-						//需要考虑参考结果集里的数据
-						winrate=referenceCurr.value(referenceData.attribute(ArffFormat.RESULT_PREDICTED_WIN_RATE));
-
 						if (selected==1){
 							//当合并数据时，如果参照的二分类器的选择值为-1 则不选择该条记录
 							if (referenceSelected==-1.0){
