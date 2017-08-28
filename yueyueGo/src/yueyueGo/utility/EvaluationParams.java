@@ -7,7 +7,6 @@ public class EvaluationParams {
 	
 	public EvaluationParams( double lower_limit,
 			double upper_limit, double lift_up_target) {
-		super();
 		this.lower_limit = lower_limit;
 		this.upper_limit = upper_limit;
 		this.lift_up_target = lift_up_target;
