@@ -258,8 +258,9 @@ public class ClassifyUtility {
 	}
 
 	/*
-	 * 对二分类变量，正分布选最大的ratio，负分布选最小的这部分ratio
-	 * 对连续分类变量，正分布选最大的ratio，负分布选最小的这部分ratio
+	 * 对二分类变量，正分布选为1最大的ratio，负分布选为0的最大ratio
+	 * 对连续分类变量，正分布选最大的ratio，负分布选最小的这部分ratio，当取负分布时，将收益率数据取反，以利于绘制ROC图线
+	 * ratio=1时返回全部预测数据（注意，此时reverse失效，返回数据集中不会转换收益率）
 	 */
 	public static ArrayList<Prediction> getTopPredictedValues(boolean isNominalPred,ArrayList<Prediction> predictions,double ratio,boolean reverse) {
 		
@@ -267,27 +268,30 @@ public class ClassifyUtility {
 		if (ratio>=1){
 			return predictions;
 		}
+		double targetPercentile=(1-ratio)*100;
 		
 		DescriptiveStatistics probs=new DescriptiveStatistics();
 		double predicted=0.0;
+		int targetClassIndex=NominalClassifier.CLASS_POSITIVE_INDEX;
+		int convertShouyilv=1;// 当取负分布时，将收益率数据取反，以利于绘制ROC图线
 		
-		double targetPercentile=0.0;
-
-		//连续分类变量要根据是否reverse来判断分位数
-		if (reverse==false){ //非反转时用普通分位数
-			targetPercentile=(1-ratio)*100;
-		}else{ //反转时取最小的位置
-			targetPercentile=ratio*100;
+		if (reverse==true){
+			if (isNominalPred){
+				//二分类变量要根据是否reverse来 决定是取1的预测值还是0的预测值
+				targetClassIndex=NominalClassifier.CLASS_NEGATIVE_INDEX;
+			}else{
+				//连续分类变量反转时将收益率取反
+				convertShouyilv=-1;
+			}
 		}
-
 		
 		//加入所有的数据，查找分界点
 		for (int i = 0; i < predictions.size(); i++) {
 			Prediction pred =  predictions.get(i);
 			if (isNominalPred){
-				predicted=((NominalPrediction)pred).distribution()[NominalClassifier.CLASS_POSITIVE_INDEX];
+				predicted=((NominalPrediction)pred).distribution()[targetClassIndex];
 			}else{
-				predicted=pred.predicted(); 
+				predicted=pred.predicted()*convertShouyilv; 
 			}
 			probs.addValue(predicted);
 		}
@@ -300,24 +304,17 @@ public class ClassifyUtility {
 			Prediction pred =  predictions.get(i);
 			if (isNominalPred){
 				//对于二分类变量，返回目标分类的预测可能性
-				predicted=((NominalPrediction)pred).distribution()[NominalClassifier.CLASS_POSITIVE_INDEX];
-
+				predicted=((NominalPrediction)pred).distribution()[targetClassIndex];
 			}else{
 				predicted=pred.predicted();
 			}
 			
-			
-			if (reverse==false){//非反转时用普通分位数
-				if (predicted>=judgePoint) {
-					topPredictions.add(pred);
-				}
-			}else{//反转时用小于改分位数来选取
-				if (predicted<=judgePoint) {
-					topPredictions.add(pred);
-				}
-			}	
+			if (predicted>=judgePoint) {
+				topPredictions.add(pred);
+			}
+
 		}
-		System.out.println("number of preditions selected="+topPredictions.size()+" from total ("+predictions.size()+") by using  predicted value("+judgePoint+") and top ratio="+ratio);
+		System.out.println("number of preditions selected="+topPredictions.size()+" from total ("+predictions.size()+") by using  predicted value("+judgePoint+") and top ratio="+ratio+"isReversed="+reverse);
 		return topPredictions;
 	
 	

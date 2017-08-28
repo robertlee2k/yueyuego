@@ -12,7 +12,6 @@ import yueyueGo.databeans.GeneralInstance;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaInstances;
 import yueyueGo.utility.ClassifyUtility;
-import yueyueGo.utility.EvaluationBenchmark;
 import yueyueGo.utility.EvaluationConfDefinition;
 import yueyueGo.utility.EvaluationParams;
 import yueyueGo.utility.FormatUtility;
@@ -112,45 +111,6 @@ public class EvaluationStore {
 	
 
 	/*
-	 * 根据当前评估数据的年份，倒推取N个历史模型用于比较
-	 */
-	protected String[] findModelFilesToEvaluate(int modelFileShareMode,String evalYearSplit,String policySplit,String workFileFullPrefix,String classifierName){
-		 
-		String[] modelYears=new String[PREVIOUS_MODELS_NUM];
-		
-		int numberofValidModels=0;
-		//根据modelYear的Share情况，向前查找N个模型的年份。
-		String startYear=evalYearSplit;
-		int currentYearSplit=0;
-		
-		//尝试获得有效的前PREVIOUS_MODELS_NUM个用于评估的ModelYearSplit
-		for (int i=0;i<PREVIOUS_MODELS_NUM;i++){
-			modelYears[i]=ModelStore.caculateModelYearSplit(startYear,modelFileShareMode);
-			if (modelYears[i].length()==6){ //201708格式
-				currentYearSplit=Integer.valueOf(modelYears[i]).intValue();
-			}else{// 2017格式
-				currentYearSplit=Integer.valueOf(modelYears[i]).intValue()*100+1;
-			}
-			if (currentYearSplit<=YEAR_SPLIT_LIMIT*100+1){
-				//这里把200701之前的去重				
-				continue;
-			}else{
-				numberofValidModels++;
-				startYear=getNMonthsForYearSplit(1, modelYears[i]); //向前推一个月循环找前面的模型
-			}
-			
-		}
-		//获得所有需要评估的模型文件列表
-		String[] modelFiles=new String[numberofValidModels];
-		for (int i=0;i<numberofValidModels;i++){
-//			modelYears[i]=ModelStore.legacyModelName(modelYears[i]); 
-			modelFiles[i]=ModelStore.concatModeFilenameString( modelYears[i], policySplit, workFileFullPrefix, classifierName);
-		}
-		return modelFiles;
-		
-	}
-	
-	/*
 	 * 校验评估阶段准备用于Evaluating的data是否符合要求
 	 * 返回null的时候表示符合要求
 	 */	
@@ -213,12 +173,151 @@ public class EvaluationStore {
 	
 
 	/**
+	 * @param evalData
+	 * @throws Exception
+	 * @throws RuntimeException
+	 */
+	public void evaluateModels(GeneralInstances evalData) throws Exception, RuntimeException {
+		//先查正向评估
+		ModelStore selectedModel=selectModelByAUC(evalData,false);
+		 
+		/*
+		 * 用ROC的方法评价模型质量
+		 * 在实际问题域中，我们并不关心整体样本的ROC curve，我们只关心预测值排序在头部区间内的ROC表现（top前N%）
+		 */
+		ArrayList<Prediction> fullPredictions=ClassifyUtility.getEvalPreditions(evalData, selectedModel.getModel());
+
+		
+		double[] modelAUC=new double[m_focusAreaRatio.length];
+		//获取确定模型的不同阈值表现
+		for (int i=0;i<m_focusAreaRatio.length;i++){
+			modelAUC[i]=caculateAUC(fullPredictions,TOP_AREA_RATIO, false);
+			System.out.println("thread:"+Thread.currentThread().getName()+" MoDELAUC="+modelAUC[i]+ " @ focusAreaRatio="+m_focusAreaRatio[i]);
+		}
+		
+		//获取正向评估的Threshold
+		ThresholdData thresholdData=null;
+		
+		//获取评估结果
+		GeneralInstances result=getROCInstances(fullPredictions,false);
+		//TODO ：利用Training数据统计？
+		double tp_fp_bottom_line=0.6;//benchmark.getEval_tp_fp_ratio();		
+		thresholdData=doModelEvaluation(result,tp_fp_bottom_line);
+		
+		//将focusAreaRatio及对应的ModelAUC保存
+		thresholdData.setFocosAreaRatio(m_focusAreaRatio);
+		thresholdData.setModelAUC(modelAUC);
+		
+		//将相应的数据区段值存入评估数据文件中，以备日后校验
+		thresholdData.setTargetYearSplit(getTargetYearSplit());
+		thresholdData.setEvalYearSplit(getEvalYearSplit());
+		thresholdData.setPolicySplit(getPolicySplit());
+		thresholdData.setModelYearSplit(selectedModel.getModelYearSplit());
+		thresholdData.setModelFileName(selectedModel.getModelFileName());
+		
+		//再查反向评估
+		ModelStore selectedReversedModel=selectModelByAUC(evalData,true);
+		//获取反向评估结果
+		fullPredictions=ClassifyUtility.getEvalPreditions(evalData, selectedReversedModel.getModel());
+		ArrayList<Prediction> reversedTopPedictions=ClassifyUtility.getTopPredictedValues(m_isNominal,fullPredictions,REVERSED_TOP_AREA_RATIO,true);
+		GeneralInstances reversedResult=getROCInstances(reversedTopPedictions,true);
+		ThresholdData reversedThresholdData=doModelEvaluation(reversedResult,1/tp_fp_bottom_line);
+		
+		//将反向评估结果存入数据中
+		double reversedThreshold;
+		if (m_isNominal){
+			reversedThreshold=1-reversedThresholdData.getThresholdMin();
+		}else{
+			reversedThreshold=reversedThresholdData.getThresholdMin()*-1;
+		}
+		thresholdData.setReversedThreshold(reversedThreshold);
+		thresholdData.setReversedStartPercent(reversedThresholdData.getStartPercent());
+		thresholdData.setModelYearSplit(selectedReversedModel.getModelYearSplit());
+		thresholdData.setReversedModelFileName(selectedReversedModel.getModelFileName());
+
+	
+		//保存ThresholdData
+		ThresholdData.saveEvaluationToFile(getEvalFileName(), thresholdData);
+		System.out.println(thresholdData.toString());
+	}
+
+	private ThresholdData doModelEvaluation( GeneralInstances result,double tp_fp_bottom_line)
+			throws Exception {
+		ThresholdData thresholdData=null;
+		
+//		TpFpStatistics benchmark=new TpFpStatistics(evalData, m_isNominal);		 
+		EvaluationParams evalParams=m_evalConf.getEvaluationInstance(m_policySplit);
+		
+		int round=1;
+		
+
+  
+//		System.out.println("use the tp_fp_bottom_line based on training history data = "+tp_fp_bottom_line);
+		double trying_tp_fp=tp_fp_bottom_line*evalParams.getLift_up_target();
+		System.out.println("start from the trying_tp_fp = "+trying_tp_fp + " / while  lift up target="+evalParams.getLift_up_target());
+		while (thresholdData == null && trying_tp_fp > tp_fp_bottom_line){
+			thresholdData= computeThresholds(trying_tp_fp,evalParams, result);
+			if (thresholdData!=null){
+				System.out.println(" threshold got at trying round No.: "+round);
+				break;
+			}else {
+				trying_tp_fp=trying_tp_fp*0.95;
+				round++;
+			}
+		}// end while;
+		if (thresholdData==null){  //如果已达到TPFP_BOTTOM_LINE但无法找到合适的阀值
+			thresholdData=computeDefaultThresholds(evalParams,result);//设置下限
+		}
+		
+		return thresholdData;
+	}
+
+	/*
+		 * 根据当前评估数据的年份，倒推取N个历史模型用于比较
+		 */
+		private String[] findModelFilesToEvaluate(int modelFileShareMode,String evalYearSplit,String policySplit,String workFileFullPrefix,String classifierName){
+			 
+			String[] modelYears=new String[PREVIOUS_MODELS_NUM];
+			
+			int numberofValidModels=0;
+			//根据modelYear的Share情况，向前查找N个模型的年份。
+			String startYear=evalYearSplit;
+			int currentYearSplit=0;
+			
+			//尝试获得有效的前PREVIOUS_MODELS_NUM个用于评估的ModelYearSplit
+			for (int i=0;i<PREVIOUS_MODELS_NUM;i++){
+				modelYears[i]=ModelStore.caculateModelYearSplit(startYear,modelFileShareMode);
+				if (modelYears[i].length()==6){ //201708格式
+					currentYearSplit=Integer.valueOf(modelYears[i]).intValue();
+				}else{// 2017格式
+					currentYearSplit=Integer.valueOf(modelYears[i]).intValue()*100+1;
+				}
+				if (currentYearSplit<=YEAR_SPLIT_LIMIT*100+1){
+					//这里把200701之前的去重				
+					continue;
+				}else{
+					numberofValidModels++;
+					startYear=getNMonthsForYearSplit(1, modelYears[i]); //向前推一个月循环找前面的模型
+				}
+				
+			}
+			//获得所有需要评估的模型文件列表
+			String[] modelFiles=new String[numberofValidModels];
+			for (int i=0;i<numberofValidModels;i++){
+	//			modelYears[i]=ModelStore.legacyModelName(modelYears[i]); 
+				modelFiles[i]=ModelStore.concatModeFilenameString( modelYears[i], policySplit, workFileFullPrefix, classifierName);
+			}
+			return modelFiles;
+			
+		}
+
+	/**
 	 * 选择最大AUC的MODEL
 	 * @param evalData
 	 * @throws Exception
 	 * @throws RuntimeException
 	 */
-	public ModelStore selectModelByAUC( GeneralInstances evalData,boolean isReversed)
+	private ModelStore selectModelByAUC( GeneralInstances evalData,boolean isReversed)
 			throws Exception, RuntimeException {
 		String yearSplit=this.getTargetYearSplit();
 		double[] modelsAUC=new double[m_modelFilesToEval.length];
@@ -252,16 +351,11 @@ public class EvaluationStore {
 				modelsAUC[i]=caculateAUC(fullPredictions,REVERSED_TOP_AREA_RATIO, isReversed);
 			}
 			System.out.println("thread:"+Thread.currentThread().getName()+" modelsAUC="+modelsAUC[i]+" isReversed="+isReversed+ " @ ModelYearSplit="+modelStores[i].getModelYearSplit());
-			if (isReversed==false){
-				if (modelsAUC[i]>maxModelAUC){
-					maxModelAUC=modelsAUC[i];
-					maxModelIndex=i;
-				}
-			}else { //反向时用最小的AUC
-				if (modelsAUC[i]<maxModelAUC){
-					maxModelAUC=modelsAUC[i];
-					maxModelIndex=i;
-				}
+
+			//不管正向还是反向，都是取最大的AUC
+			if (modelsAUC[i]>maxModelAUC){
+				maxModelAUC=modelsAUC[i];
+				maxModelIndex=i;
 			}
 			
 		}
@@ -269,16 +363,15 @@ public class EvaluationStore {
 		if (maxModelIndex!=0){
 			System.out.println("thread:"+Thread.currentThread().getName()+ " MaxAUC selected is not the latest one for TargetYearSplit("+yearSplit+") ModelYearSplit used="+modelStores[maxModelIndex].getModelYearSplit());
 		}
-		if (maxModelAUC<0.5 && isReversed==false || maxModelAUC>0.5 && isReversed==true){
+		if (maxModelAUC<0.5 ){
 			System.err.println(" MaxAUC selected is less than random classifer. MAXAUC="+maxModelAUC+" isReversed="+isReversed);
 		}
 		return modelStores[maxModelIndex];
 	}
 
 	/**
-	 * @param modelsAUC
-	 * @param modelStores
-	 * @param i
+		根据reverse的值，取fullPreditions的TOP ratio（reverse=false)数据  
+		或bottom ratio(reverse=true) 数据（当取bottom ratio时，将收益率数据取反）
 	 * @param fullPredictions
 	 * @param reverse
 	 * @throws Exception
@@ -289,7 +382,7 @@ public class EvaluationStore {
 		ArrayList<Prediction> topPedictions;
 		GeneralInstances result;
 		topPedictions=ClassifyUtility.getTopPredictedValues(m_isNominal,fullPredictions,ratio,reverse);
-		result=getROCInstances(topPedictions);
+		result=getROCInstances(topPedictions,reverse);
 		double auc=ThresholdCurve.getROCArea( WekaInstances.convertToWekaInstances(result));
 
 		return auc;
@@ -349,19 +442,22 @@ public class EvaluationStore {
 	/**
 	 * 获取ROC的Instances
 	 * @param predictions
-	 * @param isNominal 是否是二分类变量
-	 * @param classIndex 二分类器变量时目标CLass数值的下标（一般为1）
+	 * @param isReversed 根据是否反转来决定二分类器变量时目标CLass数值的下标取值
 	 * @return
 	 * @throws Exception
 	 */
-	protected GeneralInstances getROCInstances(ArrayList<Prediction> predictions)
+	private GeneralInstances getROCInstances(ArrayList<Prediction> predictions,boolean isReversed)
 			throws Exception {
 		if (m_isNominal){
 			ThresholdCurve tc = new ThresholdCurve();
-			int classIndex = 1;
+			int classIndex = NominalClassifier.CLASS_POSITIVE_INDEX;
+			if (isReversed){
+				classIndex=NominalClassifier.CLASS_NEGATIVE_INDEX;
+			}
 			GeneralInstances result = new DataInstances(tc.getCurve(predictions, classIndex));
 			return result;
 		}else{
+			//是否反转在这里无须处理，因为收益率已经在之前反转过了
 			NumericThresholdCurve tc = new NumericThresholdCurve();
 			GeneralInstances result = new DataInstances(tc.getCurve(predictions));
 			return result;
@@ -485,58 +581,6 @@ public class EvaluationStore {
 		return thresholdData;
 	}
 
-	public ThresholdData doModelEvaluation( GeneralInstances evalData, Classifier model)
-			throws Exception {
-		
-		/*
-		 * 用ROC的方法评价模型质量
-		 * 在实际问题域中，我们并不关心整体样本的ROC curve，我们只关心预测值排序在头部区间内的ROC表现（top前N%）
-		 */
-		ArrayList<Prediction> fullPredictions=ClassifyUtility.getEvalPreditions(evalData, model);
-		
-		double[] modelAUC=new double[m_focusAreaRatio.length];
-
-
-		//获取确定模型的不同阈值表现
-		for (int i=0;i<m_focusAreaRatio.length;i++){
-			modelAUC[i]=caculateAUC(fullPredictions,TOP_AREA_RATIO, false);
-			System.out.println("thread:"+Thread.currentThread().getName()+" MoDELAUC="+modelAUC[i]+ " @ focusAreaRatio="+m_focusAreaRatio[i]);
-		}
-	
-
-		//查找评估Threshold
-		ThresholdData thresholdData=null;
-		GeneralInstances result=getROCInstances(fullPredictions);
-		
-		EvaluationBenchmark benchmark=new EvaluationBenchmark(evalData, m_isNominal);		 
-		EvaluationParams evalParams=m_evalConf.getEvaluationInstance(m_policySplit);
-		
-		int round=1;
-		double tp_fp_bottom_line=benchmark.getEval_tp_fp_ratio();  
-		System.out.println("use the tp_fp_bottom_line based on training history data = "+tp_fp_bottom_line);
-		double trying_tp_fp=benchmark.getEval_tp_fp_ratio()*evalParams.getLift_up_target();
-		System.out.println("start from the trying_tp_fp based on training history data = "+trying_tp_fp + " / while  lift up target="+evalParams.getLift_up_target());
-		while (thresholdData == null && trying_tp_fp > tp_fp_bottom_line){
-			thresholdData= computeThresholds(trying_tp_fp,evalParams, result);
-			if (thresholdData!=null){
-				System.out.println(" threshold got at trying round No.: "+round);
-				break;
-			}else {
-				trying_tp_fp=trying_tp_fp*0.95;
-				round++;
-			}
-		}// end while;
-		if (thresholdData==null){  //如果已达到TPFP_BOTTOM_LINE但无法找到合适的阀值
-			thresholdData=computeDefaultThresholds(evalParams,result);//设置下限
-		}
-		
-		//将focusAreaRatio及对应的ModelAUC保存
-		thresholdData.setFocosAreaRatio(m_focusAreaRatio);
-		thresholdData.setModelAUC(modelAUC);
-	
-		return thresholdData;
-	}
-	
 	/*
 	 * 输出当前的评估阀值定义
 	 */

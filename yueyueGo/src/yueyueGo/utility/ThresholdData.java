@@ -29,6 +29,8 @@ public class ThresholdData implements Serializable{
 	private String reversedModelYearSplit;
 	private String reversedModelFileName=null;
 	private double reversedThreshold=99999;
+	private double reversedStartPercent=99999;
+	
 	
 	public String getReversedModelYearSplit() {
 		return reversedModelYearSplit;
@@ -60,11 +62,22 @@ public class ThresholdData implements Serializable{
 			data.append(d);
 			data.append(',');
 		}
+		data.append("\r\n threshold="+thresholdMin+" startPercent="+startPercent);
 		data.append("\r\n"+" policySplit="+policySplit+" targetYearSplit="+targetYearSplit+
 				" evalYearSplit="+evalYearSplit+" modelYearsplit="+modelYearSplit+"\r\n");
 		data.append(" modelFileName="+modelFileName);
-		
+		data.append("\r\n reversedthreshold="+reversedThreshold+" reversedStartPercent="+reversedStartPercent);
+		data.append(" reversedModelYearsplit="+reversedModelYearSplit+"\r\n");
+		data.append(" reversedModelFileName="+reversedModelFileName);
 		return data.toString();
+	}
+	
+	
+	public double getReversedStartPercent() {
+		return reversedStartPercent;
+	}
+	public void setReversedStartPercent(double reversedStartPercent) {
+		this.reversedStartPercent = reversedStartPercent;
 	}
 	public String getPolicySplit() {
 		return policySplit;

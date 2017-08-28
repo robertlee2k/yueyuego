@@ -89,23 +89,7 @@ public abstract class BaseClassifier implements Serializable{
 	 */
 	public void evaluateModel(GeneralInstances evalData) throws Exception{
 
-		
-		//先查正向评估
-		ModelStore selectedModel=m_evaluationStore.selectModelByAUC(evalData,false);
-		ThresholdData thresholdData = m_evaluationStore.doModelEvaluation(evalData, selectedModel.getModel());
-		//将相应的数据区段值存入评估数据文件中，以备日后校验
-		thresholdData.setTargetYearSplit(m_evaluationStore.getTargetYearSplit());
-		thresholdData.setEvalYearSplit(m_evaluationStore.getEvalYearSplit());
-		thresholdData.setPolicySplit(m_evaluationStore.getPolicySplit());
-		thresholdData.setModelYearSplit(selectedModel.getModelYearSplit());
-		thresholdData.setModelFileName(selectedModel.getModelFileName());
-		
-		//再查反向评估
-		ModelStore selectedReversedModel=m_evaluationStore.selectModelByAUC(evalData,true);
-		
-
-		ThresholdData.saveEvaluationToFile(m_evaluationStore.getEvalFileName(), thresholdData);
-		System.out.println(thresholdData.toString());
+		m_evaluationStore.evaluateModels(evalData);
 
 	}
 

@@ -6,7 +6,7 @@ import yueyueGo.dataFormat.ArffFormat;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.databeans.GeneralInstances;
 
-public class EvaluationBenchmark {
+public class TpFpStatistics {
 	static public final int POSITIVE=1;
 	static public final int NEGATIVE=0;
 
@@ -38,7 +38,7 @@ public class EvaluationBenchmark {
 
 	
 
-	public EvaluationBenchmark(GeneralInstances evalData, boolean isNominal) {
+	public TpFpStatistics(GeneralInstances evalData, boolean isNominal) {
 		this.nominalClass=isNominal;
 		int pos=-1;
 		if (isNominal){
