@@ -143,68 +143,90 @@ public class MergeClassifyResults {
 						double winrate;
 						double selected=resultCurr.value(resultSelectedAtt);
 						
+						//参考结果的选股结果（-1.0的排除）
+						double referenceSelected=referenceCurr.value(referenceData.attribute(ArffFormat.RESULT_SELECTED));
 	
-						if (dataToAdd.equals(ArffFormat.RESULT_PREDICTED_WIN_RATE)){
-							//当前结果集里有什么数据
-							profit=resultCurr.value(resultData.attribute(ArffFormat.RESULT_PREDICTED_PROFIT));
-							//需要添加参考集里的什么数据
-							winrate=referenceCurr.value(referenceData.attribute(ArffFormat.RESULT_PREDICTED_WIN_RATE));
-							//当为连续分类器合并胜率时，如果参照的二分类器预期胜率小于等于某阀值，则不选择该条记录
-							if (selected==1){
-								
-								int index;
-								if (resultMA==null){ //非均线策略时默认选择THREDHOLD的第一个
-									index=0;
-								}else{//均线策略时按序选择THREDHOLD的第一个
-									index=new Double(resultCurr.value(resultMA)).intValue();	
+						//当前结果集里有什么数据
+						profit=resultCurr.value(resultData.attribute(ArffFormat.RESULT_PREDICTED_PROFIT));
+						//需要考虑参考结果集里的数据
+						winrate=referenceCurr.value(referenceData.attribute(ArffFormat.RESULT_PREDICTED_WIN_RATE));
+
+						if (selected==1){
+							//当合并数据时，如果参照的二分类器的选择值为-1 则不选择该条记录
+							if (referenceSelected==-1.0){
+								selected=0;
+								resultChanged++;
+								if (shouyilvAtt!=null){
+									double shouyilv=leftCurr.value(shouyilvAtt);
+									changedShouyilv+=shouyilv;
+									if (shouyilv<=0){
+										//如果变化的实际收益率小于0，说明这是一次正确的变换
+										goodChangeNum++;
+									}// end if shouyilv<=
 								}
-								if (winrate<m_winrate_thresholds[index]){ //需要修改选股结果 
-									selected=0;
-									resultChanged++;
-									if (shouyilvAtt!=null){
-										double shouyilv=leftCurr.value(shouyilvAtt);
-										changedShouyilv+=shouyilv;
-										if (shouyilv<=0){
-											//如果变化的实际收益率小于0，说明这是一次正确的变换
-											goodChangeNum++;
-										}// end if shouyilv<=
-									}
-								}else{ //不需要修改选股结果
-									finalSelected++;
-								}
-							}// end if (selected
-						}else{ 
-							//当前结果集里有什么数据
-							winrate=resultCurr.value(resultData.attribute(ArffFormat.RESULT_PREDICTED_WIN_RATE));
-							//需要添加参考集里的什么数据
-							profit=referenceCurr.value(referenceData.attribute(ArffFormat.RESULT_PREDICTED_PROFIT));
-							//当为二分类器合并收益率时，如果参照的连续分类器预期收益率小于等于某阀值（0或1%）时，则不选择该条记录。
-	
-							
-							if (selected==1){
-								
-								int index;
-								if (resultMA==null){ //非均线策略时默认选择SHOUYILV_THREDHOLD的第一个
-									index=0;
-								}else{//均线策略时按序选择SHOUYILV_THREDHOLD的第一个
-									index=new Double(resultCurr.value(resultMA)).intValue();	
-								}
-								if (profit<=m_shouyilv_thresholds[index]){  //需要修改选股结果
-									selected=0;
-									resultChanged++;
-									if (shouyilvAtt!=null){
-										double shouyilv=leftCurr.value(shouyilvAtt);
-										changedShouyilv+=shouyilv;
-										if (shouyilv<=m_shouyilv_thresholds[index]){
-											//如果变化的实际收益率也小于阀值，说明这是一次正确的变换
-											goodChangeNum++;
-										}// end if shouyilv<=
-									}
-								}else{ //不需要修改选股结果
-									finalSelected++;
-								}// end if profit<=
-							}// end if (selected
-						}//end else of dataToAdd
+							}else{ //不需要修改选股结果
+								finalSelected++;
+							}
+						}// end if (selected==1)
+						
+////						if (dataToAdd.equals(ArffFormat.RESULT_PREDICTED_WIN_RATE)){
+//							//当前结果集里有什么数据
+//							profit=resultCurr.value(resultData.attribute(ArffFormat.RESULT_PREDICTED_PROFIT));
+//							//需要考虑参考结果集里的数据
+//							winrate=referenceCurr.value(referenceData.attribute(ArffFormat.RESULT_PREDICTED_WIN_RATE));
+//						//当为连续类器合并收益率时，如果参照的收益率预期收益率小于等于某阀值时，则不选择该条记录。
+//							if (selected==1){
+//								
+//								int index;
+//								if (resultMA==null){ //非均线策略时默认选择THREDHOLD的第一个
+//									index=0;
+//								}else{//均线策略时按序选择THREDHOLD的第一个
+//									index=new Double(resultCurr.value(resultMA)).intValue();	
+//								}
+//								if (winrate<m_winrate_thresholds[index]){ //需要修改选股结果
+//									selected=0;
+//									resultChanged++;
+//									if (shouyilvAtt!=null){
+//										double shouyilv=leftCurr.value(shouyilvAtt);
+//										changedShouyilv+=shouyilv;
+//										if (shouyilv<=0){
+//											//如果变化的实际收益率小于0，说明这是一次正确的变换
+//											goodChangeNum++;
+//										}// end if shouyilv<=
+//									}
+//								}else{ //不需要修改选股结果
+//									finalSelected++;
+//								}
+//							}// end if (selected
+//						}else{ 
+//							//当前结果集里有什么数据
+//							winrate=resultCurr.value(resultData.attribute(ArffFormat.RESULT_PREDICTED_WIN_RATE));
+//							//需要添加参考集里的什么数据
+//							profit=referenceCurr.value(referenceData.attribute(ArffFormat.RESULT_PREDICTED_PROFIT));
+//							//当为二分类器合并收益率时，如果参照的连续分类器预期收益率小于等于某阀值（0或1%）时，则不选择该条记录。
+//							if (selected==1){
+//								int index;
+//								if (resultMA==null){ //非均线策略时默认选择SHOUYILV_THREDHOLD的第一个
+//									index=0;
+//								}else{//均线策略时按序选择SHOUYILV_THREDHOLD的第一个
+//									index=new Double(resultCurr.value(resultMA)).intValue();	
+//								}
+//								if (profit<=m_shouyilv_thresholds[index]){  //需要修改选股结果
+//									selected=0;
+//									resultChanged++;
+//									if (shouyilvAtt!=null){
+//										double shouyilv=leftCurr.value(shouyilvAtt);
+//										changedShouyilv+=shouyilv;
+//										if (shouyilv<=m_shouyilv_thresholds[index]){
+//											//如果变化的实际收益率也小于阀值，说明这是一次正确的变换
+//											goodChangeNum++;
+//										}// end if shouyilv<=
+//									}
+//								}else{ //不需要修改选股结果
+//									finalSelected++;
+//								}// end if profit<=
+//							}// end if (selected
+//						}//end else of dataToAdd
 	
 						newData.setValue(outputPredictAtt, profit);
 						newData.setValue(outputWinrateAtt, winrate);

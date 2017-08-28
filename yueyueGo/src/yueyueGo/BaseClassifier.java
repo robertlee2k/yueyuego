@@ -114,8 +114,11 @@ public abstract class BaseClassifier implements Serializable{
 		}
 		else 
 			throw new Exception(msg);
-		double thresholdMin=thresholdData.getThreshold();
-
+		double thresholdMin=thresholdData.getThreshold(); //判断为1的阈值，大于该值意味着该模型判断其为1
+		double reversedThresholdMax=thresholdData.getReversedThreshold(); //判断为0的阈值，小于该值意味着该模型坚定认为其为0 （这是合并多个模型预测时使用的）
+		if (reversedThresholdMax>thresholdMin){
+			throw new Exception("fatal error!!! reversedThreshold("+reversedThresholdMax+") > threshold("+thresholdMin+")");
+		}
 
 		//从评估结果中找到模型文件。
 		ModelStore modelStore=ModelStore.loadModelFromFile(thresholdData.getModelFileName(), yearSplit);
@@ -191,18 +194,20 @@ public abstract class BaseClassifier implements Serializable{
 			}
 
 
-			double t_min=thresholdMin;
+
 
 			double selected = 0.0;
 			
-			if (pred >=t_min ) {
-				selected = 1.0;
+			if (pred >=thresholdMin ) { //本模型估计当前数据是1值
+				selected = 1.0;  
 
 				if (shouyilv>getPositiveLine()){ //这里的positive是个相对于positiveLine的相对概念
 					selectedPositiveShouyilv.addValue(shouyilv);
 				}else {
 					selectedNegativeShouyilv.addValue(shouyilv);
 				}
+			}else if (pred<reversedThresholdMax){
+				selected=-1.0;//本模型坚定认为当前数据为0 （这是合并多个模型预测时使用的）
 			}
 			
 			inst.setValue(result.numAttributes() - 1, selected);

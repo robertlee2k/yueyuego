@@ -20,8 +20,8 @@ public class ThresholdData implements Serializable{
 	private double[] modelAUC; //当前评估数据的不同Top 比例应用于对应Model所计算的AUC列表
 
 	//正向评估数据
-	private double threshold=99999;
-	private double percent=99999;
+	private double threshold=99999; //判断为1的阈值，大于该值意味着该模型判断其为1
+	private double percent=99999;  //阈值对应的percentile
 	private boolean isGuessed=false; //阀值是使用的缺省值
 	private String modelYearSplit; //当前评估数据下所选择的模型数据结束年月 （于下面的ModelFileName其实冗余了）
 	private String modelFileName=null;//当前评估数据下所选择的模型文件名称
@@ -30,8 +30,8 @@ public class ThresholdData implements Serializable{
 	//下面是反向评估的数据
 	private String reversedModelYearSplit;
 	private String reversedModelFileName=null;
-	private double reversedThreshold=99999;
-	private double reversedPercent=99999;
+	private double reversedThreshold=99999; //判断为0的阈值，小于该值意味着该模型坚定认为其为0 （这是合并多个模型预测时使用的）
+	private double reversedPercent=99999; //阈值对应的percentile
 	
 	
 	public String getReversedModelYearSplit() {
@@ -64,13 +64,12 @@ public class ThresholdData implements Serializable{
 			data.append(d);
 			data.append(',');
 		}
-		data.append("\r\n threshold="+threshold+" startPercent="+percent);
 		data.append("\r\n"+" policySplit="+policySplit+" targetYearSplit="+targetYearSplit+
-				" evalYearSplit="+evalYearSplit+" modelYearsplit="+modelYearSplit+"\r\n");
-		data.append(" modelFileName="+modelFileName);
-		data.append("\r\n reversedthreshold="+reversedThreshold+" reversedStartPercent="+reversedPercent);
-		data.append(" reversedModelYearsplit="+reversedModelYearSplit+"\r\n");
-		data.append(" reversedModelFileName="+reversedModelFileName);
+				" evalYearSplit="+evalYearSplit);
+		data.append("\r\n threshold="+threshold+"@percentile="+percent);
+		data.append("\r\n modelYearsplit="+modelYearSplit+" modelFileName="+modelFileName);
+		data.append("\r\n reversedthreshold="+reversedThreshold+"@reversedPercentile="+reversedPercent);
+		data.append("\r\n reversedModelYearsplit="+reversedModelYearSplit+" reversedModelFileName="+reversedModelFileName);
 		return data.toString();
 	}
 	

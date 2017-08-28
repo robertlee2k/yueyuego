@@ -2,7 +2,10 @@ package yueyueGo;
 
 import java.util.ArrayList;
 
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+
 import weka.classifiers.Classifier;
+import weka.classifiers.evaluation.NominalPrediction;
 import weka.classifiers.evaluation.Prediction;
 import weka.classifiers.evaluation.ThresholdCurve;
 import yueyueGo.databeans.DataInstances;
@@ -178,28 +181,29 @@ public class EvaluationStore {
 	 * @throws RuntimeException
 	 */
 	public void evaluateModels(GeneralInstances evalData) throws Exception, RuntimeException {
-		//先查正向评估
-		ModelStore selectedModel=selectModelByAUC(evalData,false);
 
 		/*
-		 * 用ROC的方法评价模型质量
-		 * 在实际问题域中，我们并不关心整体样本的ROC curve，我们只关心预测值排序在头部区间内的ROC表现（top前N%）
+		  用ROC的方法比较不同模型的质量，选择表现最好的那个模型
+		 在实际问题域中，我们并不关心整体样本的ROC curve，我们只关心预测值排序在头部区间内的ROC表现（top前N%）
 		 */
+		ModelStore selectedModel=selectModelByAUC(evalData,false);
+
+		
+		//确定好模型后，先查正向评估
 		ArrayList<Prediction> fullPredictions=ClassifyUtility.getEvalPreditions(evalData, selectedModel.getModel());
-
-
 		double[] modelAUC=new double[m_focusAreaRatio.length];
-		//获取确定模型的不同阈值表现
+		//获取确定模型在不同阈值下的表现，目前这个只是作为打印输出使用
 		for (int i=0;i<m_focusAreaRatio.length;i++){
-			modelAUC[i]=caculateAUC(fullPredictions,m_focusAreaRatio[i], false);
+			GeneralInstances result=getROCInstances(fullPredictions,m_focusAreaRatio[i],false);
+			modelAUC[i]=caculateAUC(result);
 			System.out.println("thread:"+Thread.currentThread().getName()+" MoDELAUC="+modelAUC[i]+ " @ focusAreaRatio="+m_focusAreaRatio[i]);
 		}
 
-		//获取正向评估的Threshold
+		//以下过程为获取正向评估的Threshold
 		ThresholdData thresholdData=null;
 
-		//获取评估结果
-		GeneralInstances result=getROCInstances(fullPredictions,false);
+		//获取正向全部的评估结果（要全部的原因是评估的sample_rate是占全部数据的rate）
+		GeneralInstances result=getROCInstances(fullPredictions,1,false);
 		//TODO ：利用EvalData数据统计？
 		//		TpFpStatistics benchmark=new TpFpStatistics(evalData, m_isNominal);	
 		double tp_fp_bottom_line=0.6;//benchmark.getEval_tp_fp_ratio();		
@@ -221,8 +225,9 @@ public class EvaluationStore {
 		ModelStore reversedModel=selectModelByAUC(evalData,true);
 		//获取反向评估结果
 		fullPredictions=ClassifyUtility.getEvalPreditions(evalData, reversedModel.getModel());
-		ArrayList<Prediction> reversedTopPedictions=ClassifyUtility.getTopPredictedValues(m_isNominal,fullPredictions,0.999,true);
-		GeneralInstances reversedResult=getROCInstances(reversedTopPedictions,true);
+
+		//获取反向全部的评估结果（要全部的原因是评估的sample_rate是占全部数据的rate），这里用0.999是一个walkaround，因为如果传1进去，函数内部会不处理反向的预测收益率
+		GeneralInstances reversedResult=getROCInstances(fullPredictions,0.999,true);
 		EvaluationParams reversedEvalParams=new EvaluationParams(REVERSED_TOP_AREA_RATIO*0.7, REVERSED_TOP_AREA_RATIO, 2);
 		ThresholdData reversedThresholdData=doModelEvaluation(reversedResult,reversedEvalParams,1/tp_fp_bottom_line);
 
@@ -232,6 +237,9 @@ public class EvaluationStore {
 			reversedThreshold=1-reversedThresholdData.getThreshold();
 		}else{
 			reversedThreshold=reversedThresholdData.getThreshold()*-1;
+		}
+		if (reversedThreshold>thresholdData.getThreshold()){
+			throw new Exception("fatal error!!! reversedThreshold("+reversedThreshold+") > threshold("+thresholdData.getThreshold()+")");
 		}
 		//将反向评估结果存入数据中
 		thresholdData.setReversedThreshold(reversedThreshold);
@@ -316,13 +324,14 @@ public class EvaluationStore {
 	}
 
 	/**
-	 * 选择最大AUC的MODEL
-	 * @param evalData
+	 * 
+	 * 	用ROC的方法比较不同模型的质量，选择表现最好的那个模型（即选择最大AUC的MODEL）
+	 *  在实际问题域中，我们并不关心整体样本的ROC curve，我们只关心预测值排序在头部区间内的ROC表现（top前N%）
+	 *  isReversed 参数是选取反向的最好表现 （即对0值有最准确顶部预测的模型）
 	 * @throws Exception
-	 * @throws RuntimeException
 	 */
 	private ModelStore selectModelByAUC( GeneralInstances evalData,boolean isReversed)
-			throws Exception, RuntimeException {
+			throws Exception{
 		String yearSplit=this.getTargetYearSplit();
 		double[] modelsAUC=new double[m_modelFilesToEval.length];
 		ModelStore[] modelStores=new ModelStore[m_modelFilesToEval.length];
@@ -341,19 +350,21 @@ public class EvaluationStore {
 				throw new Exception("attention! model and evaluation data structure is not the same. Here is the difference: "+verify);
 			}
 
+			ArrayList<Prediction> fullPredictions=ClassifyUtility.getEvalPreditions(evalData, model);
+
+			//根据reversed与否决定是取正向还是反向的AUC
+			double ratio;
+			if (isReversed==false){
+				ratio=TOP_AREA_RATIO;
+			}else{
+				ratio=REVERSED_TOP_AREA_RATIO;
+			}
 			/*
 			 * 用ROC的方法评价模型质量
 			 * 在实际问题域中，我们并不关心整体样本的ROC curve，我们只关心预测值排序在头部区间内的ROC表现（top前N%）
 			 */
-			ArrayList<Prediction> fullPredictions=ClassifyUtility.getEvalPreditions(evalData, model);
-
-
-			//根据reversed与否决定是取正向还是反向的AUC
-			if (isReversed==false){
-				modelsAUC[i]=caculateAUC(fullPredictions,TOP_AREA_RATIO, isReversed);
-			}else{
-				modelsAUC[i]=caculateAUC(fullPredictions,REVERSED_TOP_AREA_RATIO, isReversed);
-			}
+			GeneralInstances result=getROCInstances(fullPredictions,ratio,isReversed);
+			modelsAUC[i]=caculateAUC(result);
 			System.out.println("thread:"+Thread.currentThread().getName()+" modelsAUC="+modelsAUC[i]+" isReversed="+isReversed+ " @ ModelYearSplit="+modelStores[i].getModelYearSplit());
 
 			//不管正向还是反向，都是取最大的AUC
@@ -374,19 +385,10 @@ public class EvaluationStore {
 	}
 
 	/**
-		根据reverse的值，取fullPreditions的TOP ratio（reverse=false)数据  
-		或bottom ratio(reverse=true) 数据（当取bottom ratio时，将收益率数据取反）
-	 * @param fullPredictions
-	 * @param reverse
+		
 	 * @throws Exception
-	 * @throws RuntimeException
 	 */
-	private double caculateAUC(  ArrayList<Prediction> fullPredictions, double ratio,
-			boolean reverse) throws Exception, RuntimeException {
-		ArrayList<Prediction> topPedictions;
-		GeneralInstances result;
-		topPedictions=ClassifyUtility.getTopPredictedValues(m_isNominal,fullPredictions,ratio,reverse);
-		result=getROCInstances(topPedictions,reverse);
+	private double caculateAUC(GeneralInstances result) throws Exception{
 		double auc=ThresholdCurve.getROCArea( WekaInstances.convertToWekaInstances(result));
 
 		return auc;
@@ -445,25 +447,29 @@ public class EvaluationStore {
 
 	/**
 	 * 获取ROC的Instances
+	 * 根据reverse的值，取fullPreditions的TOP ratio（reverse=false)数据  
+	 * 或bottom ratio(reverse=true) 数据（当取bottom ratio时，将收益率数据取反）
 	 * @param predictions
 	 * @param isReversed 根据是否反转来决定二分类器变量时目标CLass数值的下标取值
 	 * @return
 	 * @throws Exception
 	 */
-	private GeneralInstances getROCInstances(ArrayList<Prediction> predictions,boolean isReversed)
+	private GeneralInstances getROCInstances(ArrayList<Prediction> fullPredictions,double ratio,boolean isReversed)
 			throws Exception {
+		//先根据ratio截取预测的数据范围
+		ArrayList<Prediction> topPedictions=getTopPredictedValues(m_isNominal,fullPredictions,ratio,isReversed);
 		if (m_isNominal){
 			ThresholdCurve tc = new ThresholdCurve();
 			int classIndex = NominalClassifier.CLASS_POSITIVE_INDEX;
 			if (isReversed){
 				classIndex=NominalClassifier.CLASS_NEGATIVE_INDEX;
 			}
-			GeneralInstances result = new DataInstances(tc.getCurve(predictions, classIndex));
+			GeneralInstances result = new DataInstances(tc.getCurve(topPedictions, classIndex));
 			return result;
 		}else{
-			//是否反转在这里无须处理，因为收益率已经在之前反转过了
+			//是否反转在这里无须处理，因为收益率已经在getTopPredictedValues中已经反转过了
 			NumericThresholdCurve tc = new NumericThresholdCurve();
-			GeneralInstances result = new DataInstances(tc.getCurve(predictions));
+			GeneralInstances result = new DataInstances(tc.getCurve(topPedictions));
 			return result;
 		}
 	}
@@ -592,5 +598,68 @@ public class EvaluationStore {
 		String result=null;
 		result=m_evalConf.showEvaluationParameters();
 		return result;
+	}
+
+	/*
+	 * 对二分类变量，正分布选为1最大的ratio，负分布选为0的最大ratio
+	 * 对连续分类变量，正分布选最大的ratio，负分布选最小的这部分ratio，当取负分布时，将收益率数据取反，以利于绘制ROC图线
+	 * ratio=1时返回全部预测数据（注意，此时reverse失效，返回数据集中不会转换收益率）
+	 */
+	private ArrayList<Prediction> getTopPredictedValues(boolean isNominalPred,ArrayList<Prediction> predictions,double ratio,boolean reverse) {
+		
+		//如果是全部则返回全量数据
+		if (ratio>=1){
+			return predictions;
+		}
+		double targetPercentile=(1-ratio)*100;
+		
+		DescriptiveStatistics probs=new DescriptiveStatistics();
+		double predicted=0.0;
+		int targetClassIndex=NominalClassifier.CLASS_POSITIVE_INDEX;
+		int convertShouyilv=1;// 当取负分布时，将收益率数据取反，以利于绘制ROC图线
+		
+		if (reverse==true){
+			if (isNominalPred){
+				//二分类变量要根据是否reverse来 决定是取1的预测值还是0的预测值
+				targetClassIndex=NominalClassifier.CLASS_NEGATIVE_INDEX;
+			}else{
+				//连续分类变量反转时将收益率取反
+				convertShouyilv=-1;
+			}
+		}
+		
+		//加入所有的数据，查找分界点
+		for (int i = 0; i < predictions.size(); i++) {
+			Prediction pred =  predictions.get(i);
+			if (isNominalPred){
+				predicted=((NominalPrediction)pred).distribution()[targetClassIndex];
+			}else{
+				predicted=pred.predicted()*convertShouyilv; 
+			}
+			probs.addValue(predicted);
+		}
+		double judgePoint=probs.getPercentile(targetPercentile);		
+	
+		
+		// 根据阈值截取数据
+		ArrayList<Prediction> topPredictions=new ArrayList<Prediction>();
+		for (int i = 0; i < predictions.size(); i++) {
+			Prediction pred =  predictions.get(i);
+			if (isNominalPred){
+				//对于二分类变量，返回目标分类的预测可能性
+				predicted=((NominalPrediction)pred).distribution()[targetClassIndex];
+			}else{
+				predicted=pred.predicted();
+			}
+			
+			if (predicted>=judgePoint) {
+				topPredictions.add(pred);
+			}
+	
+		}
+		System.out.println("number of preditions selected="+topPredictions.size()+" from total ("+predictions.size()+") by using  predicted value("+judgePoint+") and top ratio="+ratio+"isReversed="+reverse);
+		return topPredictions;
+	
+	
 	}
 }
