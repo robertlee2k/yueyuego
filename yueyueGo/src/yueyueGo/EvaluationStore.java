@@ -221,7 +221,7 @@ public class EvaluationStore {
 		ModelStore reversedModel=selectModelByAUC(evalData,true);
 		//获取反向评估结果
 		fullPredictions=ClassifyUtility.getEvalPreditions(evalData, reversedModel.getModel());
-		ArrayList<Prediction> reversedTopPedictions=ClassifyUtility.getTopPredictedValues(m_isNominal,fullPredictions,REVERSED_TOP_AREA_RATIO,true);
+		ArrayList<Prediction> reversedTopPedictions=ClassifyUtility.getTopPredictedValues(m_isNominal,fullPredictions,0.999,true);
 		GeneralInstances reversedResult=getROCInstances(reversedTopPedictions,true);
 		EvaluationParams reversedEvalParams=new EvaluationParams(REVERSED_TOP_AREA_RATIO*0.7, REVERSED_TOP_AREA_RATIO, 2);
 		ThresholdData reversedThresholdData=doModelEvaluation(reversedResult,reversedEvalParams,1/tp_fp_bottom_line);
