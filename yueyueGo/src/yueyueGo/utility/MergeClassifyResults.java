@@ -11,14 +11,16 @@ import yueyueGo.databeans.GeneralInstances;
 
 
 public class MergeClassifyResults {
-	private  double[] m_shouyilv_thresholds; //对于胜率优先算法的收益率筛选阀值
-	private  double[] m_winrate_thresholds; //对于收益率优先算法的胜率筛选阀值
+//	private  double[] m_shouyilv_thresholds; //对于胜率优先算法的收益率筛选阀值
+//	private  double[] m_winrate_thresholds; //对于收益率优先算法的胜率筛选阀值
 	private  String m_policy_group;
 
-	public MergeClassifyResults(double[] shouyilv,
-			double[] winrate, String a_policy_group) {
-		this.m_shouyilv_thresholds = shouyilv;
-		this.m_winrate_thresholds = winrate;
+	public MergeClassifyResults(
+//			double[] shouyilv,
+//			double[] winrate, 
+			String a_policy_group) {
+//		this.m_shouyilv_thresholds = shouyilv;
+//		this.m_winrate_thresholds = winrate;
 		this.m_policy_group=a_policy_group;
 	}
 
@@ -256,20 +258,20 @@ public class MergeClassifyResults {
 				System.out.print(" good ratio="+FormatUtility.formatPercent(goodRatio));
 				System.out.println(" average changed shouyilv="+FormatUtility.formatPercent(changedShouyilv/resultChanged));
 			}	
-			if (dataToAdd.equals(ArffFormat.RESULT_PREDICTED_WIN_RATE)){
-				System.out.print(" @ WINRATE_FILTER_FOR_SHOUYILV={");
-				for (int i = 0; i < m_winrate_thresholds.length; i++) {
-					System.out.print(FormatUtility.formatPercent(m_winrate_thresholds[i])+"," );
-				}
-				System.out.println(" }");
-			}
-			else{
-				System.out.print(" @ SHOUYILV_FILTER_FOR_WINRATE={");
-				for (int i = 0; i < m_shouyilv_thresholds.length; i++) {
-					System.out.print(FormatUtility.formatPercent(m_shouyilv_thresholds[i])+",");
-				}
-				System.out.println(" }");
-			}
+//			if (dataToAdd.equals(ArffFormat.RESULT_PREDICTED_WIN_RATE)){
+//				System.out.print(" @ WINRATE_FILTER_FOR_SHOUYILV={");
+//				for (int i = 0; i < m_winrate_thresholds.length; i++) {
+//					System.out.print(FormatUtility.formatPercent(m_winrate_thresholds[i])+"," );
+//				}
+//				System.out.println(" }");
+//			}
+//			else{
+//				System.out.print(" @ SHOUYILV_FILTER_FOR_WINRATE={");
+//				for (int i = 0; i < m_shouyilv_thresholds.length; i++) {
+//					System.out.print(FormatUtility.formatPercent(m_shouyilv_thresholds[i])+",");
+//				}
+//				System.out.println(" }");
+//			}
 
 			return mergedResult;
 		}

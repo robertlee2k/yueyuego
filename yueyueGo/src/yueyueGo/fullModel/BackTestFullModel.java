@@ -8,8 +8,8 @@ import yueyueGo.ContinousClassifier;
 import yueyueGo.EnvConstants;
 import yueyueGo.NominalClassifier;
 import yueyueGo.dataFormat.ArffFormat;
-import yueyueGo.dataFormat.FullModelDataFormat;
 import yueyueGo.dataFormat.AvgLineDataFormat;
+import yueyueGo.dataFormat.FullModelDataFormat;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.dataProcessor.InstanceHandler;
 import yueyueGo.databeans.GeneralInstances;
@@ -17,7 +17,6 @@ import yueyueGo.datasource.DataIOHandler;
 import yueyueGo.fullModel.classifier.BaggingM5PFullModel;
 import yueyueGo.fullModel.classifier.MyNNFullModel;
 import yueyueGo.utility.AppContext;
-import yueyueGo.utility.EvaluationConfDefinition;
 import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.MergeClassifyResults;
 
@@ -49,8 +48,8 @@ public class BackTestFullModel extends BackTest {
 		
 		RUNNING_THREADS=1;
 		
-		shouyilv_thresholds=EvaluationConfDefinition.FULLMODEL_SHOUYILV_FILTER_FOR_WINRATE; //对于胜率优先算法的收益率筛选阀值
-		winrate_thresholds=EvaluationConfDefinition.FULLMODEL_WINRATE_FILTER_FOR_SHOUYILV; //对于收益率优先算法的胜率筛选阀值
+//		shouyilv_thresholds=EvaluationConfDefinition.FULLMODEL_SHOUYILV_FILTER_FOR_WINRATE; //对于胜率优先算法的收益率筛选阀值
+//		winrate_thresholds=EvaluationConfDefinition.FULLMODEL_WINRATE_FILTER_FOR_SHOUYILV; //对于收益率优先算法的胜率筛选阀值
 	}
 
 
@@ -228,7 +227,7 @@ public class BackTestFullModel extends BackTest {
 			left=DataIOHandler.getSuppier().loadDataFromFile(C_ROOT_DIRECTORY+ARFF_FORMAT_FULLMODEL.m_arff_file_prefix+"-left.arff");
 		}
 		
-		MergeClassifyResults merge=new MergeClassifyResults(shouyilv_thresholds, winrate_thresholds,ARFF_FORMAT.m_policy_group);
+		MergeClassifyResults merge=new MergeClassifyResults(ARFF_FORMAT.m_policy_group);
 		GeneralInstances mergedResult = merge.mergeResults(resultData, referenceData,dataToAdd, left);
 		
 		//返回结果之前需要按TradeDate重新排序
