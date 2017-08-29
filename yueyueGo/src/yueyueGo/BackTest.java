@@ -273,12 +273,6 @@ public class BackTest {
 		
 		//创建存储评估结果的数据容器
 		ClassifySummaries modelSummaries=new ClassifySummaries(clModel.getIdentifyName()+" format="+clModel.modelArffFormat,false);
-//		//TODO 添加表头
-//		String headerToAppend="";
-//		for (double d : clModel.m_focusAreaRatio) {
-//			headerToAppend+="AUC"+FormatUtility.formatPercent(d,2,0)+","; 
-//		}
-//		modelSummaries.appendHeader(headerToAppend);
 
 		clModel.setClassifySummaries(modelSummaries);
 
@@ -510,23 +504,23 @@ public class BackTest {
 			throws Exception {
 		GeneralInstances fullSetData;
 		// 根据模型来决定是否要使用有计算字段的ARFF
-		String arffFile=null;
-		if (clModel.m_noCaculationAttrib==true){
-			arffFile=ARFF_FORMAT.m_arff_ext;
-		}else{
-//			arffFile=ArffFormat.LONG_ARFF_FILE;
-			throw new RuntimeException("we don't support Calculation fields any more");
-		}
+//		String arffFile=null;
+//		if (clModel.m_noCaculationAttrib==true){
+//			arffFile=ARFF_FORMAT.m_arff_ext;
+//		}else{
+////			arffFile=ArffFormat.LONG_ARFF_FILE;
+//			throw new RuntimeException("we don't support Calculation fields any more");
+//		}
 
-		System.out.println("start to load File for fullset from File: "+ arffFile  );
-		fullSetData = DataIOHandler.getSuppier().loadDataFromFile( C_ROOT_DIRECTORY+arffFile);
+		System.out.println("start to load File for fullset from File: "+ ARFF_FORMAT.m_arff_ext  );
+		fullSetData = DataIOHandler.getSuppier().loadDataFromFile( C_ROOT_DIRECTORY+ARFF_FORMAT.m_arff_ext);
 		System.out.println("finish loading fullset Data. row : "+ fullSetData.numInstances() + " column:"+ fullSetData.numAttributes());
 		
-		//决定是否删除申万行业数据
-		if (clModel.m_removeSWData==true){
-			fullSetData=ArffFormat.removeSWData(fullSetData);
-			System.out.println("removed SW Data based on model definition. now column="+ fullSetData.numAttributes());
-		}
+//		//决定是否删除申万行业数据
+//		if (clModel.m_removeSWData==true){
+//			fullSetData=ArffFormat.removeSWData(fullSetData);
+//			System.out.println("removed SW Data based on model definition. now column="+ fullSetData.numAttributes());
+//		}
 		return fullSetData;
 	}
 

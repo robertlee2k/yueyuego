@@ -166,11 +166,11 @@ public class BackTestFullModel extends BackTest {
 		}
 		System.out.println("finish loading fullset Data. row : "+fullSetData.numInstances() + " column:"+ fullSetData.numAttributes());
 		
-		//决定是否删除申万行业数据
-		if (clModel.m_removeSWData==true){
-			fullSetData=ArffFormat.removeSWData(fullSetData);
-			System.out.println("removed SW Data based on model definition. now column="+ fullSetData.numAttributes());
-		}
+//		//决定是否删除申万行业数据
+//		if (clModel.m_removeSWData==true){
+//			fullSetData=ArffFormat.removeSWData(fullSetData);
+//			System.out.println("removed SW Data based on model definition. now column="+ fullSetData.numAttributes());
+//		}
 		return fullSetData;
 	}
 
@@ -182,19 +182,15 @@ public class BackTestFullModel extends BackTest {
 	 */
 	private String getFullModelArffFileName(BaseClassifier clModel) {
 		// 根据模型来决定是否要使用有计算字段的ARFF
-		String arffFile=null;
-		if (clModel.m_noCaculationAttrib==true){
-			arffFile=ARFF_FORMAT_FULLMODEL.m_arff_ext;
-		}else{
-//			arffFile=ArffFormatFullModel.FULL_MODEL_LONG_ARFF_FILE;
-			throw new RuntimeException("we don't support Calculation fields any more");
-		}
-		String arffFullFileName=C_ROOT_DIRECTORY+arffFile;
-		//		int year=Integer.parseInt(splitMark);
-//		//根据年份查找相应的目录
-//		if (year<=2009){
-//			arffFile="2009\\"+arffFile;
+//		String arffFile=null;
+//		if (clModel.m_noCaculationAttrib==true){
+//			arffFile=ARFF_FORMAT_FULLMODEL.m_arff_ext;
+//		}else{
+////			arffFile=ArffFormatFullModel.FULL_MODEL_LONG_ARFF_FILE;
+//			throw new RuntimeException("we don't support Calculation fields any more");
 //		}
+		String arffFullFileName=C_ROOT_DIRECTORY+ARFF_FORMAT_FULLMODEL.m_arff_ext;
+
 		return arffFullFileName;
 	}
 	
@@ -205,14 +201,14 @@ public class BackTestFullModel extends BackTest {
 	 */
 	private String getMaArffFileName(BaseClassifier clModel) {
 		// 根据模型来决定是否要使用有计算字段的ARFF
-		String arffFile=null;
-		if (clModel.m_noCaculationAttrib==true){
-			arffFile=ARFF_FORMAT.m_arff_ext;
-		}else{
-//			arffFile=ArffFormat.LONG_ARFF_FILE;
-			throw new RuntimeException("we don't support Calculation fields any more");
-		}
-		String arffFullFileName=EnvConstants.AVG_LINE_ROOT_DIR+arffFile;
+//		String arffFile=null;
+//		if (clModel.m_noCaculationAttrib==true){
+//			arffFile=ARFF_FORMAT.m_arff_ext;
+//		}else{
+////			arffFile=ArffFormat.LONG_ARFF_FILE;
+//			throw new RuntimeException("we don't support Calculation fields any more");
+//		}
+		String arffFullFileName=EnvConstants.AVG_LINE_ROOT_DIR+ARFF_FORMAT.m_arff_ext;
 		return arffFullFileName;
 	}
 

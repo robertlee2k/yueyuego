@@ -33,8 +33,13 @@ public abstract class BaseClassifier implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = -5895562408723104016L;
-	public final boolean m_noCaculationAttrib=true;  //加入的计算字段与否 ---拟取消
-	public final boolean m_removeSWData=true;  //是否需要删除行业数据--拟取消
+	
+	public static final int VALUE_SELECTED = 1; //模型预测结果为“选择”
+	public static final int VALUE_NOT_SURE = 0; //模型预测结果为“无法判断”
+	public static final int VALUE_NEVER_SELECT = -1; //模型预测结果为“坚决不选”
+	
+//	public final boolean m_noCaculationAttrib=true;  //加入的计算字段与否 ---拟取消
+//	public final boolean m_removeSWData=true;  //是否需要删除行业数据--拟取消
 	
 	
 	
@@ -205,10 +210,10 @@ public abstract class BaseClassifier implements Serializable{
 
 
 
-			double selected = 0.0;
+			double selected = BaseClassifier.VALUE_NOT_SURE;
 			
 			if (pred >=thresholdMin ) { //本模型估计当前数据是1值
-				selected = 1.0;  
+				selected = BaseClassifier.VALUE_SELECTED;  
 
 				if (shouyilv>getPositiveLine()){ //这里的positive是个相对于positiveLine的相对概念
 					selectedPositiveShouyilv.addValue(shouyilv);
@@ -216,7 +221,7 @@ public abstract class BaseClassifier implements Serializable{
 					selectedNegativeShouyilv.addValue(shouyilv);
 				}
 			}else if (pred<reversedThresholdMax){
-				selected=-1.0;//本模型坚定认为当前数据为0 （这是合并多个模型预测时使用的）
+				selected=BaseClassifier.VALUE_NEVER_SELECT;//本模型坚定认为当前数据为0 （这是合并多个模型预测时使用的）
 			}
 			
 			inst.setValue(result.numAttributes() - 1, selected);
@@ -371,8 +376,8 @@ public abstract class BaseClassifier implements Serializable{
 		System.out.println("ClassifyIdentity="+this.getIdentifyName());
 		System.out.println("m_skipTrainInBacktest="+this.m_skipTrainInBacktest);
 		System.out.println("m_skipEvalInBacktest="+this.m_skipEvalInBacktest);
-		System.out.println("m_noCaculationAttrib="+m_noCaculationAttrib);
-		System.out.println("m_removeSWData="+m_removeSWData);
+//		System.out.println("m_noCaculationAttrib="+m_noCaculationAttrib);
+//		System.out.println("m_removeSWData="+m_removeSWData);
 		System.out.println("m_positiveLine="+m_positiveLine);
 		
 

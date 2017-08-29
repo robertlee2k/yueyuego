@@ -1,5 +1,6 @@
 package yueyueGo.utility;
 
+import yueyueGo.BaseClassifier;
 import yueyueGo.dataFormat.ArffFormat;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.dataProcessor.InstanceHandler;
@@ -159,10 +160,10 @@ public class MergeClassifyResults {
 						double selected=resultCurr.value(resultSelectedAtt);
 						//参考结果的选股结果（-1.0的排除）
 						double referenceSelected=referenceCurr.value(referenceData.attribute(ArffFormat.RESULT_SELECTED));
-						if (selected==1){
+						if (selected==BaseClassifier.VALUE_SELECTED){
 							//当合并数据时，如果参照的二分类器的选择值为-1 则不选择该条记录
-							if (referenceSelected==-1){
-								selected=0;
+							if (referenceSelected==BaseClassifier.VALUE_NEVER_SELECT){
+								selected=BaseClassifier.VALUE_NOT_SURE;
 								resultChanged++;
 								if (shouyilvAtt!=null){
 									double shouyilv=leftCurr.value(shouyilvAtt);

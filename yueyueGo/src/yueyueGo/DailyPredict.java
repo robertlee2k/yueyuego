@@ -329,11 +329,11 @@ public class DailyPredict {
 			//去掉多读入的CODE部分
 			instanceProcessor=InstanceHandler.getHandler(dailyData);
 			dailyData=instanceProcessor.removeAttribs(dailyData, new String[]{ArffFormat.CODE});
-			//决定是否删除申万行业数据
-			if (clModel.m_removeSWData==true){
-				dailyData=ArffFormat.removeSWData(dailyData);
-				System.out.println("removed SW Data based on model definition. now column="+ dailyData.numAttributes());
-			}
+//			//决定是否删除申万行业数据
+//			if (clModel.m_removeSWData==true){
+//				dailyData=ArffFormat.removeSWData(dailyData);
+//				System.out.println("removed SW Data based on model definition. now column="+ dailyData.numAttributes());
+//			}
 			//将结果放入缓存
 			this.cached_daily_data.put(cacheKey, dailyData);
 		}
@@ -359,11 +359,11 @@ public class DailyPredict {
 
 		GeneralInstances fullData=calibrateAttributesForDailyData(inData,clModel);
 
-		//如果模型需要计算字段，则把计算字段加上---20170109取消
-		if (clModel.m_noCaculationAttrib==false){
-//			fullData=ArffFormat.addCalculateAttribute(fullData);
-			throw new RuntimeException("we don't support caculated attributes since 20170109");
-		}
+//		//如果模型需要计算字段，则把计算字段加上---20170109取消
+//		if (clModel.m_noCaculationAttrib==false){
+////			fullData=ArffFormat.addCalculateAttribute(fullData);
+//			throw new RuntimeException("we don't support caculated attributes since 20170109");
+//		}
 
 
 		//获得”均线策略"的位置属性, 如果数据集内没有“均线策略”（短线策略的fullmodel），MaIndex为-1
@@ -458,11 +458,11 @@ public class DailyPredict {
 		GeneralInstances outputData = getDailyPredictDataFormat(formatType);
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(outputData);
 		outputData=instanceProcessor.removeAttribs(outputData, ArffFormat.YEAR_MONTH_INDEX);
-		//如果要去除swData这里也要去除。
-		if (clModel.m_removeSWData==true){
-			outputData=ArffFormat.removeSWData(outputData);
-			System.out.println("removed SW Data in format based on model definition. now column="+ outputData.numAttributes());
-		}
+//		//如果要去除swData这里也要去除。
+//		if (clModel.m_removeSWData==true){
+//			outputData=ArffFormat.removeSWData(outputData);
+//			System.out.println("removed SW Data in format based on model definition. now column="+ outputData.numAttributes());
+//		}
 		instanceProcessor=InstanceHandler.getHandler(incomingData);
 		instanceProcessor.calibrateAttributes(incomingData, outputData);
 		return outputData;
