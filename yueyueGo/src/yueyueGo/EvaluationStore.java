@@ -35,9 +35,9 @@ public class EvaluationStore {
 
 	protected boolean m_isNominal=false;
 
-	public static final double TOP_AREA_RATIO=0.15; //缺省定义头部区域为15%
+	public static final double TOP_AREA_RATIO=0.3; //缺省定义头部区域为30%
 	public static final double REVERSED_TOP_AREA_RATIO=0.45; //缺省定义反向头部为45%
-	protected double[] m_focusAreaRatio={TOP_AREA_RATIO,1};//评估时关注评估数据的不同Top 比例（缺省为0.01、0.03、0.05、0.1、0.2、0.5、1);
+	protected double[] m_focusAreaRatio={TOP_AREA_RATIO,1};//评估时关注评估数据的不同Top 比例;
 
 	public static final int PREVIOUS_MODELS_NUM=5; 	//暂时选取之前的5个文件
 	public static final int YEAR_SPLIT_LIMIT=2007; //回测模型的起始点， 在这之前无数据	
@@ -106,7 +106,9 @@ public class EvaluationStore {
 		this.m_modelFilepathPrefix=modelFilepathPrefix; //记录下回测模型的目录路径，以便日后使用
 		this.m_policySplit=policySplit; //记录下策略分类
 		this.m_classifierName=clModel.classifierName;
-		this.m_evalFileName=ModelStore.concatModeFilenameString(evalYearSplit, policySplit, m_modelFilepathPrefix, m_classifierName)+EvaluationStore.THRESHOLD_EXTENSION;
+		
+		// 这里的fileName用TargetYearSplit来做，而不是evalYearSplit来做
+		this.m_evalFileName=ModelStore.concatModeFilenameString(targetYearSplit, policySplit, m_modelFilepathPrefix, m_classifierName)+EvaluationStore.THRESHOLD_EXTENSION;
 		
 
 		EvaluationConfDefinition evalConf=new EvaluationConfDefinition(m_classifierName,clModel.m_policySubGroup,null);
@@ -161,6 +163,7 @@ public class EvaluationStore {
 		String msg="";
 		if (m_targetYearSplit==null && m_evalYearSplit==null){// && m_modelYearSplit==null ){ //每日预测时跳过
 
+			//TODO 也应该加校验
 		}else {
 			if (m_targetYearSplit.equals(thresholdData.getTargetYearSplit())==false){
 				msg+=" {ERROR}target m_targetYearSplit="+m_targetYearSplit+" while targetYearSplit in thresholdData is "+thresholdData.getTargetYearSplit();
@@ -233,7 +236,7 @@ public class EvaluationStore {
 
 		//获取反向全部的评估结果（要全部的原因是评估的sample_rate是占全部数据的rate），这里用0.999是一个walkaround，因为如果传1进去，函数内部会不处理反向的预测收益率
 		GeneralInstances reversedResult=getROCInstances(fullPredictions,0.999,true);
-		EvaluationParams reversedEvalParams=new EvaluationParams(REVERSED_TOP_AREA_RATIO*0.8, REVERSED_TOP_AREA_RATIO, 1.8);
+		EvaluationParams reversedEvalParams=new EvaluationParams(REVERSED_TOP_AREA_RATIO, REVERSED_TOP_AREA_RATIO*1.1, 1.8);
 		ThresholdData reversedThresholdData=doModelEvaluation(reversedResult,reversedEvalParams,1/tp_fp_bottom_line);
 
 		//将反向评估结果的阈值恢复取反前的值
@@ -246,9 +249,10 @@ public class EvaluationStore {
 		if (reversedThreshold>thresholdData.getThreshold()){
 			throw new Exception("fatal error!!! reversedThreshold("+reversedThreshold+") > threshold("+thresholdData.getThreshold()+")");
 		}
+		double reversedPercentile=100-reversedThresholdData.getPercent();
 		//将反向评估结果存入数据中
 		thresholdData.setReversedThreshold(reversedThreshold);
-		thresholdData.setReversedPercent(reversedThresholdData.getPercent());
+		thresholdData.setReversedPercent(reversedPercentile);
 		thresholdData.setReversedModelYearSplit(reversedModel.getModelYearSplit());
 		thresholdData.setReversedModelFileName(reversedModel.getModelFileName());
 
@@ -262,13 +266,7 @@ public class EvaluationStore {
 			throws Exception {
 		ThresholdData thresholdData=null;
 
-	 
-
-
 		int round=1;
-
-
-
 		//		System.out.println("use the tp_fp_bottom_line based on training history data = "+tp_fp_bottom_line);
 		double trying_tp_fp=tp_fp_bottom_line*evalParams.getLift_up_target();
 		System.out.println("start from the trying_tp_fp = "+trying_tp_fp + " / while  lift up target="+evalParams.getLift_up_target());
@@ -402,6 +400,152 @@ public class EvaluationStore {
 		return auc;
 	}
 
+	/**
+	 * 获取ROC的Instances
+	 * 根据reverse的值，取fullPreditions的TOP ratio（reverse=false)数据  
+	 * 或bottom ratio(reverse=true) 数据（当取bottom ratio时，将收益率数据取反）
+	 * @param predictions
+	 * @param isReversed 根据是否反转来决定二分类器变量时目标CLass数值的下标取值
+	 * @return
+	 * @throws Exception
+	 */
+	private GeneralInstances getROCInstances(ArrayList<Prediction> fullPredictions,double ratio,boolean isReversed)
+			throws Exception {
+		//先根据ratio截取预测的数据范围
+		ArrayList<Prediction> topPedictions=getTopPredictedValues(m_isNominal,fullPredictions,ratio,isReversed);
+		if (m_isNominal){
+			ThresholdCurve tc = new ThresholdCurve();
+			int classIndex = NominalClassifier.CLASS_POSITIVE_INDEX;
+			if (isReversed){
+				classIndex=NominalClassifier.CLASS_NEGATIVE_INDEX;
+			}
+			GeneralInstances result = new DataInstances(tc.getCurve(topPedictions, classIndex));
+			return result;
+		}else{
+			//是否反转在这里无须处理，因为收益率已经在getTopPredictedValues中已经反转过了
+			NumericThresholdCurve tc = new NumericThresholdCurve();
+			GeneralInstances result = new DataInstances(tc.getCurve(topPedictions));
+			return result;
+		}
+	}
+
+	private ThresholdData computeThresholds(double tp_fp_ratio, EvaluationParams evalParams, GeneralInstances result) {
+	
+		double sample_limit=evalParams.getLower_limit(); 
+		double sample_upper=evalParams.getUpper_limit();
+	
+		double thresholdBottom = 0.0;
+		//		double lift_max = 0.0;
+		//		double lift_max_tp=0.0;
+		//		double lift_max_fp=0.0;
+		//		double lift_max_sample=0.0;
+	
+		double finalSampleSize = 0.0;
+		double sampleSize = 0.0;
+		double tp = 0.0;
+		double fp = 0.0;
+		double final_tp=0.0;
+		double final_fp=0.0;
+		GeneralAttribute att_tp = result.attribute(NumericThresholdCurve.TRUE_POS_NAME);
+		GeneralAttribute att_fp = result.attribute(NumericThresholdCurve.FALSE_POS_NAME);
+		//		GeneralAttribute att_lift = result.attribute(NumericThresholdCurve.LIFT_NAME);
+		GeneralAttribute att_threshold = result.attribute(NumericThresholdCurve.THRESHOLD_NAME);
+		GeneralAttribute att_samplesize = result.attribute(NumericThresholdCurve.SAMPLE_SIZE_NAME);
+	
+	
+		for (int i = 0; i < result.numInstances(); i++) {
+			GeneralInstance curr = result.instance(i);
+			sampleSize = curr.value(att_samplesize); // to get sample range
+			if (sampleSize >= sample_limit && sampleSize <=sample_upper) {
+				tp = curr.value(att_tp);
+				fp = curr.value(att_fp);
+	
+				//统计该范围内lift最大的值是多少（仅为输出用）
+				//				double current_lift=curr.value(att_lift);
+				//				if (current_lift>lift_max){
+				//					lift_max=current_lift;
+				//					lift_max_tp=tp;
+				//					lift_max_fp=fp;
+				//					lift_max_sample=sampleSize;
+				//				}
+	
+				//查找合适的阀值
+				if (tp>fp*tp_fp_ratio ){
+					thresholdBottom = curr.value(att_threshold);
+					finalSampleSize = sampleSize;
+					final_tp=tp;
+					final_fp=fp;
+				}
+			}
+		}
+	
+	
+		ThresholdData thresholdData=null;
+		if (thresholdBottom>0){ //找到阀值时输出并设置对象的值
+			System.out.print("#############################thresholdBottom is : " + FormatUtility.formatDouble(thresholdBottom));
+			System.out.print("/samplesize is : " + FormatUtility.formatPercent(finalSampleSize) );
+			System.out.print("/True Positives is : " + final_tp);
+			System.out.println("/False Positives is : " + final_fp);
+	
+			thresholdData=new ThresholdData();
+			thresholdData.setThreshold(thresholdBottom);
+			double percentile=100*(1-finalSampleSize); //将sampleSize转换为percent
+			thresholdData.setPercent(percentile);
+	
+	
+		}else{
+			//			double max_tp_fp_ratio=Double.NaN;
+			//			if (lift_max_fp>0){
+			//				max_tp_fp_ratio=lift_max_tp/lift_max_fp;
+			//			}
+			//			System.out.println("###possible lift max in range is : " + FormatUtility.formatDouble(lift_max) + "@ sample="+FormatUtility.formatDouble(lift_max_sample)+" where tp="+lift_max_tp+" /fp="+lift_max_fp);
+			//			System.out.println("### max tp fp ratio="+max_tp_fp_ratio+ " while trying threshold="+tp_fp_ratio+ " isNormal="+(max_tp_fp_ratio<tp_fp_ratio));
+		}
+	
+		return thresholdData;
+	}
+
+	private ThresholdData computeDefaultThresholds(EvaluationParams evalParams, GeneralInstances result){
+		double sample_limit=evalParams.getLower_limit(); 
+		double sampleSize=1.0;  //SampleSize应该是倒序下来的
+		double lastSampleSize=1.0;
+		double threshold=-100;
+		GeneralAttribute att_threshold = result.attribute(NumericThresholdCurve.THRESHOLD_NAME);
+		GeneralAttribute att_samplesize = result.attribute(NumericThresholdCurve.SAMPLE_SIZE_NAME);
+	
+		for (int i = 0; i < result.numInstances(); i++) {
+			GeneralInstance curr = result.instance(i);
+			lastSampleSize=sampleSize;
+			sampleSize = curr.value(att_samplesize); // to get sample range
+			if (FormatUtility.compareDouble(sampleSize,sample_limit)==0) {
+				threshold = curr.value(att_threshold);
+				break;
+			}
+			//暂存转折点
+			if ( lastSampleSize< sample_limit && sampleSize>sample_limit || lastSampleSize>sample_limit && sampleSize<sample_limit){
+				threshold=curr.value(att_threshold);
+				System.out.println("cannot get threshold at sample_limit="+sample_limit+ " use nearest SampleSize between"+sampleSize +" and "+lastSampleSize);
+			}
+	
+		}
+		if (threshold==-100){
+			System.err.println("fatal error!!!!! cannot get threshold at sample_limit="+sample_limit);
+		}else {
+			System.err.println("got default threshold "+ threshold+" at sample_limit="+sample_limit);
+		}
+		ThresholdData thresholdData=new ThresholdData();
+		thresholdData.setThreshold(threshold);
+		double startPercent=100*(1-evalParams.getLower_limit()); //将sampleSize转换为percent
+		thresholdData.setPercent(startPercent);
+	
+	
+		//使用缺省值时设置此标志位
+		thresholdData.setIsGuessed(true);
+	
+		return thresholdData;
+	
+	}
+
 	//	当前周期前推N个月的分隔线，比如 如果N=9是201003 则返回200909
 	public static String getNMonthsForYearSplit(int nMonths,String yearSplit){
 
@@ -453,158 +597,13 @@ public class EvaluationStore {
 		return evalYearSplit;
 	}
 
-	/**
-	 * 获取ROC的Instances
-	 * 根据reverse的值，取fullPreditions的TOP ratio（reverse=false)数据  
-	 * 或bottom ratio(reverse=true) 数据（当取bottom ratio时，将收益率数据取反）
-	 * @param predictions
-	 * @param isReversed 根据是否反转来决定二分类器变量时目标CLass数值的下标取值
-	 * @return
-	 * @throws Exception
-	 */
-	private GeneralInstances getROCInstances(ArrayList<Prediction> fullPredictions,double ratio,boolean isReversed)
-			throws Exception {
-		//先根据ratio截取预测的数据范围
-		ArrayList<Prediction> topPedictions=getTopPredictedValues(m_isNominal,fullPredictions,ratio,isReversed);
-		if (m_isNominal){
-			ThresholdCurve tc = new ThresholdCurve();
-			int classIndex = NominalClassifier.CLASS_POSITIVE_INDEX;
-			if (isReversed){
-				classIndex=NominalClassifier.CLASS_NEGATIVE_INDEX;
-			}
-			GeneralInstances result = new DataInstances(tc.getCurve(topPedictions, classIndex));
-			return result;
-		}else{
-			//是否反转在这里无须处理，因为收益率已经在getTopPredictedValues中已经反转过了
-			NumericThresholdCurve tc = new NumericThresholdCurve();
-			GeneralInstances result = new DataInstances(tc.getCurve(topPedictions));
-			return result;
-		}
-	}
-
-	private ThresholdData computeDefaultThresholds(EvaluationParams evalParams, GeneralInstances result){
-		double sample_limit=evalParams.getLower_limit(); 
-		double sampleSize=1.0;  //SampleSize应该是倒序下来的
-		double lastSampleSize=1.0;
-		double threshold=-100;
-		GeneralAttribute att_threshold = result.attribute(NumericThresholdCurve.THRESHOLD_NAME);
-		GeneralAttribute att_samplesize = result.attribute(NumericThresholdCurve.SAMPLE_SIZE_NAME);
-
-		for (int i = 0; i < result.numInstances(); i++) {
-			GeneralInstance curr = result.instance(i);
-			lastSampleSize=sampleSize;
-			sampleSize = curr.value(att_samplesize); // to get sample range
-			if (FormatUtility.compareDouble(sampleSize,sample_limit)==0) {
-				threshold = curr.value(att_threshold);
-				break;
-			}
-			//暂存转折点
-			if ( lastSampleSize< sample_limit && sampleSize>sample_limit || lastSampleSize>sample_limit && sampleSize<sample_limit){
-				threshold=curr.value(att_threshold);
-				System.out.println("cannot get threshold at sample_limit="+sample_limit+ " use nearest SampleSize between"+sampleSize +" and "+lastSampleSize);
-			}
-
-		}
-		if (threshold==-100){
-			System.err.println("fatal error!!!!! cannot get threshold at sample_limit="+sample_limit);
-		}else {
-			System.err.println("got default threshold "+ threshold+" at sample_limit="+sample_limit);
-		}
-		ThresholdData thresholdData=new ThresholdData();
-		thresholdData.setThreshold(threshold);
-		double startPercent=100*(1-evalParams.getLower_limit()); //将sampleSize转换为percent
-		thresholdData.setPercent(startPercent);
-
-
-		//使用缺省值时设置此标志位
-		thresholdData.setIsGuessed(true);
-
-		return thresholdData;
-
-	}
-
-	private ThresholdData computeThresholds(double tp_fp_ratio, EvaluationParams evalParams, GeneralInstances result) {
-
-		double sample_limit=evalParams.getLower_limit(); 
-		double sample_upper=evalParams.getUpper_limit();
-
-		double thresholdBottom = 0.0;
-		//		double lift_max = 0.0;
-		//		double lift_max_tp=0.0;
-		//		double lift_max_fp=0.0;
-		//		double lift_max_sample=0.0;
-
-		double finalSampleSize = 0.0;
-		double sampleSize = 0.0;
-		double tp = 0.0;
-		double fp = 0.0;
-		double final_tp=0.0;
-		double final_fp=0.0;
-		GeneralAttribute att_tp = result.attribute(NumericThresholdCurve.TRUE_POS_NAME);
-		GeneralAttribute att_fp = result.attribute(NumericThresholdCurve.FALSE_POS_NAME);
-		//		GeneralAttribute att_lift = result.attribute(NumericThresholdCurve.LIFT_NAME);
-		GeneralAttribute att_threshold = result.attribute(NumericThresholdCurve.THRESHOLD_NAME);
-		GeneralAttribute att_samplesize = result.attribute(NumericThresholdCurve.SAMPLE_SIZE_NAME);
-
-
-		for (int i = 0; i < result.numInstances(); i++) {
-			GeneralInstance curr = result.instance(i);
-			sampleSize = curr.value(att_samplesize); // to get sample range
-			if (sampleSize >= sample_limit && sampleSize <=sample_upper) {
-				tp = curr.value(att_tp);
-				fp = curr.value(att_fp);
-
-				//统计该范围内lift最大的值是多少（仅为输出用）
-				//				double current_lift=curr.value(att_lift);
-				//				if (current_lift>lift_max){
-				//					lift_max=current_lift;
-				//					lift_max_tp=tp;
-				//					lift_max_fp=fp;
-				//					lift_max_sample=sampleSize;
-				//				}
-
-				//查找合适的阀值
-				if (tp>fp*tp_fp_ratio ){
-					thresholdBottom = curr.value(att_threshold);
-					finalSampleSize = sampleSize;
-					final_tp=tp;
-					final_fp=fp;
-				}
-			}
-		}
-
-
-		ThresholdData thresholdData=null;
-		if (thresholdBottom>0){ //找到阀值时输出并设置对象的值
-			System.out.print("#############################thresholdBottom is : " + FormatUtility.formatDouble(thresholdBottom));
-			System.out.print("/samplesize is : " + FormatUtility.formatPercent(finalSampleSize) );
-			System.out.print("/True Positives is : " + final_tp);
-			System.out.println("/False Positives is : " + final_fp);
-
-			thresholdData=new ThresholdData();
-			thresholdData.setThreshold(thresholdBottom);
-			double startPercent=100*(1-finalSampleSize); //将sampleSize转换为percent
-			thresholdData.setPercent(startPercent);
-
-
-		}else{
-			//			double max_tp_fp_ratio=Double.NaN;
-			//			if (lift_max_fp>0){
-			//				max_tp_fp_ratio=lift_max_tp/lift_max_fp;
-			//			}
-			//			System.out.println("###possible lift max in range is : " + FormatUtility.formatDouble(lift_max) + "@ sample="+FormatUtility.formatDouble(lift_max_sample)+" where tp="+lift_max_tp+" /fp="+lift_max_fp);
-			//			System.out.println("### max tp fp ratio="+max_tp_fp_ratio+ " while trying threshold="+tp_fp_ratio+ " isNormal="+(max_tp_fp_ratio<tp_fp_ratio));
-		}
-
-		return thresholdData;
-	}
-
 	/*
 	 * 输出当前的评估阀值定义
 	 */
 	public String showEvaluationParameters(){
 		String result=null;
-		result=m_evalConf.showEvaluationParameters();
+		
+		result+=m_evalConf.showEvaluationParameters();
 		return result;
 	}
 

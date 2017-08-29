@@ -11,8 +11,6 @@ public class ThresholdData implements Serializable{
 	 */
 	private static final long serialVersionUID = 6309018541536909105L;
 
-	
-
 	private String policySplit=null; //当前评估数据对应的Policy；
 	private String targetYearSplit=null; //当前评估数据对应的目标测试月份
 	private String evalYearSplit=null; //当前评估数据对应的评估起始月份
@@ -23,7 +21,7 @@ public class ThresholdData implements Serializable{
 	private double threshold=99999; //判断为1的阈值，大于该值意味着该模型判断其为1
 	private double percent=99999;  //阈值对应的percentile
 	private boolean isGuessed=false; //阀值是使用的缺省值
-	private String modelYearSplit; //当前评估数据下所选择的模型数据结束年月 （于下面的ModelFileName其实冗余了）
+	private String modelYearSplit; //当前评估数据下所选择的模型数据结束年月 
 	private String modelFileName=null;//当前评估数据下所选择的模型文件名称
 	
 	
