@@ -381,6 +381,8 @@ public abstract class BaseClassifier implements Serializable{
 		System.out.println("m_modelEvalFileShareMode="+m_modelFileShareMode);
 		System.out.println("modelArffFormat="+modelArffFormat);
 //		System.out.println(m_evaluationStore.showEvaluationParameters());
+		System.out.println("TOP AREA RATIO="+EvaluationStore.TOP_AREA_RATIO);
+		System.out.println("reversed TOP AREA RATIO="+EvaluationStore.REVERSED_TOP_AREA_RATIO);
 	    System.out.println("***************************************");
 	}
 	
