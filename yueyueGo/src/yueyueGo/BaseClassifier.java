@@ -260,7 +260,7 @@ public abstract class BaseClassifier implements Serializable{
 			
 			 //输出评估结果及所使用阀值及期望样本百分比
 			String evalSummary=","+modelYearSplit+","+FormatUtility.formatDouble(thresholdMin,0,3)+","+FormatUtility.formatPercent(percentile/100)+","+defaultThresholdUsed+",";
-			evalSummary+=","+reversedModelYearSplit+","+FormatUtility.formatDouble(reversedThresholdMax,0,3)+","+FormatUtility.formatPercent(reversedPercentile/100);
+			evalSummary+=reversedModelYearSplit+","+FormatUtility.formatDouble(reversedThresholdMax,0,3)+","+FormatUtility.formatPercent(reversedPercentile/100)+",";
 			for (double d : modelAUC) {
 				evalSummary+=FormatUtility.formatDouble(d,0,4)+","; 
 			}

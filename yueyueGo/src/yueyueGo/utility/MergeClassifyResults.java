@@ -161,7 +161,7 @@ public class MergeClassifyResults {
 						double referenceSelected=referenceCurr.value(referenceData.attribute(ArffFormat.RESULT_SELECTED));
 						if (selected==1){
 							//当合并数据时，如果参照的二分类器的选择值为-1 则不选择该条记录
-							if (referenceSelected==-1.0){
+							if (referenceSelected==-1){
 								selected=0;
 								resultChanged++;
 								if (shouyilvAtt!=null){

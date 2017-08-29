@@ -35,8 +35,8 @@ public class EvaluationStore {
 
 	protected boolean m_isNominal=false;
 
-	public static final double TOP_AREA_RATIO=0.1; //缺省定义头部为5%
-	public static final double REVERSED_TOP_AREA_RATIO=0.3; //缺省定义反向头部为30%
+	public static final double TOP_AREA_RATIO=0.15; //缺省定义头部区域为15%
+	public static final double REVERSED_TOP_AREA_RATIO=0.45; //缺省定义反向头部为45%
 	protected double[] m_focusAreaRatio={TOP_AREA_RATIO,1};//评估时关注评估数据的不同Top 比例（缺省为0.01、0.03、0.05、0.1、0.2、0.5、1);
 
 	public static final int PREVIOUS_MODELS_NUM=5; 	//暂时选取之前的5个文件
@@ -233,7 +233,7 @@ public class EvaluationStore {
 
 		//获取反向全部的评估结果（要全部的原因是评估的sample_rate是占全部数据的rate），这里用0.999是一个walkaround，因为如果传1进去，函数内部会不处理反向的预测收益率
 		GeneralInstances reversedResult=getROCInstances(fullPredictions,0.999,true);
-		EvaluationParams reversedEvalParams=new EvaluationParams(REVERSED_TOP_AREA_RATIO*0.8, REVERSED_TOP_AREA_RATIO, 2);
+		EvaluationParams reversedEvalParams=new EvaluationParams(REVERSED_TOP_AREA_RATIO*0.8, REVERSED_TOP_AREA_RATIO, 1.8);
 		ThresholdData reversedThresholdData=doModelEvaluation(reversedResult,reversedEvalParams,1/tp_fp_bottom_line);
 
 		//将反向评估结果的阈值恢复取反前的值
