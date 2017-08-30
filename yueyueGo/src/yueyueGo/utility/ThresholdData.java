@@ -1,9 +1,6 @@
 package yueyueGo.utility;
 import java.io.Serializable;
 
-import weka.core.SerializationHelper;
-import yueyueGo.ModelStore;
-
 
 public class ThresholdData implements Serializable{
 	/**
@@ -142,19 +139,6 @@ public class ThresholdData implements Serializable{
 		this.modelFileName = modelFileName;
 	}
 
-	public static ThresholdData loadDataFromFile(String evalFileName) throws Exception{
-		//读取Threshold数据文件
-		ThresholdData thresholdData=(ThresholdData)SerializationHelper.read( evalFileName);
-		return thresholdData;
-	}
-	
-	public static void saveEvaluationToFile(String evalFileName,ThresholdData thresholdData) throws Exception {
-		SerializationHelper.write( evalFileName, thresholdData);
-		FileUtility.write(evalFileName+ModelStore.TXT_EXTENSION, thresholdData.toString(), "utf-8");
-//		System.out.println("evaluation saved to :"+ evalFileName);
-	}
-	
-	
 	public double getThreshold() {
 		return threshold;
 	}

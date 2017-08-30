@@ -8,6 +8,7 @@ import weka.classifiers.Classifier;
 import weka.classifiers.evaluation.NominalPrediction;
 import weka.classifiers.evaluation.Prediction;
 import weka.classifiers.evaluation.ThresholdCurve;
+import weka.core.SerializationHelper;
 import yueyueGo.databeans.DataInstances;
 import yueyueGo.databeans.GeneralAttribute;
 import yueyueGo.databeans.GeneralDataTag;
@@ -17,6 +18,7 @@ import yueyueGo.databeans.WekaInstances;
 import yueyueGo.utility.ClassifyUtility;
 import yueyueGo.utility.EvaluationConfDefinition;
 import yueyueGo.utility.EvaluationParams;
+import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.NumericThresholdCurve;
 import yueyueGo.utility.ThresholdData;
@@ -28,15 +30,16 @@ public class EvaluationStore {
 	protected String m_targetYearSplit;
 	protected String m_policySplit;
 	protected String m_classifierName;
-	protected String m_modelFilepathPrefix;
+	protected String m_workFilePath;
+	protected String m_filePrefix;
 	
 	protected int m_modelFileShareMode;
 	protected int m_evalDataSplitMode;
 
 	protected boolean m_isNominal=false;
 
-	public static final double TOP_AREA_RATIO=0.3; //缺省定义头部区域为30%
-	public static final double REVERSED_TOP_AREA_RATIO=0.45; //缺省定义反向头部为45%
+	public static final double TOP_AREA_RATIO=0.35; //缺省定义头部区域为35%
+	public static final double REVERSED_TOP_AREA_RATIO=0.5; //缺省定义反向头部为50%
 	protected double[] m_focusAreaRatio={TOP_AREA_RATIO,1};//评估时关注评估数据的不同Top 比例;
 
 	public static final int PREVIOUS_MODELS_NUM=5; 	//暂时选取之前的5个文件
@@ -53,6 +56,10 @@ public class EvaluationStore {
 	public static final int USE_HALF_YEAR_DATA_FOR_EVAL=6;//使用倒推半年的数据作为模型评估数据，之前用于的构建模型
 	public static final int USE_NINE_MONTHS_DATA_FOR_EVAL=9;//使用倒推半年的数据作为模型评估数据，之前用于的构建模型
 
+	public String getWorkFilePath() {
+		return m_workFilePath;
+	}
+
 	public void setEvalFileName(String evalFileName) {
 		this.m_evalFileName = evalFileName;
 	}
@@ -65,10 +72,6 @@ public class EvaluationStore {
 		return m_evalFileName;
 	}
 
-
-	public String getModelFilepathPrefix() {
-		return m_modelFilepathPrefix;
-	}
 
 	public String getTargetYearSplit() {
 		return m_targetYearSplit;
@@ -89,7 +92,7 @@ public class EvaluationStore {
 	}
 
 	//回测时调用的，设置model文件和eval文件名称
-	public  EvaluationStore(String targetYearSplit,String policySplit,String modelFilepathPrefix, BaseClassifier clModel){
+	public  EvaluationStore(String targetYearSplit,String policySplit,String modelFilePath, String modelFilePrefix, BaseClassifier clModel){
 		
 		
 		this.m_modelFileShareMode=clModel.m_modelFileShareMode;
@@ -103,12 +106,13 @@ public class EvaluationStore {
 		}
 		this.m_targetYearSplit=targetYearSplit; //记录下用于评测的目标月份，以便日后校验
 		this.m_evalYearSplit=evalYearSplit;//记录下用于评估的起始月份，以便校验输入的数据
-		this.m_modelFilepathPrefix=modelFilepathPrefix; //记录下回测模型的目录路径，以便日后使用
+		this.m_workFilePath=modelFilePath; //记录下回测模型的目录路径，以便日后使用
+		this.m_filePrefix=modelFilePrefix;//记录下回测模型的文件头，以便日后使用
 		this.m_policySplit=policySplit; //记录下策略分类
 		this.m_classifierName=clModel.classifierName;
 		
 		// 这里的fileName用TargetYearSplit来做，而不是evalYearSplit来做
-		this.m_evalFileName=ModelStore.concatModeFilenameString(targetYearSplit, policySplit, m_modelFilepathPrefix, m_classifierName)+EvaluationStore.THRESHOLD_EXTENSION;
+		this.m_evalFileName=EvaluationStore.concatFileName(m_filePrefix,m_targetYearSplit, m_policySplit,  m_classifierName)+EvaluationStore.THRESHOLD_EXTENSION;
 		
 
 		EvaluationConfDefinition evalConf=new EvaluationConfDefinition(m_classifierName,clModel.m_policySubGroup,null);
@@ -212,8 +216,8 @@ public class EvaluationStore {
 		//TODO ：利用EvalData数据统计bottomLine还是固定值0.6？
 		TpFpStatistics benchmark=new TpFpStatistics(evalData, m_isNominal);	
 		double tp_fp_bottom_line=benchmark.getEval_tp_fp_ratio();
-		if (tp_fp_bottom_line<0.3){ //too small
-			tp_fp_bottom_line=0.3;
+		if (tp_fp_bottom_line<0.4){ //too small
+			tp_fp_bottom_line=0.4;
 		}
 		EvaluationParams evalParams=m_evalConf.getEvaluationInstance(m_policySplit);
 		thresholdData=doModelEvaluation(result,evalParams,tp_fp_bottom_line);
@@ -258,7 +262,7 @@ public class EvaluationStore {
 
 
 		//保存包含正向和反向的ThresholdData到数据文件中
-		ThresholdData.saveEvaluationToFile(getEvalFileName(), thresholdData);
+		this.saveEvaluationToFile(thresholdData);
 		System.out.println(thresholdData.toString());
 	}
 
@@ -322,8 +326,8 @@ public class EvaluationStore {
 		int numberofValidModels=modelYears.size();
 		ModelStore[] modelStores=new ModelStore[numberofValidModels];
 		for (int i=0;i<numberofValidModels;i++){
-			String modelFiles=ModelStore.concatModeFilenameString( modelYears.get(i), m_policySplit, m_modelFilepathPrefix, m_classifierName);
-			modelStores[i]=new ModelStore(modelFiles,modelYears.get(i));
+			String modelFile=EvaluationStore.concatFileName(m_filePrefix, modelYears.get(i), m_policySplit, m_classifierName);
+			modelStores[i]=new ModelStore(m_workFilePath, modelFile,modelYears.get(i));
 		}
 		return modelStores;
 
@@ -668,5 +672,23 @@ public class EvaluationStore {
 		return topPredictions;
 	
 	
+	}
+
+	public void saveEvaluationToFile(ThresholdData thresholdData) throws Exception {
+			String evalFileName=m_workFilePath+m_evalFileName;
+			SerializationHelper.write( evalFileName, thresholdData);
+			FileUtility.write(evalFileName+ModelStore.TXT_EXTENSION, thresholdData.toString(), "utf-8");
+	//		System.out.println("evaluation saved to :"+ evalFileName);
+		}
+
+	public ThresholdData loadDataFromFile() throws Exception{
+		String evalFileName=m_workFilePath+m_evalFileName;
+		//读取Threshold数据文件
+		ThresholdData thresholdData=(ThresholdData)SerializationHelper.read( evalFileName);
+		return thresholdData;
+	}
+
+	public static String concatFileName(String filePrefix, String yearSplit,String policySplit, String classifierName){//BaseClassifier classifier) {
+		return filePrefix +"-"+classifierName+ "-" + yearSplit + ModelStore.MA_PREFIX + policySplit;
 	}
 }

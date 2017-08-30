@@ -261,11 +261,10 @@ public class BackTest {
 
 	//历史回测
 	protected  GeneralInstances testBackward(BaseClassifier clModel) throws Exception{
-		String modelFilePrefix=null;
-		
 		
 		//根据分类器和数据类别确定回测模型的工作目录
-		modelFilePrefix=prepareModelWorkPath(clModel);
+		String modelFilePath=prepareModelWorkPath(clModel);
+		String modelPrefix=ARFF_FORMAT.m_arff_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")"; //"extData2005-2016";
 		
 		GeneralInstances fullSetData = null;
 		GeneralInstances result = null;
@@ -276,7 +275,7 @@ public class BackTest {
 
 		clModel.setClassifySummaries(modelSummaries);
 
-		System.out.println("test backward using classifier : "+clModel.getIdentifyName()+" @ model work path prefix:"+modelFilePrefix);
+		System.out.println("test backward using classifier : "+clModel.getIdentifyName()+" @ model work path:"+modelFilePath+modelPrefix);
 		
 		
 		 //创建一个可重用固定线程数的线程池
@@ -405,7 +404,7 @@ public class BackTest {
 					DataInstances resultClone=new DataInstances(result);
 					threadResult.add(resultClone);
 					//创建实现了Runnable接口对象
-					ProcessFlowExecutor t = new ProcessFlowExecutor(clModelClone, resultClone,splitMark, policy,trainingData,evaluationData,testingData,splitYearTags,modelFilePrefix);
+					ProcessFlowExecutor t = new ProcessFlowExecutor(clModelClone, resultClone,splitMark, policy,trainingData,evaluationData,testingData,splitYearTags,modelFilePath,modelPrefix);
 					//将线程放入池中进行执行
 					threadPool.submit(t);
 
@@ -423,7 +422,7 @@ public class BackTest {
 				}else{
 
 					//不需要多线程并发的时候，还是按传统方式处理
-					ProcessFlowExecutor worker=new ProcessFlowExecutor(clModel, result,splitMark, policy,trainingData,evaluationData,testingData,splitYearTags,modelFilePrefix);
+					ProcessFlowExecutor worker=new ProcessFlowExecutor(clModel, result,splitMark, policy,trainingData,evaluationData,testingData,splitYearTags,modelFilePath,modelPrefix);
 					worker.doPredictProcess();
 					System.out.println("accumulated predicted rows: "+ result.numInstances());
 				}
@@ -752,9 +751,7 @@ public class BackTest {
 		workPath+=ARFF_FORMAT.m_arff_file_prefix+"\\";
 		FileUtility.mkdirIfNotExist(workPath);
 
-
-		String modelPrefix=ARFF_FORMAT.m_arff_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")"; //"extData2005-2016";
-		return workPath+modelPrefix;
+		return workPath;
 	}
 
 

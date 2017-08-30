@@ -22,26 +22,21 @@ public class ModelStore {
 	protected Classifier m_model;
 	protected GeneralInstances m_modelFormat;
 	protected String m_modelFileName;
-
+	protected String m_workFilePath;
 	
 	protected String m_modelYearSplit;          //构建模型数据的结束年月
 
 
-	public void setModelFileName(String m_modelFileName) {
-		this.m_modelFileName = m_modelFileName;
-	}
 
-	public void setModelYearSplit(String m_modelYearSplit) {
-		this.m_modelYearSplit = m_modelYearSplit;
+
+	public String getModelFileName() {
+		return m_modelFileName;
 	}
 
 	public String getModelYearSplit() {
 		return m_modelYearSplit;
 	}
 
-	public String getModelFileName() {
-		return m_modelFileName;
-	}
 
 	//统一常量
 	public static final String MA_PREFIX = " MA ";
@@ -49,17 +44,19 @@ public class ModelStore {
 
 
 	//从已有模型文件中加载时调用的
-	public ModelStore(String model_filename,String modelYearSplit) {
+	public ModelStore(String workfilePath,String model_filename,String modelYearSplit) {
+		this.m_workFilePath=workfilePath;
 		this.m_modelFileName = model_filename;
 		this.m_modelYearSplit=modelYearSplit; 
 	}
 
 	//回测时调用的，新建模型时设置model文件名称
-	public  ModelStore(String targetYearSplit,String policySplit,String modelFilepathPrefix, BaseClassifier clModel){
-		String workFileFullPrefix=modelFilepathPrefix;
+	public  ModelStore(String targetYearSplit,String policySplit,String modelFilePath, String modelFilePrefix, BaseClassifier clModel){
+		
 		String classifierName=clModel.classifierName;
 		int modelFileShareMode=clModel.m_modelFileShareMode;
 		int evalDataSplitMode=clModel.m_evalDataSplitMode;
+		this.m_workFilePath=modelFilePath;
 		
 		//根据modelDataSplitMode推算出评估数据的起始区间 （目前主要有三种： 最近6个月、9个月、12个月）
 		String evalYearSplit=EvaluationStore.caculateEvalYearSplit(targetYearSplit,evalDataSplitMode);
@@ -71,7 +68,7 @@ public class ModelStore {
 		
 //		modelYearSplit = legacyModelName(modelYearSplit);
 
-		m_modelFileName=concatModeFilenameString(modelYearSplit, policySplit, workFileFullPrefix, classifierName);
+		m_modelFileName=EvaluationStore.concatFileName(modelFilePrefix,modelYearSplit, policySplit , classifierName);
 
 	}
 
@@ -183,12 +180,6 @@ public class ModelStore {
 	}
 	
 	
-	public static String concatModeFilenameString(String yearSplit,String policySplit, String workFileFullPrefix, String classifierName){//BaseClassifier classifier) {
-		return workFileFullPrefix +"-"+classifierName+ "-" + yearSplit + ModelStore.MA_PREFIX + policySplit;
-	}
-
-
-	
 	public void setModel(Classifier model) {
 		this.m_model = model;
 	}
@@ -205,10 +196,14 @@ public class ModelStore {
 	}
 	
 	
+	public void setWorkFilePath(String m_workFilePath) {
+		this.m_workFilePath = m_workFilePath;
+	}
+
 	//保存modelFile
 	public void saveModelToFiles()	throws Exception {
 
-	    String modelFileName=this.m_modelFileName;
+	    String modelFileName=this.m_workFilePath+this.m_modelFileName;
 		try{
 			FileUtility.write(modelFileName+ModelStore.TXT_EXTENSION, m_model.toString(), "utf-8");
 			Vector<Object> v = new Vector<Object>();
@@ -227,7 +222,7 @@ public class ModelStore {
 	public void loadModelFromFile(String a_targetYearSplit) throws Exception{
 		
 
-		String modelFileName=this.m_modelFileName+ ModelStore.MODEL_FILE_EXTENSION;
+		String modelFileName=this.m_workFilePath+this.m_modelFileName+ ModelStore.MODEL_FILE_EXTENSION;
 		try{
 			@SuppressWarnings("unchecked")
 			Vector<Object> v = (Vector<Object>) SerializationHelper.read(modelFileName);

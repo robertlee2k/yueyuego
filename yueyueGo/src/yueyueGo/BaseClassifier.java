@@ -111,7 +111,7 @@ public abstract class BaseClassifier implements Serializable{
 
 		//先找对应的评估结果
 		//获取评估数据
-		ThresholdData thresholdData=ThresholdData.loadDataFromFile(m_evaluationStore.getEvalFileName());
+		ThresholdData thresholdData=m_evaluationStore.loadDataFromFile();
 		//校验读入的thresholdData内容是否可以用于目前评估
 		String msg=m_evaluationStore.validateThresholdData(thresholdData);
 		if (msg==null){
@@ -129,7 +129,7 @@ public abstract class BaseClassifier implements Serializable{
 		//获取预测文件中的应该用哪个modelYearSplit的模型
 		String modelYearSplit=thresholdData.getModelYearSplit();
 		//从评估结果中找到模型文件。		
-		ModelStore modelStore=new ModelStore(thresholdData.getModelFileName(), modelYearSplit);
+		ModelStore modelStore=new ModelStore(m_evaluationStore.getWorkFilePath(),thresholdData.getModelFileName(), modelYearSplit);
 
 		// 从保存的数据文件中加载分类用的model and header，此加载方法内部有对modelYear的校验		
 		modelStore.loadModelFromFile(yearSplit);
@@ -295,8 +295,8 @@ public abstract class BaseClassifier implements Serializable{
 
 	
 	//找到回测评估、预测时应该使用evaluationStore对象（主要为获取model文件和eval文件名称）
-	public void locateEvalutationStore(String targetYearSplit,String policySplit,String modelFilepathPrefix) {
-		EvaluationStore evaluationStore=new EvaluationStore(targetYearSplit,policySplit,modelFilepathPrefix,this);
+	public void locateEvalutationStore(String targetYearSplit,String policySplit,String modelFilePath, String modelFilePrefix) {
+		EvaluationStore evaluationStore=new EvaluationStore(targetYearSplit,policySplit,modelFilePath, modelFilePrefix,this);
 		m_evaluationStore=evaluationStore;
 	}
 	
