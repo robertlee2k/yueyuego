@@ -645,7 +645,7 @@ public class BackTest {
 
 		for (int j = BEGIN_FROM_POLICY; j < clModel.m_policySubGroup.length; j++) {
 			String policy = clModel.m_policySubGroup[j];		
-			GeneralInstances policyData=instanceProcessor.getInstancesSubset(data, WekaInstanceProcessor.WEKA_ATT_PREFIX +policyPos+" is '"	+ policy + "')");
+			GeneralInstances policyData=instanceProcessor.getInstancesSubset(data, WekaInstanceProcessor.WEKA_ATT_PREFIX +policyPos+" is '"	+ policy + "'");
 			System.out.println("\t shouyilv average for policy["+policy+"]=" +FormatUtility.formatPercent(policyData.meanOrMode(shouyilvAttribute),2,4)+" count="+policyData.numInstances());
 			
 			
