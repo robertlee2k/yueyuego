@@ -111,18 +111,18 @@ public class ProcessFlowExecutor implements Callable<String> {
 	
 	 @Override
 	 public String call() {
-//		 String resultSummary=null;
-		 System.out.println(Thread.currentThread().getName() + "正在以线程方式执行。。。");
+		 System.out.println(Thread.currentThread().getName() + "正在以线程方式执行。。。[yearsplit]="+yearSplit+" [policy]="+policySplit);
 		 try {
-//			 resultSummary=
-					 this.doPredictProcess();
-		 } catch (Exception e) {
-			 e.printStackTrace();
+			 this.doPredictProcess();
+		 }catch (Exception e) {//某个线程出错误的时候把Exception加入对象中，不抛出。
+				clModel.getClassifySummaries().appendExceptionSummary("\r\n [yearsplit]="+yearSplit+" [policy]="+policySplit+"\r\n"+e.toString());
+				System.err.println(e.toString());
 		 }
 		 clModel=null;
 		 trainingData=null;
 		 testingData=null;
-		 return null; //resultSummary;
+		 evalData=null;
+		 return null; 
 	 }
 	 
 	 
