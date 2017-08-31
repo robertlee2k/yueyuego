@@ -375,43 +375,44 @@ public class BackTest {
 				if (clModel.is_skipTrainInBacktest() == false){
 					fullSetData=null; //释放内存
 				}				
-				
 
-				if (threadPool!=null){ //需要多线程并发
+				try{
 
-					//多线程的时候clone一个clModel执行任务，当前的Model继续走下去。
-					ClassifySummaries commonSummaries=clModel.getClassifySummaries();
-					clModel.setClassifySummaries(null); //不要clone classifySummaries，这个需要各线程同用一个对象
-					BaseClassifier clModelClone=BaseClassifier.makeCopy(clModel);//利用序列化方法完整深度复制
-					clModel.setClassifySummaries(commonSummaries);
-					clModelClone.setClassifySummaries(commonSummaries);
+					if (threadPool!=null){ //需要多线程并发
+						//多线程的时候clone一个clModel执行任务，当前的Model继续走下去。
+						ClassifySummaries commonSummaries=clModel.getClassifySummaries();
+						clModel.setClassifySummaries(null); //不要clone classifySummaries，这个需要各线程同用一个对象
+						BaseClassifier clModelClone=BaseClassifier.makeCopy(clModel);//利用序列化方法完整深度复制
+						clModel.setClassifySummaries(commonSummaries);
+						clModelClone.setClassifySummaries(commonSummaries);
+
+						//多线程的时候clone一个空result执行分配给线程。
+						DataInstances resultClone=new DataInstances(result);
+						threadResult.add(resultClone);
+						//创建实现了Runnable接口对象
+						ProcessFlowExecutor t = new ProcessFlowExecutor(clModelClone, resultClone,splitMark, policy,trainingData,evaluationData,testingData,splitYearTags,modelFilePath,modelPrefix);
+						//将线程放入池中进行执行
+						threadPool.submit(t);
+
+						//如果线程池已满，等待一下
+						int waitCount=0;
+						do {    
+							//阻塞等待，直到有空余线程  ，虽然getActiveCount只是给大概的值，但因为只有主进程分发任务，这还是可以信赖的。
+							Thread.sleep(2000);
+							waitCount++;
+							if (waitCount%30==0){
+								System.out.println("waited for idle thread for seconds: "+ waitCount*2);
+							}
+						} while(threadPool.getActiveCount()==threadPool.getMaximumPoolSize());  
+					}else{
+						//不需要多线程并发的时候，还是按传统方式处理
+						ProcessFlowExecutor worker=new ProcessFlowExecutor(clModel, result,splitMark, policy,trainingData,evaluationData,testingData,splitYearTags,modelFilePath,modelPrefix);
+						worker.doPredictProcess();
+						System.out.println("accumulated predicted rows: "+ result.numInstances());
+					}
+				}catch (Exception e) {//某个线程出错误的时候把Exception加入对象中
 					
-					
-					//多线程的时候clone一个空result执行分配给线程。
-					DataInstances resultClone=new DataInstances(result);
-					threadResult.add(resultClone);
-					//创建实现了Runnable接口对象
-					ProcessFlowExecutor t = new ProcessFlowExecutor(clModelClone, resultClone,splitMark, policy,trainingData,evaluationData,testingData,splitYearTags,modelFilePath,modelPrefix);
-					//将线程放入池中进行执行
-					threadPool.submit(t);
-
-					//如果线程池已满，等待一下
-					int waitCount=0;
-					do {    
-						//阻塞等待，直到有空余线程  ，虽然getActiveCount只是给大概的值，但因为只有主进程分发任务，这还是可以信赖的。
-						Thread.sleep(2000);
-						waitCount++;
-						if (waitCount%30==0){
-							System.out.println("waited for idle thread for seconds: "+ waitCount*2);
-						}
-					} while(threadPool.getActiveCount()==threadPool.getMaximumPoolSize());  
-					
-				}else{
-
-					//不需要多线程并发的时候，还是按传统方式处理
-					ProcessFlowExecutor worker=new ProcessFlowExecutor(clModel, result,splitMark, policy,trainingData,evaluationData,testingData,splitYearTags,modelFilePath,modelPrefix);
-					worker.doPredictProcess();
-					System.out.println("accumulated predicted rows: "+ result.numInstances());
+					clModel.getClassifySummaries().appendExceptionSummary("\r\n [yearsplit]="+splitMark+" [policy]="+policy+"\r\n"+e.toString());
 				}
 			} //end for (int j = BEGIN_FROM_POLICY
 

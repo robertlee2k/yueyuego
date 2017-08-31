@@ -25,6 +25,7 @@ public class ClassifySummaries {
 	
 	protected boolean isPredictionSummary=false; // 区分这是回测的summary还是预测的summary（输出格式不一样）
 	
+	protected String exceptionSummary=null;
 	
 	//向Header里添加字段
 	public synchronized void appendHeader(String stringToAppend) {
@@ -46,6 +47,12 @@ public class ClassifySummaries {
 	public synchronized void appendEvaluationSummary(String stringToAppend) {
 		
 		this.evaluationSummary = evaluationSummary+stringToAppend;
+	}
+	
+	
+	public synchronized void appendExceptionSummary(String stringToAppend) {
+		
+		this.exceptionSummary = exceptionSummary+"\r\n"+stringToAppend;
 	}
 
 	public boolean isForPrediction(){
@@ -254,6 +261,9 @@ public class ClassifySummaries {
 		System.out.println("Monthly summary_judge_result summary: good number= "+FormatUtility.formatDouble(summary_judge_result.getSum(),8,0) + " bad number=" +FormatUtility.formatDouble((summary_judge_result.getN()-summary_judge_result.getSum()),8,0));
 		System.out.println("===============================end of summary=====================================for : "+identityName);
 		System.out.println("......................");
+		if (exceptionSummary!=null){
+			System.err.println("Exception Summary"+exceptionSummary);
+		}
 
 	}
 	
