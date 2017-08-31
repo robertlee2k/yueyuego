@@ -251,7 +251,13 @@ public class EvaluationStore {
 			reversedThreshold=reversedThresholdData.getThreshold()*-1;
 		}
 		if (reversedThreshold>thresholdData.getThreshold()){
-			throw new Exception("fatal error!!! reversedThreshold("+reversedThreshold+") > threshold("+thresholdData.getThreshold()+")");
+			String reversedModelYear=reversedModel.getModelYearSplit();
+			String selectdModelYear=selectedModel.getModelYearSplit();
+			if (reversedModelYear.equals(selectdModelYear)){
+				throw new Exception("fatal error!!! reversedThreshold("+reversedThreshold+") > threshold("+thresholdData.getThreshold()+") using same model (modelyear="+reversedModelYear+")" );
+			}else{
+				System.out.println("使用不同模型时反向阀值大于正向阀值了"+"reversedThreshold("+reversedThreshold+")@"+reversedModelYear + " > threshold("+thresholdData.getThreshold()+")@"+selectdModelYear);
+			}
 		}
 		double reversedPercentile=100-reversedThresholdData.getPercent();
 		//将反向评估结果存入数据中

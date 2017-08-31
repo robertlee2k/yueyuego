@@ -119,26 +119,20 @@ public abstract class BaseClassifier implements Serializable{
 		}
 		else 
 			throw new Exception(msg);
-		double thresholdMin=thresholdData.getThreshold(); //判断为1的阈值，大于该值意味着该模型判断其为1
-		double reversedThresholdMax=thresholdData.getReversedThreshold(); //判断为0的阈值，小于该值意味着该模型坚定认为其为0 （这是合并多个模型预测时使用的）
-		if (reversedThresholdMax>thresholdMin){
-			throw new Exception("fatal error!!! reversedThreshold("+reversedThresholdMax+") > threshold("+thresholdMin+")");
-		}
 
 
 		//获取预测文件中的应该用哪个modelYearSplit的模型
 		String modelYearSplit=thresholdData.getModelYearSplit();
-		//从评估结果中找到模型文件。		
+		//从评估结果中找到正向模型文件。		
 		ModelStore modelStore=new ModelStore(m_evaluationStore.getWorkFilePath(),thresholdData.getModelFileName(), modelYearSplit);
 
 		// 从保存的数据文件中加载分类用的model and header，此加载方法内部有对modelYear的校验		
 		modelStore.loadModelFromFile(yearSplit);
 		//获取model
 		Classifier model =modelStore.getModel();
-		//模型数据的校验会在加载方法内部进行，此处下面仅校验格式
+		//模型数据的校验会在加载方法内部进行，此处下面仅校验正向模型的格式
 		GeneralInstances header =modelStore.getModelFormat();
 		
-
 		
 		// There is additional ID attribute in test instances, so we should save it and remove before doing prediction
 		double[] ids=test.attributeToDoubleArray(ArffFormat.ID_POSITION - 1);  
@@ -157,6 +151,32 @@ public abstract class BaseClassifier implements Serializable{
 			BaseInstanceProcessor.compareInstancesFormat(test, header);
 		}
 
+		//获取预测文件中的应该用哪个反向模型的模型
+		String reversedModelYearSplit=thresholdData.getReversedModelYearSplit();
+
+		boolean usingOneModel=false; 
+		Classifier reversedModel=null;
+		if (reversedModelYearSplit.equals(modelYearSplit)){//正向模型和方向模型是同一模型的。
+			usingOneModel=true;
+		}else{
+
+			//从评估结果中找到反向模型文件。		
+			ModelStore reversedModelStore=new ModelStore(m_evaluationStore.getWorkFilePath(),thresholdData.getReversedModelFileName(), reversedModelYearSplit);
+
+			// 从保存的数据文件中加载分类用的model,此加载方法内部有对modelYear的校验		
+			reversedModelStore.loadModelFromFile(yearSplit);
+			//获取model
+			reversedModel=reversedModelStore.getModel();
+		}
+		double thresholdMin=thresholdData.getThreshold(); //判断为1的阈值，大于该值意味着该模型判断其为1
+		double reversedThresholdMax=thresholdData.getReversedThreshold(); //判断为0的阈值，小于该值意味着该模型坚定认为其为0 （这是合并多个模型预测时使用的）
+		if (reversedThresholdMax>thresholdMin){
+			if(usingOneModel==true){
+				throw new Exception("fatal error!!! reversedThreshold("+reversedThresholdMax+") > threshold("+thresholdMin+") using same model (modelyear="+reversedModelYearSplit+")" );
+			}else{
+				System.out.println("使用不同模型时反向阀值大于正向阀值了"+"reversedThreshold("+reversedThresholdMax+")@"+reversedModelYearSplit + " > threshold("+thresholdMin+")@"+modelYearSplit);
+			}
+		}
 
 		//开始用分类模型和阀值进行预测
 		System.out.println("actual -> predicted....... ");
@@ -168,11 +188,18 @@ public abstract class BaseClassifier implements Serializable{
 		DescriptiveStatistics selectedPositiveShouyilv=new DescriptiveStatistics();
 		DescriptiveStatistics selectedNegativeShouyilv=new DescriptiveStatistics();			
 		
+		double pred;
+		double reversedPred;
 		
 		
 		for (int i = 0; i < testInstancesNum; i++) {
 			GeneralInstance curr = test.instance(i);
-			double pred=classify(model,curr);  //调用子类的分类函数
+			pred=classify(model,curr);  //调用子类的分类函数
+			if (usingOneModel==true){
+				reversedPred=pred;
+			}else{
+				reversedPred=classify(reversedModel, curr); //调用反向评估模型的分类函数
+			}
 			DataInstance inst = new DataInstance(result.numAttributes());
 			inst.setDataset(result);
 			//将相应的ID赋值回去
@@ -207,11 +234,14 @@ public abstract class BaseClassifier implements Serializable{
 				totalNegativeShouyilv.addValue(shouyilv);
 			}
 
-
-
-
 			double selected = BaseClassifier.VALUE_NOT_SURE;
-			
+
+			//先用反向模型判断
+			if (reversedPred<reversedThresholdMax){
+				selected=BaseClassifier.VALUE_NEVER_SELECT;//反向模型坚定认为当前数据为0 （这是合并多个模型预测时使用的）
+			}
+
+			//如果正向模型与方向模型得出的值矛盾（在使用不同模型时），则用正向模型的数据覆盖方向模型（因为毕竟正向模型的ratio比较小）
 			if (pred >=thresholdMin ) { //本模型估计当前数据是1值
 				selected = BaseClassifier.VALUE_SELECTED;  
 
@@ -220,8 +250,6 @@ public abstract class BaseClassifier implements Serializable{
 				}else {
 					selectedNegativeShouyilv.addValue(shouyilv);
 				}
-			}else if (pred<reversedThresholdMax){
-				selected=BaseClassifier.VALUE_NEVER_SELECT;//本模型坚定认为当前数据为0 （这是合并多个模型预测时使用的）
 			}
 			
 			inst.setValue(result.numAttributes() - 1, selected);
@@ -229,9 +257,7 @@ public abstract class BaseClassifier implements Serializable{
 		}
 		
 		
-		//获取输出用的信息
-		String reversedModelYearSplit=thresholdData.getReversedModelYearSplit();
-		
+
 		double percentile=thresholdData.getPercent();
 		boolean isGuessed=thresholdData.isGuessed();
 		String defaultThresholdUsed=" ";

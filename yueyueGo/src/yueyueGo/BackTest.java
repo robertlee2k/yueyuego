@@ -192,12 +192,12 @@ public class BackTest {
 	 * @throws Exception
 	 */	
 	protected void callReEvaluateModels() throws Exception {
-		RUNNING_THREADS=25;
+		RUNNING_THREADS=20;
 		//按二分类器回测历史数据
 		AdaboostClassifier nModel=ClassiferInitFactory.initAdaboost(ARFF_FORMAT, BaseClassifier.FOR_EVALUATE_MODEL);
-		GeneralInstances nominalResult=testBackward(nModel);
+//		GeneralInstances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
-//		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
+		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 		
 		//按连续分类器回测历史数据
 		BaggingM5P cModel=ClassiferInitFactory.initBaggingM5P(ARFF_FORMAT, BaseClassifier.FOR_EVALUATE_MODEL);
