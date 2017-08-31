@@ -657,7 +657,7 @@ public class BackTest {
 			int negativeCount=partial.numInstances();
 			System.out.println("\t\t actual negative average="+FormatUtility.formatPercent(partial.meanOrMode(shouyilvAttribute),2,4)+" count="+negativeCount);
 			
-			System.out.println("\t\t actual positive/ actual negative="+positiveCount/negativeCount);
+			System.out.println("\t\t actual positive/ actual negative="+FormatUtility.formatPercent(positiveCount/negativeCount,2,4));
 		}
 		System.out.println("...end of data distribution analysis");
 	}
