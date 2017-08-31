@@ -38,8 +38,8 @@ public class EvaluationStore {
 
 	protected boolean m_isNominal=false;
 
-	public static final double TOP_AREA_RATIO=0.35; //缺省定义头部区域为35%
-	public static final double REVERSED_TOP_AREA_RATIO=0.5; //缺省定义反向头部为50%
+	public static final double TOP_AREA_RATIO=0.25; //缺省定义头部区域为35%
+	public static final double REVERSED_TOP_AREA_RATIO=0.55; //缺省定义反向头部为50%
 	protected double[] m_focusAreaRatio={TOP_AREA_RATIO,1};//评估时关注评估数据的不同Top 比例;
 
 	public static final int PREVIOUS_MODELS_NUM=5; 	//暂时选取之前的5个文件
