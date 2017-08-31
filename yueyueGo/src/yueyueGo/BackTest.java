@@ -648,7 +648,7 @@ public class BackTest {
 			partial=instanceProcessor.getInstancesSubset(policyData, WekaInstanceProcessor.WEKA_ATT_PREFIX +shouyilvPos+" <= 0");
 			int negativeCount=partial.numInstances();
 			System.out.println("\t\t actual negative average="+FormatUtility.formatPercent(partial.meanOrMode(shouyilvAttribute),2,4)+" count="+negativeCount);
-			double percent=positiveCount/negativeCount;
+			double percent=(double)positiveCount/negativeCount;
 			System.out.println("\t\t actual positive/ actual negative="+FormatUtility.formatPercent(percent,2,4));
 		}
 		System.out.println("...end of data distribution analysis");
