@@ -638,18 +638,18 @@ public class BackTest {
 		for (int j = BEGIN_FROM_POLICY; j < policyStrings.length; j++) {
 			String policy = policyStrings[j];		
 			GeneralInstances policyData=instanceProcessor.getInstancesSubset(data, WekaInstanceProcessor.WEKA_ATT_PREFIX +policyPos+" is '"	+ policy + "'");
-			System.out.println("\t shouyilv average for policy["+policy+"]=" +FormatUtility.formatPercent(policyData.meanOrMode(shouyilvAttribute),2,4)+" count="+policyData.numInstances());
+			System.out.println("\t shouyilv average for policy["+policy+"]=" +FormatUtility.formatPercent(policyData.meanOrMode(shouyilvAttribute),2,3)+" count="+policyData.numInstances());
 			
 			
 			GeneralInstances partial=instanceProcessor.getInstancesSubset(policyData, WekaInstanceProcessor.WEKA_ATT_PREFIX +shouyilvPos+" > 0");
 			int positiveCount=partial.numInstances();
-			System.out.println("\t\t actual positive average="+FormatUtility.formatPercent(partial.meanOrMode(shouyilvAttribute),2,4)+" count="+positiveCount);
+			System.out.println("\t\t actual positive average="+FormatUtility.formatPercent(partial.meanOrMode(shouyilvAttribute),2,3)+" count="+positiveCount);
 			
 			partial=instanceProcessor.getInstancesSubset(policyData, WekaInstanceProcessor.WEKA_ATT_PREFIX +shouyilvPos+" <= 0");
 			int negativeCount=partial.numInstances();
-			System.out.println("\t\t actual negative average="+FormatUtility.formatPercent(partial.meanOrMode(shouyilvAttribute),2,4)+" count="+negativeCount);
-			double percent=(double)positiveCount/negativeCount;
-			System.out.println("\t\t actual positive/ actual negative="+FormatUtility.formatPercent(percent,2,4));
+			System.out.println("\t\t actual negative average="+FormatUtility.formatPercent(partial.meanOrMode(shouyilvAttribute),2,3)+" count="+negativeCount);
+			double percent=(double)positiveCount/(negativeCount+positiveCount);
+			System.out.println("\t\t actual positive/total="+FormatUtility.formatPercent(percent,2,2));
 		}
 		System.out.println("...end of data distribution analysis");
 	}
