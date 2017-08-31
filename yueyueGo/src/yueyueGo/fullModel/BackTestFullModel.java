@@ -115,18 +115,7 @@ public class BackTestFullModel extends BackTest {
 //		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 
 		
-		//统一输出统计结果
-		nModel.outputClassifySummary();
-		cModel.outputClassifySummary();
-
-		//输出用于计算收益率的CSV文件
-		System.out.println("-----now output continuous predictions----------"+cModel.getIdentifyName());
-		GeneralInstances m5pOutput=mergeResultWithData(continuousResult,nominalResult,ArffFormat.RESULT_PREDICTED_WIN_RATE,cModel.getModelArffFormat());
-		saveSelectedFileForMarkets(m5pOutput,cModel.getIdentifyName());
-		System.out.println("-----now output nominal predictions----------"+nModel.getIdentifyName());
-		GeneralInstances mlpOutput=mergeResultWithData(nominalResult,continuousResult,ArffFormat.RESULT_PREDICTED_PROFIT,nModel.getModelArffFormat());
-		saveSelectedFileForMarkets(mlpOutput,nModel.getIdentifyName());
-		System.out.println("-----end of test backward------");
+		outputStatistics(nModel, nominalResult, cModel, continuousResult);
 	}
 
 //	/**

@@ -599,41 +599,33 @@ public class BackTest {
 		return result;
 	}
 
-	protected void saveSelectedFileForMarkets(BaseClassifier model,GeneralInstances fullOutput) throws Exception{
-		//输出全市场概况
-		String classiferName=model.getIdentifyName();
-		GeneralAttribute shouyilvAttribute=fullOutput.attribute(ArffFormat.SHOUYILV);
-		System.out.println("number of records for full market="+fullOutput.numInstances());
-		System.out.println("shouyilv average for full market="+FormatUtility.formatPercent(fullOutput.meanOrMode(shouyilvAttribute),2,4));
-	
-		GeneralDataSaver dataSaver=DataIOHandler.getSaver();
+	protected void saveSelectedFileForMarkets(GeneralInstances selected,String classiferName) throws Exception{
+		GeneralDataSaver dataSaver=DataIOHandler.getSaver();		
+		dataSaver.saveCSVFile(selected, BACKTEST_RESULT_DIR+"选股-"+ ARFF_FORMAT.m_arff_file_prefix+"-"+classiferName+ RESULT_EXTENSION );
 		
-		//输出全市场选股结果		
+	}
+
+
+	/**
+	 * @param model
+	 * @param fullOutput
+	 * @return
+	 * @throws Exception
+	 */
+	private GeneralInstances returnSelectedInstances(GeneralInstances fullOutput)
+			throws Exception {
+		//返回选股结果		
 		int pos = BaseInstanceProcessor.findATTPosition(fullOutput,ArffFormat.RESULT_SELECTED);
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullOutput);
 		GeneralInstances fullMarketSelected=instanceProcessor.getInstancesSubset(fullOutput, WekaInstanceProcessor.WEKA_ATT_PREFIX +pos+" = 1");
-		analyzeDataDistribution(model,fullMarketSelected);
-		dataSaver.saveCSVFile(fullMarketSelected, BACKTEST_RESULT_DIR+"选股-"+ ARFF_FORMAT.m_arff_file_prefix+"-"+classiferName+ RESULT_EXTENSION );
-		//保存评估结果至数据库
-//		DataIOHandler.getSaver().saveToDatabase(fullMarketSelected, "result_"+classiferName);
-		
-//		//输出沪深300
-//		Instances subsetMarketSelected=InstanceUtility.filterDataForIndex(fullMarketSelected,ArffFormat.IS_HS300);
-//		shouyilvAttribute=subsetMarketSelected.attribute(ArffFormat.SHOUYILV);
-//		System.out.println("selected shouyilv average for hs300 ="+FormatUtility.formatPercent(subsetMarketSelected.meanOrMode(shouyilvAttribute),2,2)+" count="+subsetMarketSelected.numInstances());
-//		FileUtility.saveCSVFile(subsetMarketSelected, BACKTEST_RESULT_DIR+"选股-"+ classiferName+"-hs300" + RESULT_EXTENSION );
-//		//输出中证300
-//		subsetMarketSelected=InstanceUtility.filterDataForIndex(fullMarketSelected,ArffFormat.IS_ZZ500);
-//		shouyilvAttribute=subsetMarketSelected.attribute(ArffFormat.SHOUYILV);
-//		System.out.println("selected shouyilv average for zz500 ="+FormatUtility.formatPercent(subsetMarketSelected.meanOrMode(shouyilvAttribute),2,2)+" count="+subsetMarketSelected.numInstances());
-//		FileUtility.saveCSVFile(subsetMarketSelected, BACKTEST_RESULT_DIR+"选股-"+ classiferName+"-zz500" + RESULT_EXTENSION );
+		return fullMarketSelected;
 	}
 
 
 	/**
 	 * @param data
 	 */
-	private void analyzeDataDistribution(BaseClassifier clModel,GeneralInstances data) throws Exception {
+	private void analyzeDataDistribution(String[] policyStrings,GeneralInstances data) throws Exception {
 		System.out.println("start of data distribution analysis.......");
 		GeneralAttribute shouyilvAttribute=data.attribute(ArffFormat.SHOUYILV);
 		System.out.println(" shouyilv average="+FormatUtility.formatPercent(data.meanOrMode(shouyilvAttribute),2,4)+" count="+data.numInstances());
@@ -643,8 +635,8 @@ public class BackTest {
 		
 		int policyPos = BaseInstanceProcessor.findATTPosition(data,ARFF_FORMAT.m_policy_group);
 
-		for (int j = BEGIN_FROM_POLICY; j < clModel.m_policySubGroup.length; j++) {
-			String policy = clModel.m_policySubGroup[j];		
+		for (int j = BEGIN_FROM_POLICY; j < policyStrings.length; j++) {
+			String policy = policyStrings[j];		
 			GeneralInstances policyData=instanceProcessor.getInstancesSubset(data, WekaInstanceProcessor.WEKA_ATT_PREFIX +policyPos+" is '"	+ policy + "'");
 			System.out.println("\t shouyilv average for policy["+policy+"]=" +FormatUtility.formatPercent(policyData.meanOrMode(shouyilvAttribute),2,4)+" count="+policyData.numInstances());
 			
@@ -653,11 +645,11 @@ public class BackTest {
 			int positiveCount=partial.numInstances();
 			System.out.println("\t\t actual positive average="+FormatUtility.formatPercent(partial.meanOrMode(shouyilvAttribute),2,4)+" count="+positiveCount);
 			
-			partial=instanceProcessor.getInstancesSubset(data, WekaInstanceProcessor.WEKA_ATT_PREFIX +shouyilvPos+" <= 0");
+			partial=instanceProcessor.getInstancesSubset(policyData, WekaInstanceProcessor.WEKA_ATT_PREFIX +shouyilvPos+" <= 0");
 			int negativeCount=partial.numInstances();
 			System.out.println("\t\t actual negative average="+FormatUtility.formatPercent(partial.meanOrMode(shouyilvAttribute),2,4)+" count="+negativeCount);
-			
-			System.out.println("\t\t actual positive/ actual negative="+FormatUtility.formatPercent(positiveCount/negativeCount,2,4));
+			double percent=positiveCount/negativeCount;
+			System.out.println("\t\t actual positive/ actual negative="+FormatUtility.formatPercent(percent,2,4));
 		}
 		System.out.println("...end of data distribution analysis");
 	}
@@ -699,27 +691,36 @@ public class BackTest {
 	 * @param continuousResult
 	 * @throws Exception
 	 */
-	private void outputStatistics(NominalClassifier nModel, GeneralInstances nominalResult, ContinousClassifier cModel,
+	protected void outputStatistics(NominalClassifier nModel, GeneralInstances nominalResult, ContinousClassifier cModel,
 			GeneralInstances continuousResult) throws Exception {
 		//统一输出统计结果
 		nModel.outputClassifySummary();
 		cModel.outputClassifySummary();
+
+		System.out.println(" now output the full distribution of results:");
+		this.analyzeDataDistribution(cModel.m_policySubGroup,continuousResult);
 	
 		//输出用于计算收益率的CSV文件
 		System.out.println("-----now output continuous predictions----------"+cModel.getIdentifyName() + " (filtered by nominal: "+nModel.getIdentifyName()+")");
-		System.out.println(" now output the uncombined results:");
-		this.analyzeDataDistribution(cModel,continuousResult);
+		System.out.println(" now output the uncombined results");
+		GeneralInstances selectedInstances=returnSelectedInstances(continuousResult);
+		this.analyzeDataDistribution(cModel.m_policySubGroup,selectedInstances);
 		System.out.println(" now output the combined results");
 		GeneralInstances m5pOutput=mergeResultWithData(continuousResult,nominalResult,ArffFormat.RESULT_PREDICTED_WIN_RATE,cModel.getModelArffFormat());
-		saveSelectedFileForMarkets(cModel,m5pOutput);
-	
+		selectedInstances=returnSelectedInstances(m5pOutput);
+		this.analyzeDataDistribution(cModel.m_policySubGroup,selectedInstances);
+		this.saveSelectedFileForMarkets(selectedInstances, cModel.getIdentifyName());
+		
 	
 		System.out.println("-----now output nominal predictions----------"+nModel.getIdentifyName()+" (filtered by continuous: "+cModel.getIdentifyName()+")");
-		System.out.println(" now output the uncombined results:");
-		this.analyzeDataDistribution(nModel,nominalResult);
+		System.out.println(" now output the uncombined results");
+		selectedInstances=returnSelectedInstances(nominalResult);
+		this.analyzeDataDistribution(nModel.m_policySubGroup,selectedInstances);
 		System.out.println(" now output the combined results");
 		GeneralInstances mlpOutput=mergeResultWithData(nominalResult,continuousResult,ArffFormat.RESULT_PREDICTED_PROFIT,nModel.getModelArffFormat());
-		saveSelectedFileForMarkets(nModel,mlpOutput);
+		selectedInstances=returnSelectedInstances(mlpOutput);
+		this.analyzeDataDistribution(nModel.m_policySubGroup,selectedInstances);
+		this.saveSelectedFileForMarkets(selectedInstances, nModel.getIdentifyName());
 		System.out.println("-----end of test backward------");
 	}
 
