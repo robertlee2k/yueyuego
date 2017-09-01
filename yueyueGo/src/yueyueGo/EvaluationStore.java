@@ -536,7 +536,8 @@ public class EvaluationStore {
 			GeneralInstance curr = result.instance(i);
 			lastSampleSize=sampleSize;
 			sampleSize = curr.value(att_samplesize); // to get sample range
-			if (FormatUtility.compareDouble(sampleSize,sample_limit)==0) {
+//			if (FormatUtility.compareDouble(sampleSize,sample_limit)==0) {
+			if (sampleSize==sample_limit){
 				threshold = curr.value(att_threshold);
 				break;
 			}
