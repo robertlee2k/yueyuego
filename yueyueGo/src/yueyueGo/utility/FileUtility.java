@@ -12,8 +12,11 @@ import java.io.OutputStreamWriter;
 public class FileUtility {
 	public static void write(String path, String content, String encoding) throws IOException {
 		File file = new File(path);
-		file.delete();
-		file.createNewFile();
+//		file.delete();
+		// if file doesn't exists, then create it
+		if (!file.exists()) {
+			file.createNewFile();
+		}
 		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), encoding));
 		writer.write(content);
 		writer.close();

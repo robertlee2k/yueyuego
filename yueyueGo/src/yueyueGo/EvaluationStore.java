@@ -38,8 +38,8 @@ public class EvaluationStore {
 
 	protected boolean m_isNominal=false;
 
-	public static final double TOP_AREA_RATIO=0.25; //缺省定义头部区域为35%
-	public static final double REVERSED_TOP_AREA_RATIO=0.45; //缺省定义反向头部为50%
+	public static final double TOP_AREA_RATIO=0.2; //缺省定义头部区域为35%
+	public static final double REVERSED_TOP_AREA_RATIO=0.55; //缺省定义反向头部为50%
 	protected double[] m_focusAreaRatio={TOP_AREA_RATIO,1};//评估时关注评估数据的不同Top 比例;
 
 	public static final int PREVIOUS_MODELS_NUM=5; 	//暂时选取之前的5个文件
@@ -246,7 +246,7 @@ public class EvaluationStore {
 //		dataSaver.SaveDataIntoFile(reversedResult, m_workFilePath+selectedModel.m_modelYearSplit+"-ROC.reversed.arff");
 
 		
-		EvaluationParams reversedEvalParams=new EvaluationParams(REVERSED_TOP_AREA_RATIO, REVERSED_TOP_AREA_RATIO*1.1, 1.8);
+		EvaluationParams reversedEvalParams=new EvaluationParams(REVERSED_TOP_AREA_RATIO, REVERSED_TOP_AREA_RATIO*1.1, 1.2);
 		ThresholdData reversedThresholdData=doModelEvaluation(reversedResult,reversedEvalParams,1/tp_fp_bottom_line);
 
 		//将反向评估结果的阈值恢复取反前的值

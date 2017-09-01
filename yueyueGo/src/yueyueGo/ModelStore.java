@@ -23,11 +23,7 @@ public class ModelStore {
 	protected GeneralInstances m_modelFormat;
 	protected String m_modelFileName;
 	protected String m_workFilePath;
-	
 	protected String m_modelYearSplit;          //构建模型数据的结束年月
-
-
-
 
 	public String getModelFileName() {
 		return m_modelFileName;
@@ -205,13 +201,13 @@ public class ModelStore {
 
 	    String modelFileName=this.m_workFilePath+this.m_modelFileName;
 		try{
-			FileUtility.write(modelFileName+ModelStore.TXT_EXTENSION, m_model.toString(), "utf-8");
 			Vector<Object> v = new Vector<Object>();
 			v.add(m_model);
 			v.add(m_modelFormat);
 			//写入构建model的数据时间，供日后校验
 			v.add(m_modelYearSplit);
 			SerializationHelper.write(modelFileName+ModelStore.MODEL_FILE_EXTENSION, v);
+			FileUtility.write(modelFileName+ModelStore.TXT_EXTENSION, m_model.toString(), "utf-8");			
 //			System.out.println("models saved to :"+ modelFileName);
 		} catch(IOException e){
 			System.err.println("error when saving: "+modelFileName);

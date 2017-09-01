@@ -190,7 +190,7 @@ public class BackTest {
 	 * @throws Exception
 	 */	
 	protected void callReEvaluateModels() throws Exception {
-		RUNNING_THREADS=20;
+		RUNNING_THREADS=25;
 		//按二分类器回测历史数据
 		AdaboostClassifier nModel=ClassiferInitFactory.initAdaboost(ARFF_FORMAT, BaseClassifier.FOR_EVALUATE_MODEL);
 		GeneralInstances nominalResult=testBackward(nModel);
@@ -436,11 +436,11 @@ public class BackTest {
 			threadResult.removeAllElements(); //释放内存
 		}
         
-		FileUtility.write(BACKTEST_RESULT_DIR+ARFF_FORMAT.m_arff_file_prefix+"-"+clModel.getIdentifyName()+"-Summary.csv", modelSummaries.getEvaluationHeader()+modelSummaries.getEvaluationSummary(), "GBK");
-		
 		//保存评估结果至文件
 		saveBacktestResultFile(result,clModel.getIdentifyName());
-
+		
+		FileUtility.write(BACKTEST_RESULT_DIR+ARFF_FORMAT.m_arff_file_prefix+"-"+clModel.getIdentifyName()+"-Summary.csv", modelSummaries.getEvaluationHeader()+modelSummaries.getEvaluationSummary(), "GBK");
+		
 		System.out.println(clModel.getIdentifyName()+" test result file saved.");
 		return result;
 	}
