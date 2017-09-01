@@ -387,7 +387,11 @@ public class EvaluationStore {
 			 */
 			GeneralInstances result=getROCInstances(fullPredictions,ratio,isReversed);
 			modelsAUC[i]=caculateAUC(result);
-			System.out.println("thread:"+Thread.currentThread().getName()+" modelsAUC="+modelsAUC[i]+" isReversed="+isReversed+ " @"+modelStores[i].getModelYearSplit());
+			String msg="thread:"+Thread.currentThread().getName()+" modelsAUC="+modelsAUC[i]+ " @"+modelStores[i].getModelYearSplit();
+			if (isReversed){
+				msg+=" [reversed]";
+			}
+			System.out.println(msg);
 
 			//不管正向还是反向，都是取最大的AUC
 			if (modelsAUC[i]>maxModelAUC){
@@ -396,7 +400,12 @@ public class EvaluationStore {
 			}
 
 		}
-		System.out.println("thread:"+Thread.currentThread().getName()+" MaxAUC selected="+maxModelAUC+" isReversed="+isReversed+" @"+modelStores[maxModelIndex].getModelYearSplit());
+		String outMsg="thread:"+Thread.currentThread().getName()+" MaxAUC selected="+maxModelAUC+" @"+modelStores[maxModelIndex].getModelYearSplit();
+		if (isReversed){
+			outMsg+=" [reversed]";
+		}
+		
+		System.out.println(outMsg);
 		if (maxModelIndex!=0){
 			System.out.println("thread:"+Thread.currentThread().getName()+ " MaxAUC selected is not the latest one for TargetYearSplit("+yearSplit+") ModelYearSplit used="+modelStores[maxModelIndex].getModelYearSplit());
 		}
@@ -704,7 +713,11 @@ public class EvaluationStore {
 					topPredictions.add(pred);
 				}
 			}
-			System.out.println("number of preditions selected="+topPredictions.size()+" from total ("+predictions.size()+") by using  predicted value("+judgePoint+") and top ratio="+ratio+"isReversed="+reverse);
+			String msg="thread:"+Thread.currentThread().getName()+"rows selected="+topPredictions.size()+" from total ("+convertedPrections.size()+") by using predicted value("+judgePoint+") and top ratio="+ratio;
+			if (reverse){
+				msg+=" [reversed]";
+			}
+			System.out.println(msg);
 			return topPredictions;
 		}
 	}
