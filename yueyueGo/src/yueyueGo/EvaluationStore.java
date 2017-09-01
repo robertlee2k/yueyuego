@@ -247,7 +247,7 @@ public class EvaluationStore {
 
 		//获取反向全部的评估结果（要全部的原因是评估的sample_rate是占全部数据的rate），这里用0.999是一个walkaround，因为如果传1进去，函数内部会不处理反向的预测收益率
 		GeneralInstances reversedResult=getROCInstances(fullPredictions,0.999,true);
-		dataSaver.SaveDataIntoFile(result, m_workFilePath+selectedModel.m_modelYearSplit+"-ROC.reversed.arff");
+		dataSaver.SaveDataIntoFile(reversedResult, m_workFilePath+selectedModel.m_modelYearSplit+"-ROC.reversed.arff");
 
 		
 		EvaluationParams reversedEvalParams=new EvaluationParams(REVERSED_TOP_AREA_RATIO, REVERSED_TOP_AREA_RATIO*1.1, 1.8);
