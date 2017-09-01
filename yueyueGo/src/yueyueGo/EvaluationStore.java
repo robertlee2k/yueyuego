@@ -6,6 +6,7 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.evaluation.NominalPrediction;
+import weka.classifiers.evaluation.NumericPrediction;
 import weka.classifiers.evaluation.Prediction;
 import weka.classifiers.evaluation.ThresholdCurve;
 import weka.core.SerializationHelper;
@@ -15,6 +16,8 @@ import yueyueGo.databeans.GeneralDataTag;
 import yueyueGo.databeans.GeneralInstance;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaInstances;
+import yueyueGo.datasource.DataIOHandler;
+import yueyueGo.datasource.GeneralDataSaver;
 import yueyueGo.utility.ClassifyUtility;
 import yueyueGo.utility.EvaluationConfDefinition;
 import yueyueGo.utility.EvaluationParams;
@@ -214,6 +217,10 @@ public class EvaluationStore {
 		//获取正向全部的评估结果（要全部的原因是评估的sample_rate是占全部数据的rate）
 		GeneralInstances result=getROCInstances(fullPredictions,1,false);
 		//TODO ：利用EvalData数据统计bottomLine还是固定值0.6？
+		
+		GeneralDataSaver dataSaver=DataIOHandler.getSaver();		
+		dataSaver.SaveDataIntoFile(result, m_workFilePath+selectedModel.m_modelYearSplit+"-ROC.arff");
+		
 		TpFpStatistics benchmark=new TpFpStatistics(evalData, m_isNominal);	
 		double tp_fp_bottom_line=benchmark.getEval_tp_fp_ratio();
 		if (tp_fp_bottom_line<0.4){ //too small
@@ -240,6 +247,9 @@ public class EvaluationStore {
 
 		//获取反向全部的评估结果（要全部的原因是评估的sample_rate是占全部数据的rate），这里用0.999是一个walkaround，因为如果传1进去，函数内部会不处理反向的预测收益率
 		GeneralInstances reversedResult=getROCInstances(fullPredictions,0.999,true);
+		dataSaver.SaveDataIntoFile(result, m_workFilePath+selectedModel.m_modelYearSplit+"-ROC.reversed.arff");
+
+		
 		EvaluationParams reversedEvalParams=new EvaluationParams(REVERSED_TOP_AREA_RATIO, REVERSED_TOP_AREA_RATIO*1.1, 1.8);
 		ThresholdData reversedThresholdData=doModelEvaluation(reversedResult,reversedEvalParams,1/tp_fp_bottom_line);
 
@@ -640,12 +650,12 @@ public class EvaluationStore {
 				//二分类变量要根据是否reverse来 决定是取1的预测值还是0的预测值
 				targetClassIndex=NominalClassifier.CLASS_NEGATIVE_INDEX;
 			}else{
-				//连续分类变量反转时将收益率取反
+				//连续分类变量反转时将收益率取反（这仅为了查找反向阀值的位置）
 				convertShouyilv=-1;
 			}
 		}
 		
-		//加入所有的数据，查找分界点
+		//第一次遍历，加入所有的数据，查找分界点
 		for (int i = 0; i < predictions.size(); i++) {
 			Prediction pred =  predictions.get(i);
 			if (isNominalPred){
@@ -658,20 +668,26 @@ public class EvaluationStore {
 		double judgePoint=probs.getPercentile(targetPercentile);		
 	
 		
-		// 根据阈值截取数据
+		// 第二次遍历，根据阈值截取数据
 		ArrayList<Prediction> topPredictions=new ArrayList<Prediction>();
 		for (int i = 0; i < predictions.size(); i++) {
 			Prediction pred =  predictions.get(i);
+
 			if (isNominalPred){
-				//对于二分类变量，返回目标分类的预测可能性
+				//对于二分类变量，根据targetClassIndex来使用目标分类的预测可能性
 				predicted=((NominalPrediction)pred).distribution()[targetClassIndex];
+				if (predicted>=judgePoint) {
+					topPredictions.add(pred);
+				}
 			}else{
 				predicted=pred.predicted();
+				if (predicted>=judgePoint) {
+					//对于连续分类变量，将收益率（预测与实际均是）取反后保存
+					NumericPrediction newPred=new NumericPrediction(pred.actual()*convertShouyilv, predicted);
+					topPredictions.add(newPred);
+				}
 			}
 			
-			if (predicted>=judgePoint) {
-				topPredictions.add(pred);
-			}
 	
 		}
 		System.out.println("number of preditions selected="+topPredictions.size()+" from total ("+predictions.size()+") by using  predicted value("+judgePoint+") and top ratio="+ratio+"isReversed="+reverse);
