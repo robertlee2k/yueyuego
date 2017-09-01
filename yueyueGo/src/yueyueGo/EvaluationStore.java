@@ -260,9 +260,9 @@ public class EvaluationStore {
 			String reversedModelYear=reversedModel.getModelYearSplit();
 			String selectdModelYear=selectedModel.getModelYearSplit();
 			if (reversedModelYear.equals(selectdModelYear)){
-				throw new Exception("fatal error!!! reversedThreshold("+reversedThreshold+") > threshold("+thresholdData.getThreshold()+") using same model (modelyear="+reversedModelYear+")" );
+				throw new Exception("thread:"+Thread.currentThread().getName()+"fatal error!!! reversedThreshold("+reversedThreshold+") > threshold("+thresholdData.getThreshold()+") using same model (modelyear="+reversedModelYear+")" );
 			}else{
-				System.out.println("使用不同模型时反向阀值大于正向阀值了"+"reversedThreshold("+reversedThreshold+")@"+reversedModelYear + " > threshold("+thresholdData.getThreshold()+")@"+selectdModelYear);
+				System.out.println("thread:"+Thread.currentThread().getName()+"使用不同模型时反向阀值大于正向阀值了"+"reversedThreshold("+reversedThreshold+")@"+reversedModelYear + " > threshold("+thresholdData.getThreshold()+")@"+selectdModelYear);
 			}
 		}
 		double reversedPercentile=100-reversedThresholdData.getPercent();
@@ -285,7 +285,7 @@ public class EvaluationStore {
 		int round=1;
 		//		System.out.println("use the tp_fp_bottom_line based on training history data = "+tp_fp_bottom_line);
 		double trying_tp_fp=tp_fp_bottom_line*evalParams.getLift_up_target();
-		System.out.println("start from the trying_tp_fp = "+trying_tp_fp + " / while  lift up target="+evalParams.getLift_up_target());
+		System.out.println("thread:"+Thread.currentThread().getName()+"start from the trying_tp_fp = "+trying_tp_fp + " / while  lift up target="+evalParams.getLift_up_target());
 		while (thresholdData == null && trying_tp_fp > tp_fp_bottom_line){
 			thresholdData= computeThresholds(trying_tp_fp,evalParams, result);
 			if (thresholdData!=null){
@@ -401,7 +401,7 @@ public class EvaluationStore {
 			System.out.println("thread:"+Thread.currentThread().getName()+ " MaxAUC selected is not the latest one for TargetYearSplit("+yearSplit+") ModelYearSplit used="+modelStores[maxModelIndex].getModelYearSplit());
 		}
 		if (maxModelAUC<0.5 ){
-			System.err.println(" MaxAUC selected is less than random classifer. MAXAUC="+maxModelAUC+" isReversed="+isReversed);
+			System.err.println("thread:"+Thread.currentThread().getName()+" MaxAUC selected is less than random classifer. MAXAUC="+maxModelAUC+" isReversed="+isReversed);
 		}
 		return modelStores[maxModelIndex];
 	}
@@ -542,14 +542,15 @@ public class EvaluationStore {
 			//暂存转折点
 			if ( lastSampleSize< sample_limit && sampleSize>sample_limit || lastSampleSize>sample_limit && sampleSize<sample_limit){
 				threshold=curr.value(att_threshold);
-				System.out.println("cannot get threshold at sample_limit="+sample_limit+ " use nearest SampleSize between"+sampleSize +" and "+lastSampleSize);
+				System.out.println("thread:"+Thread.currentThread().getName()+"cannot get threshold at sample_limit="+sample_limit+ " use nearest SampleSize between"+sampleSize +" and "+lastSampleSize);
+				break;
 			}
 	
 		}
 		if (threshold==-100){
-			System.err.println("fatal error!!!!! cannot get threshold at sample_limit="+sample_limit);
+			System.err.println("thread:"+Thread.currentThread().getName()+"fatal error!!!!! cannot get threshold at sample_limit="+sample_limit);
 		}else {
-			System.err.println("got default threshold "+ threshold+" at sample_limit="+sample_limit);
+			System.err.println("thread:"+Thread.currentThread().getName()+"got default threshold "+ threshold+" at sample_limit="+sample_limit +" actual sampleSize="+sampleSize);
 		}
 		ThresholdData thresholdData=new ThresholdData();
 		thresholdData.setThreshold(threshold);
