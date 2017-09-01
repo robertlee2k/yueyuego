@@ -16,6 +16,7 @@ import yueyueGo.databeans.GeneralDataTag;
 import yueyueGo.databeans.GeneralInstance;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.utility.ClassifySummaries;
+import yueyueGo.utility.EvaluationConfDefinition;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.ThresholdData;
 
@@ -387,6 +388,8 @@ public abstract class BaseClassifier implements Serializable{
 //		System.out.println(m_evaluationStore.showEvaluationParameters());
 		System.out.println("TOP AREA RATIO="+EvaluationStore.TOP_AREA_RATIO);
 		System.out.println("reversed TOP AREA RATIO="+EvaluationStore.REVERSED_TOP_AREA_RATIO);
+		EvaluationConfDefinition evalConf=new EvaluationConfDefinition(this.getIdentifyName() ,this.m_policySubGroup,null);
+		evalConf.showEvaluationParameters();
 	    System.out.println("***************************************");
 	}
 	

@@ -45,12 +45,12 @@ public class EvaluationConfDefinition implements Serializable{
 		// 缺省的配置
 		if (format==null || format instanceof AvgLineDataFormat || format instanceof FullModelDataFormat){
 			if (classifierName.equals(ClassifyUtility.BAGGING_M5P)){
-				//M5P的上限选0.1比0.05收益率高（每年都稍高），下限选到0.02后比较差，恢复0.03
-				SAMPLE_LOWER_LIMIT =new double[] { 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限
-				SAMPLE_UPPER_LIMIT =new double[] { 0.06, 0.06, 0.07, 0.08, 0.09 }; // 各条均线选择样本的上限
+				//缩小选股比率
+				SAMPLE_LOWER_LIMIT =new double[] { 0.02, 0.02, 0.02, 0.03, 0.03 }; // 各条均线选择样本的下限
+				SAMPLE_UPPER_LIMIT =new double[] { 0.06, 0.06, 0.06, 0.06, 0.06 }; // 各条均线选择样本的上限
 			} else if(classifierName.equals(ClassifyUtility.ADABOOST)){
-				SAMPLE_LOWER_LIMIT =new double[] { 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限
-				SAMPLE_UPPER_LIMIT =new double[] { 0.06, 0.06, 0.07, 0.08, 0.09 }; // 各条均线选择样本的上限
+				SAMPLE_LOWER_LIMIT =new double[] { 0.02, 0.02, 0.02, 0.03, 0.03 }; // 各条均线选择样本的下限
+				SAMPLE_UPPER_LIMIT =new double[] { 0.06, 0.06, 0.06, 0.06, 0.06 }; // 各条均线选择样本的上限
 				//			SAMPLE_UPPER_LIMIT =new double[] { 0.1, 0.1, 0.1, 0.1, 0.1 }; // 各条均线选择样本的上限
 			} else if(classifierName.equals(ClassifyUtility.RANDOM_FOREST)){
 				SAMPLE_LOWER_LIMIT =new double[] { 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限
@@ -133,8 +133,8 @@ public class EvaluationConfDefinition implements Serializable{
 	/*
 	 * 输出当前的合并阀值定义
 	 */
-	public static String showMergeParameters(){
-		StringBuffer result=new StringBuffer();
+//	public static String showMergeParameters(){
+//		StringBuffer result=new StringBuffer();
 //		result.append("WINRATE_FILTER_FOR_SHOUYILV={");
 //		for (double d : WINRATE_FILTER_FOR_SHOUYILV) {
 //			result.append(d);
@@ -148,7 +148,7 @@ public class EvaluationConfDefinition implements Serializable{
 //			result.append(",");
 //		}
 //		result.append("}");
-		return result.toString();
+//		return result.toString();
 
-	}
+//	}
 }

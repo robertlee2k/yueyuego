@@ -426,35 +426,6 @@ public class EvaluationStore {
 		return auc;
 	}
 
-	/**
-	 * 获取ROC的Instances
-	 * 根据reverse的值，取fullPreditions的TOP ratio（reverse=false)数据  
-	 * 或bottom ratio(reverse=true) 数据
-	 * @param predictions
-	 * @param isReversed 根据是否反转来决定目标CLass数值的下标取值
-	 * @return
-	 * @throws Exception
-	 */
-	private GeneralInstances getROCInstances(ArrayList<Prediction> fullPredictions,double ratio,boolean isReversed)
-			throws Exception {
-		//先根据ratio截取预测的数据范围
-		ArrayList<Prediction> topPedictions=getTopPredictedValues(fullPredictions,ratio,isReversed);
-//		if (m_isNominal){
-		ThresholdCurve tc = new ThresholdCurve();
-		int classIndex = NominalClassifier.CLASS_POSITIVE_INDEX;
-		if (isReversed){
-			classIndex=NominalClassifier.CLASS_NEGATIVE_INDEX;
-		}
-		GeneralInstances result = new DataInstances(tc.getCurve(topPedictions, classIndex));
-		return result;
-//		}else{
-//			//是否反转在这里无须处理，因为收益率已经在getTopPredictedValues中已经反转过了
-//			NumericThresholdCurve tc = new NumericThresholdCurve();
-//			GeneralInstances result = new DataInstances(tc.getCurve(topPedictions));
-//			return result;
-//		}
-	}
-
 	private ThresholdData computeThresholds(double tp_fp_ratio, EvaluationParams evalParams, GeneralInstances result) {
 	
 		double sample_limit=evalParams.getLower_limit(); 
@@ -626,21 +597,44 @@ public class EvaluationStore {
 		return evalYearSplit;
 	}
 
-	/*
-	 * 输出当前的评估阀值定义
+//	/*
+//	 * 输出当前的评估阀值定义
+//	 */
+//	public String showEvaluationParameters(){
+//		String result=null;
+//		
+//		result+=m_evalConf.showEvaluationParameters();
+//		return result;
+//	}
+
+	/**
+	 * 获取ROC的Instances
+	 * 根据reverse的值，取fullPreditions的TOP ratio（reverse=false)数据  
+	 * 或bottom ratio(reverse=true) 数据
+	 * @param predictions
+	 * @param isReversed 根据是否反转来决定目标CLass数值的下标取值
+	 * @return
+	 * @throws Exception
 	 */
-	public String showEvaluationParameters(){
-		String result=null;
-		
-		result+=m_evalConf.showEvaluationParameters();
+	public static GeneralInstances getROCInstances(ArrayList<Prediction> fullPredictions,double ratio,boolean isReversed)
+			throws Exception {
+		//先根据ratio截取预测的数据范围
+		ArrayList<Prediction> topPedictions=getTopPredictedValues(fullPredictions,ratio,isReversed);
+		ThresholdCurve tc = new ThresholdCurve();
+		int classIndex = NominalClassifier.CLASS_POSITIVE_INDEX;
+		if (isReversed){
+			classIndex=NominalClassifier.CLASS_NEGATIVE_INDEX;
+		}
+		GeneralInstances result = new DataInstances(tc.getCurve(topPedictions, classIndex));
 		return result;
+	
 	}
 
 	/*
 	 * 正分布选为1最大的ratio，负分布选为0的最大ratio
 	 * 特别地，对连续分类变量，重新构建一个Nominal的预测列表，以利于绘制ROC图线
 	 */
-	private ArrayList<Prediction> getTopPredictedValues(ArrayList<Prediction> predictions,double ratio,boolean reverse) {
+	public static ArrayList<Prediction> getTopPredictedValues(ArrayList<Prediction> predictions,double ratio,boolean reverse) {
 
 		//先判断是否是连续变量
 		boolean isNominalPred=true;
