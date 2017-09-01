@@ -536,8 +536,9 @@ public class EvaluationStore {
 			GeneralInstance curr = result.instance(i);
 			lastSampleSize=sampleSize;
 			sampleSize = curr.value(att_samplesize); // to get sample range
-//			if (FormatUtility.compareDouble(sampleSize,sample_limit)==0) {
-			if (sampleSize==sample_limit){
+			//以五位精度比较double（ROC里是取到6位小数的）
+			if (FormatUtility.compareDouble(sampleSize,sample_limit,-0.00001,0.00001)==0) {
+//			if (sampleSize==sample_limit){
 				threshold = curr.value(att_threshold);
 				break;
 			}
