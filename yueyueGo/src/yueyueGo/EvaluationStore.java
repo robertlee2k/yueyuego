@@ -16,8 +16,6 @@ import yueyueGo.databeans.GeneralDataTag;
 import yueyueGo.databeans.GeneralInstance;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaInstances;
-import yueyueGo.datasource.DataIOHandler;
-import yueyueGo.datasource.GeneralDataSaver;
 import yueyueGo.utility.ClassifyUtility;
 import yueyueGo.utility.EvaluationConfDefinition;
 import yueyueGo.utility.EvaluationParams;
@@ -41,7 +39,7 @@ public class EvaluationStore {
 	protected boolean m_isNominal=false;
 
 	public static final double TOP_AREA_RATIO=0.25; //缺省定义头部区域为35%
-	public static final double REVERSED_TOP_AREA_RATIO=0.55; //缺省定义反向头部为50%
+	public static final double REVERSED_TOP_AREA_RATIO=0.45; //缺省定义反向头部为50%
 	protected double[] m_focusAreaRatio={TOP_AREA_RATIO,1};//评估时关注评估数据的不同Top 比例;
 
 	public static final int PREVIOUS_MODELS_NUM=5; 	//暂时选取之前的5个文件
@@ -216,9 +214,8 @@ public class EvaluationStore {
 		//获取正向全部的评估结果（要全部的原因是评估的sample_rate是占全部数据的rate）
 		GeneralInstances result=getROCInstances(fullPredictions,1,false);
 		//TODO ：利用EvalData数据统计bottomLine还是固定值0.6？
-		
-		GeneralDataSaver dataSaver=DataIOHandler.getSaver();		
-		dataSaver.SaveDataIntoFile(result, m_workFilePath+selectedModel.m_modelYearSplit+"-ROC.arff");
+//		GeneralDataSaver dataSaver=DataIOHandler.getSaver();		
+//		dataSaver.SaveDataIntoFile(result, m_workFilePath+selectedModel.m_modelYearSplit+"-ROC.arff");
 		
 		TpFpStatistics benchmark=new TpFpStatistics(evalData, m_isNominal);	
 		double tp_fp_bottom_line=benchmark.getEval_tp_fp_ratio();
@@ -244,9 +241,9 @@ public class EvaluationStore {
 		//获取反向评估结果
 		fullPredictions=ClassifyUtility.getEvalPreditions(evalData, reversedModel.getModel());
 
-		//获取反向全部的评估结果（要全部的原因是评估的sample_rate是占全部数据的rate），这里用0.999是一个walkaround，因为如果传1进去，函数内部会不处理反向的预测收益率
-		GeneralInstances reversedResult=getROCInstances(fullPredictions,0.999,true);
-		dataSaver.SaveDataIntoFile(reversedResult, m_workFilePath+selectedModel.m_modelYearSplit+"-ROC.reversed.arff");
+		//获取反向全部的评估结果（要全部的原因是评估的sample_rate是占全部数据的rate）
+		GeneralInstances reversedResult=getROCInstances(fullPredictions,1,true);
+//		dataSaver.SaveDataIntoFile(reversedResult, m_workFilePath+selectedModel.m_modelYearSplit+"-ROC.reversed.arff");
 
 		
 		EvaluationParams reversedEvalParams=new EvaluationParams(REVERSED_TOP_AREA_RATIO, REVERSED_TOP_AREA_RATIO*1.1, 1.8);
