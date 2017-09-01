@@ -5,6 +5,7 @@ import java.util.Vector;
 
 import weka.classifiers.Classifier;
 import weka.core.SerializationHelper;
+import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.databeans.DataInstances;
 import yueyueGo.databeans.GeneralDataTag;
 import yueyueGo.databeans.GeneralInstances;
@@ -38,8 +39,12 @@ public class ModelStore {
 	public static final String MA_PREFIX = " MA ";
 	
 
-
-	//从已有模型文件中加载时调用的
+	/*
+	 * 从已有模型文件中加载时调用的初始函数
+	 * workfilePath= 模型的存储目录（绝对路径）
+	 * model_filename= 模型文件名（不含目录名）
+	 * modelYearSplit= 模型建立的年月Split （用做校验）
+	 */
 	public ModelStore(String workfilePath,String model_filename,String modelYearSplit) {
 		this.m_workFilePath=workfilePath;
 		this.m_modelFileName = model_filename;
@@ -215,7 +220,7 @@ public class ModelStore {
 		}
 	}
 
-	public void loadModelFromFile(String a_targetYearSplit) throws Exception{
+	private void initModelStoreFromFile(String a_targetYearSplit) throws Exception{
 		
 
 		String modelFileName=this.m_workFilePath+this.m_modelFileName+ ModelStore.MODEL_FILE_EXTENSION;
@@ -255,6 +260,36 @@ public class ModelStore {
 			System.err.println("error when loading: "+modelFileName);
 			throw e;
 		}
+	}
+
+	/**
+	 * @param targetData 模型处理的目标数据集（做格式校验用）
+	 * @param targetYearSplit 模型的目标年份（做校验用）
+	 * @return
+	 * @throws Exception
+	 */
+	public Classifier loadModelFromFile(GeneralInstances targetData, String targetYearSplit)
+			throws Exception {
+		// 从保存的数据文件中加载分类用的model and header，此加载方法内部有对modelYear的校验		
+		this.initModelStoreFromFile(targetYearSplit);
+		//获取model
+		Classifier model =getModel();
+		//模型数据的校验会在加载方法内部进行，此处下面仅校验正向模型的格式
+		GeneralInstances header =getModelFormat();
+	
+		//验证数据格式是否一致
+		String verify=BaseInstanceProcessor.compareInstancesFormat(targetData, header);
+		if (verify!=null){
+			//System.err.println
+			throw new Exception("attention! model and testing data structure is not the same. Here is the difference: "+verify);
+	//			//如果不一致，试着Calibrate一下。
+	//			DataInstances outTemp=new DataInstances(header,0);
+	//			instanceProcessor.calibrateAttributes(test, outTemp);
+	//			test=outTemp;
+	//			//再比一次
+	//			BaseInstanceProcessor.compareInstancesFormat(test, header);
+		}
+		return model;
 	}
 
 }

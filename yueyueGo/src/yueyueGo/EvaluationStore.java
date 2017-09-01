@@ -362,15 +362,16 @@ public class EvaluationStore {
 
 
 		for (int i=0;i<modelStores.length;i++) {
-			modelStores[i].loadModelFromFile(yearSplit);
-			Classifier model =modelStores[i].getModel();
-			GeneralInstances header =modelStores[i].getModelFormat();
-			GeneralInstances evalFormat=new DataInstances(evalData,0);
-			//验证评估数据格式是否一致
-			String verify=BaseClassifier.verifyDataFormat(evalFormat, header);
-			if (verify!=null){
-				throw new Exception("attention! model and evaluation data structure is not the same. Here is the difference: "+verify);
-			}
+//			modelStores[i].loadModelFromFile(yearSplit);
+			Classifier model =modelStores[i].loadModelFromFile(evalData, yearSplit); 
+					
+//			GeneralInstances header =modelStores[i].getModelFormat();
+//			GeneralInstances evalFormat=new DataInstances(evalData,0);
+//			//验证评估数据格式是否一致
+//			String verify=BaseClassifier.verifyDataFormat(evalFormat, header);
+//			if (verify!=null){
+//				throw new Exception("attention! model and evaluation data structure is not the same. Here is the difference: "+verify);
+//			}
 
 			ArrayList<Prediction> fullPredictions=ClassifyUtility.getEvalPreditions(evalData, model);
 
@@ -387,7 +388,7 @@ public class EvaluationStore {
 			 */
 			GeneralInstances result=getROCInstances(fullPredictions,ratio,isReversed);
 			modelsAUC[i]=caculateAUC(result);
-			String msg="thread:"+Thread.currentThread().getName()+" modelsAUC="+modelsAUC[i]+ " @"+modelStores[i].getModelYearSplit();
+			String msg="thread:"+Thread.currentThread().getName()+" modelsAUC="+modelsAUC[i]+ " @"+modelStores[i].getModelYearSplit()+" policy["+ m_policySplit+"]";
 			if (isReversed){
 				msg+=" [reversed]";
 			}
@@ -400,14 +401,14 @@ public class EvaluationStore {
 			}
 
 		}
-		String outMsg="thread:"+Thread.currentThread().getName()+" MaxAUC selected="+maxModelAUC+" @"+modelStores[maxModelIndex].getModelYearSplit();
+		String outMsg="thread:"+Thread.currentThread().getName()+" MaxAUC selected="+maxModelAUC+" @"+modelStores[maxModelIndex].getModelYearSplit()+" policy["+ m_policySplit+"]";
 		if (isReversed){
 			outMsg+=" [reversed]";
 		}
 		
 		System.out.println(outMsg);
 		if (maxModelIndex!=0){
-			System.out.println("thread:"+Thread.currentThread().getName()+ " MaxAUC selected is not the latest one for TargetYearSplit("+yearSplit+") ModelYearSplit used="+modelStores[maxModelIndex].getModelYearSplit());
+			System.out.println("thread:"+Thread.currentThread().getName()+ " MaxAUC selected is not the latest one for TargetYearSplit("+yearSplit+") ModelYearSplit used="+modelStores[maxModelIndex].getModelYearSplit()+" policy["+ m_policySplit+"]");
 		}
 		if (maxModelAUC<0.5 ){
 			System.err.println("thread:"+Thread.currentThread().getName()+" MaxAUC selected is less than random classifer. MAXAUC="+maxModelAUC+" isReversed="+isReversed);
@@ -428,9 +429,9 @@ public class EvaluationStore {
 	/**
 	 * 获取ROC的Instances
 	 * 根据reverse的值，取fullPreditions的TOP ratio（reverse=false)数据  
-	 * 或bottom ratio(reverse=true) 数据（当取bottom ratio时，将收益率数据取反）
+	 * 或bottom ratio(reverse=true) 数据
 	 * @param predictions
-	 * @param isReversed 根据是否反转来决定二分类器变量时目标CLass数值的下标取值
+	 * @param isReversed 根据是否反转来决定目标CLass数值的下标取值
 	 * @return
 	 * @throws Exception
 	 */
@@ -530,7 +531,7 @@ public class EvaluationStore {
 		return thresholdData;
 	}
 
-	private ThresholdData computeDefaultThresholds(EvaluationParams evalParams, GeneralInstances result){
+	private ThresholdData computeDefaultThresholds(EvaluationParams evalParams, GeneralInstances result) throws Exception{
 		double sample_limit=evalParams.getLower_limit(); 
 		double sampleSize=1.0;  //SampleSize应该是倒序下来的
 		double lastSampleSize=1.0;
@@ -551,15 +552,15 @@ public class EvaluationStore {
 			//暂存转折点
 			if ( lastSampleSize< sample_limit && sampleSize>sample_limit || lastSampleSize>sample_limit && sampleSize<sample_limit){
 				threshold=curr.value(att_threshold);
-				System.out.println("thread:"+Thread.currentThread().getName()+"cannot get threshold at sample_limit="+sample_limit+ " use nearest SampleSize between"+sampleSize +" and "+lastSampleSize);
+				System.out.println("thread:"+Thread.currentThread().getName()+"cannot get threshold at sample_limit="+sample_limit+ " use nearest SampleSize between "+FormatUtility.formatDouble(sampleSize,1,6) +" and "+FormatUtility.formatDouble(lastSampleSize,1,6));
 				break;
 			}
 	
 		}
 		if (threshold==-100){
-			System.err.println("thread:"+Thread.currentThread().getName()+"fatal error!!!!! cannot get threshold at sample_limit="+sample_limit);
+			throw new Exception("thread:"+Thread.currentThread().getName()+"fatal error!!!!! cannot get threshold at sample_limit="+sample_limit);
 		}else {
-			System.err.println("thread:"+Thread.currentThread().getName()+"got default threshold "+ threshold+" at sample_limit="+sample_limit +" actual sampleSize="+sampleSize);
+			System.err.println("thread:"+Thread.currentThread().getName()+"got default threshold "+ threshold+" at sample_limit="+sample_limit +" actual sampleSize="+FormatUtility.formatDouble(sampleSize,1,6));
 		}
 		ThresholdData thresholdData=new ThresholdData();
 		thresholdData.setThreshold(threshold);
@@ -636,9 +637,8 @@ public class EvaluationStore {
 	}
 
 	/*
-	 * 对二分类变量，正分布选为1最大的ratio，负分布选为0的最大ratio
-	 * 对连续分类变量，正分布选最大的ratio，负分布选最小的这部分ratio，当取负分布时，将收益率数据取反，以利于绘制ROC图线
-	 * ratio=1时返回全部预测数据（注意，此时reverse失效，返回数据集中不会转换收益率）
+	 * 正分布选为1最大的ratio，负分布选为0的最大ratio
+	 * 特别地，对连续分类变量，重新构建一个Nominal的预测列表，以利于绘制ROC图线
 	 */
 	private ArrayList<Prediction> getTopPredictedValues(ArrayList<Prediction> predictions,double ratio,boolean reverse) {
 
@@ -713,7 +713,7 @@ public class EvaluationStore {
 					topPredictions.add(pred);
 				}
 			}
-			String msg="thread:"+Thread.currentThread().getName()+"rows selected="+topPredictions.size()+" from total ("+convertedPrections.size()+") by using predicted value("+judgePoint+") and top ratio="+ratio;
+			String msg="thread:"+Thread.currentThread().getName()+"rows selected="+topPredictions.size()+" from total ("+convertedPrections.size()+") where predicted > threshold("+FormatUtility.formatDouble(judgePoint,2,6)+") and top ratio="+ratio;
 			if (reverse){
 				msg+=" [reversed]";
 			}

@@ -11,7 +11,6 @@ import yueyueGo.dataFormat.ArffFormat;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.dataProcessor.InstanceHandler;
 import yueyueGo.databeans.DataInstance;
-import yueyueGo.databeans.DataInstances;
 import yueyueGo.databeans.GeneralAttribute;
 import yueyueGo.databeans.GeneralDataTag;
 import yueyueGo.databeans.GeneralInstance;
@@ -117,39 +116,21 @@ public abstract class BaseClassifier implements Serializable{
 		if (msg==null){
 			System.out.println("ThresholdData verified for target yearsplit "+yearSplit);
 		}
-		else 
+		else{ 
 			throw new Exception(msg);
-
-
-		//获取预测文件中的应该用哪个modelYearSplit的模型
-		String modelYearSplit=thresholdData.getModelYearSplit();
-		//从评估结果中找到正向模型文件。		
-		ModelStore modelStore=new ModelStore(m_evaluationStore.getWorkFilePath(),thresholdData.getModelFileName(), modelYearSplit);
-
-		// 从保存的数据文件中加载分类用的model and header，此加载方法内部有对modelYear的校验		
-		modelStore.loadModelFromFile(yearSplit);
-		//获取model
-		Classifier model =modelStore.getModel();
-		//模型数据的校验会在加载方法内部进行，此处下面仅校验正向模型的格式
-		GeneralInstances header =modelStore.getModelFormat();
-		
+		}
 		
 		// There is additional ID attribute in test instances, so we should save it and remove before doing prediction
 		double[] ids=test.attributeToDoubleArray(ArffFormat.ID_POSITION - 1);  
 		//删除已保存的ID 列，让待分类数据与模型数据一致 （此处的index是从1开始）
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(test);
 		test=instanceProcessor.removeAttribs(test,  Integer.toString(ArffFormat.ID_POSITION));
-		//验证数据格式是否一致
-		String verify=verifyDataFormat(test, header);
-		if (verify!=null){
-			System.err.println("attention! model and testing data structure is not the same. Here is the difference: "+verify);
-			//如果不一致，试着Calibrate一下。
-			DataInstances outTemp=new DataInstances(header,0);
-			instanceProcessor.calibrateAttributes(test, outTemp);
-			test=outTemp;
-			//再比一次
-			BaseInstanceProcessor.compareInstancesFormat(test, header);
-		}
+
+		//获取预测文件中的应该用哪个modelYearSplit的模型
+		String modelYearSplit=thresholdData.getModelYearSplit();
+		//从评估结果中找到正向模型文件。		
+		ModelStore modelStore=new ModelStore(m_evaluationStore.getWorkFilePath(),thresholdData.getModelFileName(), modelYearSplit);
+		Classifier model = modelStore.loadModelFromFile(test, yearSplit);
 
 		//获取预测文件中的应该用哪个反向模型的模型
 		String reversedModelYearSplit=thresholdData.getReversedModelYearSplit();
@@ -159,15 +140,12 @@ public abstract class BaseClassifier implements Serializable{
 		if (reversedModelYearSplit.equals(modelYearSplit)){//正向模型和方向模型是同一模型的。
 			usingOneModel=true;
 		}else{
-
 			//从评估结果中找到反向模型文件。		
 			ModelStore reversedModelStore=new ModelStore(m_evaluationStore.getWorkFilePath(),thresholdData.getReversedModelFileName(), reversedModelYearSplit);
-
-			// 从保存的数据文件中加载分类用的model,此加载方法内部有对modelYear的校验		
-			reversedModelStore.loadModelFromFile(yearSplit);
 			//获取model
-			reversedModel=reversedModelStore.getModel();
+			reversedModel=reversedModelStore.loadModelFromFile(test,yearSplit);
 		}
+
 		double thresholdMin=thresholdData.getThreshold(); //判断为1的阈值，大于该值意味着该模型判断其为1
 		double reversedThresholdMax=thresholdData.getReversedThreshold(); //判断为0的阈值，小于该值意味着该模型坚定认为其为0 （这是合并多个模型预测时使用的）
 		if (reversedThresholdMax>thresholdMin){
@@ -310,14 +288,14 @@ public abstract class BaseClassifier implements Serializable{
 		return 0;
 	}
 
-	
-	public static String verifyDataFormat(GeneralInstances test, GeneralInstances header) throws Exception {
-//		//在使用旧格式时，如果有使用旧字段名的模型，试着将其改名后使用
-//		if (modelArffFormat==ArffFormat.LEGACY_FORMAT){
-//			header=ArffFormat.renameOldArffName(header);
-//		}
-		return BaseInstanceProcessor.compareInstancesFormat(test, header);
-	}
+//	
+//	public static String verifyDataFormat(GeneralInstances test, GeneralInstances header) throws Exception {
+////		//在使用旧格式时，如果有使用旧字段名的模型，试着将其改名后使用
+////		if (modelArffFormat==ArffFormat.LEGACY_FORMAT){
+////			header=ArffFormat.renameOldArffName(header);
+////		}
+//		return BaseInstanceProcessor.compareInstancesFormat(test, header);
+//	}
 
 	
 	//找到回测评估、预测时应该使用evaluationStore对象（主要为获取model文件和eval文件名称）

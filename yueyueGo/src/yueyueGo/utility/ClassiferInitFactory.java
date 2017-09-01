@@ -31,7 +31,7 @@ public class ClassiferInitFactory {
 		}else{
 			//否则返回缺省值
 			
-			model.bagging_iteration=5;
+//			model.bagging_iteration=5;
 			model.divided=500; //将trainingData分成多少份
 //			model.m_modelFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 //			model.m_evalDataSplitMode=EvaluationStore.USE_HALF_YEAR_DATA_FOR_EVAL;
@@ -60,7 +60,7 @@ public class ClassiferInitFactory {
 		}else{
 			//否则返回缺省值
 			
-			model.boost_iteration=5;
+			model.boost_iteration=8;
 			model.divided=500; //将trainingData分成多少份
 //			model.m_modelFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 //			model.m_evalDataSplitMode=EvaluationStore.USE_HALF_YEAR_DATA_FOR_EVAL;
