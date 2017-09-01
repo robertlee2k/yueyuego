@@ -91,8 +91,6 @@ public class BackTest {
 	public static void main(String[] args) {
 		try {
 			
-//			ClassifyUtility.estimateHiddenLayerNodes(2757220, 100, 1,0.05);
-			
 			BackTest worker=new BackTest();
 			worker.init();
 
