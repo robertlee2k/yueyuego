@@ -23,7 +23,6 @@ import yueyueGo.utility.EvaluationConfDefinition;
 import yueyueGo.utility.EvaluationParams;
 import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.FormatUtility;
-import yueyueGo.utility.NumericThresholdCurve;
 import yueyueGo.utility.ThresholdData;
 import yueyueGo.utility.TpFpStatistics;
 
@@ -432,21 +431,21 @@ public class EvaluationStore {
 	private GeneralInstances getROCInstances(ArrayList<Prediction> fullPredictions,double ratio,boolean isReversed)
 			throws Exception {
 		//先根据ratio截取预测的数据范围
-		ArrayList<Prediction> topPedictions=getTopPredictedValues(m_isNominal,fullPredictions,ratio,isReversed);
-		if (m_isNominal){
-			ThresholdCurve tc = new ThresholdCurve();
-			int classIndex = NominalClassifier.CLASS_POSITIVE_INDEX;
-			if (isReversed){
-				classIndex=NominalClassifier.CLASS_NEGATIVE_INDEX;
-			}
-			GeneralInstances result = new DataInstances(tc.getCurve(topPedictions, classIndex));
-			return result;
-		}else{
-			//是否反转在这里无须处理，因为收益率已经在getTopPredictedValues中已经反转过了
-			NumericThresholdCurve tc = new NumericThresholdCurve();
-			GeneralInstances result = new DataInstances(tc.getCurve(topPedictions));
-			return result;
+		ArrayList<Prediction> topPedictions=getTopPredictedValues(fullPredictions,ratio,isReversed);
+//		if (m_isNominal){
+		ThresholdCurve tc = new ThresholdCurve();
+		int classIndex = NominalClassifier.CLASS_POSITIVE_INDEX;
+		if (isReversed){
+			classIndex=NominalClassifier.CLASS_NEGATIVE_INDEX;
 		}
+		GeneralInstances result = new DataInstances(tc.getCurve(topPedictions, classIndex));
+		return result;
+//		}else{
+//			//是否反转在这里无须处理，因为收益率已经在getTopPredictedValues中已经反转过了
+//			NumericThresholdCurve tc = new NumericThresholdCurve();
+//			GeneralInstances result = new DataInstances(tc.getCurve(topPedictions));
+//			return result;
+//		}
 	}
 
 	private ThresholdData computeThresholds(double tp_fp_ratio, EvaluationParams evalParams, GeneralInstances result) {
@@ -466,11 +465,11 @@ public class EvaluationStore {
 		double fp = 0.0;
 		double final_tp=0.0;
 		double final_fp=0.0;
-		GeneralAttribute att_tp = result.attribute(NumericThresholdCurve.TRUE_POS_NAME);
-		GeneralAttribute att_fp = result.attribute(NumericThresholdCurve.FALSE_POS_NAME);
-		//		GeneralAttribute att_lift = result.attribute(NumericThresholdCurve.LIFT_NAME);
-		GeneralAttribute att_threshold = result.attribute(NumericThresholdCurve.THRESHOLD_NAME);
-		GeneralAttribute att_samplesize = result.attribute(NumericThresholdCurve.SAMPLE_SIZE_NAME);
+		GeneralAttribute att_tp = result.attribute(ThresholdCurve.TRUE_POS_NAME);
+		GeneralAttribute att_fp = result.attribute(ThresholdCurve.FALSE_POS_NAME);
+		//		GeneralAttribute att_lift = result.attribute(ThresholdCurve.LIFT_NAME);
+		GeneralAttribute att_threshold = result.attribute(ThresholdCurve.THRESHOLD_NAME);
+		GeneralAttribute att_samplesize = result.attribute(ThresholdCurve.SAMPLE_SIZE_NAME);
 	
 	
 		for (int i = 0; i < result.numInstances(); i++) {
@@ -530,8 +529,8 @@ public class EvaluationStore {
 		double sampleSize=1.0;  //SampleSize应该是倒序下来的
 		double lastSampleSize=1.0;
 		double threshold=-100;
-		GeneralAttribute att_threshold = result.attribute(NumericThresholdCurve.THRESHOLD_NAME);
-		GeneralAttribute att_samplesize = result.attribute(NumericThresholdCurve.SAMPLE_SIZE_NAME);
+		GeneralAttribute att_threshold = result.attribute(ThresholdCurve.THRESHOLD_NAME);
+		GeneralAttribute att_samplesize = result.attribute(ThresholdCurve.SAMPLE_SIZE_NAME);
 	
 		for (int i = 0; i < result.numInstances(); i++) {
 			GeneralInstance curr = result.instance(i);
@@ -632,68 +631,82 @@ public class EvaluationStore {
 	 * 对连续分类变量，正分布选最大的ratio，负分布选最小的这部分ratio，当取负分布时，将收益率数据取反，以利于绘制ROC图线
 	 * ratio=1时返回全部预测数据（注意，此时reverse失效，返回数据集中不会转换收益率）
 	 */
-	private ArrayList<Prediction> getTopPredictedValues(boolean isNominalPred,ArrayList<Prediction> predictions,double ratio,boolean reverse) {
-		
-		//如果是全部则返回全量数据
-		if (ratio>=1){
+	private ArrayList<Prediction> getTopPredictedValues(ArrayList<Prediction> predictions,double ratio,boolean reverse) {
+
+		//先判断是否是连续变量
+		boolean isNominalPred=true;
+		if ( predictions.get(0) instanceof NumericPrediction) {
+			isNominalPred=false;
+		}
+		//如果是二分类变量，且需要取全部值则直接返回全量数据
+		if (ratio==1 && isNominalPred==true){
 			return predictions;
 		}
-		double targetPercentile=(1-ratio)*100;
 		
+		//否则，需要进行数据处理
 		DescriptiveStatistics probs=new DescriptiveStatistics();
 		double predicted=0.0;
 		int targetClassIndex=NominalClassifier.CLASS_POSITIVE_INDEX;
-		int convertShouyilv=1;// 当取负分布时，将收益率数据取反，以利于绘制ROC图线
-		
 		if (reverse==true){
-			if (isNominalPred){
-				//二分类变量要根据是否reverse来 决定是取1的预测值还是0的预测值
-				targetClassIndex=NominalClassifier.CLASS_NEGATIVE_INDEX;
-			}else{
-				//连续分类变量反转时将收益率取反（这仅为了查找反向阀值的位置）
-				convertShouyilv=-1;
-			}
+			targetClassIndex=NominalClassifier.CLASS_NEGATIVE_INDEX;
+		}
+
+		ArrayList<Prediction> convertedPrections; 
+		if (isNominalPred){
+			convertedPrections=predictions;
+		}else{
+			//对于连续分类变量，需要构建一个Nominal的预测为绘制ROC处理 （将预测值作为Postive的可能性，将预测值取反设为Negative的可能性）
+			convertedPrections=new ArrayList<Prediction>(predictions.size());
 		}
 		
 		//第一次遍历，加入所有的数据，查找分界点
 		for (int i = 0; i < predictions.size(); i++) {
 			Prediction pred =  predictions.get(i);
-			if (isNominalPred){
-				predicted=((NominalPrediction)pred).distribution()[targetClassIndex];
-			}else{
-				predicted=pred.predicted()*convertShouyilv; 
-			}
-			probs.addValue(predicted);
-		}
-		double judgePoint=probs.getPercentile(targetPercentile);		
-	
-		
-		// 第二次遍历，根据阈值截取数据
-		ArrayList<Prediction> topPredictions=new ArrayList<Prediction>();
-		for (int i = 0; i < predictions.size(); i++) {
-			Prediction pred =  predictions.get(i);
 
 			if (isNominalPred){
+				predicted=((NominalPrediction)pred).distribution()[targetClassIndex];				
+			}else{
+				//为连续型变量构建Nominal的预测表
+				double[] distribution=new double[2];
+				double actual;
+				//根据连续变量的实际值大于0与否，构建预测实际值的分类
+				if (pred.actual()>0){
+					actual=NominalClassifier.CLASS_POSITIVE_INDEX;
+				}else{
+					actual=NominalClassifier.CLASS_NEGATIVE_INDEX;
+				}
+				distribution[NominalClassifier.CLASS_NEGATIVE_INDEX]=pred.predicted()*-1; //简单取反
+				distribution[NominalClassifier.CLASS_POSITIVE_INDEX]=pred.predicted();
+				
+				NominalPrediction nominalPrediction=new NominalPrediction(actual, distribution);
+				convertedPrections.add(nominalPrediction);
+				//获取刚刚构建的预测分类
+				predicted=nominalPrediction.distribution()[targetClassIndex];
+			}
+			
+			probs.addValue(predicted);
+		}
+
+		double targetPercentile=(1-ratio)*100;
+		//如果是全部则返回全量数据
+		if (targetPercentile==0){
+			return convertedPrections;
+		}else{
+			double judgePoint=probs.getPercentile(targetPercentile);		
+
+			// 第二次遍历，根据阈值截取数据
+			ArrayList<Prediction> topPredictions=new ArrayList<Prediction>();
+			for (int i = 0; i < convertedPrections.size(); i++) {
+				Prediction pred =  convertedPrections.get(i);
 				//对于二分类变量，根据targetClassIndex来使用目标分类的预测可能性
 				predicted=((NominalPrediction)pred).distribution()[targetClassIndex];
 				if (predicted>=judgePoint) {
 					topPredictions.add(pred);
 				}
-			}else{
-				predicted=pred.predicted();
-				if (predicted>=judgePoint) {
-					//对于连续分类变量，将收益率（预测与实际均是）取反后保存
-					NumericPrediction newPred=new NumericPrediction(pred.actual()*convertShouyilv, predicted);
-					topPredictions.add(newPred);
-				}
 			}
-			
-	
+			System.out.println("number of preditions selected="+topPredictions.size()+" from total ("+predictions.size()+") by using  predicted value("+judgePoint+") and top ratio="+ratio+"isReversed="+reverse);
+			return topPredictions;
 		}
-		System.out.println("number of preditions selected="+topPredictions.size()+" from total ("+predictions.size()+") by using  predicted value("+judgePoint+") and top ratio="+ratio+"isReversed="+reverse);
-		return topPredictions;
-	
-	
 	}
 
 	public void saveEvaluationToFile(ThresholdData thresholdData) throws Exception {

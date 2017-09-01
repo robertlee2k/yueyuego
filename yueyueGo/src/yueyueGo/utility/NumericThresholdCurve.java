@@ -10,7 +10,10 @@ import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.Utils;
-
+@Deprecated
+/*
+ * 这个概念是错的
+ */
 public class NumericThresholdCurve {
 	  /** The name of the relation used in threshold curve datasets */
 	  public static final String RELATION_NAME = "ThresholdCurve";
