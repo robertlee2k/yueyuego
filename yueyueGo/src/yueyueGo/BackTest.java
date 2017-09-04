@@ -843,6 +843,7 @@ public class BackTest {
 			String reversedFullname=thresholdData.getReversedModelFileName()+ModelStore.MODEL_FILE_EXTENSION;
 			
 			//通过hashmap消除重复的文件名
+			fileMap.put(evalFullName+ModelStore.TXT_EXTENSION, modelFilePath);
 			fileMap.put(evalFullName, modelFilePath);
 			fileMap.put(modelFullname, modelFilePath);
 			fileMap.put(reversedFullname, modelFilePath);

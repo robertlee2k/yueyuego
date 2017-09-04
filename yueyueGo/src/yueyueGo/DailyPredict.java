@@ -130,6 +130,8 @@ public class DailyPredict {
 				File src=new File(originalPath+filename);
 				File dest=new File(targetPath+filename);
 				Files.copy(src.toPath(),dest.toPath());
+				System.out.println("\t src file="+src.getName());
+				System.out.println("\t dest file="+dest.getName());
 				fileNum++;
 			}
 		}
@@ -493,7 +495,7 @@ public class DailyPredict {
 //			return "";
 //		}
 		//legacy与current model 合并到统一目录下，用文件名区分
-		return PREDICT_WORK_DIR+"\\"+clModel.getIdentifyName();
+		return PREDICT_WORK_DIR+"\\"+clModel.getIdentifyName()+"\\";
 	}
 
 
