@@ -64,7 +64,7 @@ public class ProcessFlowExecutor implements Callable<String> {
 			modelStore.saveModelToFiles();
 			System.out.println("Training finished!");
 
-			//TODO confusion matrix何时输出？
+			//TODO confusion matrix何时输出？ 这里需要TrainingData
 //			//输出模型的confusionMatrix
 //			boolean isNominal=false;
 //			if (clModel instanceof NominalClassifier){

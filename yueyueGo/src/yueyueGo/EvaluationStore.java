@@ -82,13 +82,12 @@ public class EvaluationStore {
 	}
 
 	//预测时调用的
-	//TODO 需要加上指定ModelFile的方法
-	public EvaluationStore(String eval_filename,String modelFileName) {
+	public EvaluationStore(String workpath,String eval_filename) {
+		this.m_workFilePath=workpath;
 		this.m_evalFileName=eval_filename;
-
-		//预测时不校验，将这些都设为设为null
-		this.m_evalYearSplit=null;
-		this.m_targetYearSplit=null;
+		//每日预测时跳过校验
+		m_targetYearSplit=null; 
+		m_evalYearSplit=null;
 	}
 
 	//回测时调用的，设置model文件和eval文件名称
@@ -276,6 +275,8 @@ public class EvaluationStore {
 		//保存包含正向和反向的ThresholdData到数据文件中
 		this.saveEvaluationToFile(thresholdData);
 		System.out.println(thresholdData.toString());
+		
+
 	}
 
 	private ThresholdData doModelEvaluation( GeneralInstances result,EvaluationParams evalParams,double tp_fp_bottom_line)
@@ -598,7 +599,7 @@ public class EvaluationStore {
 	}
 
 //	/*
-//	 * 输出当前的评估阀值定义
+//	 * 输出当前的评估的数据
 //	 */
 //	public String showEvaluationParameters(){
 //		String result=null;

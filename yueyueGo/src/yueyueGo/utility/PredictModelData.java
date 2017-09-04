@@ -4,22 +4,32 @@ package yueyueGo.utility;
 public class PredictModelData {
 
 	private String identify;
-	private String modelFileName;
+//	private String modelFileName;
 	private String evalFileName;
+	
+	private String targetYearSplit; //用于校验
+	
 //	private String modelSplitYear;
 //	private String evalSplitYear;
 	private int modelFormatType;
 
 	
 	
+	public String getTargetYearSplit() {
+		return targetYearSplit;
+	}
+
+
+	public void setTargetYearSplit(String targetYearSplit) {
+		this.targetYearSplit = targetYearSplit;
+	}
+
+
 	public PredictModelData() {
 
 	}
 	
-	//这两个方法的返回方式不一样
-	public String getModelFileName() {
-		return modelFileName;
-	}
+
 	public String getEvalFileName() {
 		return evalFileName;
 	}
@@ -31,9 +41,6 @@ public class PredictModelData {
 		this.identify = identify;
 	}
 
-	public void setModelFileName(String modelFileName) {
-		this.modelFileName = modelFileName;
-	}
 	public void setEvalFileName(String evalFileName) {
 		this.evalFileName = evalFileName;
 	}

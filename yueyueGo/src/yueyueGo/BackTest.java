@@ -27,6 +27,7 @@ package yueyueGo;
  * 谢谢悦悦的冠名支持
  */
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Vector;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -52,6 +53,7 @@ import yueyueGo.utility.ClassifySummaries;
 import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.MergeClassifyResults;
+import yueyueGo.utility.ThresholdData;
 
 public class BackTest {
 	protected String C_ROOT_DIRECTORY =EnvConstants.AVG_LINE_ROOT_DIR;
@@ -95,7 +97,7 @@ public class BackTest {
 			worker.init();
 
 			//调用回测函数回测
-			worker.callRebuildModels();
+//			worker.callRebuildModels();
 			worker.callReEvaluateModels();
 //			worker.callTestBack();
 //			worker.callRefreshModelUseLatestData();
@@ -811,6 +813,42 @@ public class BackTest {
 		
 	}
 
+	
+	protected HashMap<String,String> findModelFiles(BaseClassifier clModel,String a_targetYearSplit) throws Exception{
+		//根据分类器和数据类别确定回测模型的工作目录
+		String modelFilePath=prepareModelWorkPath(clModel);
+		String modelPrefix=ARFF_FORMAT.m_arff_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")"; 
+		EvaluationStore evaluationStore=null;
+		
+		HashMap<String,String> fileMap=new HashMap<String,String>();
+		String policySplit = null;
+		for (int j = BEGIN_FROM_POLICY; j < clModel.m_policySubGroup.length; j++) {
+			policySplit = clModel.m_policySubGroup[j];
+			
+			//查找最新的EvaluationStore
+			evaluationStore=clModel.locateEvalutationStore(a_targetYearSplit,policySplit,modelFilePath,modelPrefix);
+			//获取评估数据
+			ThresholdData thresholdData=evaluationStore.loadDataFromFile();
+
+			//从评估结果中找到评估文件。
+			String evalFullName=evaluationStore.getEvalFileName();
+			
+			//TODO 未来要对这个加校验
+//			evaluationStore.m_modelFileShareMode!=Threshold.m_modelFileShareMode
+					
+					
+			//从评估结果中找到正向模型文件。		
+			String modelFullname=thresholdData.getModelFileName()+ModelStore.MODEL_FILE_EXTENSION;
+			//从评估结果中找到反向模型文件。
+			String reversedFullname=thresholdData.getReversedModelFileName()+ModelStore.MODEL_FILE_EXTENSION;
+			
+			//通过hashmap消除重复的文件名
+			fileMap.put(evalFullName, modelFilePath);
+			fileMap.put(modelFullname, modelFilePath);
+			fileMap.put(reversedFullname, modelFilePath);
+		}
+		return fileMap;
+	}
 
 
 }

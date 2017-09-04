@@ -96,6 +96,7 @@ public abstract class BaseClassifier implements Serializable{
 
 		m_evaluationStore.evaluateModels(evalData);
 
+
 	}
 
 	//为每日预测用，这时候没有yearSplit （policySplit是存在的）
@@ -138,11 +139,13 @@ public abstract class BaseClassifier implements Serializable{
 
 		boolean usingOneModel=false; 
 		Classifier reversedModel=null;
+		ModelStore reversedModelStore=null;
 		if (reversedModelYearSplit.equals(modelYearSplit)){//正向模型和方向模型是同一模型的。
 			usingOneModel=true;
+			reversedModelStore=modelStore;
 		}else{
 			//从评估结果中找到反向模型文件。		
-			ModelStore reversedModelStore=new ModelStore(m_evaluationStore.getWorkFilePath(),thresholdData.getReversedModelFileName(), reversedModelYearSplit);
+			reversedModelStore=new ModelStore(m_evaluationStore.getWorkFilePath(),thresholdData.getReversedModelFileName(), reversedModelYearSplit);
 			//获取model
 			reversedModel=reversedModelStore.loadModelFromFile(test,yearSplit);
 		}
@@ -261,7 +264,10 @@ public abstract class BaseClassifier implements Serializable{
 				evalSummary+=FormatUtility.formatDouble(modelAUC[i],0,4)+"@"+FormatUtility.formatPercent(focusAreaRatio[i], 2, 0)+", " ;	
 			}
 			evalSummary+=" )\r\n";
+			System.out.println("预测所用模型文件:  "+modelStore.m_workFilePath+modelStore.m_modelFileName);
+			System.out.println("预测所用方向模型文件"+reversedModelStore.m_workFilePath+reversedModelStore.m_modelFileName);
 			classifySummaries.appendEvaluationSummary(evalSummary);
+			
 
 		}else{
 			//这是进行历史回测数据时，根据历史收益率数据进行阶段评估
@@ -300,9 +306,10 @@ public abstract class BaseClassifier implements Serializable{
 
 	
 	//找到回测评估、预测时应该使用evaluationStore对象（主要为获取model文件和eval文件名称）
-	public void locateEvalutationStore(String targetYearSplit,String policySplit,String modelFilePath, String modelFilePrefix) {
+	public EvaluationStore locateEvalutationStore(String targetYearSplit,String policySplit,String modelFilePath, String modelFilePrefix) {
 		EvaluationStore evaluationStore=new EvaluationStore(targetYearSplit,policySplit,modelFilePath, modelFilePrefix,this);
 		m_evaluationStore=evaluationStore;
+		return evaluationStore;
 	}
 	
 	//为每日预测时使用
@@ -385,11 +392,10 @@ public abstract class BaseClassifier implements Serializable{
 		System.out.println("m_modelDataSplitMode="+m_evalDataSplitMode);
 		System.out.println("m_modelEvalFileShareMode="+m_modelFileShareMode);
 		System.out.println("modelArffFormat="+modelArffFormat);
-//		System.out.println(m_evaluationStore.showEvaluationParameters());
 		System.out.println("TOP AREA RATIO="+EvaluationStore.TOP_AREA_RATIO);
 		System.out.println("reversed TOP AREA RATIO="+EvaluationStore.REVERSED_TOP_AREA_RATIO);
 		EvaluationConfDefinition evalConf=new EvaluationConfDefinition(this.classifierName ,this.m_policySubGroup,null);
-		evalConf.showEvaluationParameters();
+		System.out.println(evalConf.showEvaluationParameters());
 	    System.out.println("***************************************");
 	}
 	

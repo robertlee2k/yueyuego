@@ -1,6 +1,9 @@
 package yueyueGo;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 import yueyueGo.classifier.AdaboostClassifier;
 import yueyueGo.classifier.BaggingM5P;
@@ -19,15 +22,16 @@ import yueyueGo.fullModel.classifier.MyNNFullModel;
 import yueyueGo.utility.AppContext;
 import yueyueGo.utility.ClassifySummaries;
 import yueyueGo.utility.ClassifyUtility;
+import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.MergeClassifyResults;
 import yueyueGo.utility.PredictModelData;
 
 public class DailyPredict {
 
-	private static String PREDICT_WORK_DIR=EnvConstants.PREDICT_WORK_DIR;
+	private static String PREDICT_WORK_DIR=EnvConstants.PREDICT_WORK_DIR+"\\66-模型\\";
 	protected ArffFormat ARFF_FORMAT; //当前所用数据文件格式 
-	private static String PREDICT_RESULT_DIR=PREDICT_WORK_DIR+"\\88-预测结果\\"; 
+	private static String PREDICT_RESULT_DIR=EnvConstants.PREDICT_WORK_DIR+"\\88-预测结果\\"; 
 	private HashMap<String, PredictModelData> PREDICT_MODELS;
 	
 //	private double[] shouyilv_thresholds; //对于胜率优先算法的收益率筛选阀值
@@ -44,28 +48,26 @@ public class DailyPredict {
 		if(EnvConstants.AVG_LINE_ROOT_DIR.equalsIgnoreCase(type)){
 
 			//=========================LEGACY FORMAT 不常用========================
-			format=ArffFormat.LEGACY_FORMAT;
-			//旧格式预测模型
-			//BaggingM5P上次使用的预测模型
-			classifierName=ClassifyUtility.BAGGING_M5P+ClassifyUtility.MULTI_PCA_SURFIX;
-//			addModelData(classifierName,format,"\\extData2005-2016-baggingM5P-2016 MA ","\\extData2005-2016-baggingM5P-201602 MA ");
-			addModelData(classifierName,format,"\\extData2005-2016-baggingM5P-201604 MA ","\\extData2005-2016-baggingM5P-201606 MA ");
-			
-			//adaboost上次使用的预测模型
-			classifierName=ClassifyUtility.ADABOOST;
-//			addModelData(classifierName,format,"\\extData2005-2016-adaboost-2016 MA ","\\extData2005-2016-adaboost-201602 MA ");
-			addModelData(classifierName,format,"\\extData2005-2016-adaboost-201604 MA ","\\extData2005-2016-adaboost-201606 MA ");
+//			format=ArffFormat.LEGACY_FORMAT;
+//			//旧格式预测模型
+//			//BaggingM5P上次使用的预测模型
+//			classifierName=ClassifyUtility.BAGGING_M5P+ClassifyUtility.MULTI_PCA_SURFIX;
+//			addModelData(classifierName,format,"\\extData2005-2016-baggingM5P-201606 MA ");
+//			
+//			//adaboost上次使用的预测模型
+//			classifierName=ClassifyUtility.ADABOOST;
+//			addModelData(classifierName,format,"\\extData2005-2016-adaboost-201606 MA ");
 			
 			//=========================EXT FORMAT 部分========================
 			format=ArffFormat.CURRENT_FORMAT;
 
 			//BaggingM5P当前使用的预测模型
 			classifierName=ClassifyUtility.BAGGING_M5P+ClassifyUtility.MULTI_PCA_SURFIX;
-			addModelData(classifierName,format,"\\trans20052017(9)-baggingM5P-201607 MA ","\\trans20052017(9)-baggingM5P-201608 MA ");
+			addModelData(classifierName,format,"\\trans20052017(9)-baggingM5P-201707 MA ");
 
 			//adaboost当前使用的预测模型
 			classifierName=ClassifyUtility.ADABOOST;
-			addModelData(classifierName,format,"\\trans20052017(9)-adaboost-201607 MA ","\\trans20052017(9)-adaboost-201608 MA ");
+			addModelData(classifierName,format,"\\trans20052017(9)-adaboost-201707 MA ");
 			
 		}else if(EnvConstants.FULL_MODEL_ROOT_DIR.equals(type)){
 			// fullmodel不保留legacy
@@ -73,11 +75,11 @@ public class DailyPredict {
 			//BaggingM5PFullModel当前使用的预测模型---------FullMODEL
 			classifierName=ClassifyUtility.BAGGING_M5P_FULLMODEL+ClassifyUtility.MULTI_PCA_SURFIX;
 //			addModelData(classifierName,format,"\\extData2005-2016-BaggingM5PABFullModel-201607 MA ", "\\extData2005-2016-BaggingM5PABFullModel-201607 MA ");
-			addModelData(classifierName,format,"\\fullModel20052017(1009)-BaggingM5PABFullModel-201607 MA ", "\\fullModel20052017(1009)-BaggingM5PABFullModel-201609 MA ");
+			addModelData(classifierName,format, "\\fullModel20052017(1009)-BaggingM5PABFullModel-201609 MA ");
 			//BaggingJ48FullModel当前使用的预测模型---------FullMODEL
 			classifierName=ClassifyUtility.MYNN_MLP_FULLMODEL;
 //			addModelData(classifierName,format,"\\extData2005-2016-myNNFullModel-2016 MA ", "\\extData2005-2016-myNNFullModel-201603 MA ");
-			addModelData(classifierName,format,"\\fullModel20052017(1009)-myNNFullModel-2016 MA ", "\\fullModel20052017(1009)-myNNFullModel-201603 MA ");
+			addModelData(classifierName,format, "\\fullModel20052017(1009)-myNNFullModel-201603 MA ");
 			
 		}
 	}
@@ -86,17 +88,59 @@ public class DailyPredict {
 	public static void main(String[] args) {
 		try {
 			System.out.println("Database URL in USE : "+EnvConstants.URL + " Please ensure this is the correct environment you want to use.....");
-			callFullModelPredict();
-			callDailyPredict();
+//			callFullModelPredict();
+//			callDailyPredict();
+			
+			copyPredictModels();
 
 		} catch (Exception e) {
 
 			e.printStackTrace();
 		}
 	}
+	
+	/*
+	 * 从回测模型中选取最新的模型拷贝至目标目录
+	 */
+	public static void copyPredictModels() throws Exception {
+		String currentMonth="201708"; //当前月是没有数据的，最新数据是上月的currentMonth-1
+		HashMap<String, String> fileMap;
+		BackTest worker=new BackTest();
+		worker.init();
+		
+		//BaggingM5P
+		BaggingM5P cBagModel=new BaggingM5P();
+		//Adaboost
+		AdaboostClassifier adaModel=new AdaboostClassifier();
+		BaseClassifier[] models=new BaseClassifier[2];
+		models[0]=cBagModel;
+		models[1]=adaModel;
+
+		int fileNum=0;
+		for (BaseClassifier model : models) {
+			fileMap=worker.findModelFiles(model, currentMonth);
+			String targetPath=getPredictPath(model);
+			FileUtility.mkdirIfNotExist(targetPath);
+
+			String filename;
+			String originalPath;
+			for (Entry<String, String> entry : fileMap.entrySet()) {
+				filename=entry.getKey();
+				originalPath=entry.getValue();
+				File src=new File(originalPath+filename);
+				File dest=new File(targetPath+filename);
+				Files.copy(src.toPath(),dest.toPath());
+				fileNum++;
+			}
+		}
+
+		System.out.println("Number of files copied:"+fileNum);
+	}
+	
 
 
 	/**
+	 * 每日预测
 	 * @throws Exception
 	 */
 	public static String callDailyPredict() throws Exception {
@@ -172,13 +216,10 @@ public class DailyPredict {
 		
 		//新格式的bagging m5p预测  (使用PCA版本和计算字段）
 		BaggingM5P cBagModel=new BaggingM5P();
-		cBagModel.m_usePCA=true;
 		GeneralInstances baggingInstances=predictWithDB(cBagModel);
 
 		//Adaboost(使用PCA版本和计算字段）
 		AdaboostClassifier adaModel=new AdaboostClassifier();
-		adaModel.m_usePCA=true;
-		adaModel.m_positiveLine=0;
 		GeneralInstances adaboostInstances=predictWithDB(adaModel);		
 
 //		System.out.println("******LEGACY*********** output LEGACY  prediction results**************LEGACY**********");
@@ -221,7 +262,7 @@ public class DailyPredict {
 		GeneralInstances nMergedOutput=merge.mergeResults(nInstances,cInstances,ArffFormat.RESULT_PREDICTED_PROFIT,left);
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(nMergedOutput);
 		nMergedOutput=instanceProcessor.removeAttribs(nMergedOutput, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
-		String savedNFileName=PREDICT_RESULT_DIR+getDirPrefixByType(nModel.modelArffFormat)+ "Merged Selected Result-"+nModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv";
+		String savedNFileName=PREDICT_RESULT_DIR+ "Merged Selected Result-"+nModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv";
 		DataIOHandler.getSaver().saveCSVFile(nMergedOutput, savedNFileName);
 		nMergedOutput=null;
 		System.out.println(nModel.getIdentifyName()+"----------prediction ends---------");
@@ -229,7 +270,7 @@ public class DailyPredict {
 		System.out.println("-----now output combined predictions----------"+cModel.getIdentifyName()+" (merged with："+nModel.getIdentifyName()+")");
 		GeneralInstances cMergedOutput=merge.mergeResults(cInstances,nInstances,ArffFormat.RESULT_PREDICTED_WIN_RATE,left);
 		cMergedOutput=instanceProcessor.removeAttribs(cMergedOutput, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
-		String savedCFileName=PREDICT_RESULT_DIR+getDirPrefixByType(cModel.modelArffFormat)+ "Merged Selected Result-"+cModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv";
+		String savedCFileName=PREDICT_RESULT_DIR+ "Merged Selected Result-"+cModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv";
 		DataIOHandler.getSaver().saveCSVFile(cMergedOutput, savedCFileName);
 		cMergedOutput=null;
 		System.out.println(cModel.getIdentifyName()+"----------prediction ends--------");
@@ -376,11 +417,10 @@ public class DailyPredict {
 		//获取预定义的model文件
 		String id=clModel.getIdentifyName()+clModel.modelArffFormat;
 		PredictModelData modelData=this.PREDICT_MODELS.get(id);
-		String modelPredifined=modelData.getModelFileName();
+//		int formatType=modelData.getModelFormatType();
+		String predictPath=getPredictPath(clModel);
 		String evalPredefined=modelData.getEvalFileName();
-		int formatType=modelData.getModelFormatType();
-		String predictPath=PREDICT_WORK_DIR+getDirPrefixByType(formatType)+"\\"+clModel.getIdentifyName();
-
+		
 		//分策略组预测
 		for (int j = 0; j < clModel.m_policySubGroup.length; j++) {
 
@@ -394,10 +434,9 @@ public class DailyPredict {
 				newData=fullData;
 			}
 
-			String modelFileName = predictPath+ modelPredifined	+ clModel.m_policySubGroup[j]	;				
-			String evalFileName = predictPath+ evalPredefined + clModel.m_policySubGroup[j]+EvaluationStore.THRESHOLD_EXTENSION;
-			EvaluationStore evaluation=new EvaluationStore(evalFileName,modelFileName);
-			
+//			String modelFileName = predictPath+ modelPredifined	+ clModel.m_policySubGroup[j]	;				
+			String evalFileName =  evalPredefined + clModel.m_policySubGroup[j]+EvaluationStore.THRESHOLD_EXTENSION;
+			EvaluationStore evaluation=new EvaluationStore(predictPath,evalFileName);
 			clModel.setEvaluationStore(evaluation);
 
 
@@ -427,8 +466,8 @@ public class DailyPredict {
 			
 		}
 		System.out.println("本次预测所使用目录： "+predictPath);
-		System.out.println("本次预测所使用模型文件： "+modelPredifined);
 		System.out.println("本次预测所使用评估文件： "+evalPredefined);
+
 		if (result.numInstances()!=inData.numInstances()) {
 			throw new Exception("not all data have been processed!!!!! incoming Data number = " +inData.numInstances() + " while predicted number is "+result.numInstances());
 		}
@@ -436,7 +475,13 @@ public class DailyPredict {
 		return result;
 	}
 
-	private static String getDirPrefixByType(int modelFormatType){
+
+	/**
+	 * @param clModel
+	 * @param formatType
+	 * @return
+	 */
+	private static String getPredictPath(BaseClassifier clModel) {
 //		switch (modelFormatType) {
 //		case ArffFormat.LEGACY_FORMAT:
 //			return "\\00-legacy\\";
@@ -448,8 +493,10 @@ public class DailyPredict {
 //			return "";
 //		}
 		//legacy与current model 合并到统一目录下，用文件名区分
-		return "";
+		return PREDICT_WORK_DIR+"\\"+clModel.getIdentifyName();
 	}
+
+
 	
 	//这是对增量数据nominal label的处理 （因为增量数据中的nominal数据，label会可能不全）
 	private  GeneralInstances calibrateAttributesForDailyData(GeneralInstances incomingData,BaseClassifier clModel) throws Exception {
@@ -472,13 +519,12 @@ public class DailyPredict {
 	/**
 	 * @param format
 	 */
-	private void addModelData(String classifier,int format,String modelFilePrefix,String evalFilePrefix) {
+	private void addModelData(String classifier,int format,String evalFilePrefix) {
 		String id;
 		PredictModelData modelData;
 		id=classifier+format;
 		modelData=new PredictModelData();
 		modelData.setIdentify(id);
-		modelData.setModelFileName(modelFilePrefix); 
 		modelData.setEvalFileName(evalFilePrefix);
 		modelData.setModelFormatType(format);
 		this.PREDICT_MODELS.put(id, modelData);
