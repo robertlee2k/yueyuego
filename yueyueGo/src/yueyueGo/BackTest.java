@@ -614,7 +614,7 @@ public class BackTest {
 		//返回选股结果		
 		int pos = BaseInstanceProcessor.findATTPosition(fullOutput,ArffFormat.RESULT_SELECTED);
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullOutput);
-		GeneralInstances fullMarketSelected=instanceProcessor.getInstancesSubset(fullOutput, WekaInstanceProcessor.WEKA_ATT_PREFIX +pos+" = 1");
+		GeneralInstances fullMarketSelected=instanceProcessor.getInstancesSubset(fullOutput, WekaInstanceProcessor.WEKA_ATT_PREFIX +pos+" = "+BaseClassifier.VALUE_SELECTED);
 		return fullMarketSelected;
 	}
 

@@ -176,7 +176,12 @@ public class MergeClassifyResults {
 							}else{ //不需要修改选股结果
 								finalSelected++;
 							}
-						}// end if (selected==1)
+						}else if (selected==BaseClassifier.VALUE_NEVER_SELECT){
+							//这个是因为要兼容交易程序（只接受0和1两个值，不接受-1）
+							selected=BaseClassifier.VALUE_NOT_SURE;
+						}
+						
+						// end if (selected==1)
 						
 ////						if (dataToAdd.equals(ArffFormat.RESULT_PREDICTED_WIN_RATE)){
 //							//当前结果集里有什么数据

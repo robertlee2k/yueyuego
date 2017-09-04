@@ -32,50 +32,65 @@ public class EvaluationConfDefinition implements Serializable{
 		m_policyGroup=a_policyGroup;
 		// 缺省的配置
 		if (format==null || format instanceof AvgLineDataFormat || format instanceof FullModelDataFormat){
-			if (classifierName.equals(ClassifyUtility.BAGGING_M5P)){
+			switch (classifierName) {
+			case ClassifyUtility.BAGGING_M5P:
 				//缩小选股比率
 				SAMPLE_LOWER_LIMIT =new double[] { 0.015, 0.018, 0.02, 0.03, 0.03 }; // 各条均线选择样本的下限
 				SAMPLE_UPPER_LIMIT =new double[] { 0.03, 0.04, 0.05, 0.06, 0.06 }; // 各条均线选择样本的上限
-			} else if(classifierName.equals(ClassifyUtility.ADABOOST)){
+				break;
+			case ClassifyUtility.ADABOOST:
 				SAMPLE_LOWER_LIMIT =new double[] { 0.02, 0.02, 0.02, 0.03, 0.03 }; // 各条均线选择样本的下限
 				SAMPLE_UPPER_LIMIT =new double[] { 0.06, 0.06, 0.06, 0.06, 0.06 }; // 各条均线选择样本的上限
 				//			SAMPLE_UPPER_LIMIT =new double[] { 0.1, 0.1, 0.1, 0.1, 0.1 }; // 各条均线选择样本的上限
-			} else if(classifierName.equals(ClassifyUtility.RANDOM_FOREST)){
+				break;
+			case ClassifyUtility.RANDOM_FOREST:
 				SAMPLE_LOWER_LIMIT =new double[] { 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限
 				SAMPLE_UPPER_LIMIT =new double[] { 0.06, 0.06, 0.07, 0.08, 0.09 }; // 各条均线选择样本的上限
 				//			SAMPLE_UPPER_LIMIT =new double[] { 0.1, 0.1, 0.1, 0.1, 0.1 }; // 各条均线选择样本的上限
-			}else if (classifierName.equals(ClassifyUtility.BAGGING_LINEAR_REGRESSION)){
+				break;
+			case ClassifyUtility.BAGGING_LINEAR_REGRESSION:
 				SAMPLE_LOWER_LIMIT =new double[] { 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限
 				SAMPLE_UPPER_LIMIT =new double[] { 0.2, 0.2, 0.2, 0.2, 0.2 }; // 各条均线选择样本的上限
-			}else if (classifierName.equals(ClassifyUtility.M5PAB)) {
+				break;
+			case ClassifyUtility.M5PAB:
 				SAMPLE_LOWER_LIMIT =new double[] { 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限
 				SAMPLE_UPPER_LIMIT =new double[] { 0.2, 0.2, 0.2, 0.2, 0.2 }; // 各条均线选择样本的上限
-			}else if (classifierName.equals(ClassifyUtility.MLPAB)) {
+				break;
+			case ClassifyUtility.MLPAB:
 				SAMPLE_LOWER_LIMIT =new double[] { 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限
 				SAMPLE_UPPER_LIMIT =new double[] { 0.2, 0.2, 0.2, 0.2, 0.2 }; // 各条均线选择样本的上限
-			}else if(classifierName.equals(ClassifyUtility.MYNN_MLP)){
+				break;
+			case ClassifyUtility.MYNN_MLP:
 				SAMPLE_LOWER_LIMIT =new double[] { 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限
 				SAMPLE_UPPER_LIMIT =new double[] { 0.2, 0.2, 0.2, 0.2, 0.2 }; // 各条均线选择样本的上限
-			}else if (classifierName.equals(ClassifyUtility.MYNN_MLP_FULLMODEL)){
+				break;
+			case ClassifyUtility.MYNN_MLP_FULLMODEL:
 				SAMPLE_LOWER_LIMIT =new double[] { 0.02}; // 各条均线选择样本的下限
 				SAMPLE_UPPER_LIMIT =new double[] { 0.04}; // 各条均线选择样本的上限
-			}else if(classifierName.equals(ClassifyUtility.BAGGING_M5P_FULLMODEL)) {
+				break;
+			case ClassifyUtility.BAGGING_M5P_FULLMODEL:
 				SAMPLE_LOWER_LIMIT = new double[] {0.02}; // 各条均线选择样本的下限 
 				SAMPLE_UPPER_LIMIT = new double[]  {0.04};
-			}else if (classifierName.equals(ClassifyUtility.BAGGING_REGRESSION_FULLMODEL)){
+				break;
+			case ClassifyUtility.BAGGING_REGRESSION_FULLMODEL:
 				SAMPLE_LOWER_LIMIT =new double[] { 0.03}; // 各条均线选择样本的下限
 				SAMPLE_UPPER_LIMIT =new double[] { 0.05}; // 各条均线选择样本的上限
-			}else if (classifierName.equals(ClassifyUtility.ADABOOST_FULLMODEL)){
+				break;
+			case ClassifyUtility.ADABOOST_FULLMODEL:
 				SAMPLE_LOWER_LIMIT =new double[] { 0.02}; // 各条均线选择样本的下限
 				SAMPLE_UPPER_LIMIT =new double[] { 0.04}; // 各条均线选择样本的上限
+				break;
 			}
 		} else if (format instanceof MomentumDataFormat){ //  动量策略
-			if (classifierName.equals(ClassifyUtility.BAGGING_M5P)){
+			switch (classifierName) {
+			case ClassifyUtility.BAGGING_M5P:
 				SAMPLE_LOWER_LIMIT =new double[] { 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限
 				SAMPLE_UPPER_LIMIT =new double[] { 0.06, 0.06, 0.07, 0.08, 0.09 }; // 各条均线选择样本的上限
-			} else if(classifierName.equals(ClassifyUtility.ADABOOST)){
+				break;
+			case ClassifyUtility.ADABOOST:
 				SAMPLE_LOWER_LIMIT =new double[] { 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限
 				SAMPLE_UPPER_LIMIT =new double[] { 0.06, 0.06, 0.07, 0.08, 0.09 }; // 各条均线选择样本的上限
+				break;
 			}
 		}
 	}
