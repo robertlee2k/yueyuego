@@ -25,15 +25,15 @@ public class DailyPredictJobHandler extends IJobHandler {
 	@Override
 	public void execute(String... params) throws Exception {
 		
-		String wholeMarketFile=DailyPredict.callFullModelPredict();
+//		String wholeMarketFile=DailyPredict.callFullModelPredict();
 		String maFile=DailyPredict.callDailyPredict();
 				
 		//均线
 		ReturnT<String> maFileId=JobClientUtil.uploadJobRealFile(maFile);
 		JobClientUtil.setJobExecutorParam(12,"201611091647330137",maFileId.getMsg());
 		
-		//短线
-		ReturnT<String> wholeMarketFileId=JobClientUtil.uploadJobRealFile(wholeMarketFile);
-		JobClientUtil.setJobExecutorParam(12,"201611101644540730",wholeMarketFileId.getMsg());
+//		//短线
+//		ReturnT<String> wholeMarketFileId=JobClientUtil.uploadJobRealFile(wholeMarketFile);
+//		JobClientUtil.setJobExecutorParam(12,"201611101644540730",wholeMarketFileId.getMsg());
 	}
 }
