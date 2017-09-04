@@ -238,7 +238,7 @@ public class ModelStore {
 			String savedModelYearSplit=null;
 			savedModelYearSplit=(String)v.get(2);
 			
-			if ( a_targetYearSplit!=null ){ //每日预测时跳过
+			if ( "".equals(a_targetYearSplit) ){ //每日预测时跳过
 				//校验model文件里的构建model的数据时间段
 				int savedYear=Integer.valueOf(savedModelYearSplit).intValue();
 				int targetYear=Integer.valueOf(a_targetYearSplit).intValue();
