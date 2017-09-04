@@ -18,19 +18,7 @@ public class EvaluationConfDefinition implements Serializable{
 	 */
 
 	private static final long serialVersionUID = 4464388266024527544L;
-	//对于收益率优先算法的胜率筛选阀值 
 	
-	//TODO 要针对这个做分析 。暂时废除这个做法。
-//	//尝试过下面的数据全部调整至{0.55,0.55,0.5,0.5,0.45};，会让牛市收益减少，熊市增加，因此恢复原状，目前最好的是{0.4,0.4,0.35,0.35,0.3}
-//	public final static double[] WINRATE_FILTER_FOR_SHOUYILV=new double[] {0.4,0.4,0.35,0.35,0.3};//{0.5,0.5,0.45,0.45,0.4};////{0.35,0.35,0.3,0.3,0.3};//{0.4,0.4,0.4,0.35,0.35};//{0.5,0.5,0.5,0.5,0.5};//{0,0,0,0,0};//{0.3,0.3,0.3,0.3,0.3};
-//	//对于胜率优先算法的收益率筛选阀值
-//	//因为Adaboost不是很有效，这个阀值不太管用
-//	public final static double[] SHOUYILV_FILTER_FOR_WINRATE=new double[] {0.01,0.02,0.03,0.03,0.04};//{0.01,0.02,0.03,0.04,0.05};//{0.01,0.01,0.02,0.03,0.04};//{0.005,0.01,0.03,0.05,0.08};//{0.01,0.02,0.03,0.03,0.04};//{0.005,0.005,0.01,0.03,0.03};////{0,0,0,0,0};//{-100,-100,-100,-100,-100}; 
-//
-//	//fullmodel中对于收益率优先算法的胜率筛选阀值 
-//	public final static double[] FULLMODEL_WINRATE_FILTER_FOR_SHOUYILV=new double[] {0.5};
-//	//fullmodel中对于胜率优先算法的收益率筛选阀值
-//	public final static double[] FULLMODEL_SHOUYILV_FILTER_FOR_WINRATE=new double[] {0.02}; 
 
 	protected double[] SAMPLE_LOWER_LIMIT; // 各条均线选择样本的下限
 	protected double[] SAMPLE_UPPER_LIMIT; // 各条均线选择样本的上限  
