@@ -38,11 +38,11 @@ public class EvaluationStore {
 
 	protected boolean m_isNominal=false;
 
-	public static final double TOP_AREA_RATIO=0.2; //缺省定义头部区域为35%
-	public static final double REVERSED_TOP_AREA_RATIO=0.55; //缺省定义反向头部为50%
+	public static final double TOP_AREA_RATIO=0.1; //缺省定义头部区域为10%
+	public static final double REVERSED_TOP_AREA_RATIO=0.5; //缺省定义反向头部为50%
 	protected double[] m_focusAreaRatio={TOP_AREA_RATIO,1};//评估时关注评估数据的不同Top 比例;
 
-	public static final int PREVIOUS_MODELS_NUM=5; 	//暂时选取之前的5个文件
+	public static final int PREVIOUS_MODELS_NUM=6; 	//暂时选取之前的6个文件（加上9个月评估数据，也就是最大倒推2年左右）
 	public static final int YEAR_SPLIT_LIMIT=2007; //回测模型的起始点， 在这之前无数据	
 
 	//以下为不可配置参数，内部存储
@@ -216,10 +216,11 @@ public class EvaluationStore {
 
 		//获取正向全部的评估结果（要全部的原因是评估的sample_rate是占全部数据的rate）
 		GeneralInstances result=getROCInstances(fullPredictions,1,false);
-		//TODO ：利用EvalData数据统计bottomLine还是固定值0.6？
+
 //		GeneralDataSaver dataSaver=DataIOHandler.getSaver();		
 //		dataSaver.SaveDataIntoFile(result, m_workFilePath+selectedModel.m_modelYearSplit+"-ROC.arff");
-		
+
+		//TODO ：利用EvalData数据统计bottomLine还是固定值0.6？
 		TpFpStatistics benchmark=new TpFpStatistics(evalData, m_isNominal);	
 		double tp_fp_bottom_line=benchmark.getEval_tp_fp_ratio();
 		if (tp_fp_bottom_line<0.4){ //too small
