@@ -89,9 +89,9 @@ public class DailyPredict {
 		try {
 			System.out.println("Database URL in USE : "+EnvConstants.URL + " Please ensure this is the correct environment you want to use.....");
 //			callFullModelPredict();
-			callDailyPredict();
+//			callDailyPredict();
 			
-//			copyPredictModels();
+			copyPredictModels();
 
 		} catch (Exception e) {
 

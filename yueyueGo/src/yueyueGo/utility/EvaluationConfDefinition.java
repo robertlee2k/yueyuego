@@ -35,7 +35,7 @@ public class EvaluationConfDefinition implements Serializable{
 			switch (classifierName) {
 			case ClassifyUtility.BAGGING_M5P:
 				//缩小选股比率
-				SAMPLE_LOWER_LIMIT =new double[] { 0.015, 0.018, 0.02, 0.03, 0.03 }; // 各条均线选择样本的下限
+				SAMPLE_LOWER_LIMIT =new double[] { 0.012, 0.018, 0.02, 0.03, 0.03 }; // 各条均线选择样本的下限
 				SAMPLE_UPPER_LIMIT =new double[] { 0.03, 0.04, 0.05, 0.06, 0.06 }; // 各条均线选择样本的上限
 				break;
 			case ClassifyUtility.ADABOOST:
