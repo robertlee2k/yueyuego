@@ -82,15 +82,16 @@ public class EvaluationStore {
 	}
 
 	//预测时调用的
-	public EvaluationStore(String workpath,String eval_filename,String a_targetYearSplit, BaseClassifier clModel) {
+	public EvaluationStore(BaseClassifier clModel,String workpath,String eval_filename,String a_targetYearSplit, String policySplit) {
 		this.m_workFilePath=workpath;
 		this.m_evalFileName=eval_filename;
 		//每日预测时用最后的训练数据月做校验
-		m_targetYearSplit=a_targetYearSplit; 
+		this.m_targetYearSplit=a_targetYearSplit; 
 		
 		//根据modelDataSplitMode推算出评估数据的起始区间 （目前主要有三种： 最近6个月、9个月、12个月）
 		this.m_modelFileShareMode=clModel.m_modelFileShareMode;
 		this.m_evalDataSplitMode=clModel.m_evalDataSplitMode;
+		this.m_policySplit=policySplit;
 		m_evalYearSplit=caculateEvalYearSplit(m_targetYearSplit,m_evalDataSplitMode);
 	}
 
@@ -174,6 +175,9 @@ public class EvaluationStore {
 		}
 		if (m_evalYearSplit.equals(thresholdData.getEvalYearSplit())==false){
 			msg+=" {ERROR}target m_evalYearSplit="+m_evalYearSplit+" while evalYearSplit in thresholdData is "+thresholdData.getEvalYearSplit();
+		}
+		if (m_policySplit.equals(thresholdData.getPolicySplit())==false){
+			msg+=" {ERROR}target m_policySplit="+m_policySplit+" while getPolicySplit in thresholdData is "+thresholdData.getPolicySplit();
 		}
 		if ("".equals(msg))
 			return null;

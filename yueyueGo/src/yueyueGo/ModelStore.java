@@ -247,14 +247,16 @@ public class ModelStore {
 					throw new Exception(" savedModelYearSplit in model file="+savedModelYearSplit+" while target_year="+a_targetYearSplit);
 				}
 			}
-			//校验model文件里的构建model的数据时间段
-			if (this.m_modelYearSplit!=null){ //评估时跳过
-				if (this.m_modelYearSplit.equals(savedModelYearSplit)==false){
-					throw new Exception(" savedModelYearSplit in model file="+savedModelYearSplit+" not equal to m_modelYearSplit="+m_modelYearSplit);
-				}
-			}else{ //如果当前modelYear为空则直接设为从文件里读取的值
-				this.m_modelYearSplit=savedModelYearSplit;
+			
+//			if (this.m_modelYearSplit!=null){ //评估时跳过
+			
+			//校验model文件里的构建model的数据时间段 , 不管是评估还是预测时，这个都不能跳过，必须相等（因为这个值是在EvaluationStore里保存好的）
+			if (this.m_modelYearSplit.equals(savedModelYearSplit)==false){
+				throw new Exception(" savedModelYearSplit in model file="+savedModelYearSplit+" not equal to m_modelYearSplit="+m_modelYearSplit);
 			}
+//			}else{ //如果当前modelYear为空则直接设为从文件里读取的值
+//				this.m_modelYearSplit=savedModelYearSplit;
+//			}
 
 		} catch(IOException e){
 			System.err.println("error when loading: "+modelFileName);

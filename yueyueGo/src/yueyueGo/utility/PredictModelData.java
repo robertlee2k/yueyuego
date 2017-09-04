@@ -4,13 +4,8 @@ package yueyueGo.utility;
 public class PredictModelData {
 
 	private String identify;
-//	private String modelFileName;
 	private String evalFileName;
-	
-	private String targetYearSplit; //用于校验
-	
-//	private String modelSplitYear;
-//	private String evalSplitYear;
+	private String targetYearSplit; //建模数据中最新的月份，用于校验
 	private int modelFormatType;
 
 	

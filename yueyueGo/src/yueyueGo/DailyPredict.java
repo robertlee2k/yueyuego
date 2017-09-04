@@ -439,7 +439,7 @@ public class DailyPredict {
 
 				
 			String evalFileName =  evalPredefined + clModel.m_policySubGroup[j]+EvaluationStore.THRESHOLD_EXTENSION;
-			EvaluationStore evaluation=new EvaluationStore(predictPath,evalFileName,evalTargetSplitYear,clModel);
+			EvaluationStore evaluation=new EvaluationStore(clModel,predictPath,evalFileName,evalTargetSplitYear,clModel.m_policySubGroup[j]);
 			clModel.setEvaluationStore(evaluation);
 
 
