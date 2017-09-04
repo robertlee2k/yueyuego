@@ -256,16 +256,16 @@ public abstract class BaseClassifier implements Serializable{
 			//这是预测每日数据时，没有实际收益率数据可以做评估 (上述逻辑会让所有的数据都进入negative的分支）
 			classifySummaries.savePredictSummaries(policySplit,totalNegativeShouyilv,selectedNegativeShouyilv);
 			//输出评估结果及所使用阀值及期望样本百分比
-			String evalSummary="( with params: modelYearSplit="+modelYearSplit+"threshold="+FormatUtility.formatDouble(thresholdMin,0,3)+" , percentile="+FormatUtility.formatPercent(percentile/100)+" ,defaultThresholdUsed="+defaultThresholdUsed;
+			String evalSummary="\r\n\t ( with params: modelYearSplit="+modelYearSplit+" threshold="+FormatUtility.formatDouble(thresholdMin,0,3)+" , percentile="+FormatUtility.formatPercent(percentile/100)+" ,defaultThresholdUsed="+defaultThresholdUsed;
 			evalSummary+=" ,reversedModelYearSplit="+reversedModelYearSplit+" ,reversedThreshold="+FormatUtility.formatDouble(reversedThresholdMax,0,3)+" , reversedPercentile="+FormatUtility.formatPercent(reversedPercentile/100);
 			evalSummary+=" ,modelAUC@focusAreaRatio=";
 			double[] focusAreaRatio=thresholdData.getFocosAreaRatio();
 			for (int i=0;i<focusAreaRatio.length;i++) {
-				evalSummary+=FormatUtility.formatDouble(modelAUC[i],0,4)+"@"+FormatUtility.formatPercent(focusAreaRatio[i], 2, 0)+", " ;	
+				evalSummary+=FormatUtility.formatDouble(modelAUC[i],1,4)+"@"+FormatUtility.formatPercent(focusAreaRatio[i], 3, 0)+", " ;	
 			}
 			evalSummary+=" )\r\n";
-			System.out.println("预测所用模型文件:  "+modelStore.m_workFilePath+modelStore.m_modelFileName);
-			System.out.println("预测所用方向模型文件"+reversedModelStore.m_workFilePath+reversedModelStore.m_modelFileName);
+			System.out.println("预测用模型文件:  "+modelStore.m_workFilePath+modelStore.m_modelFileName);
+			System.out.println("预测用反向模型文件"+reversedModelStore.m_workFilePath+reversedModelStore.m_modelFileName);
 			classifySummaries.appendEvaluationSummary(evalSummary);
 			
 

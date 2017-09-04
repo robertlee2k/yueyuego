@@ -63,23 +63,23 @@ public class DailyPredict {
 
 			//BaggingM5P当前使用的预测模型
 			classifierName=ClassifyUtility.BAGGING_M5P+ClassifyUtility.MULTI_PCA_SURFIX;
-			addModelData(classifierName,format,"\\trans20052017(9)-baggingM5P-201707 MA ");
+			addModelData(classifierName,format,"\\trans20052017(9)-baggingM5P-201707 MA ","201707");
 
 			//adaboost当前使用的预测模型
 			classifierName=ClassifyUtility.ADABOOST;
-			addModelData(classifierName,format,"\\trans20052017(9)-adaboost-201707 MA ");
+			addModelData(classifierName,format,"\\trans20052017(9)-adaboost-201707 MA ","201707");
 			
 		}else if(EnvConstants.FULL_MODEL_ROOT_DIR.equals(type)){
 			// fullmodel不保留legacy
-			format=FullModelDataFormat.FULLMODEL_FORMAT;
-			//BaggingM5PFullModel当前使用的预测模型---------FullMODEL
-			classifierName=ClassifyUtility.BAGGING_M5P_FULLMODEL+ClassifyUtility.MULTI_PCA_SURFIX;
-//			addModelData(classifierName,format,"\\extData2005-2016-BaggingM5PABFullModel-201607 MA ", "\\extData2005-2016-BaggingM5PABFullModel-201607 MA ");
-			addModelData(classifierName,format, "\\fullModel20052017(1009)-BaggingM5PABFullModel-201609 MA ");
-			//BaggingJ48FullModel当前使用的预测模型---------FullMODEL
-			classifierName=ClassifyUtility.MYNN_MLP_FULLMODEL;
-//			addModelData(classifierName,format,"\\extData2005-2016-myNNFullModel-2016 MA ", "\\extData2005-2016-myNNFullModel-201603 MA ");
-			addModelData(classifierName,format, "\\fullModel20052017(1009)-myNNFullModel-201603 MA ");
+//			format=FullModelDataFormat.FULLMODEL_FORMAT;
+//			//BaggingM5PFullModel当前使用的预测模型---------FullMODEL
+//			classifierName=ClassifyUtility.BAGGING_M5P_FULLMODEL+ClassifyUtility.MULTI_PCA_SURFIX;
+////			addModelData(classifierName,format,"\\extData2005-2016-BaggingM5PABFullModel-201607 MA ", "\\extData2005-2016-BaggingM5PABFullModel-201607 MA ");
+//			addModelData(classifierName,format, "\\fullModel20052017(1009)-BaggingM5PABFullModel-201609 MA ");
+//			//BaggingJ48FullModel当前使用的预测模型---------FullMODEL
+//			classifierName=ClassifyUtility.MYNN_MLP_FULLMODEL;
+////			addModelData(classifierName,format,"\\extData2005-2016-myNNFullModel-2016 MA ", "\\extData2005-2016-myNNFullModel-201603 MA ");
+//			addModelData(classifierName,format, "\\fullModel20052017(1009)-myNNFullModel-201603 MA ");
 			
 		}
 	}
@@ -420,6 +420,7 @@ public class DailyPredict {
 		String id=clModel.getIdentifyName()+clModel.modelArffFormat;
 		PredictModelData modelData=this.PREDICT_MODELS.get(id);
 //		int formatType=modelData.getModelFormatType();
+		String evalTargetSplitYear=modelData.getTargetYearSplit(); 
 		String predictPath=getPredictPath(clModel);
 		String evalPredefined=modelData.getEvalFileName();
 		
@@ -436,9 +437,9 @@ public class DailyPredict {
 				newData=fullData;
 			}
 
-//			String modelFileName = predictPath+ modelPredifined	+ clModel.m_policySubGroup[j]	;				
+				
 			String evalFileName =  evalPredefined + clModel.m_policySubGroup[j]+EvaluationStore.THRESHOLD_EXTENSION;
-			EvaluationStore evaluation=new EvaluationStore(predictPath,evalFileName);
+			EvaluationStore evaluation=new EvaluationStore(predictPath,evalFileName,evalTargetSplitYear,clModel);
 			clModel.setEvaluationStore(evaluation);
 
 
@@ -521,7 +522,7 @@ public class DailyPredict {
 	/**
 	 * @param format
 	 */
-	private void addModelData(String classifier,int format,String evalFilePrefix) {
+	private void addModelData(String classifier,int format,String evalFilePrefix,String lastYearSplit) {
 		String id;
 		PredictModelData modelData;
 		id=classifier+format;
@@ -529,6 +530,7 @@ public class DailyPredict {
 		modelData.setIdentify(id);
 		modelData.setEvalFileName(evalFilePrefix);
 		modelData.setModelFormatType(format);
+		modelData.setTargetYearSplit(lastYearSplit);
 		this.PREDICT_MODELS.put(id, modelData);
 	}
 
