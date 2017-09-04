@@ -29,7 +29,7 @@ import yueyueGo.utility.PredictModelData;
 
 public class DailyPredict {
 
-	private static String PREDICT_WORK_DIR=EnvConstants.PREDICT_WORK_DIR+"\\66-模型\\";
+	private static String PREDICT_MODEL_DIR=EnvConstants.PREDICT_WORK_DIR+"\\66-模型\\";
 	protected ArffFormat ARFF_FORMAT; //当前所用数据文件格式 
 	private static String PREDICT_RESULT_DIR=EnvConstants.PREDICT_WORK_DIR+"\\88-预测结果\\"; 
 	private HashMap<String, PredictModelData> PREDICT_MODELS;
@@ -89,9 +89,9 @@ public class DailyPredict {
 		try {
 			System.out.println("Database URL in USE : "+EnvConstants.URL + " Please ensure this is the correct environment you want to use.....");
 //			callFullModelPredict();
-//			callDailyPredict();
+			callDailyPredict();
 			
-			copyPredictModels();
+//			copyPredictModels();
 
 		} catch (Exception e) {
 
@@ -390,7 +390,7 @@ public class DailyPredict {
 	//用模型预测数据
 
 	private  GeneralInstances predict(BaseClassifier clModel, GeneralInstances inData) throws Exception {
-		System.out.println("predict using classifier : "+clModel.getIdentifyName()+" @ prediction work path :"+PREDICT_WORK_DIR);
+		System.out.println("predict using classifier : "+clModel.getIdentifyName()+" @ prediction work path :"+EnvConstants.PREDICT_WORK_DIR);
 		System.out.println("-----------------------------");
 		
 		GeneralInstances newData = null;
@@ -495,7 +495,7 @@ public class DailyPredict {
 //			return "";
 //		}
 		//legacy与current model 合并到统一目录下，用文件名区分
-		return PREDICT_WORK_DIR+"\\"+clModel.getIdentifyName()+"\\";
+		return PREDICT_MODEL_DIR+"\\"+clModel.getIdentifyName()+"\\";
 	}
 
 
@@ -555,7 +555,7 @@ public class DailyPredict {
 			throw new Exception("invalid arffFormat type");
 		}
 
-		GeneralInstances outputData=DataIOHandler.getSuppier().loadDataFromFile(PREDICT_WORK_DIR+formatFile); //C_ROOT_DIRECTORY+
+		GeneralInstances outputData=DataIOHandler.getSuppier().loadDataFromFile(EnvConstants.PREDICT_WORK_DIR+formatFile); //C_ROOT_DIRECTORY+
 //		if (formatType==ArffFormat.LEGACY_FORMAT){//如果是原有模式，去掉扩展字段
 //			BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(outputData);
 //			outputData=instanceProcessor.removeAttribs(outputData, ArffFormat.EXT_ARFF_COLUMNS);
