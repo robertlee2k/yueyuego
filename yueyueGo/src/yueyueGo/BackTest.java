@@ -98,10 +98,10 @@ public class BackTest {
 			//调用回测函数回测
 //			worker.callRebuildModels();
 //			worker.callReEvaluateModels();
-//			worker.callTestBack();
+			worker.callTestBack();
 //			worker.callRefreshModelUseLatestData();
 			
-			worker.callDataAnlysis();
+//			worker.callDataAnlysis();
 //			worker.testForModelStore();
 			
 		} catch (Exception e) {
@@ -222,15 +222,15 @@ public class BackTest {
 		RUNNING_THREADS=25;
 		//按连续分类器回测历史数据
 		BaggingM5P cModel=ClassiferInitFactory.initBaggingM5P(ARFF_FORMAT, BaseClassifier.FOR_BACKTEST_MODEL);
-		GeneralInstances continuousResult=testBackward(cModel);
+//		GeneralInstances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
-//		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
+		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 		
 		//按二分类器回测历史数据
 		AdaboostClassifier nModel=ClassiferInitFactory.initAdaboost(ARFF_FORMAT, BaseClassifier.FOR_BACKTEST_MODEL);
-		GeneralInstances nominalResult=testBackward(nModel);
+//		GeneralInstances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
-//		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
+		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 		
 		outputStatistics(nModel, nominalResult, cModel, continuousResult);
 		
@@ -682,7 +682,8 @@ public class BackTest {
 		System.out.println(" now output the combined results");
 		GeneralInstances m5pOutput=mergeResultWithData(continuousResult,nominalResult,ArffFormat.RESULT_PREDICTED_WIN_RATE,cModel.getModelArffFormat());
 		selectedInstances=returnSelectedInstances(m5pOutput);
-		DataAnalysis.analyzeDataDistribution(ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,selectedInstances);
+//		DataAnalysis.analyzeDataDistribution(ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,selectedInstances);
+		DataAnalysis.analyzeMarket(ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,selectedInstances);
 		this.saveSelectedFileForMarkets(selectedInstances, cModel.getIdentifyName());
 		
 	
