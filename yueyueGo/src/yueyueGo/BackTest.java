@@ -40,7 +40,6 @@ import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.dataProcessor.InstanceHandler;
 import yueyueGo.dataProcessor.WekaInstanceProcessor;
 import yueyueGo.databeans.DataInstances;
-import yueyueGo.databeans.GeneralAttribute;
 import yueyueGo.databeans.GeneralDataTag;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaDataTag;
@@ -50,8 +49,8 @@ import yueyueGo.utility.AppContext;
 import yueyueGo.utility.BlockedThreadPoolExecutor;
 import yueyueGo.utility.ClassiferInitFactory;
 import yueyueGo.utility.ClassifySummaries;
+import yueyueGo.utility.DataAnalysis;
 import yueyueGo.utility.FileUtility;
-import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.MergeClassifyResults;
 import yueyueGo.utility.ThresholdData;
 
@@ -65,7 +64,7 @@ public class BackTest {
 	public static final String RESULT_EXTENSION = "-Test Result.csv";
 	protected String STRAGEY_NAME; // 策略的名称，只是用于输出。
 	protected ArffFormat ARFF_FORMAT; //当前所用数据文件格式 
-	private final static int BEGIN_FROM_POLICY=0; // 当回测需要跳过某些均线时，0表示不跳过
+	public final static int BEGIN_FROM_POLICY=0; // 当回测需要跳过某些均线时，0表示不跳过
 	protected String m_startYear= "2008";
 	protected String m_endYearMonth="201708"; //结尾月一般是当前月，这个月是没有数据的，最新数据是上月的
 	
@@ -99,14 +98,22 @@ public class BackTest {
 			//调用回测函数回测
 //			worker.callRebuildModels();
 //			worker.callReEvaluateModels();
-			worker.callTestBack();
+//			worker.callTestBack();
 //			worker.callRefreshModelUseLatestData();
+			
+			worker.callDataAnlysis();
 //			worker.testForModelStore();
 			
 		} catch (Exception e) {
 			
 			e.printStackTrace();
 		}
+	}
+	public void callDataAnlysis() throws Exception{
+	   BaseClassifier  cModel=new BaggingM5P();
+	   GeneralInstances fulldata=getBacktestInstances(cModel);
+	   DataAnalysis.analyzeDataDistribution(ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,fulldata);
+	   
 	}
 	
 	/**
@@ -619,37 +626,7 @@ public class BackTest {
 	}
 
 
-	/**
-	 * @param data
-	 */
-	private void analyzeDataDistribution(String[] policyStrings,GeneralInstances data) throws Exception {
-		System.out.println("start of data distribution analysis.......");
-		GeneralAttribute shouyilvAttribute=data.attribute(ArffFormat.SHOUYILV);
-		System.out.println(" shouyilv average="+FormatUtility.formatPercent(data.meanOrMode(shouyilvAttribute),2,4)+" count="+data.numInstances());
-//		GeneralAttribute policyGroup=data.attribute(ArffFormat.)
-		int shouyilvPos = BaseInstanceProcessor.findATTPosition(data,ArffFormat.SHOUYILV);
-		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(data);
-		
-		int policyPos = BaseInstanceProcessor.findATTPosition(data,ARFF_FORMAT.m_policy_group);
-
-		for (int j = BEGIN_FROM_POLICY; j < policyStrings.length; j++) {
-			String policy = policyStrings[j];		
-			GeneralInstances policyData=instanceProcessor.getInstancesSubset(data, WekaInstanceProcessor.WEKA_ATT_PREFIX +policyPos+" is '"	+ policy + "'");
-			System.out.println("\t shouyilv average for policy["+policy+"]=" +FormatUtility.formatPercent(policyData.meanOrMode(shouyilvAttribute),2,3)+" count="+policyData.numInstances());
-			
-			
-			GeneralInstances partial=instanceProcessor.getInstancesSubset(policyData, WekaInstanceProcessor.WEKA_ATT_PREFIX +shouyilvPos+" > 0");
-			int positiveCount=partial.numInstances();
-			System.out.println("\t\t actual positive average="+FormatUtility.formatPercent(partial.meanOrMode(shouyilvAttribute),2,3)+" count="+positiveCount);
-			
-			partial=instanceProcessor.getInstancesSubset(policyData, WekaInstanceProcessor.WEKA_ATT_PREFIX +shouyilvPos+" <= 0");
-			int negativeCount=partial.numInstances();
-			System.out.println("\t\t actual negative average="+FormatUtility.formatPercent(partial.meanOrMode(shouyilvAttribute),2,3)+" count="+negativeCount);
-			double percent=(double)positiveCount/(negativeCount+positiveCount);
-			System.out.println("\t\t actual positive/total="+FormatUtility.formatPercent(percent,2,2));
-		}
-		System.out.println("...end of data distribution analysis");
-	}
+	
 
 
 //	protected void testForModelStore(){
@@ -695,28 +672,28 @@ public class BackTest {
 		cModel.outputClassifySummary();
 
 		System.out.println(" now output the full distribution of results:");
-		this.analyzeDataDistribution(cModel.m_policySubGroup,continuousResult);
+		DataAnalysis.analyzeDataDistribution(ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,continuousResult);
 	
 		//输出用于计算收益率的CSV文件
 		System.out.println("-----now output continuous predictions----------"+cModel.getIdentifyName() + " (filtered by nominal: "+nModel.getIdentifyName()+")");
 		System.out.println(" now output the uncombined results");
 		GeneralInstances selectedInstances=returnSelectedInstances(continuousResult);
-		this.analyzeDataDistribution(cModel.m_policySubGroup,selectedInstances);
+		DataAnalysis.analyzeDataDistribution(ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,selectedInstances);
 		System.out.println(" now output the combined results");
 		GeneralInstances m5pOutput=mergeResultWithData(continuousResult,nominalResult,ArffFormat.RESULT_PREDICTED_WIN_RATE,cModel.getModelArffFormat());
 		selectedInstances=returnSelectedInstances(m5pOutput);
-		this.analyzeDataDistribution(cModel.m_policySubGroup,selectedInstances);
+		DataAnalysis.analyzeDataDistribution(ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,selectedInstances);
 		this.saveSelectedFileForMarkets(selectedInstances, cModel.getIdentifyName());
 		
 	
 		System.out.println("-----now output nominal predictions----------"+nModel.getIdentifyName()+" (filtered by continuous: "+cModel.getIdentifyName()+")");
 		System.out.println(" now output the uncombined results");
 		selectedInstances=returnSelectedInstances(nominalResult);
-		this.analyzeDataDistribution(nModel.m_policySubGroup,selectedInstances);
+		DataAnalysis.analyzeDataDistribution(ARFF_FORMAT.m_policy_group,nModel.m_policySubGroup,selectedInstances);
 		System.out.println(" now output the combined results");
 		GeneralInstances mlpOutput=mergeResultWithData(nominalResult,continuousResult,ArffFormat.RESULT_PREDICTED_PROFIT,nModel.getModelArffFormat());
 		selectedInstances=returnSelectedInstances(mlpOutput);
-		this.analyzeDataDistribution(nModel.m_policySubGroup,selectedInstances);
+		DataAnalysis.analyzeDataDistribution(ARFF_FORMAT.m_policy_group,nModel.m_policySubGroup,selectedInstances);
 		this.saveSelectedFileForMarkets(selectedInstances, nModel.getIdentifyName());
 		System.out.println("-----end of test backward------");
 	}
