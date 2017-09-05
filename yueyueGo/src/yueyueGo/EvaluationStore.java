@@ -250,8 +250,8 @@ public class EvaluationStore {
 		//获取反向全部的评估结果（要全部的原因是评估的sample_rate是占全部数据的rate）
 		GeneralInstances reversedResult=getROCInstances(fullPredictions,1,true);
 
-		//暂存文件
-		outputFilesForDebug(selectedModel, fullPredictions, result, reversedModel, reversedResult);
+		//测试用，暂存文件
+//		outputFilesForDebug(selectedModel, fullPredictions, result, reversedModel, reversedResult);
 
 		
 		EvaluationParams reversedEvalParams=new EvaluationParams(REVERSED_TOP_AREA_RATIO, REVERSED_TOP_AREA_RATIO*1.1, 1.2);
@@ -289,6 +289,7 @@ public class EvaluationStore {
 	}
 
 	/**
+	 * 测试输出用
 	 * @param selectedModel
 	 * @param fullPredictions
 	 * @param result
@@ -296,19 +297,21 @@ public class EvaluationStore {
 	 * @param reversedResult
 	 * @throws IOException
 	 */
-	private void outputFilesForDebug(ModelStore selectedModel, ArrayList<Prediction> fullPredictions,
+protected void outputFilesForDebug(ModelStore selectedModel, ArrayList<Prediction> fullPredictions,
 			GeneralInstances result, ModelStore reversedModel, GeneralInstances reversedResult) throws IOException {
 		GeneralDataSaver dataSaver=DataIOHandler.getSaver();
 		String filePrefix=m_workFilePath+this.m_targetYearSplit+"["+this.m_policySplit+"]-";
 		dataSaver.SaveDataIntoFile(result, filePrefix+selectedModel.m_modelYearSplit+"-ROC.arff");
 		dataSaver.SaveDataIntoFile(reversedResult, filePrefix+reversedModel.m_modelYearSplit+"-ROC.reversed.arff");
 		StringBuffer predictionString=new StringBuffer();
-		for (Iterator<Prediction> iterator = fullPredictions.iterator(); iterator.hasNext();) {
-			NominalPrediction prediction = (NominalPrediction) iterator.next();
-			predictionString.append(prediction.toString());
-			predictionString.append("\r\n");
+		if (m_isNominal==true){
+			for (Iterator<Prediction> iterator = fullPredictions.iterator(); iterator.hasNext();) {
+				NominalPrediction prediction = (NominalPrediction) iterator.next();
+				predictionString.append(prediction.toString());
+				predictionString.append("\r\n");
+			}
+			FileUtility.write(filePrefix+"-full predictions", predictionString.toString(), "utf-8");
 		}
-		FileUtility.write(filePrefix+"-full predictions", predictionString.toString(), "utf-8");
 	}
 
 	private ThresholdData doModelEvaluation( GeneralInstances result,EvaluationParams evalParams,double tp_fp_bottom_line)
