@@ -1,6 +1,8 @@
 package yueyueGo;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
@@ -16,6 +18,8 @@ import yueyueGo.databeans.GeneralDataTag;
 import yueyueGo.databeans.GeneralInstance;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaInstances;
+import yueyueGo.datasource.DataIOHandler;
+import yueyueGo.datasource.GeneralDataSaver;
 import yueyueGo.utility.ClassifyUtility;
 import yueyueGo.utility.EvaluationConfDefinition;
 import yueyueGo.utility.EvaluationParams;
@@ -217,8 +221,6 @@ public class EvaluationStore {
 		//获取正向全部的评估结果（要全部的原因是评估的sample_rate是占全部数据的rate）
 		GeneralInstances result=getROCInstances(fullPredictions,1,false);
 
-//		GeneralDataSaver dataSaver=DataIOHandler.getSaver();		
-//		dataSaver.SaveDataIntoFile(result, m_workFilePath+selectedModel.m_modelYearSplit+"-ROC.arff");
 
 		//TODO ：利用EvalData数据统计bottomLine还是固定值0.6？
 		TpFpStatistics benchmark=new TpFpStatistics(evalData, m_isNominal);	
@@ -247,7 +249,9 @@ public class EvaluationStore {
 
 		//获取反向全部的评估结果（要全部的原因是评估的sample_rate是占全部数据的rate）
 		GeneralInstances reversedResult=getROCInstances(fullPredictions,1,true);
-//		dataSaver.SaveDataIntoFile(reversedResult, m_workFilePath+selectedModel.m_modelYearSplit+"-ROC.reversed.arff");
+
+		//暂存文件
+		outputFilesForDebug(selectedModel, fullPredictions, result, reversedModel, reversedResult);
 
 		
 		EvaluationParams reversedEvalParams=new EvaluationParams(REVERSED_TOP_AREA_RATIO, REVERSED_TOP_AREA_RATIO*1.1, 1.2);
@@ -282,6 +286,29 @@ public class EvaluationStore {
 		System.out.println(thresholdData.toString());
 		
 
+	}
+
+	/**
+	 * @param selectedModel
+	 * @param fullPredictions
+	 * @param result
+	 * @param reversedModel
+	 * @param reversedResult
+	 * @throws IOException
+	 */
+	private void outputFilesForDebug(ModelStore selectedModel, ArrayList<Prediction> fullPredictions,
+			GeneralInstances result, ModelStore reversedModel, GeneralInstances reversedResult) throws IOException {
+		GeneralDataSaver dataSaver=DataIOHandler.getSaver();
+		String filePrefix=m_workFilePath+this.m_targetYearSplit+"["+this.m_policySplit+"]-";
+		dataSaver.SaveDataIntoFile(result, filePrefix+selectedModel.m_modelYearSplit+"-ROC.arff");
+		dataSaver.SaveDataIntoFile(reversedResult, filePrefix+reversedModel.m_modelYearSplit+"-ROC.reversed.arff");
+		StringBuffer predictionString=new StringBuffer();
+		for (Iterator<Prediction> iterator = fullPredictions.iterator(); iterator.hasNext();) {
+			NominalPrediction prediction = (NominalPrediction) iterator.next();
+			predictionString.append(prediction.toString());
+			predictionString.append("\r\n");
+		}
+		FileUtility.write(filePrefix+"-full predictions", predictionString.toString(), "utf-8");
 	}
 
 	private ThresholdData doModelEvaluation( GeneralInstances result,EvaluationParams evalParams,double tp_fp_bottom_line)
