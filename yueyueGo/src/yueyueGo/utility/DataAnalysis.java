@@ -49,10 +49,11 @@ public class DataAnalysis {
 		for (int i=0;i<MARKET_DEFINITION.length;i++){
 			startYearMonth=MARKET_DEFINITION[i].getStartYearMonth();
 			endYearMonth=MARKET_DEFINITION[i].getEndYearMonth();
-			System.out.println("now output ...."+MARKET_DEFINITION[i].toString());
+			System.out.println(".........now output    ...."+MARKET_DEFINITION[i].toString());
 			String splitClause ="(" + attPos + " >= "+ startYearMonth + ") and (" + attPos + " <= " + endYearMonth + ") ";
 			GeneralInstances marketData=instanceProcessor.getInstancesSubset(fullData, splitClause);
 			analyzeDataDistribution(policyGroupName,policyStrings,marketData);
+			System.out.println(".........end of output ...."+MARKET_DEFINITION[i].toString());
 		}
 	}
 	

@@ -112,7 +112,7 @@ public class BackTest {
 	public void callDataAnlysis() throws Exception{
 	   BaseClassifier  cModel=new BaggingM5P();
 	   GeneralInstances fulldata=getBacktestInstances(cModel);
-	   DataAnalysis.analyzeDataDistribution(ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,fulldata);
+	   DataAnalysis.analyzeMarket(ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,fulldata);
 	   
 	}
 	
