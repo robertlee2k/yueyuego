@@ -186,7 +186,10 @@ public abstract class BaseClassifier implements Serializable{
 			inst.setDataset(result);
 			//将相应的ID赋值回去
 			inst.setValue(ArffFormat.ID_POSITION - 1, ids[i]);
-			for (int n = 1; n < inst.numAttributes() - 3; n++) { // ignore the
+			//将Yearmonth赋值回去用于统计用途
+			inst.setValue(1, yearSplit);
+			//从2开始，忽略第一列的ID和第二列的YEARMONTH
+			for (int n = 2; n < inst.numAttributes() - 3; n++) { // ignore the
 																	// first ID.
 				GeneralAttribute att = test.attribute(inst.attribute(n).name());
 				// original attribute is also present in the current data set

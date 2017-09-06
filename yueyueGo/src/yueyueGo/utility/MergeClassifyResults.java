@@ -12,20 +12,13 @@ import yueyueGo.databeans.GeneralInstances;
 
 
 public class MergeClassifyResults {
-//	private  double[] m_shouyilv_thresholds; //对于胜率优先算法的收益率筛选阀值
-//	private  double[] m_winrate_thresholds; //对于收益率优先算法的胜率筛选阀值
 	private  String m_policy_group;
 
-	public MergeClassifyResults(
-//			double[] shouyilv,
-//			double[] winrate, 
-			String a_policy_group) {
-//		this.m_shouyilv_thresholds = shouyilv;
-//		this.m_winrate_thresholds = winrate;
+	public MergeClassifyResults(String a_policy_group) {
 		this.m_policy_group=a_policy_group;
 	}
 
-	/**
+		/**
 		 * @param resultData
 		 * @param referenceData
 		 * @param dataToAdd
@@ -67,7 +60,7 @@ public class MergeClassifyResults {
 			GeneralAttribute outputSelectedAtt=mergedResult.attribute(ArffFormat.RESULT_SELECTED);
 			GeneralAttribute outputPredictAtt=mergedResult.attribute(ArffFormat.RESULT_PREDICTED_PROFIT);
 			GeneralAttribute outputWinrateAtt=mergedResult.attribute(ArffFormat.RESULT_PREDICTED_WIN_RATE);
-	//		Attribute outputMAAtt=mergedResult.attribute(ArffFormat.SELECTED_AVG_LINE);
+
 			
 			//传入的结果集result不是排序的,而left的数据是按tradeDate日期排序的， 所以都先按ID排序。
 			left.sort(ArffFormat.ID_POSITION-1);
@@ -181,67 +174,6 @@ public class MergeClassifyResults {
 							selected=BaseClassifier.VALUE_NOT_SURE;
 						}
 						
-						// end if (selected==1)
-						
-////						if (dataToAdd.equals(ArffFormat.RESULT_PREDICTED_WIN_RATE)){
-//							//当前结果集里有什么数据
-//							profit=resultCurr.value(resultData.attribute(ArffFormat.RESULT_PREDICTED_PROFIT));
-//							//需要考虑参考结果集里的数据
-//							winrate=referenceCurr.value(referenceData.attribute(ArffFormat.RESULT_PREDICTED_WIN_RATE));
-//						//当为连续类器合并收益率时，如果参照的收益率预期收益率小于等于某阀值时，则不选择该条记录。
-//							if (selected==1){
-//								
-//								int index;
-//								if (resultMA==null){ //非均线策略时默认选择THREDHOLD的第一个
-//									index=0;
-//								}else{//均线策略时按序选择THREDHOLD的第一个
-//									index=new Double(resultCurr.value(resultMA)).intValue();	
-//								}
-//								if (winrate<m_winrate_thresholds[index]){ //需要修改选股结果
-//									selected=0;
-//									resultChanged++;
-//									if (shouyilvAtt!=null){
-//										double shouyilv=leftCurr.value(shouyilvAtt);
-//										changedShouyilv+=shouyilv;
-//										if (shouyilv<=0){
-//											//如果变化的实际收益率小于0，说明这是一次正确的变换
-//											goodChangeNum++;
-//										}// end if shouyilv<=
-//									}
-//								}else{ //不需要修改选股结果
-//									finalSelected++;
-//								}
-//							}// end if (selected
-//						}else{ 
-//							//当前结果集里有什么数据
-//							winrate=resultCurr.value(resultData.attribute(ArffFormat.RESULT_PREDICTED_WIN_RATE));
-//							//需要添加参考集里的什么数据
-//							profit=referenceCurr.value(referenceData.attribute(ArffFormat.RESULT_PREDICTED_PROFIT));
-//							//当为二分类器合并收益率时，如果参照的连续分类器预期收益率小于等于某阀值（0或1%）时，则不选择该条记录。
-//							if (selected==1){
-//								int index;
-//								if (resultMA==null){ //非均线策略时默认选择SHOUYILV_THREDHOLD的第一个
-//									index=0;
-//								}else{//均线策略时按序选择SHOUYILV_THREDHOLD的第一个
-//									index=new Double(resultCurr.value(resultMA)).intValue();	
-//								}
-//								if (profit<=m_shouyilv_thresholds[index]){  //需要修改选股结果
-//									selected=0;
-//									resultChanged++;
-//									if (shouyilvAtt!=null){
-//										double shouyilv=leftCurr.value(shouyilvAtt);
-//										changedShouyilv+=shouyilv;
-//										if (shouyilv<=m_shouyilv_thresholds[index]){
-//											//如果变化的实际收益率也小于阀值，说明这是一次正确的变换
-//											goodChangeNum++;
-//										}// end if shouyilv<=
-//									}
-//								}else{ //不需要修改选股结果
-//									finalSelected++;
-//								}// end if profit<=
-//							}// end if (selected
-//						}//end else of dataToAdd
-	
 						newData.setValue(outputPredictAtt, profit);
 						newData.setValue(outputWinrateAtt, winrate);
 						newData.setValue(outputSelectedAtt,selected);						
@@ -249,9 +181,7 @@ public class MergeClassifyResults {
 						mergedResult.add(newData);
 						resultIndex++;
 						leftIndex++;
-//						if (mergedResult.numInstances() % 100000 ==0){
-//							System.out.println("number of results processed:"+ mergedResult.numInstances());
-//						}
+
 					}else {
 						throw new Exception("data value in header data and result data does not equal left="+leftCurr.toString()+" /while result= "+resultCurr.toString());
 					}// end else of ArffFormat.checkSumBeforeMerge
@@ -270,22 +200,10 @@ public class MergeClassifyResults {
 				System.out.print(" good ratio="+FormatUtility.formatPercent(goodRatio));
 				System.out.println(" average changed shouyilv="+FormatUtility.formatPercent(changedShouyilv/resultChanged));
 			}	
-//			if (dataToAdd.equals(ArffFormat.RESULT_PREDICTED_WIN_RATE)){
-//				System.out.print(" @ WINRATE_FILTER_FOR_SHOUYILV={");
-//				for (int i = 0; i < m_winrate_thresholds.length; i++) {
-//					System.out.print(FormatUtility.formatPercent(m_winrate_thresholds[i])+"," );
-//				}
-//				System.out.println(" }");
-//			}
-//			else{
-//				System.out.print(" @ SHOUYILV_FILTER_FOR_WINRATE={");
-//				for (int i = 0; i < m_shouyilv_thresholds.length; i++) {
-//					System.out.print(FormatUtility.formatPercent(m_shouyilv_thresholds[i])+",");
-//				}
-//				System.out.println(" }");
-//			}
 
 			return mergedResult;
 		}
 
+		
+	
 }

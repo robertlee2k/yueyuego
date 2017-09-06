@@ -53,6 +53,7 @@ import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.MergeClassifyResults;
 import yueyueGo.utility.ThresholdData;
 import yueyueGo.utility.analysis.DataAnalysis;
+import yueyueGo.utility.analysis.ShouyilvDescribe;
 
 public class BackTest {
 	protected String C_ROOT_DIRECTORY =EnvConstants.AVG_LINE_ROOT_DIR;
@@ -112,7 +113,7 @@ public class BackTest {
 	public void callDataAnlysis() throws Exception{
 	   BaseClassifier  cModel=new BaggingM5P();
 	   GeneralInstances fulldata=getBacktestInstances(cModel);
-	   String result=DataAnalysis.analyzeMarket(m_startYear+"01",m_endYearMonth,ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,fulldata);
+	   String result=DataAnalysis.analyzeMarket(m_startYear+"01",m_endYearMonth,ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,fulldata,ShouyilvDescribe.ALL);
 	   FileUtility.write(BACKTEST_RESULT_DIR+"marketAnalysis-Summary.csv", result, "GBK");
 	   
 	}
@@ -467,10 +468,11 @@ public class BackTest {
 			GeneralInstances fullSetData) throws Exception {
 		GeneralInstances result;
 		DataInstances header = new DataInstances(fullSetData, 0);
-		// 去除不必要的字段，保留ID（第1），均线策略（第3）、bias5（第4）、收益率（最后一列）、增加预测值、是否被选择。
+		// 去除不必要的字段，保留ID（第1），YEARMONTH（第二）均线策略（第3）、bias5（第4）、收益率（最后一列）、增加预测值、是否被选择。
 		int removeFromIndex=BaseInstanceProcessor.findATTPosition(fullSetData, ArffFormat.BIAS5)+1;
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(header);
-		result = instanceProcessor.removeAttribs(header, ArffFormat.YEAR_MONTH_INDEX + ","+removeFromIndex+"-"
+//		ArffFormat.YEAR_MONTH_INDEX + ","+
+		result = instanceProcessor.removeAttribs(header, removeFromIndex+"-"
 				+ (header.numAttributes() - 1));
 		if (clModel instanceof NominalClassifier ){
 			result = instanceProcessor.AddAttribute(result, ArffFormat.RESULT_PREDICTED_WIN_RATE,
@@ -581,8 +583,8 @@ public class BackTest {
 		int tradeDateIndex=BaseInstanceProcessor.findATTPosition(mergedResult, ArffFormat.TRADE_DATE);
 		mergedResult.sort(tradeDateIndex-1);
 		
-		// 给mergedResult瘦身。 2=yearmonth, 6=datadate,7=positive,8=bias   (尝试把ArffFormat.DATA_DATE,保留）
-		String[] attributeToRemove=new String[]{ArffFormat.YEAR_MONTH,ArffFormat.IS_POSITIVE,ArffFormat.BIAS5};
+		// 给mergedResult瘦身。 2=yearmonth, 6=datadate,7=positive,8=bias   (尝试把ArffFormat.DATA_DATE,ArffFormat.YEAR_MONTH,保留）
+		String[] attributeToRemove=new String[]{ArffFormat.IS_POSITIVE,ArffFormat.BIAS5};
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(mergedResult);
 		mergedResult=instanceProcessor.removeAttribs(mergedResult, attributeToRemove);
 
@@ -674,29 +676,28 @@ public class BackTest {
 		cModel.outputClassifySummary();
 
 		System.out.println(" now output the full distribution of results:");
-		DataAnalysis.analyzeDataDistribution(ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,timeRange,continuousResult);
+		DataAnalysis.analyzeDataDistribution(ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,timeRange,continuousResult,cModel.classifierName);
 	
 		//输出用于计算收益率的CSV文件
 		System.out.println("-----now output continuous predictions----------"+cModel.getIdentifyName() + " (filtered by nominal: "+nModel.getIdentifyName()+")");
 		System.out.println(" now output the uncombined results");
 		GeneralInstances selectedInstances=returnSelectedInstances(continuousResult);
-		DataAnalysis.analyzeDataDistribution(ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,timeRange,selectedInstances);
+		DataAnalysis.analyzeMarket(m_startYear+"01",m_endYearMonth,ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,selectedInstances,cModel.classifierName);
 		System.out.println(" now output the combined results");
 		GeneralInstances m5pOutput=mergeResultWithData(continuousResult,nominalResult,ArffFormat.RESULT_PREDICTED_WIN_RATE,cModel.getModelArffFormat());
 		selectedInstances=returnSelectedInstances(m5pOutput);
-//		DataAnalysis.analyzeDataDistribution(ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,selectedInstances);
-		DataAnalysis.analyzeMarket(m_startYear+"01",m_endYearMonth,ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,selectedInstances);
+		DataAnalysis.analyzeMarket(m_startYear+"01",m_endYearMonth,ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,selectedInstances,cModel.classifierName);
 		this.saveSelectedFileForMarkets(selectedInstances, cModel.getIdentifyName());
 		
 	
 		System.out.println("-----now output nominal predictions----------"+nModel.getIdentifyName()+" (filtered by continuous: "+cModel.getIdentifyName()+")");
 		System.out.println(" now output the uncombined results");
 		selectedInstances=returnSelectedInstances(nominalResult);
-		DataAnalysis.analyzeDataDistribution(ARFF_FORMAT.m_policy_group,nModel.m_policySubGroup,timeRange,selectedInstances);
+		DataAnalysis.analyzeDataDistribution(ARFF_FORMAT.m_policy_group,nModel.m_policySubGroup,timeRange,selectedInstances,nModel.classifierName);
 		System.out.println(" now output the combined results");
 		GeneralInstances mlpOutput=mergeResultWithData(nominalResult,continuousResult,ArffFormat.RESULT_PREDICTED_PROFIT,nModel.getModelArffFormat());
 		selectedInstances=returnSelectedInstances(mlpOutput);
-		DataAnalysis.analyzeDataDistribution(ARFF_FORMAT.m_policy_group,nModel.m_policySubGroup,timeRange,selectedInstances);
+		DataAnalysis.analyzeDataDistribution(ARFF_FORMAT.m_policy_group,nModel.m_policySubGroup,timeRange,selectedInstances,nModel.classifierName);
 		this.saveSelectedFileForMarkets(selectedInstances, nModel.getIdentifyName());
 		System.out.println("-----end of test backward------");
 	}

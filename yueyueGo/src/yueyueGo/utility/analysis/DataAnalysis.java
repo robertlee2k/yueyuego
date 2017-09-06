@@ -48,7 +48,7 @@ public class DataAnalysis {
 	 * toYearMonth 待统计数据的结束区间
 	 * 针对这个区间的数据，分别统计各种市场情况下的收益率分布
 	 */
-	public static String analyzeMarket(String fromYearMonth,String toYearMonth,String policyGroupName,String[] policyStrings,GeneralInstances fullData)throws Exception{
+	public static String analyzeMarket(String fromYearMonth,String toYearMonth,String policyGroupName,String[] policyStrings,GeneralInstances fullData,String ClassiferName)throws Exception{
 		int earliest=Integer.valueOf(fromYearMonth).intValue();
 		int latest=Integer.valueOf(toYearMonth).intValue();
 		int marketStartMonth;
@@ -57,7 +57,7 @@ public class DataAnalysis {
 		String attPos=WekaInstanceProcessor.WEKA_ATT_PREFIX + yearMonthPos;
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullData);
 			
-		StringBuffer outputCSV=new StringBuffer("所属区间,均线分组,总数,收益率平均值,正收益数,正收益率平均值,负收益数,负收益率平均值,正值率\r\n");
+		StringBuffer outputCSV=new StringBuffer("所属区间,所用模型,均线分组,总数,收益率平均值,正收益数,正收益率平均值,负收益数,负收益率平均值,正值率\r\n");
 		
 		for (int i=0;i<MARKET_DEFINITION.length;i++){
 
@@ -73,7 +73,7 @@ public class DataAnalysis {
 				String timeRange=MARKET_DEFINITION[i].toString()+"["+marketStartMonth+"-"+marketEndMonth+"]";
 				String splitClause ="(" + attPos + " >= "+ marketStartMonth + ") and (" + attPos + " <= " + marketEndMonth + ") ";
 				GeneralInstances marketData=instanceProcessor.getInstancesSubset(fullData, splitClause);
-				ArrayList<ShouyilvDescribe> shouyilvDescriptions=analyzeDataDistribution(policyGroupName,policyStrings,timeRange,marketData);
+				ArrayList<ShouyilvDescribe> shouyilvDescriptions=analyzeDataDistribution(policyGroupName,policyStrings,timeRange,marketData,ClassiferName);
 				for (ShouyilvDescribe shouyilvDescribe : shouyilvDescriptions) {
 					outputCSV.append(shouyilvDescribe.toString()+"\r\n");
 				}
@@ -87,54 +87,68 @@ public class DataAnalysis {
 	/**
 	 * @param data
 	 */
-	public static ArrayList<ShouyilvDescribe> analyzeDataDistribution(String policyGroupName,String[] policyStrings,String timeRange,GeneralInstances data) throws Exception {
+	public static ArrayList<ShouyilvDescribe> analyzeDataDistribution(String policyGroupName,String[] policyStrings,String timeRange,GeneralInstances data,String ClassiferName) throws Exception {
 		ArrayList<ShouyilvDescribe> shouyilvDesc=new ArrayList<ShouyilvDescribe>();
 		System.out.println("start of data distribution analysis.......");
 		GeneralAttribute shouyilvAttribute=data.attribute(ArffFormat.SHOUYILV);
 		int shouyilvPos = BaseInstanceProcessor.findATTPosition(data,ArffFormat.SHOUYILV);
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(data);
 		int policyPos = BaseInstanceProcessor.findATTPosition(data,policyGroupName);
-
-		int count;
-		double shouyilvAverage;
 		
 		ShouyilvDescribe oneDescription;
-		shouyilvAverage=data.meanOrMode(shouyilvAttribute);
-		count=data.numInstances();
-		oneDescription=new ShouyilvDescribe(timeRange, ShouyilvDescribe.ALL, count,shouyilvAverage,0,0,0);
+		
+		oneDescription=describeShouyilv(timeRange, shouyilvAttribute,shouyilvPos,instanceProcessor,ShouyilvDescribe.ALL,data,ClassiferName);
 		shouyilvDesc.add(oneDescription);
-		System.out.println(" shouyilv average="+FormatUtility.formatPercent(shouyilvAverage,2,4)+" count="+count);
 
 		for (int j = BackTest.BEGIN_FROM_POLICY; j < policyStrings.length; j++) {
-	
-			int positiveCount;
-			double positiveShouyilvAverage;
-			double negativeShouyilvAverage;
-
-
 			String policy = policyStrings[j];
 			GeneralInstances policyData=instanceProcessor.getInstancesSubset(data, WekaInstanceProcessor.WEKA_ATT_PREFIX +policyPos+" is '"	+ policy + "'");
 			
-			shouyilvAverage=policyData.meanOrMode(shouyilvAttribute);
-			count=policyData.numInstances();
-			System.out.println("\t shouyilv average for policy["+policy+"]=" +FormatUtility.formatPercent(shouyilvAverage,2,3)+" count="+count);
-			
-			GeneralInstances partial=instanceProcessor.getInstancesSubset(policyData, WekaInstanceProcessor.WEKA_ATT_PREFIX +shouyilvPos+" > 0");
-			positiveCount=partial.numInstances();
-			positiveShouyilvAverage=partial.meanOrMode(shouyilvAttribute);
-			System.out.println("\t\t actual positive average="+FormatUtility.formatPercent(positiveShouyilvAverage,2,3)+" count="+positiveCount);
-			
-			partial=instanceProcessor.getInstancesSubset(policyData, WekaInstanceProcessor.WEKA_ATT_PREFIX +shouyilvPos+" <= 0");
-			negativeShouyilvAverage=partial.meanOrMode(shouyilvAttribute);
-			System.out.println("\t\t actual negative average="+FormatUtility.formatPercent(negativeShouyilvAverage,2,3)+" count="+(count-positiveCount));
-			
-			oneDescription=new ShouyilvDescribe(timeRange,policy, count, shouyilvAverage,positiveCount,positiveShouyilvAverage, negativeShouyilvAverage);
+			oneDescription = describeShouyilv(timeRange, shouyilvAttribute, shouyilvPos, instanceProcessor, policy,
+					policyData,ClassiferName);
+
 			shouyilvDesc.add(oneDescription);
-			double percent=oneDescription.getPositiveRatio();
-			System.out.println("\t\t actual positive/total="+FormatUtility.formatPercent(percent,2,2));
 		}
 		System.out.println("...end of data distribution analysis");
 		return shouyilvDesc;
+	}
+
+	/**
+	 * @param timeRange
+	 * @param shouyilvAttribute
+	 * @param shouyilvPos
+	 * @param instanceProcessor
+	 * @param policy
+	 * @param data
+	 * @return
+	 * @throws Exception
+	 */
+	private static ShouyilvDescribe describeShouyilv(String timeRange, GeneralAttribute shouyilvAttribute,
+			int shouyilvPos, BaseInstanceProcessor instanceProcessor, String policy, GeneralInstances data,String ClassiferName)
+			throws Exception {
+		ShouyilvDescribe oneDescription;
+		int count;
+		double shouyilvAverage;
+		int positiveCount;
+		double positiveShouyilvAverage;
+		double negativeShouyilvAverage;
+		shouyilvAverage=data.meanOrMode(shouyilvAttribute);
+		count=data.numInstances();
+		System.out.println("\t shouyilv average for policy["+policy+"]=" +FormatUtility.formatPercent(shouyilvAverage,2,3)+" count="+count);
+		
+		GeneralInstances partial=instanceProcessor.getInstancesSubset(data, WekaInstanceProcessor.WEKA_ATT_PREFIX +shouyilvPos+" > 0");
+		positiveCount=partial.numInstances();
+		positiveShouyilvAverage=partial.meanOrMode(shouyilvAttribute);
+		System.out.println("\t\t actual positive average="+FormatUtility.formatPercent(positiveShouyilvAverage,2,3)+" count="+positiveCount);
+		
+		partial=instanceProcessor.getInstancesSubset(data, WekaInstanceProcessor.WEKA_ATT_PREFIX +shouyilvPos+" <= 0");
+		negativeShouyilvAverage=partial.meanOrMode(shouyilvAttribute);
+		System.out.println("\t\t actual negative average="+FormatUtility.formatPercent(negativeShouyilvAverage,2,3)+" count="+(count-positiveCount));
+		
+		oneDescription=new ShouyilvDescribe(timeRange,ClassiferName,policy, count, shouyilvAverage,positiveCount,positiveShouyilvAverage, negativeShouyilvAverage);			
+		double percent=oneDescription.getPositiveRatio();
+		System.out.println("\t\t actual positive/total="+FormatUtility.formatPercent(percent,2,2));
+		return oneDescription;
 	}
 	
 	
