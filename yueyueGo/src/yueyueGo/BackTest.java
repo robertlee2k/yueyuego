@@ -112,7 +112,7 @@ public class BackTest {
 	public void callDataAnlysis() throws Exception{
 	   BaseClassifier  cModel=new BaggingM5P();
 	   GeneralInstances fulldata=getBacktestInstances(cModel);
-	   String result=DataAnalysis.analyzeMarket(ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,fulldata);
+	   String result=DataAnalysis.analyzeMarket(m_startYear+"01",m_endYearMonth,ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,fulldata);
 	   FileUtility.write(BACKTEST_RESULT_DIR+"marketAnalysis-Summary.csv", result, "GBK");
 	   
 	}
@@ -685,7 +685,7 @@ public class BackTest {
 		GeneralInstances m5pOutput=mergeResultWithData(continuousResult,nominalResult,ArffFormat.RESULT_PREDICTED_WIN_RATE,cModel.getModelArffFormat());
 		selectedInstances=returnSelectedInstances(m5pOutput);
 //		DataAnalysis.analyzeDataDistribution(ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,selectedInstances);
-		DataAnalysis.analyzeMarket(ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,selectedInstances);
+		DataAnalysis.analyzeMarket(m_startYear+"01",m_endYearMonth,ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,selectedInstances);
 		this.saveSelectedFileForMarkets(selectedInstances, cModel.getIdentifyName());
 		
 	

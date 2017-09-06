@@ -43,9 +43,16 @@ public class DataAnalysis {
 
 
 	
-	public static String analyzeMarket(String policyGroupName,String[] policyStrings,GeneralInstances fullData)throws Exception{
-		int startYearMonth;
-		int endYearMonth;
+	/*
+	 * fromYearMonth 待统计数据的起始区间
+	 * toYearMonth 待统计数据的结束区间
+	 * 针对这个区间的数据，分别统计各种市场情况下的收益率分布
+	 */
+	public static String analyzeMarket(String fromYearMonth,String toYearMonth,String policyGroupName,String[] policyStrings,GeneralInstances fullData)throws Exception{
+		int earliest=Integer.valueOf(fromYearMonth).intValue();
+		int latest=Integer.valueOf(toYearMonth).intValue();
+		int marketStartMonth;
+		int marketEndMonth;
 		int yearMonthPos=BaseInstanceProcessor.findATTPosition(fullData,ArffFormat.YEAR_MONTH);
 		String attPos=WekaInstanceProcessor.WEKA_ATT_PREFIX + yearMonthPos;
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullData);
@@ -53,18 +60,25 @@ public class DataAnalysis {
 		StringBuffer outputCSV=new StringBuffer("所属区间,均线分组,总数,收益率平均值,正收益数,正收益率平均值,负收益数,负收益率平均值,正值率\r\n");
 		
 		for (int i=0;i<MARKET_DEFINITION.length;i++){
-			startYearMonth=MARKET_DEFINITION[i].getStartYearMonth();
-			endYearMonth=MARKET_DEFINITION[i].getEndYearMonth();
-			
-			System.out.println(".........now output    ...."+MARKET_DEFINITION[i].toString());
-			String timeRange=MARKET_DEFINITION[i].toString()+"["+startYearMonth+"-"+endYearMonth+"]";
-			String splitClause ="(" + attPos + " >= "+ startYearMonth + ") and (" + attPos + " <= " + endYearMonth + ") ";
-			GeneralInstances marketData=instanceProcessor.getInstancesSubset(fullData, splitClause);
-			ArrayList<ShouyilvDescribe> shouyilvDescriptions=analyzeDataDistribution(policyGroupName,policyStrings,timeRange,marketData);
-			for (ShouyilvDescribe shouyilvDescribe : shouyilvDescriptions) {
-				outputCSV.append(shouyilvDescribe.toString()+"\r\n");
+
+			marketStartMonth=MARKET_DEFINITION[i].getStartYearMonth();
+			marketEndMonth=MARKET_DEFINITION[i].getEndYearMonth();
+			if (marketEndMonth>earliest){ //如果结束区间比最早开始日都早，就不需要统计该区间段了
+				if (marketStartMonth<earliest) 
+					marketStartMonth=earliest;
+				if (marketEndMonth>latest)
+					marketEndMonth=latest;
+
+				System.out.println(".........now output    ...."+MARKET_DEFINITION[i].toString());
+				String timeRange=MARKET_DEFINITION[i].toString()+"["+marketStartMonth+"-"+marketEndMonth+"]";
+				String splitClause ="(" + attPos + " >= "+ marketStartMonth + ") and (" + attPos + " <= " + marketEndMonth + ") ";
+				GeneralInstances marketData=instanceProcessor.getInstancesSubset(fullData, splitClause);
+				ArrayList<ShouyilvDescribe> shouyilvDescriptions=analyzeDataDistribution(policyGroupName,policyStrings,timeRange,marketData);
+				for (ShouyilvDescribe shouyilvDescribe : shouyilvDescriptions) {
+					outputCSV.append(shouyilvDescribe.toString()+"\r\n");
+				}
+				System.out.println(".........end of output ...."+MARKET_DEFINITION[i].toString());
 			}
-			System.out.println(".........end of output ...."+MARKET_DEFINITION[i].toString());
 		}
 		return outputCSV.toString();
 		
