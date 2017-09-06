@@ -48,7 +48,7 @@ public class DataAnalysis {
 	 * toYearMonth 待统计数据的结束区间
 	 * 针对这个区间的数据，分别统计各种市场情况下的收益率分布
 	 */
-	public static String analyzeMarket(String fromYearMonth,String toYearMonth,String policyGroupName,String[] policyStrings,GeneralInstances fullData,String ClassiferName)throws Exception{
+	public static ArrayList<ShouyilvDescribe> analyzeMarket(String fromYearMonth,String toYearMonth,String policyGroupName,String[] policyStrings,GeneralInstances fullData,String ClassiferName)throws Exception{
 		int earliest=Integer.valueOf(fromYearMonth).intValue();
 		int latest=Integer.valueOf(toYearMonth).intValue();
 		int marketStartMonth;
@@ -56,9 +56,9 @@ public class DataAnalysis {
 		int yearMonthPos=BaseInstanceProcessor.findATTPosition(fullData,ArffFormat.YEAR_MONTH);
 		String attPos=WekaInstanceProcessor.WEKA_ATT_PREFIX + yearMonthPos;
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullData);
+		ArrayList<ShouyilvDescribe> shouyilvDescriptions=new ArrayList<ShouyilvDescribe>();
 			
-		StringBuffer outputCSV=new StringBuffer("所属区间,所用模型,均线分组,总数,收益率平均值,正收益数,正收益率平均值,负收益数,负收益率平均值,正值率\r\n");
-		
+
 		for (int i=0;i<MARKET_DEFINITION.length;i++){
 
 			marketStartMonth=MARKET_DEFINITION[i].getStartYearMonth();
@@ -73,14 +73,13 @@ public class DataAnalysis {
 				String timeRange=MARKET_DEFINITION[i].toString()+"["+marketStartMonth+"-"+marketEndMonth+"]";
 				String splitClause ="(" + attPos + " >= "+ marketStartMonth + ") and (" + attPos + " <= " + marketEndMonth + ") ";
 				GeneralInstances marketData=instanceProcessor.getInstancesSubset(fullData, splitClause);
-				ArrayList<ShouyilvDescribe> shouyilvDescriptions=analyzeDataDistribution(policyGroupName,policyStrings,timeRange,marketData,ClassiferName);
-				for (ShouyilvDescribe shouyilvDescribe : shouyilvDescriptions) {
-					outputCSV.append(shouyilvDescribe.toString()+"\r\n");
-				}
+				ArrayList<ShouyilvDescribe> descriptions=analyzeDataDistribution(policyGroupName,policyStrings,timeRange,marketData,ClassiferName);
+				shouyilvDescriptions.addAll(descriptions);
 				System.out.println(".........end of output ...."+MARKET_DEFINITION[i].toString());
+
 			}
 		}
-		return outputCSV.toString();
+		return shouyilvDescriptions;
 		
 	}
 	

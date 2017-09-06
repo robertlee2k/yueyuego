@@ -27,6 +27,7 @@ package yueyueGo;
  * 谢谢悦悦的冠名支持
  */
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Vector;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -99,10 +100,10 @@ public class BackTest {
 			//调用回测函数回测
 //			worker.callRebuildModels();
 //			worker.callReEvaluateModels();
-//			worker.callTestBack();
+			worker.callTestBack();
 //			worker.callRefreshModelUseLatestData();
 			
-			worker.callDataAnlysis();
+//			worker.callDataAnlysis();
 //			worker.testForModelStore();
 			
 		} catch (Exception e) {
@@ -113,11 +114,14 @@ public class BackTest {
 	public void callDataAnlysis() throws Exception{
 	   BaseClassifier  cModel=new BaggingM5P();
 	   GeneralInstances fulldata=getBacktestInstances(cModel);
-	   String result=DataAnalysis.analyzeMarket(m_startYear+"01",m_endYearMonth,ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,fulldata,ShouyilvDescribe.ALL);
-	   FileUtility.write(BACKTEST_RESULT_DIR+"marketAnalysis-Summary.csv", result, "GBK");
+	   ArrayList<ShouyilvDescribe> shouyilvDescriptions=DataAnalysis.analyzeMarket(m_startYear+"01",m_endYearMonth,ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,fulldata,ShouyilvDescribe.ALL);
+
+	   String outputCSV = ShouyilvDescribe.convertListToCSV(shouyilvDescriptions);
+	   FileUtility.write(BACKTEST_RESULT_DIR+"marketAnalysis-Summary.csv", outputCSV, "GBK");
 	   
 	}
-	
+
+
 	/**
 	 * 根据最新月的增量数据刷新模型
 	 * @throws Exception
@@ -683,6 +687,7 @@ public class BackTest {
 		System.out.println(" now output the uncombined results");
 		GeneralInstances selectedInstances=returnSelectedInstances(continuousResult);
 		DataAnalysis.analyzeMarket(m_startYear+"01",m_endYearMonth,ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,selectedInstances,cModel.classifierName);
+		
 		System.out.println(" now output the combined results");
 		GeneralInstances m5pOutput=mergeResultWithData(continuousResult,nominalResult,ArffFormat.RESULT_PREDICTED_WIN_RATE,cModel.getModelArffFormat());
 		selectedInstances=returnSelectedInstances(m5pOutput);

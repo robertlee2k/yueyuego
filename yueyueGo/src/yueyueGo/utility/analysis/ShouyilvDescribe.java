@@ -1,5 +1,7 @@
 package yueyueGo.utility.analysis;
 
+import java.util.ArrayList;
+
 import yueyueGo.utility.FormatUtility;
 
 /*
@@ -102,6 +104,19 @@ public class ShouyilvDescribe {
 			result=(double)positiveCount/count;
 		}
 		return result;
+	}
+
+
+	/**
+	 * @param shouyilvDescriptions
+	 * @return
+	 */
+	public static String convertListToCSV(ArrayList<ShouyilvDescribe> shouyilvDescriptions) {
+		StringBuffer outputCSV=new StringBuffer("所属区间,所用模型,均线分组,总数,收益率平均值,正收益数,正收益率平均值,负收益数,负收益率平均值,正值率\r\n");
+		   for (ShouyilvDescribe shouyilvDescribe : shouyilvDescriptions) {
+			   outputCSV.append(shouyilvDescribe.toString()+"\r\n");
+		   }
+		return outputCSV.toString();
 	}
 	
 	
