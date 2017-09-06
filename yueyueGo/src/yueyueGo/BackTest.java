@@ -674,25 +674,33 @@ public class BackTest {
 	 */
 	protected void outputStatistics(NominalClassifier nModel, GeneralInstances nominalResult, ContinousClassifier cModel,
 			GeneralInstances continuousResult) throws Exception {
+		
+		
+//		ArrayList<ShouyilvDescribe>[] shouyilvDescriptionsArray=new ArrayList<ShouyilvDescribe>[3]; 
 		String timeRange=m_startYear+"-"+m_endYearMonth;
 		//统一输出统计结果
 		nModel.outputClassifySummary();
 		cModel.outputClassifySummary();
 
 		System.out.println(" now output the full distribution of results:");
-		DataAnalysis.analyzeDataDistribution(ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,timeRange,continuousResult,cModel.classifierName);
+		ArrayList<ShouyilvDescribe> fullDistributions=DataAnalysis.analyzeMarket(m_startYear+"01",m_endYearMonth,ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,continuousResult,ShouyilvDescribe.ALL);
+
 	
 		//输出用于计算收益率的CSV文件
 		System.out.println("-----now output continuous predictions----------"+cModel.getIdentifyName() + " (filtered by nominal: "+nModel.getIdentifyName()+")");
 		System.out.println(" now output the uncombined results");
 		GeneralInstances selectedInstances=returnSelectedInstances(continuousResult);
-		DataAnalysis.analyzeMarket(m_startYear+"01",m_endYearMonth,ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,selectedInstances,cModel.classifierName);
+		ArrayList<ShouyilvDescribe> uncombinedSelected=DataAnalysis.analyzeMarket(m_startYear+"01",m_endYearMonth,ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,selectedInstances,cModel.classifierName);
 		
 		System.out.println(" now output the combined results");
 		GeneralInstances m5pOutput=mergeResultWithData(continuousResult,nominalResult,ArffFormat.RESULT_PREDICTED_WIN_RATE,cModel.getModelArffFormat());
 		selectedInstances=returnSelectedInstances(m5pOutput);
-		DataAnalysis.analyzeMarket(m_startYear+"01",m_endYearMonth,ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,selectedInstances,cModel.classifierName);
+		ArrayList<ShouyilvDescribe> combinedSelected=DataAnalysis.analyzeMarket(m_startYear+"01",m_endYearMonth,ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,selectedInstances,cModel.classifierName);
 		this.saveSelectedFileForMarkets(selectedInstances, cModel.getIdentifyName());
+		
+		for (int i=0;i<fullDistributions.size();i++){
+			
+		}
 		
 	
 		System.out.println("-----now output nominal predictions----------"+nModel.getIdentifyName()+" (filtered by continuous: "+cModel.getIdentifyName()+")");
