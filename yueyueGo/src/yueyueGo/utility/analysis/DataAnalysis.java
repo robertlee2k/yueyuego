@@ -1,4 +1,6 @@
-package yueyueGo.utility;
+package yueyueGo.utility.analysis;
+
+import java.util.ArrayList;
 
 import yueyueGo.BackTest;
 import yueyueGo.dataFormat.ArffFormat;
@@ -7,6 +9,7 @@ import yueyueGo.dataProcessor.InstanceHandler;
 import yueyueGo.dataProcessor.WekaInstanceProcessor;
 import yueyueGo.databeans.GeneralAttribute;
 import yueyueGo.databeans.GeneralInstances;
+import yueyueGo.utility.FormatUtility;
 
 /*
  * 分析历史各阶段的收益率数据分布
@@ -38,57 +41,88 @@ public class DataAnalysis {
 			new MarketDefinition("慢反弹" , 201610, 201707),
 	};
 
+
 	
-	public static void analyzeMarket(String policyGroupName,String[] policyStrings,GeneralInstances fullData)throws Exception{
+	public static String analyzeMarket(String policyGroupName,String[] policyStrings,GeneralInstances fullData)throws Exception{
 		int startYearMonth;
 		int endYearMonth;
 		int yearMonthPos=BaseInstanceProcessor.findATTPosition(fullData,ArffFormat.YEAR_MONTH);
 		String attPos=WekaInstanceProcessor.WEKA_ATT_PREFIX + yearMonthPos;
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullData);
+			
+		StringBuffer outputCSV=new StringBuffer("所属区间,均线分组,总数,收益率平均值,正收益数,正收益率平均值,负收益数,负收益率平均值,正值率\r\n");
 		
 		for (int i=0;i<MARKET_DEFINITION.length;i++){
 			startYearMonth=MARKET_DEFINITION[i].getStartYearMonth();
 			endYearMonth=MARKET_DEFINITION[i].getEndYearMonth();
+			
 			System.out.println(".........now output    ...."+MARKET_DEFINITION[i].toString());
+			String timeRange=MARKET_DEFINITION[i].toString()+"["+startYearMonth+"-"+endYearMonth+"]";
 			String splitClause ="(" + attPos + " >= "+ startYearMonth + ") and (" + attPos + " <= " + endYearMonth + ") ";
 			GeneralInstances marketData=instanceProcessor.getInstancesSubset(fullData, splitClause);
-			analyzeDataDistribution(policyGroupName,policyStrings,marketData);
+			ArrayList<ShouyilvDescribe> shouyilvDescriptions=analyzeDataDistribution(policyGroupName,policyStrings,timeRange,marketData);
+			for (ShouyilvDescribe shouyilvDescribe : shouyilvDescriptions) {
+				outputCSV.append(shouyilvDescribe.toString()+"\r\n");
+			}
 			System.out.println(".........end of output ...."+MARKET_DEFINITION[i].toString());
 		}
+		return outputCSV.toString();
+		
 	}
 	
 	/**
 	 * @param data
 	 */
-	public static void analyzeDataDistribution(String policyGroupName,String[] policyStrings,GeneralInstances data) throws Exception {
+	public static ArrayList<ShouyilvDescribe> analyzeDataDistribution(String policyGroupName,String[] policyStrings,String timeRange,GeneralInstances data) throws Exception {
+		ArrayList<ShouyilvDescribe> shouyilvDesc=new ArrayList<ShouyilvDescribe>();
 		System.out.println("start of data distribution analysis.......");
 		GeneralAttribute shouyilvAttribute=data.attribute(ArffFormat.SHOUYILV);
-		System.out.println(" shouyilv average="+FormatUtility.formatPercent(data.meanOrMode(shouyilvAttribute),2,4)+" count="+data.numInstances());
-		//		GeneralAttribute policyGroup=data.attribute(ArffFormat.)
 		int shouyilvPos = BaseInstanceProcessor.findATTPosition(data,ArffFormat.SHOUYILV);
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(data);
-
 		int policyPos = BaseInstanceProcessor.findATTPosition(data,policyGroupName);
 
+		int count;
+		double shouyilvAverage;
+		
+		ShouyilvDescribe oneDescription;
+		shouyilvAverage=data.meanOrMode(shouyilvAttribute);
+		count=data.numInstances();
+		oneDescription=new ShouyilvDescribe(timeRange, ShouyilvDescribe.ALL, count,shouyilvAverage,0,0,0);
+		shouyilvDesc.add(oneDescription);
+		System.out.println(" shouyilv average="+FormatUtility.formatPercent(shouyilvAverage,2,4)+" count="+count);
+
 		for (int j = BackTest.BEGIN_FROM_POLICY; j < policyStrings.length; j++) {
-			String policy = policyStrings[j];		
+	
+			int positiveCount;
+			double positiveShouyilvAverage;
+			double negativeShouyilvAverage;
+
+
+			String policy = policyStrings[j];
 			GeneralInstances policyData=instanceProcessor.getInstancesSubset(data, WekaInstanceProcessor.WEKA_ATT_PREFIX +policyPos+" is '"	+ policy + "'");
-			System.out.println("\t shouyilv average for policy["+policy+"]=" +FormatUtility.formatPercent(policyData.meanOrMode(shouyilvAttribute),2,3)+" count="+policyData.numInstances());
-
-
+			
+			shouyilvAverage=policyData.meanOrMode(shouyilvAttribute);
+			count=policyData.numInstances();
+			System.out.println("\t shouyilv average for policy["+policy+"]=" +FormatUtility.formatPercent(shouyilvAverage,2,3)+" count="+count);
+			
 			GeneralInstances partial=instanceProcessor.getInstancesSubset(policyData, WekaInstanceProcessor.WEKA_ATT_PREFIX +shouyilvPos+" > 0");
-			int positiveCount=partial.numInstances();
-			System.out.println("\t\t actual positive average="+FormatUtility.formatPercent(partial.meanOrMode(shouyilvAttribute),2,3)+" count="+positiveCount);
-
+			positiveCount=partial.numInstances();
+			positiveShouyilvAverage=partial.meanOrMode(shouyilvAttribute);
+			System.out.println("\t\t actual positive average="+FormatUtility.formatPercent(positiveShouyilvAverage,2,3)+" count="+positiveCount);
+			
 			partial=instanceProcessor.getInstancesSubset(policyData, WekaInstanceProcessor.WEKA_ATT_PREFIX +shouyilvPos+" <= 0");
-			int negativeCount=partial.numInstances();
-			System.out.println("\t\t actual negative average="+FormatUtility.formatPercent(partial.meanOrMode(shouyilvAttribute),2,3)+" count="+negativeCount);
-			double percent=(double)positiveCount/(negativeCount+positiveCount);
+			negativeShouyilvAverage=partial.meanOrMode(shouyilvAttribute);
+			System.out.println("\t\t actual negative average="+FormatUtility.formatPercent(negativeShouyilvAverage,2,3)+" count="+(count-positiveCount));
+			
+			oneDescription=new ShouyilvDescribe(timeRange,policy, count, shouyilvAverage,positiveCount,positiveShouyilvAverage, negativeShouyilvAverage);
+			shouyilvDesc.add(oneDescription);
+			double percent=oneDescription.getPositiveRatio();
 			System.out.println("\t\t actual positive/total="+FormatUtility.formatPercent(percent,2,2));
 		}
 		System.out.println("...end of data distribution analysis");
+		return shouyilvDesc;
 	}
 	
 	
-	
+
 }

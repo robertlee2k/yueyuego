@@ -49,10 +49,10 @@ import yueyueGo.utility.AppContext;
 import yueyueGo.utility.BlockedThreadPoolExecutor;
 import yueyueGo.utility.ClassiferInitFactory;
 import yueyueGo.utility.ClassifySummaries;
-import yueyueGo.utility.DataAnalysis;
 import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.MergeClassifyResults;
 import yueyueGo.utility.ThresholdData;
+import yueyueGo.utility.analysis.DataAnalysis;
 
 public class BackTest {
 	protected String C_ROOT_DIRECTORY =EnvConstants.AVG_LINE_ROOT_DIR;
@@ -98,10 +98,10 @@ public class BackTest {
 			//调用回测函数回测
 //			worker.callRebuildModels();
 //			worker.callReEvaluateModels();
-			worker.callTestBack();
+//			worker.callTestBack();
 //			worker.callRefreshModelUseLatestData();
 			
-//			worker.callDataAnlysis();
+			worker.callDataAnlysis();
 //			worker.testForModelStore();
 			
 		} catch (Exception e) {
@@ -112,7 +112,8 @@ public class BackTest {
 	public void callDataAnlysis() throws Exception{
 	   BaseClassifier  cModel=new BaggingM5P();
 	   GeneralInstances fulldata=getBacktestInstances(cModel);
-	   DataAnalysis.analyzeMarket(ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,fulldata);
+	   String result=DataAnalysis.analyzeMarket(ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,fulldata);
+	   FileUtility.write(BACKTEST_RESULT_DIR+"marketAnalysis-Summary.csv", result, "GBK");
 	   
 	}
 	
@@ -667,18 +668,19 @@ public class BackTest {
 	 */
 	protected void outputStatistics(NominalClassifier nModel, GeneralInstances nominalResult, ContinousClassifier cModel,
 			GeneralInstances continuousResult) throws Exception {
+		String timeRange=m_startYear+"-"+m_endYearMonth;
 		//统一输出统计结果
 		nModel.outputClassifySummary();
 		cModel.outputClassifySummary();
 
 		System.out.println(" now output the full distribution of results:");
-		DataAnalysis.analyzeDataDistribution(ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,continuousResult);
+		DataAnalysis.analyzeDataDistribution(ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,timeRange,continuousResult);
 	
 		//输出用于计算收益率的CSV文件
 		System.out.println("-----now output continuous predictions----------"+cModel.getIdentifyName() + " (filtered by nominal: "+nModel.getIdentifyName()+")");
 		System.out.println(" now output the uncombined results");
 		GeneralInstances selectedInstances=returnSelectedInstances(continuousResult);
-		DataAnalysis.analyzeDataDistribution(ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,selectedInstances);
+		DataAnalysis.analyzeDataDistribution(ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,timeRange,selectedInstances);
 		System.out.println(" now output the combined results");
 		GeneralInstances m5pOutput=mergeResultWithData(continuousResult,nominalResult,ArffFormat.RESULT_PREDICTED_WIN_RATE,cModel.getModelArffFormat());
 		selectedInstances=returnSelectedInstances(m5pOutput);
@@ -690,11 +692,11 @@ public class BackTest {
 		System.out.println("-----now output nominal predictions----------"+nModel.getIdentifyName()+" (filtered by continuous: "+cModel.getIdentifyName()+")");
 		System.out.println(" now output the uncombined results");
 		selectedInstances=returnSelectedInstances(nominalResult);
-		DataAnalysis.analyzeDataDistribution(ARFF_FORMAT.m_policy_group,nModel.m_policySubGroup,selectedInstances);
+		DataAnalysis.analyzeDataDistribution(ARFF_FORMAT.m_policy_group,nModel.m_policySubGroup,timeRange,selectedInstances);
 		System.out.println(" now output the combined results");
 		GeneralInstances mlpOutput=mergeResultWithData(nominalResult,continuousResult,ArffFormat.RESULT_PREDICTED_PROFIT,nModel.getModelArffFormat());
 		selectedInstances=returnSelectedInstances(mlpOutput);
-		DataAnalysis.analyzeDataDistribution(ARFF_FORMAT.m_policy_group,nModel.m_policySubGroup,selectedInstances);
+		DataAnalysis.analyzeDataDistribution(ARFF_FORMAT.m_policy_group,nModel.m_policySubGroup,timeRange,selectedInstances);
 		this.saveSelectedFileForMarkets(selectedInstances, nModel.getIdentifyName());
 		System.out.println("-----end of test backward------");
 	}
