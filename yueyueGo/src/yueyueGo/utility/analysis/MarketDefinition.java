@@ -12,7 +12,7 @@ package yueyueGo.utility.analysis;
 小反弹  201509-201512
 小熊市    201601-201609
 慢反弹  201610-201708
-
+全市场  200001-209901
  */
 
 public class MarketDefinition {

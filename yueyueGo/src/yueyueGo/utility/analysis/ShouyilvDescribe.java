@@ -133,8 +133,9 @@ public class ShouyilvDescribe {
 
 		for (int i=0;i<shouyilvDescriptionsArray[0].size();i++){
 			for (int j=0;j<repeat;j++){
-			  outputCSV.append(shouyilvDescriptionsArray[j].get(i).toString()+"\r\n");
+			  outputCSV.append(shouyilvDescriptionsArray[j].get(i).toString());
 			}
+			outputCSV.append("\r\n");
 		}
 		return outputCSV.toString();
 	}
