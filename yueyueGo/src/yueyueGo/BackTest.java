@@ -676,7 +676,10 @@ public class BackTest {
 			GeneralInstances continuousResult) throws Exception {
 		
 		
-//		ArrayList<ShouyilvDescribe>[] shouyilvDescriptionsArray=new ArrayList<ShouyilvDescribe>[3]; 
+		@SuppressWarnings("unchecked")
+		ArrayList<ShouyilvDescribe>[] shouyilvDescriptionsArray=new ArrayList[3]; 
+		
+		
 		String timeRange=m_startYear+"-"+m_endYearMonth;
 		//统一输出统计结果
 		nModel.outputClassifySummary();
@@ -684,7 +687,7 @@ public class BackTest {
 
 		System.out.println(" now output the full distribution of results:");
 		ArrayList<ShouyilvDescribe> fullDistributions=DataAnalysis.analyzeMarket(m_startYear+"01",m_endYearMonth,ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,continuousResult,ShouyilvDescribe.ALL);
-
+		
 	
 		//输出用于计算收益率的CSV文件
 		System.out.println("-----now output continuous predictions----------"+cModel.getIdentifyName() + " (filtered by nominal: "+nModel.getIdentifyName()+")");
@@ -698,10 +701,11 @@ public class BackTest {
 		ArrayList<ShouyilvDescribe> combinedSelected=DataAnalysis.analyzeMarket(m_startYear+"01",m_endYearMonth,ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,selectedInstances,cModel.classifierName);
 		this.saveSelectedFileForMarkets(selectedInstances, cModel.getIdentifyName());
 		
-		for (int i=0;i<fullDistributions.size();i++){
-			
-		}
-		
+		shouyilvDescriptionsArray[0]=fullDistributions;
+		shouyilvDescriptionsArray[1]=uncombinedSelected;
+		shouyilvDescriptionsArray[2]=combinedSelected;
+		String output=ShouyilvDescribe.mergeListsToCSV(shouyilvDescriptionsArray);
+		FileUtility.write(BACKTEST_RESULT_DIR+ cModel.getIdentifyName()+"-shouyilv-Summary.csv", output, "GBK");
 	
 		System.out.println("-----now output nominal predictions----------"+nModel.getIdentifyName()+" (filtered by continuous: "+cModel.getIdentifyName()+")");
 		System.out.println(" now output the uncombined results");

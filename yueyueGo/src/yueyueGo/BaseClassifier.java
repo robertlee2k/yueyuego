@@ -172,7 +172,7 @@ public abstract class BaseClassifier implements Serializable{
 		
 		double pred;
 		double reversedPred;
-		
+		double yearMonth=Double.valueOf(yearSplit).doubleValue();
 		
 		for (int i = 0; i < testInstancesNum; i++) {
 			GeneralInstance curr = test.instance(i);
@@ -187,7 +187,7 @@ public abstract class BaseClassifier implements Serializable{
 			//将相应的ID赋值回去
 			inst.setValue(ArffFormat.ID_POSITION - 1, ids[i]);
 			//将Yearmonth赋值回去用于统计用途
-			inst.setValue(1, yearSplit);
+			inst.setValue(1, yearMonth);
 			//从2开始，忽略第一列的ID和第二列的YEARMONTH
 			for (int n = 2; n < inst.numAttributes() - 3; n++) { // ignore the
 																	// first ID.
