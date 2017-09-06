@@ -42,11 +42,11 @@ public class EvaluationStore {
 
 	protected boolean m_isNominal=false;
 
-	public static final double TOP_AREA_RATIO=0.08; //缺省定义头部区域为10%
-	public static final double REVERSED_TOP_AREA_RATIO=0.65; //缺省定义反向头部为50%
+	public static final double TOP_AREA_RATIO=0.1; //缺省定义头部区域为10%
+	public static final double REVERSED_TOP_AREA_RATIO=0.5; //缺省定义反向头部为50%
 	protected double[] m_focusAreaRatio={TOP_AREA_RATIO,1};//评估时关注评估数据的不同Top 比例;
 
-	public static final int PREVIOUS_MODELS_NUM=6; 	//暂时选取之前的6个文件（加上9个月评估数据，也就是最大倒推2年左右）
+	public static final int PREVIOUS_MODELS_NUM=5; 	//暂时选取之前的6个文件（加上9个月评估数据，也就是最大倒推2年左右）
 	public static final int YEAR_SPLIT_LIMIT=2007; //回测模型的起始点， 在这之前无数据	
 
 	//以下为不可配置参数，内部存储

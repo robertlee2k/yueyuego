@@ -16,6 +16,8 @@ public class FileUtility {
 		// if file doesn't exists, then create it
 		if (!file.exists()) {
 			file.createNewFile();
+		}else{
+			file.delete();
 		}
 		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), encoding));
 		writer.write(content);
