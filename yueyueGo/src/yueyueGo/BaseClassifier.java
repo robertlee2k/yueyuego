@@ -160,11 +160,7 @@ public abstract class BaseClassifier implements Serializable{
 			}
 		}
 
-		//开始用分类模型和阀值进行预测
-		System.out.println("actual -> predicted....... ");
-		
 
-		int testInstancesNum=test.numInstances();
 		DescriptiveStatistics totalPositiveShouyilv=new DescriptiveStatistics();
 		DescriptiveStatistics totalNegativeShouyilv=new DescriptiveStatistics();
 		DescriptiveStatistics selectedPositiveShouyilv=new DescriptiveStatistics();
@@ -173,7 +169,24 @@ public abstract class BaseClassifier implements Serializable{
 		double pred;
 		double reversedPred;
 		double yearMonth=Double.valueOf(yearSplit).doubleValue();
+
+		//找到输出结果集的各种Attribute属性位置
+		GeneralAttribute idAttInResult=result.attribute(ArffFormat.ID);
+		GeneralAttribute yearMonthAtt=result.attribute(ArffFormat.YEAR_MONTH);
+		GeneralAttribute shouyilvAtt=result.attribute(ArffFormat.SHOUYILV);
+		GeneralAttribute predAtt=null;
+		if (this instanceof NominalClassifier ){
+			predAtt = result.attribute(ArffFormat.RESULT_PREDICTED_WIN_RATE);
+		}else{
+			predAtt = result.attribute(ArffFormat.RESULT_PREDICTED_PROFIT);
+		}
+		GeneralAttribute selectedAtt=result.attribute(ArffFormat.RESULT_SELECTED);
+		//输出结果集中须保留的校验字段 （将测试数据的这些值直接写入输出结果集）
 		
+		
+		//开始循环，用分类模型和阀值对每一条数据进行预测，并存入输出结果集
+		System.out.println("actual -> predicted....... ");
+		int testInstancesNum=test.numInstances();
 		for (int i = 0; i < testInstancesNum; i++) {
 			GeneralInstance curr = test.instance(i);
 			pred=classify(model,curr);  //调用子类的分类函数
@@ -185,9 +198,11 @@ public abstract class BaseClassifier implements Serializable{
 			DataInstance inst = new DataInstance(result.numAttributes());
 			inst.setDataset(result);
 			//将相应的ID赋值回去
-			inst.setValue(ArffFormat.ID_POSITION - 1, ids[i]);
+			inst.setValue(idAttInResult, ids[i]);
 			//将Yearmonth赋值回去用于统计用途
-			inst.setValue(1, yearMonth);
+			inst.setValue(yearMonthAtt, yearMonth);
+			
+			//TODO 不要这样指定列数
 			//从2开始，忽略第一列的ID和第二列的YEARMONTH
 			for (int n = 2; n < inst.numAttributes() - 3; n++) { // ignore the
 																	// first ID.
@@ -208,24 +223,28 @@ public abstract class BaseClassifier implements Serializable{
 				}
 			}
 
-			inst.setValue(result.numAttributes() - 3, curr.classValue());
-			inst.setValue(result.numAttributes() - 2, pred);
 			
+			//获取原始数据中的实际收益率值
 			double shouyilv=getShouyilv(i,ids[i],curr.classValue());
-			
 			if (shouyilv>getPositiveLine()){ //这里的positive是个相对于positiveLine的相对概念
 				totalPositiveShouyilv.addValue(shouyilv);
 			}else {
 				totalNegativeShouyilv.addValue(shouyilv);
 			}
+			//将原始数据的实际收益率值设定入结果集
+			inst.setValue(shouyilvAtt, shouyilv);
 
+			//将获得的预测值设定入结果集
+
+			inst.setValue(predAtt, pred);
+			
+
+			//计算选股结果
 			double selected = BaseClassifier.VALUE_NOT_SURE;
-
 			//先用反向模型判断
 			if (reversedPred<reversedThresholdMax){
 				selected=BaseClassifier.VALUE_NEVER_SELECT;//反向模型坚定认为当前数据为0 （这是合并多个模型预测时使用的）
 			}
-
 			//如果正向模型与方向模型得出的值矛盾（在使用不同模型时），则用正向模型的数据覆盖方向模型（因为毕竟正向模型的ratio比较小）
 			if (pred >=thresholdMin ) { //本模型估计当前数据是1值
 				selected = BaseClassifier.VALUE_SELECTED;  
@@ -236,8 +255,7 @@ public abstract class BaseClassifier implements Serializable{
 					selectedNegativeShouyilv.addValue(shouyilv);
 				}
 			}
-			
-			inst.setValue(result.numAttributes() - 1, selected);
+			inst.setValue(selectedAtt, selected);
 			result.add(inst);
 		}
 		
@@ -386,27 +404,45 @@ public abstract class BaseClassifier implements Serializable{
 	/*
 	 * 输出分类器的参数设置
 	 */
-	public void outputClassifyParameter() {
-		System.out.println("***************************************CLASSIFY DATE="+FormatUtility.getDateStringFor(0));
-		System.out.println("ClassifyIdentity="+this.getIdentifyName());
-		System.out.println("m_skipTrainInBacktest="+this.m_skipTrainInBacktest);
-		System.out.println("m_skipEvalInBacktest="+this.m_skipEvalInBacktest);
-		System.out.println("m_positiveLine="+m_positiveLine);
-		System.out.println("m_modelDataSplitMode="+m_evalDataSplitMode);
-		System.out.println("m_modelEvalFileShareMode="+m_modelFileShareMode);
-		System.out.println("modelArffFormat="+modelArffFormat);
-		System.out.println("TOP AREA RATIO="+EvaluationStore.TOP_AREA_RATIO);
-		System.out.println("reversed TOP AREA RATIO="+EvaluationStore.REVERSED_TOP_AREA_RATIO);
+	private String getClassifyParametersInString() {
+		StringBuffer output=new StringBuffer();
+		output.append("***************************************CLASSIFY DATE="+FormatUtility.getDateStringFor(0));
+		output.append("\r\n");
+		output.append("ClassifyIdentity="+this.getIdentifyName());
+		output.append("\r\n");
+//		output.append("m_skipTrainInBacktest="+this.m_skipTrainInBacktest);
+//		output.append("\r\n");
+		output.append("m_skipEvalInBacktest="+this.m_skipEvalInBacktest);
+		output.append("\r\n");
+		output.append("m_positiveLine="+m_positiveLine);
+		output.append("\r\n");
+		output.append("m_modelDataSplitMode="+m_evalDataSplitMode);
+		output.append("\r\n");
+		output.append("m_modelEvalFileShareMode="+m_modelFileShareMode);
+		output.append("\r\n");
+		output.append("modelArffFormat="+modelArffFormat);
+		output.append("\r\n");
+		output.append("TOP AREA RATIO="+EvaluationStore.TOP_AREA_RATIO);
+		output.append("\r\n");
+		output.append("reversed TOP AREA RATIO="+EvaluationStore.REVERSED_TOP_AREA_RATIO);
+		output.append("\r\n");
 		EvaluationConfDefinition evalConf=new EvaluationConfDefinition(this.classifierName ,this.m_policySubGroup,null);
-		System.out.println(evalConf.showEvaluationParameters());
-	    System.out.println("***************************************");
+		output.append(evalConf.showEvaluationParameters());
+		output.append("\r\n");
+		output.append("***************************************");
+		output.append("\r\n");
+		return output.toString();
 	}
 	
 	/*
 	 * 输出分类器的分类结果
 	 */
-	public void outputClassifySummary() throws Exception{
-		outputClassifyParameter();
+	public String outputClassifySummary() throws Exception{
+		StringBuffer output=new StringBuffer();
+		output.append(getClassifyParametersInString());
+		String result=output.toString();
+		System.out.println(result);
+		
 		ClassifySummaries c=getClassifySummaries();
 		if (c!=null){
 			if (c.isForPrediction()){
@@ -417,6 +453,7 @@ public abstract class BaseClassifier implements Serializable{
 		}else{
 			System.out.println("ClassifySummaries object for "+getIdentifyName()+ " is null, cannot output summary");
 		}
+		return result;
 	}
 	
 	//用于清除分类器的内部缓存（如nominal 分类器的cache）

@@ -34,7 +34,7 @@ public abstract class ArffFormat {
 	public static final String BIAS5 = "bias5";
 	public static final String YEAR_MONTH = "yearmonth";
 	public static final String CODE = "code";
-	public static final String SW_ZHISHU_CODE="sw_zhishu_code";
+//	public static final String SW_ZHISHU_CODE="sw_zhishu_code";
 	
 	public static final String ID = "id";
 	public static final int ID_POSITION = 1; // ID的位置
@@ -45,26 +45,26 @@ public abstract class ArffFormat {
 	// ARFF文件中的日期格式
 	public static final String ARFF_DATE_FORMAT = "M/d/yyyy";
 	
-	//须去除的行业相关数据
-	protected static final String[] REMOVE_SW_DATA= {
-			SW_ZHISHU_CODE,
-			"isrzbd",
-			"sw_bias5", "sw_bias10","sw_bias20", "sw_bias30", "sw_bias60",
-			"sw_bias5_preday_dif",	"sw_bias10_preday_dif", "sw_bias20_preday_dif",	"sw_bias30_preday_dif", "sw_bias60_preday_dif",
-			"sw_bias5_pre2day_dif", "sw_bias10_pre2day_dif","sw_bias20_pre2day_dif", "sw_bias30_pre2day_dif","sw_bias60_pre2day_dif",
-			"sw_ma5_indicator","sw_ma10_indicator","sw_ma20_indicator","sw_ma30_indicator","sw_ma60_indicator",
-			"skewness5_shenwan","skewness10_shenwan","skewness20_shenwan","skewness30_shenwan","skewness60_shenwan",
-			"kurtosis5_shenwan","kurtosis10_shenwan","kurtosis20_shenwan","kurtosis30_shenwan","kurtosis60_shenwan",
-			"HV5_shenwan","HV10_shenwan","HV20_shenwan","HV30_shenwan","HV60_shenwan",
-			"leijizhangdiefu5_shenwan","leijizhangdiefu10_shenwan","leijizhangdiefu20_shenwan","leijizhangdiefu30_shenwan","leijizhangdiefu60_shenwan",
-	};
-	
-	// 从All Transaction Data中删除申万行业数据
-	public static GeneralInstances removeSWData(GeneralInstances allData)
-			throws Exception {
-		GeneralInstances result = InstanceHandler.getHandler(allData).removeAttribs(allData,REMOVE_SW_DATA);
-		return result;
-	}		
+//	//须去除的行业相关数据
+//	protected static final String[] REMOVE_SW_DATA= {
+//			SW_ZHISHU_CODE,
+//			"isrzbd",
+//			"sw_bias5", "sw_bias10","sw_bias20", "sw_bias30", "sw_bias60",
+//			"sw_bias5_preday_dif",	"sw_bias10_preday_dif", "sw_bias20_preday_dif",	"sw_bias30_preday_dif", "sw_bias60_preday_dif",
+//			"sw_bias5_pre2day_dif", "sw_bias10_pre2day_dif","sw_bias20_pre2day_dif", "sw_bias30_pre2day_dif","sw_bias60_pre2day_dif",
+//			"sw_ma5_indicator","sw_ma10_indicator","sw_ma20_indicator","sw_ma30_indicator","sw_ma60_indicator",
+//			"skewness5_shenwan","skewness10_shenwan","skewness20_shenwan","skewness30_shenwan","skewness60_shenwan",
+//			"kurtosis5_shenwan","kurtosis10_shenwan","kurtosis20_shenwan","kurtosis30_shenwan","kurtosis60_shenwan",
+//			"HV5_shenwan","HV10_shenwan","HV20_shenwan","HV30_shenwan","HV60_shenwan",
+//			"leijizhangdiefu5_shenwan","leijizhangdiefu10_shenwan","leijizhangdiefu20_shenwan","leijizhangdiefu30_shenwan","leijizhangdiefu60_shenwan",
+//	};
+//	
+//	// 从All Transaction Data中删除申万行业数据
+//	public static GeneralInstances removeSWData(GeneralInstances allData)
+//			throws Exception {
+//		GeneralInstances result = InstanceHandler.getHandler(allData).removeAttribs(allData,REMOVE_SW_DATA);
+//		return result;
+//	}		
 	//end of 常量定义
 
 
@@ -114,7 +114,7 @@ public abstract class ArffFormat {
 		TRADE_DATE,CODE, SELL_DATE, 
 		DATA_DATE, IS_POSITIVE,
 		"zhangdieting",
-		"zhishu_code", SW_ZHISHU_CODE,IS_SZ50 ,IS_HS300 , 
+		"zhishu_code", IS_SZ50 ,IS_HS300 , 
 		IS_ZZ500, "is_st",
 		AvgLineDataFormat.SELECTED_AVGLINE,
 		MomentumDataFormat.MOMENTUM_PERIOD

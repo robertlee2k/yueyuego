@@ -48,7 +48,7 @@ public class DataAnalysis {
 	 * toYearMonth 待统计数据的结束区间
 	 * 针对这个区间的数据，分别统计各种市场情况下的收益率分布
 	 */
-	public static ShouyilvDescriptiveList analyzeMarket(String identify,String fromYearMonth,String toYearMonth,String policyGroupName,String[] policyStrings,GeneralInstances fullData,String ClassiferName)throws Exception{
+	public static ShouyilvDescriptiveList analyzeMarket(String identify,String fromYearMonth,String toYearMonth,String policyGroupName,String[] policyStrings,GeneralInstances fullData)throws Exception{
 		int earliest=Integer.valueOf(fromYearMonth).intValue();
 		int latest=Integer.valueOf(toYearMonth).intValue();
 		int marketStartMonth;
@@ -56,7 +56,7 @@ public class DataAnalysis {
 
 		System.out.println(" now output the data distribution of results:"+identify);
 		//先分析全时间段的并输出打印，下面的明细就不打印了。
-		ShouyilvDescriptiveList descriptions=analyzeDataDistribution(policyGroupName,policyStrings,ALL_HISTORY.toString(),fullData,ClassiferName);
+		ShouyilvDescriptiveList descriptions=analyzeDataDistribution(policyGroupName,policyStrings,ALL_HISTORY.toString(),fullData);
 		System.out.println(descriptions.toDescriptionList());
 		
 		ShouyilvDescriptiveList	shouyilvDescriptions=new ShouyilvDescriptiveList(identify);
@@ -77,7 +77,7 @@ public class DataAnalysis {
 				String timeRange=MARKET_DEFINITION[i].toString()+"["+marketStartMonth+"-"+marketEndMonth+"]";
 				String splitClause ="(" + attPos + " >= "+ marketStartMonth + ") and (" + attPos + " <= " + marketEndMonth + ") ";
 				GeneralInstances marketData=instanceProcessor.getInstancesSubset(fullData, splitClause);
-				descriptions=analyzeDataDistribution(policyGroupName,policyStrings,timeRange,marketData,ClassiferName);
+				descriptions=analyzeDataDistribution(policyGroupName,policyStrings,timeRange,marketData);
 				shouyilvDescriptions.mergeDescriptionList(descriptions);
 //				System.out.println(".........end of output ...."+MARKET_DEFINITION[i].toString());
 			}
@@ -89,7 +89,7 @@ public class DataAnalysis {
 	/**
 	 * @param data
 	 */
-	public static ShouyilvDescriptiveList analyzeDataDistribution(String policyGroupName,String[] policyStrings,String timeRange,GeneralInstances data,String ClassiferName) throws Exception {
+	public static ShouyilvDescriptiveList analyzeDataDistribution(String policyGroupName,String[] policyStrings,String timeRange,GeneralInstances data) throws Exception {
 		ShouyilvDescriptiveList shouyilvDesc=new ShouyilvDescriptiveList("temp");
 //		System.out.println("start of data distribution analysis.......");
 		GeneralAttribute shouyilvAttribute=data.attribute(ArffFormat.SHOUYILV);
@@ -101,7 +101,7 @@ public class DataAnalysis {
 		
 
 		//先分析整体的
-		oneDescription=analyzeShouyilv(timeRange, shouyilvAttribute,shouyilvPos,instanceProcessor,ShouyilvDescriptive.ALL,data,ClassiferName);
+		oneDescription=analyzeShouyilv(timeRange, shouyilvAttribute,shouyilvPos,instanceProcessor,ShouyilvDescriptive.ALL,data);
 		shouyilvDesc.addDescription(oneDescription);
 
 		for (int j = BackTest.BEGIN_FROM_POLICY; j < policyStrings.length; j++) {
@@ -109,7 +109,7 @@ public class DataAnalysis {
 			GeneralInstances policyData=instanceProcessor.getInstancesSubset(data, WekaInstanceProcessor.WEKA_ATT_PREFIX +policyPos+" is '"	+ policy + "'");
 			
 			oneDescription = analyzeShouyilv(timeRange, shouyilvAttribute, shouyilvPos, instanceProcessor, policy,
-					policyData,ClassiferName);
+					policyData);
 
 			shouyilvDesc.addDescription(oneDescription);
 		}
@@ -128,7 +128,7 @@ public class DataAnalysis {
 	 * @throws Exception
 	 */
 	private static ShouyilvDescriptive analyzeShouyilv(String timeRange, GeneralAttribute shouyilvAttribute,
-			int shouyilvPos, BaseInstanceProcessor instanceProcessor, String policy, GeneralInstances data,String ClassiferName)
+			int shouyilvPos, BaseInstanceProcessor instanceProcessor, String policy, GeneralInstances data)
 			throws Exception {
 		ShouyilvDescriptive oneDescription;
 		int count;
@@ -145,7 +145,7 @@ public class DataAnalysis {
 		partial=instanceProcessor.getInstancesSubset(data, WekaInstanceProcessor.WEKA_ATT_PREFIX +shouyilvPos+" <= 0");
 		negativeShouyilvAverage=partial.meanOrMode(shouyilvAttribute);
 		
-		oneDescription=new ShouyilvDescriptive(timeRange,ClassiferName,policy, count, shouyilvAverage,positiveCount,positiveShouyilvAverage, negativeShouyilvAverage);			
+		oneDescription=new ShouyilvDescriptive(timeRange,policy, count, shouyilvAverage,positiveCount,positiveShouyilvAverage, negativeShouyilvAverage);			
 
 		
 		return oneDescription;

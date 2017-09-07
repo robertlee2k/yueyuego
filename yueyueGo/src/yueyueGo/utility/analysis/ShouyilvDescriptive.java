@@ -11,7 +11,6 @@ public class ShouyilvDescriptive {
 	public static final String ALL="ALL";
 	protected String period;
 	protected String policy;
-	protected String classifierName;
 	protected int count;
 	protected int positiveCount;
 	protected double shouyilvAverage;
@@ -19,11 +18,10 @@ public class ShouyilvDescriptive {
 	protected double negativeShouyilvAverage;
 	
 	
-	public ShouyilvDescriptive(String period, String classifierName,String policy,  int count,  double shouyilvAverage,int positiveCount,
+	public ShouyilvDescriptive(String period, String policy,  int count,  double shouyilvAverage,int positiveCount,
 			double positiveShouyilvAverage, double negativeShouyilvAverage) {
 		this.period = period;
 		this.policy = policy;
-		this.classifierName= classifierName;
 		this.count = count;
 		this.positiveCount = positiveCount;
 		this.shouyilvAverage = shouyilvAverage;
@@ -32,11 +30,9 @@ public class ShouyilvDescriptive {
 	}
 
 
-	public String toString(){
+	public String toCSVString(){
 		StringBuffer result=new StringBuffer();
 		result.append(period);
-		result.append(",");
-		result.append(classifierName);
 		result.append(",");
 		result.append(policy);
 		result.append(",");

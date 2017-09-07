@@ -45,35 +45,25 @@ public class ShouyilvDescriptiveList {
 	public String convertVerticallyToCSV() {
 		StringBuffer outputCSV=new StringBuffer(ShouyilvDescriptiveList.HEADER+"\r\n");
 		   for (ShouyilvDescriptive shouyilvDescribe : shouyilvDescriptions) {
-			   outputCSV.append(shouyilvDescribe.toString()+"\r\n");
+			   outputCSV.append(shouyilvDescribe.toCSVString()+"\r\n");
 		   }
 		return outputCSV.toString();
 	}
 
 	/*
 	 * 将同样大小的收益率描述列表横向合并
-	 * commonFields 表示可以不输出的相同字段
 	 */
-	public static String mergeHorizontallyToCSV(ShouyilvDescriptiveList[] shouyilvDescriptionsArray,int commonFields) {
+	public static String mergeHorizontallyToCSV(ShouyilvDescriptiveList[] shouyilvDescriptionsArray) {
+
 		int listNumber=shouyilvDescriptionsArray.length;
+		int commonFields=0; //跳过相同的部分
 		int startIndex=0;
 		StringBuffer outputCSV=new StringBuffer();
 		
-		//在第一行将标识市场的分类输出。
-		for (int i=0;i<listNumber;i++){
-			if (i==0){
-				startIndex=0;
-			}else{
-				startIndex=commonFields;
-			}
-			for (int j=startIndex;j<HEADER.length;j++){
-				outputCSV.append(shouyilvDescriptionsArray[i].marketName);
-				outputCSV.append(",");
-			}
-		}
-		outputCSV.append("\r\n");
+		StringBuffer headerCategory=new StringBuffer();		//在第一行将标识市场的分类输出。
+		StringBuffer header=new StringBuffer();		//在第二行输出收益率描述表头
 
-		//在第二行输出收益率描述表头
+		//输出两行表头
 		for (int i=0;i<listNumber;i++){
 			if (i==0){
 				startIndex=0;
@@ -81,17 +71,24 @@ public class ShouyilvDescriptiveList {
 				startIndex=commonFields;
 			}
 			for (int j=startIndex;j<HEADER.length;j++){
-				outputCSV.append(ShouyilvDescriptiveList.HEADER[j]);
-				outputCSV.append(",");
+				headerCategory.append(shouyilvDescriptionsArray[i].marketName);
+				headerCategory.append(",");
+				header.append(ShouyilvDescriptiveList.HEADER[j]);
+				header.append(",");
 			}
+			
 		}
+		outputCSV.append(headerCategory);
+		outputCSV.append("\r\n");
+		outputCSV.append(header);
 		outputCSV.append("\r\n");
 
 		//接下来按行合并
+		int dataRows=shouyilvDescriptionsArray[0].size();
 		//TODO 跳过相应字段
-		for (int i=0;i<shouyilvDescriptionsArray[0].size();i++){
+		for (int i=0;i<dataRows;i++){
 			for (int j=0;j<listNumber;j++){
-			  outputCSV.append(shouyilvDescriptionsArray[j].getDescriptionAt(i).toString());
+			  outputCSV.append(shouyilvDescriptionsArray[j].getDescriptionAt(i).toCSVString());
 			}
 			outputCSV.append("\r\n");
 		}
