@@ -1,4 +1,4 @@
-package ext.amten.ml;
+package yueyueGo.utility.classiferWrapper.ext.amten.ml;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -13,9 +13,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import ext.amten.ml.matrix.Matrix;
-import ext.amten.ml.matrix.MatrixElement;
-import ext.amten.ml.matrix.MatrixUtils;
+import yueyueGo.utility.classiferWrapper.ext.amten.ml.matrix.Matrix;
+import yueyueGo.utility.classiferWrapper.ext.amten.ml.matrix.MatrixElement;
+import yueyueGo.utility.classiferWrapper.ext.amten.ml.matrix.MatrixUtils;
 
 /**
  * (Convolutional) Neural network implementation with dropout and rectified linear units.

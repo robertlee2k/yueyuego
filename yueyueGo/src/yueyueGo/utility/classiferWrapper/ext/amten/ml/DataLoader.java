@@ -1,8 +1,8 @@
-package ext.amten.ml;
+package yueyueGo.utility.classiferWrapper.ext.amten.ml;
 
 import java.io.IOException;
 
-import ext.amten.ml.matrix.Matrix;
+import yueyueGo.utility.classiferWrapper.ext.amten.ml.matrix.Matrix;
 
 /**
  * Interface to be implemented by a class that loads training data from disk on-demand.

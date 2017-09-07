@@ -1,10 +1,10 @@
 package yueyueGo.classifier.deprecated;
 
 import yueyueGo.EnvConstants;
-import yueyueGo.ModelStore;
 import yueyueGo.classifier.AdaboostClassifier;
 import yueyueGo.dataFormat.FullModelDataFormat;
 import yueyueGo.utility.ClassifyUtility;
+import yueyueGo.utility.modelEvaluation.ModelStore;
 
 @Deprecated
 public class AdaboostFullModel extends AdaboostClassifier {

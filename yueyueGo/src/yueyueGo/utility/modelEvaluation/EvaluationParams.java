@@ -1,4 +1,4 @@
-package yueyueGo.utility;
+package yueyueGo.utility.modelEvaluation;
 
 public class EvaluationParams {
 	protected double lower_limit;// 各条均线选择样本的下限

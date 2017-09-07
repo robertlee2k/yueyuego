@@ -1,11 +1,11 @@
 package yueyueGo.fullModel.classifier;
 
 import yueyueGo.EnvConstants;
-import yueyueGo.EvaluationStore;
-import yueyueGo.ModelStore;
 import yueyueGo.classifier.BaggingM5P;
 import yueyueGo.dataFormat.FullModelDataFormat;
 import yueyueGo.utility.ClassifyUtility;
+import yueyueGo.utility.modelEvaluation.EvaluationStore;
+import yueyueGo.utility.modelEvaluation.ModelStore;
 
 //result changed because of reference data not matched=15096 while good change number=5665
 //good ratio=37.53% average changed shouyilv=4.58% @ winrate thredhold= /50.00% /

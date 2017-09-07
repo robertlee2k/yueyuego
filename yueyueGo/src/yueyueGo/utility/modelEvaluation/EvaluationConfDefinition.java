@@ -1,4 +1,4 @@
-package yueyueGo.utility;
+package yueyueGo.utility.modelEvaluation;
 
 import java.io.Serializable;
 
@@ -6,6 +6,7 @@ import yueyueGo.dataFormat.ArffFormat;
 import yueyueGo.dataFormat.AvgLineDataFormat;
 import yueyueGo.dataFormat.FullModelDataFormat;
 import yueyueGo.dataFormat.MomentumDataFormat;
+import yueyueGo.utility.ClassifyUtility;
 
 /**
  * @author robert
@@ -25,6 +26,15 @@ public class EvaluationConfDefinition implements Serializable{
 	
 	protected String[] m_policyGroup;
 
+
+	public static final int PREVIOUS_MODELS_NUM=5; 	//暂时选取之前的6个文件（加上9个月评估数据，也就是最大倒推2年左右）
+
+
+	public static final double REVERSED_TOP_AREA_RATIO=0.5; //缺省定义反向头部为50%
+
+
+	public static final double TOP_AREA_RATIO=0.1; //缺省定义头部区域为10%
+
 	public static double LIFT_UP_TARGET=1.8; //选择样本阀值时TP FP RATIO从何开始，这个是常量
 
 
@@ -35,12 +45,16 @@ public class EvaluationConfDefinition implements Serializable{
 			switch (classifierName) {
 			case ClassifyUtility.BAGGING_M5P:
 				//缩小选股比率
-				SAMPLE_LOWER_LIMIT =new double[] { 0.012, 0.018, 0.02, 0.03, 0.03 }; // 各条均线选择样本的下限
+				SAMPLE_LOWER_LIMIT =new double[] { 0.012, 0.015, 0.02, 0.03, 0.03 }; // 各条均线选择样本的下限
 				SAMPLE_UPPER_LIMIT =new double[] { 0.03, 0.04, 0.05, 0.06, 0.06 }; // 各条均线选择样本的上限
 				break;
 			case ClassifyUtility.ADABOOST:
-				SAMPLE_LOWER_LIMIT =new double[] { 0.02, 0.02, 0.02, 0.03, 0.03 }; // 各条均线选择样本的下限
-				SAMPLE_UPPER_LIMIT =new double[] { 0.06, 0.06, 0.06, 0.06, 0.06 }; // 各条均线选择样本的上限
+				//缩小选股比率
+				SAMPLE_LOWER_LIMIT =new double[] { 0.012, 0.015, 0.02, 0.03, 0.03 }; // 各条均线选择样本的下限
+				SAMPLE_UPPER_LIMIT =new double[] { 0.03, 0.04, 0.05, 0.06, 0.06 }; // 各条均线选择样本的上限
+
+//				SAMPLE_LOWER_LIMIT =new double[] { 0.02, 0.02, 0.02, 0.03, 0.03 }; // 各条均线选择样本的下限
+//				SAMPLE_UPPER_LIMIT =new double[] { 0.06, 0.06, 0.06, 0.06, 0.06 }; // 各条均线选择样本的上限
 				//			SAMPLE_UPPER_LIMIT =new double[] { 0.1, 0.1, 0.1, 0.1, 0.1 }; // 各条均线选择样本的上限
 				break;
 			case ClassifyUtility.RANDOM_FOREST:
@@ -119,14 +133,14 @@ public class EvaluationConfDefinition implements Serializable{
 		result.append("SAMPLE_LOWER_LIMIT={");
 		for (double d : SAMPLE_LOWER_LIMIT) {
 			result.append(d);
-			result.append(",");
+			result.append(" / ");
 		}
 		result.append("}\n");
 
 		result.append("SAMPLE_UPPER_LIMIT={");
 		for (double d : SAMPLE_UPPER_LIMIT) {
 			result.append(d);
-			result.append(",");
+			result.append(" / ");
 		}
 		result.append("}\n");
 		result.append("LIFT_UP_TARGET="+LIFT_UP_TARGET);

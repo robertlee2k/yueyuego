@@ -2,6 +2,9 @@ package yueyueGo;
 
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
@@ -16,9 +19,11 @@ import yueyueGo.databeans.GeneralDataTag;
 import yueyueGo.databeans.GeneralInstance;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.utility.ClassifySummaries;
-import yueyueGo.utility.EvaluationConfDefinition;
 import yueyueGo.utility.FormatUtility;
-import yueyueGo.utility.ThresholdData;
+import yueyueGo.utility.modelEvaluation.EvaluationConfDefinition;
+import yueyueGo.utility.modelEvaluation.EvaluationStore;
+import yueyueGo.utility.modelEvaluation.ModelStore;
+import yueyueGo.utility.modelEvaluation.ThresholdData;
 
 /**
  * @author robert
@@ -170,7 +175,7 @@ public abstract class BaseClassifier implements Serializable{
 		double reversedPred;
 		double yearMonth=Double.valueOf(yearSplit).doubleValue();
 
-		//找到输出结果集的各种Attribute属性位置
+		//定义输出结果集的各种须特殊设置的Attribute属性
 		GeneralAttribute idAttInResult=result.attribute(ArffFormat.ID);
 		GeneralAttribute yearMonthAtt=result.attribute(ArffFormat.YEAR_MONTH);
 		GeneralAttribute shouyilvAtt=result.attribute(ArffFormat.SHOUYILV);
@@ -181,62 +186,42 @@ public abstract class BaseClassifier implements Serializable{
 			predAtt = result.attribute(ArffFormat.RESULT_PREDICTED_PROFIT);
 		}
 		GeneralAttribute selectedAtt=result.attribute(ArffFormat.RESULT_SELECTED);
-		//输出结果集中须保留的校验字段 （将测试数据的这些值直接写入输出结果集）
 		
+		//找出输出结果集中须保留的校验字段 （将测试数据的这些值直接写入输出结果集）
+		ArrayList<GeneralAttribute> attributesToCopy=findAttributesToCopy(result);
 		
-		//开始循环，用分类模型和阀值对每一条数据进行预测，并存入输出结果集
+		//开始循环，用分类模型和阈值对每一条数据进行预测，并存入输出结果集
 		System.out.println("actual -> predicted....... ");
 		int testInstancesNum=test.numInstances();
 		for (int i = 0; i < testInstancesNum; i++) {
-			GeneralInstance curr = test.instance(i);
-			pred=classify(model,curr);  //调用子类的分类函数
+			GeneralInstance currentTestRow = test.instance(i);
+			pred=classify(model,currentTestRow);  //调用子类的分类函数
 			if (usingOneModel==true){
 				reversedPred=pred;
 			}else{
-				reversedPred=classify(reversedModel, curr); //调用反向评估模型的分类函数
+				reversedPred=classify(reversedModel, currentTestRow); //调用反向评估模型的分类函数
 			}
-			DataInstance inst = new DataInstance(result.numAttributes());
-			inst.setDataset(result);
-			//将相应的ID赋值回去
-			inst.setValue(idAttInResult, ids[i]);
-			//将Yearmonth赋值回去用于统计用途
-			inst.setValue(yearMonthAtt, yearMonth);
 			
-			//TODO 不要这样指定列数
-			//从2开始，忽略第一列的ID和第二列的YEARMONTH
-			for (int n = 2; n < inst.numAttributes() - 3; n++) { // ignore the
-																	// first ID.
-				GeneralAttribute att = test.attribute(inst.attribute(n).name());
-				// original attribute is also present in the current data set
-				if (att != null) {
-					if (att.isNominal()) {
-						String label = test.instance(i).stringValue(att);
-						int index = att.indexOfValue(label);
-						if (index != -1) {
-							inst.setValue(n, index);
-						}
-					} else if (att.isNumeric()) {
-						inst.setValue(n, test.instance(i).value(att));
-					} else {
-						throw new IllegalStateException("Unhandled attribute type!");
-					}
-				}
-			}
-
+			//准备输出结果
+			DataInstance resultRow = new DataInstance(result.numAttributes());
+			resultRow.setDataset(result);
+			//将相应的ID赋值回去
+			resultRow.setValue(idAttInResult, ids[i]);
+			//将YearMonth赋值回去用于统计用途
+			resultRow.setValue(yearMonthAtt, yearMonth);
 			
 			//获取原始数据中的实际收益率值
-			double shouyilv=getShouyilv(i,ids[i],curr.classValue());
+			double shouyilv=getShouyilv(i,ids[i],currentTestRow.classValue());
 			if (shouyilv>getPositiveLine()){ //这里的positive是个相对于positiveLine的相对概念
 				totalPositiveShouyilv.addValue(shouyilv);
 			}else {
 				totalNegativeShouyilv.addValue(shouyilv);
 			}
 			//将原始数据的实际收益率值设定入结果集
-			inst.setValue(shouyilvAtt, shouyilv);
+			resultRow.setValue(shouyilvAtt, shouyilv);
 
 			//将获得的预测值设定入结果集
-
-			inst.setValue(predAtt, pred);
+			resultRow.setValue(predAtt, pred);
 			
 
 			//计算选股结果
@@ -255,8 +240,28 @@ public abstract class BaseClassifier implements Serializable{
 					selectedNegativeShouyilv.addValue(shouyilv);
 				}
 			}
-			inst.setValue(selectedAtt, selected);
-			result.add(inst);
+			resultRow.setValue(selectedAtt, selected);
+			
+			//最后将那些无须结算的校验字段的值直接从测试数据集拷贝到输出结果集
+			for (GeneralAttribute resultAttribute : attributesToCopy) {
+				GeneralAttribute testAttribute = test.attribute(resultAttribute.name());
+				// test attribute which is be present in the result data set
+				if (testAttribute != null) {
+					if (testAttribute.isNominal()) {
+						String label = currentTestRow.stringValue(testAttribute);
+						int index = testAttribute.indexOfValue(label);
+						if (index != -1) {
+							resultRow.setValue(resultAttribute, index);
+						}
+					} else if (testAttribute.isNumeric()) {
+						resultRow.setValue(resultAttribute, currentTestRow.value(testAttribute));
+					} else {
+						throw new IllegalStateException("Unhandled attribute type!");
+					}
+				}
+			}
+
+			result.add(resultRow);
 		}
 		
 		
@@ -267,11 +272,8 @@ public abstract class BaseClassifier implements Serializable{
 		if (isGuessed){
 			defaultThresholdUsed="Y";
 		}		
-		
 		double[] modelAUC=thresholdData.getModelAUC();
 		double reversedPercentile=thresholdData.getReversedPercent();
-		
-		
 		
 		if ("".equals(yearSplit) ){
 			//这是预测每日数据时，没有实际收益率数据可以做评估 (上述逻辑会让所有的数据都进入negative的分支）
@@ -285,8 +287,8 @@ public abstract class BaseClassifier implements Serializable{
 				evalSummary+=FormatUtility.formatDouble(modelAUC[i],1,4)+"@"+FormatUtility.formatPercent(focusAreaRatio[i], 3, 0)+", " ;	
 			}
 			evalSummary+=" )\r\n";
-			System.out.println("预测用模型文件:  "+modelStore.m_workFilePath+modelStore.m_modelFileName);
-			System.out.println("预测用反向模型文件"+reversedModelStore.m_workFilePath+reversedModelStore.m_modelFileName);
+			System.out.println("预测用模型文件:  "+modelStore.getWorkFilePath()+modelStore.getModelFileName());
+			System.out.println("预测用反向模型文件"+reversedModelStore.getWorkFilePath()+reversedModelStore.getModelFileName());
 			classifySummaries.appendEvaluationSummary(evalSummary);
 			
 
@@ -304,6 +306,34 @@ public abstract class BaseClassifier implements Serializable{
 			evalSummary+="\r\n";
 			classifySummaries.appendEvaluationSummary(evalSummary);
 		}
+	}
+
+	/**
+	 * 
+	 * 找出需要从测试数据中直接拷贝至结果集的属性列表（这是那些校验位）
+	 * @param result 结果集
+	 */
+	private ArrayList<GeneralAttribute>  findAttributesToCopy(GeneralInstances result) {
+		//这是结果集中会特殊处理的字段，无须拷贝
+		String[] processedAttNames={
+				ArffFormat.ID,
+				ArffFormat.YEAR_MONTH,
+				ArffFormat.SHOUYILV,
+				ArffFormat.RESULT_PREDICTED_WIN_RATE,
+				ArffFormat.RESULT_PREDICTED_PROFIT,
+				ArffFormat.RESULT_SELECTED
+		};
+		
+		//从结果集中筛除上述字段
+	    List<String> list = Arrays.asList(processedAttNames); 
+	    ArrayList<GeneralAttribute> allAttributes=result.getAttributeList();
+	    ArrayList<GeneralAttribute> attributesToCopy=new ArrayList<GeneralAttribute>();
+		for (GeneralAttribute attribute : allAttributes) {
+			if (list.contains(attribute.name())==false){
+				attributesToCopy.add(attribute);
+			}
+		}
+		return attributesToCopy;
 	}
 
 	// 对于连续分类器， 收益率就是classvalue，缺省直接返回， 对于nominal分类器，调用子类的方法获取暂存的收益率
@@ -341,7 +371,7 @@ public abstract class BaseClassifier implements Serializable{
 	/**
 	 * @param dataTag
 	 * @return
-	 * @see yueyueGo.ModelStore#validateEvalData(yueyueGo.databeans.GeneralDataTag)
+	 * @see yueyueGo.utility.modelEvaluation.ModelStore#validateEvalData(yueyueGo.databeans.GeneralDataTag)
 	 */
 	public String validateEvalData(GeneralDataTag dataTag) {
 		return m_evaluationStore.validateEvalData(dataTag);
@@ -350,7 +380,7 @@ public abstract class BaseClassifier implements Serializable{
 	/**
 	 * @param dataTag
 	 * @return
-	 * @see yueyueGo.ModelStore#validateTestingData(yueyueGo.databeans.GeneralDataTag)
+	 * @see yueyueGo.utility.modelEvaluation.ModelStore#validateTestingData(yueyueGo.databeans.GeneralDataTag)
 	 */
 	public String validateTestingData(GeneralDataTag dataTag) {
 		return m_evaluationStore.validateTestingData(dataTag);
@@ -422,9 +452,11 @@ public abstract class BaseClassifier implements Serializable{
 		output.append("\r\n");
 		output.append("modelArffFormat="+modelArffFormat);
 		output.append("\r\n");
-		output.append("TOP AREA RATIO="+EvaluationStore.TOP_AREA_RATIO);
+		output.append("compare AUC PREVIOUS_MODELS_NUM="+EvaluationConfDefinition.PREVIOUS_MODELS_NUM);
 		output.append("\r\n");
-		output.append("reversed TOP AREA RATIO="+EvaluationStore.REVERSED_TOP_AREA_RATIO);
+		output.append("TOP AREA RATIO="+EvaluationConfDefinition.TOP_AREA_RATIO);
+		output.append("\r\n");
+		output.append("reversed TOP AREA RATIO="+EvaluationConfDefinition.REVERSED_TOP_AREA_RATIO);
 		output.append("\r\n");
 		EvaluationConfDefinition evalConf=new EvaluationConfDefinition(this.classifierName ,this.m_policySubGroup,null);
 		output.append(evalConf.showEvaluationParameters());

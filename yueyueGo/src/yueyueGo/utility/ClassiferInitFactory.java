@@ -1,12 +1,12 @@
 package yueyueGo.utility;
 
 
-import yueyueGo.EvaluationStore;
-import yueyueGo.ModelStore;
 import yueyueGo.classifier.AdaboostClassifier;
 import yueyueGo.classifier.BaggingM5P;
 import yueyueGo.dataFormat.ArffFormat;
 import yueyueGo.dataFormat.MomentumDataFormat;
+import yueyueGo.utility.modelEvaluation.EvaluationStore;
+import yueyueGo.utility.modelEvaluation.ModelStore;
 
 public class ClassiferInitFactory {
 

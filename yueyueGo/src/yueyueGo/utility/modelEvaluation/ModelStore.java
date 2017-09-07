@@ -1,10 +1,11 @@
-package yueyueGo;
+package yueyueGo.utility.modelEvaluation;
 
 import java.io.IOException;
 import java.util.Vector;
 
 import weka.classifiers.Classifier;
 import weka.core.SerializationHelper;
+import yueyueGo.BaseClassifier;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.databeans.DataInstances;
 import yueyueGo.databeans.GeneralDataTag;
@@ -199,6 +200,10 @@ public class ModelStore {
 	
 	public void setWorkFilePath(String m_workFilePath) {
 		this.m_workFilePath = m_workFilePath;
+	}
+
+	public String getWorkFilePath() {
+		return m_workFilePath;
 	}
 
 	//保存modelFile

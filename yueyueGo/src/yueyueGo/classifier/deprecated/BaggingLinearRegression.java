@@ -4,10 +4,10 @@ import weka.classifiers.Classifier;
 import weka.classifiers.functions.LinearRegression;
 import weka.core.SelectedTag;
 import yueyueGo.ContinousClassifier;
-import yueyueGo.ModelStore;
 import yueyueGo.ParrallelizedRunning;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.utility.ClassifyUtility;
+import yueyueGo.utility.modelEvaluation.ModelStore;
 
 
 //===============================output summary===================================== for : BaggingLinearRegression

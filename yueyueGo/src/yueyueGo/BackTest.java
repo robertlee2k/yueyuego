@@ -52,9 +52,11 @@ import yueyueGo.utility.ClassifySummaries;
 import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.MergeClassifyResults;
-import yueyueGo.utility.ThresholdData;
 import yueyueGo.utility.analysis.DataAnalysis;
 import yueyueGo.utility.analysis.ShouyilvDescriptiveList;
+import yueyueGo.utility.modelEvaluation.EvaluationStore;
+import yueyueGo.utility.modelEvaluation.ModelStore;
+import yueyueGo.utility.modelEvaluation.ThresholdData;
 
 public class BackTest {
 	protected String C_ROOT_DIRECTORY =EnvConstants.AVG_LINE_ROOT_DIR;
@@ -99,8 +101,8 @@ public class BackTest {
 
 			//调用回测函数回测
 //			worker.callRebuildModels();
-//			worker.callReEvaluateModels();
-			worker.callTestBack();
+			worker.callReEvaluateModels();
+//			worker.callTestBack();
 //			worker.callRefreshModelUseLatestData();
 			
 //			worker.callDataAnlysis();

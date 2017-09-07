@@ -5,12 +5,12 @@ package yueyueGo.classifier.deprecated;
 import weka.classifiers.Classifier;
 import weka.classifiers.trees.M5P;
 import yueyueGo.ContinousClassifier;
-import yueyueGo.EvaluationStore;
-import yueyueGo.ModelStore;
 import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaInstances;
 import yueyueGo.utility.ClassifyUtility;
+import yueyueGo.utility.modelEvaluation.EvaluationStore;
+import yueyueGo.utility.modelEvaluation.ModelStore;
 
 
 // 2016-07-19 选择 

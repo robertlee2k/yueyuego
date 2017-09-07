@@ -1,15 +1,15 @@
 package yueyueGo.fullModel.classifier;
 
-import ext.WekaNeuralNetwork;
 import weka.classifiers.Classifier;
 import yueyueGo.EnvConstants;
-import yueyueGo.EvaluationStore;
-import yueyueGo.ModelStore;
 import yueyueGo.classifier.MyNNClassifier;
 import yueyueGo.dataFormat.FullModelDataFormat;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaInstances;
 import yueyueGo.utility.ClassifyUtility;
+import yueyueGo.utility.classiferWrapper.ext.WekaNeuralNetwork;
+import yueyueGo.utility.modelEvaluation.EvaluationStore;
+import yueyueGo.utility.modelEvaluation.ModelStore;
 
 //===============================output summary===================================== for : myNNFullModel
 //Monthly selected_TPR mean: 48.60% standard deviation=34.52% Skewness=-0.05 Kurtosis=-1.36

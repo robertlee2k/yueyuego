@@ -2,14 +2,14 @@
 package yueyueGo.classifier;
 
 import weka.classifiers.Classifier;
-import yueyueGo.EvaluationStore;
-import yueyueGo.ModelStore;
 import yueyueGo.NominalClassifier;
 import yueyueGo.ParrallelizedRunning;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaInstances;
 import yueyueGo.utility.ClassifyUtility;
-import yueyueGo.utility.MyRandomForestClassifer;
+import yueyueGo.utility.classiferWrapper.MyRandomForestClassifer;
+import yueyueGo.utility.modelEvaluation.EvaluationStore;
+import yueyueGo.utility.modelEvaluation.ModelStore;
 
 //***************************************CLASSIFY DATE=2017-03-05 
 //ClassifyIdentity=RandForest

@@ -2,12 +2,12 @@ package yueyueGo.classifier.deprecated;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.trees.J48;
-import yueyueGo.ModelStore;
 import yueyueGo.NominalClassifier;
 import yueyueGo.ParrallelizedRunning;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.utility.ClassifyUtility;
 import yueyueGo.utility.FormatUtility;
+import yueyueGo.utility.modelEvaluation.ModelStore;
 
 // 按月分析（全年使用同一模型和评估值）
 //number of results merged and processed: 1412480

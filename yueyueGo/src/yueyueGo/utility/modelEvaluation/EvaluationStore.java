@@ -1,4 +1,4 @@
-package yueyueGo;
+package yueyueGo.utility.modelEvaluation;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,6 +12,8 @@ import weka.classifiers.evaluation.NumericPrediction;
 import weka.classifiers.evaluation.Prediction;
 import weka.classifiers.evaluation.ThresholdCurve;
 import weka.core.SerializationHelper;
+import yueyueGo.BaseClassifier;
+import yueyueGo.NominalClassifier;
 import yueyueGo.databeans.DataInstances;
 import yueyueGo.databeans.GeneralAttribute;
 import yueyueGo.databeans.GeneralDataTag;
@@ -21,11 +23,8 @@ import yueyueGo.databeans.WekaInstances;
 import yueyueGo.datasource.DataIOHandler;
 import yueyueGo.datasource.GeneralDataSaver;
 import yueyueGo.utility.ClassifyUtility;
-import yueyueGo.utility.EvaluationConfDefinition;
-import yueyueGo.utility.EvaluationParams;
 import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.FormatUtility;
-import yueyueGo.utility.ThresholdData;
 import yueyueGo.utility.TpFpStatistics;
 
 public class EvaluationStore {
@@ -42,11 +41,8 @@ public class EvaluationStore {
 
 	protected boolean m_isNominal=false;
 
-	public static final double TOP_AREA_RATIO=0.1; //缺省定义头部区域为10%
-	public static final double REVERSED_TOP_AREA_RATIO=0.5; //缺省定义反向头部为50%
-	protected double[] m_focusAreaRatio={TOP_AREA_RATIO,1};//评估时关注评估数据的不同Top 比例;
+	protected double[] m_focusAreaRatio={EvaluationConfDefinition.TOP_AREA_RATIO,1};//评估时关注评估数据的不同Top 比例;
 
-	public static final int PREVIOUS_MODELS_NUM=5; 	//暂时选取之前的6个文件（加上9个月评估数据，也就是最大倒推2年左右）
 	public static final int YEAR_SPLIT_LIMIT=2007; //回测模型的起始点， 在这之前无数据	
 
 	//以下为不可配置参数，内部存储
@@ -254,7 +250,7 @@ public class EvaluationStore {
 //		outputFilesForDebug(selectedModel, fullPredictions, result, reversedModel, reversedResult);
 
 		
-		EvaluationParams reversedEvalParams=new EvaluationParams(REVERSED_TOP_AREA_RATIO, REVERSED_TOP_AREA_RATIO*1.1, 1.2);
+		EvaluationParams reversedEvalParams=new EvaluationParams(EvaluationConfDefinition.REVERSED_TOP_AREA_RATIO, EvaluationConfDefinition.REVERSED_TOP_AREA_RATIO*1.1, 1.2);
 		ThresholdData reversedThresholdData=doModelEvaluation(reversedResult,reversedEvalParams,1/tp_fp_bottom_line);
 
 		//将反向评估结果的阈值恢复取反前的值
@@ -301,8 +297,8 @@ protected void outputFilesForDebug(ModelStore selectedModel, ArrayList<Predictio
 			GeneralInstances result, ModelStore reversedModel, GeneralInstances reversedResult) throws IOException {
 		GeneralDataSaver dataSaver=DataIOHandler.getSaver();
 		String filePrefix=m_workFilePath+this.m_targetYearSplit+"["+this.m_policySplit+"]-";
-		dataSaver.SaveDataIntoFile(result, filePrefix+selectedModel.m_modelYearSplit+"-ROC.arff");
-		dataSaver.SaveDataIntoFile(reversedResult, filePrefix+reversedModel.m_modelYearSplit+"-ROC.reversed.arff");
+		dataSaver.SaveDataIntoFile(result, filePrefix+selectedModel.getModelYearSplit()+"-ROC.arff");
+		dataSaver.SaveDataIntoFile(reversedResult, filePrefix+reversedModel.getModelYearSplit()+"-ROC.reversed.arff");
 		StringBuffer predictionString=new StringBuffer();
 		if (m_isNominal==true){
 			for (Iterator<Prediction> iterator = fullPredictions.iterator(); iterator.hasNext();) {
@@ -353,7 +349,7 @@ protected void outputFilesForDebug(ModelStore selectedModel, ArrayList<Predictio
 
 		//尝试获得有效的前PREVIOUS_MODELS_NUM个用于评估的ModelYearSplit
 		
-		for (int i=0;i<PREVIOUS_MODELS_NUM;i++){
+		for (int i=0;i<EvaluationConfDefinition.PREVIOUS_MODELS_NUM;i++){
 			String modelYearSplit=ModelStore.caculateModelYearSplit(startYear,this.m_modelFileShareMode);
 			if (modelYearSplit.length()==6){ //201708格式
 				currentYearSplit=Integer.valueOf(modelYearSplit).intValue();
@@ -414,9 +410,9 @@ protected void outputFilesForDebug(ModelStore selectedModel, ArrayList<Predictio
 			//根据reversed与否决定是取正向还是反向的AUC
 			double ratio;
 			if (isReversed==false){
-				ratio=TOP_AREA_RATIO;
+				ratio=EvaluationConfDefinition.TOP_AREA_RATIO;
 			}else{
-				ratio=REVERSED_TOP_AREA_RATIO;
+				ratio=EvaluationConfDefinition.REVERSED_TOP_AREA_RATIO;
 			}
 			/*
 			 * 用ROC的方法评价模型质量

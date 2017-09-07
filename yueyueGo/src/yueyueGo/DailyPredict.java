@@ -26,6 +26,7 @@ import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.MergeClassifyResults;
 import yueyueGo.utility.PredictModelData;
+import yueyueGo.utility.modelEvaluation.EvaluationStore;
 
 public class DailyPredict {
 

@@ -1,4 +1,4 @@
-package yueyueGo.utility;
+package yueyueGo.utility.classiferWrapper;
 
 import weka.classifiers.trees.RandomForest;
 

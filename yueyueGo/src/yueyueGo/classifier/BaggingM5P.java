@@ -3,11 +3,11 @@ package yueyueGo.classifier;
 import weka.classifiers.Classifier;
 import weka.classifiers.trees.M5P;
 import yueyueGo.ContinousClassifier;
-import yueyueGo.EvaluationStore;
-import yueyueGo.ModelStore;
 import yueyueGo.ParrallelizedRunning;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.utility.ClassifyUtility;
+import yueyueGo.utility.modelEvaluation.EvaluationStore;
+import yueyueGo.utility.modelEvaluation.ModelStore;
 
 
 
