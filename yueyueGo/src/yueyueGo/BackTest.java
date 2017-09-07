@@ -27,7 +27,6 @@ package yueyueGo;
  * 谢谢悦悦的冠名支持
  */
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Vector;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -54,7 +53,8 @@ import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.MergeClassifyResults;
 import yueyueGo.utility.ThresholdData;
 import yueyueGo.utility.analysis.DataAnalysis;
-import yueyueGo.utility.analysis.ShouyilvDescribe;
+import yueyueGo.utility.analysis.ShouyilvDescriptive;
+import yueyueGo.utility.analysis.ShouyilvDescriptiveList;
 
 public class BackTest {
 	protected String C_ROOT_DIRECTORY =EnvConstants.AVG_LINE_ROOT_DIR;
@@ -99,8 +99,8 @@ public class BackTest {
 
 			//调用回测函数回测
 //			worker.callRebuildModels();
-			worker.callReEvaluateModels();
-//			worker.callTestBack();
+//			worker.callReEvaluateModels();
+			worker.callTestBack();
 //			worker.callRefreshModelUseLatestData();
 			
 //			worker.callDataAnlysis();
@@ -114,9 +114,9 @@ public class BackTest {
 	public void callDataAnlysis() throws Exception{
 	   BaseClassifier  cModel=new BaggingM5P();
 	   GeneralInstances fulldata=getBacktestInstances(cModel);
-	   ArrayList<ShouyilvDescribe> shouyilvDescriptions=DataAnalysis.analyzeMarket(m_startYear+"01",m_endYearMonth,ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,fulldata,ShouyilvDescribe.ALL);
+	   ShouyilvDescriptiveList shouyilvDescriptions=DataAnalysis.analyzeMarket("原始数据",m_startYear+"01",m_endYearMonth,ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,fulldata,ShouyilvDescriptive.ALL);
 
-	   String outputCSV = ShouyilvDescribe.convertListToCSV(shouyilvDescriptions);
+	   String outputCSV = shouyilvDescriptions.convertVerticallyToCSV();
 	   FileUtility.write(BACKTEST_RESULT_DIR+"marketAnalysis-Summary.csv", outputCSV, "GBK");
 	   
 	}
@@ -198,7 +198,8 @@ public class BackTest {
 		//统一输出统计结果
 		nModel.outputClassifySummary();
 		cModel.outputClassifySummary();
-
+		
+		System.out.println("-----end of rebuild models------");
 	}	
 	/**
 	 * 重新评估全部模型
@@ -220,7 +221,9 @@ public class BackTest {
 				
 
 
-		outputStatistics(nModel, nominalResult, cModel, continuousResult);
+		saveResultsAndStatistics(nModel, nominalResult, cModel, continuousResult);
+		
+		System.out.println("-----end of reevaluation models------");
 	}
 
 
@@ -238,24 +241,10 @@ public class BackTest {
 		//不真正回测了，直接从以前的结果文件中加载
 //		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 		
-		outputStatistics(nModel, nominalResult, cModel, continuousResult);
+		saveResultsAndStatistics(nModel, nominalResult, cModel, continuousResult);
 		
-//		//统一输出统计结果
-//		nModel.outputClassifySummary();
-//		cModel.outputClassifySummary();
-//		
-//
-//
-//		//输出用于计算收益率的CSV文件
-//		System.out.println("-----now output continuous predictions----------"+cModel.getIdentifyName() + " (filtered by nominal: "+nModel.getIdentifyName()+")");
-//		GeneralInstances m5pOutput=mergeResultWithData(continuousResult,nominalResult,ArffFormat.RESULT_PREDICTED_WIN_RATE,cModel.getModelArffFormat());
-//		saveSelectedFileForMarkets(m5pOutput,cModel.getIdentifyName());
-//
-//
-//		System.out.println("-----now output nominal predictions----------"+nModel.getIdentifyName()+" (filtered by continuous: "+cModel.getIdentifyName()+")");
-//		GeneralInstances mlpOutput=mergeResultWithData(nominalResult,continuousResult,ArffFormat.RESULT_PREDICTED_PROFIT,nModel.getModelArffFormat());
-//		saveSelectedFileForMarkets(mlpOutput,nModel.getIdentifyName());
-//		System.out.println("-----end of test backward------");
+		System.out.println("-----end of test backward------");
+		
 	}
 
 
@@ -672,51 +661,49 @@ public class BackTest {
 	 * @param continuousResult
 	 * @throws Exception
 	 */
-	protected void outputStatistics(NominalClassifier nModel, GeneralInstances nominalResult, ContinousClassifier cModel,
+	protected void saveResultsAndStatistics(NominalClassifier nModel, GeneralInstances nominalResult, ContinousClassifier cModel,
 			GeneralInstances continuousResult) throws Exception {
-		
-		
-		@SuppressWarnings("unchecked")
-		ArrayList<ShouyilvDescribe>[] shouyilvDescriptionsArray=new ArrayList[3]; 
-		
-		
-		String timeRange=m_startYear+"-"+m_endYearMonth;
+	
 		//统一输出统计结果
 		nModel.outputClassifySummary();
 		cModel.outputClassifySummary();
 
-		System.out.println(" now output the full distribution of results:");
-		ArrayList<ShouyilvDescribe> fullDistributions=DataAnalysis.analyzeMarket(m_startYear+"01",m_endYearMonth,ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,continuousResult,ShouyilvDescribe.ALL);
-		
+		//输出原始数据的收益率分析统计结果 （这里假定cModel和nModel的policy分组相同，否则无法合并）
+		ShouyilvDescriptiveList[] shouyilvDescriptionsArray=new ShouyilvDescriptiveList[3];
+		shouyilvDescriptionsArray[0]=DataAnalysis.analyzeMarket("原始数据",m_startYear+"01",m_endYearMonth,ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,continuousResult,ShouyilvDescriptive.ALL);
 	
-		//输出用于计算收益率的CSV文件
+		//输出连续分类器的收益率分析统计结果
 		System.out.println("-----now output continuous predictions----------"+cModel.getIdentifyName() + " (filtered by nominal: "+nModel.getIdentifyName()+")");
-		System.out.println(" now output the uncombined results");
 		GeneralInstances selectedInstances=returnSelectedInstances(continuousResult);
-		ArrayList<ShouyilvDescribe> uncombinedSelected=DataAnalysis.analyzeMarket(m_startYear+"01",m_endYearMonth,ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,selectedInstances,cModel.classifierName);
-		
-		System.out.println(" now output the combined results");
+		shouyilvDescriptionsArray[1]=DataAnalysis.analyzeMarket("单模型选股",m_startYear+"01",m_endYearMonth,ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,selectedInstances,cModel.classifierName);
+		//用另一个模型合并选股
 		GeneralInstances m5pOutput=mergeResultWithData(continuousResult,nominalResult,ArffFormat.RESULT_PREDICTED_WIN_RATE,cModel.getModelArffFormat());
 		selectedInstances=returnSelectedInstances(m5pOutput);
-		ArrayList<ShouyilvDescribe> combinedSelected=DataAnalysis.analyzeMarket(m_startYear+"01",m_endYearMonth,ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,selectedInstances,cModel.classifierName);
-		this.saveSelectedFileForMarkets(selectedInstances, cModel.getIdentifyName());
+		shouyilvDescriptionsArray[2]=DataAnalysis.analyzeMarket("双模型选股",m_startYear+"01",m_endYearMonth,ARFF_FORMAT.m_policy_group,cModel.m_policySubGroup,selectedInstances,cModel.classifierName);
 		
-		shouyilvDescriptionsArray[0]=fullDistributions;
-		shouyilvDescriptionsArray[1]=uncombinedSelected;
-		shouyilvDescriptionsArray[2]=combinedSelected;
-		String output=ShouyilvDescribe.mergeListsToCSV(shouyilvDescriptionsArray);
+		//输出上述收益率分析的csv文件
+		String output=ShouyilvDescriptiveList.mergeHorizontallyToCSV(shouyilvDescriptionsArray,0);
 		FileUtility.write(BACKTEST_RESULT_DIR+ cModel.getIdentifyName()+"-shouyilv-Summary.csv", output, "GBK");
-	
+
+		//保存连续分类器已选股结果的CSV文件
+		this.saveSelectedFileForMarkets(selectedInstances, cModel.getIdentifyName());
+
+		//输出二分类器的收益率分析统计结果
 		System.out.println("-----now output nominal predictions----------"+nModel.getIdentifyName()+" (filtered by continuous: "+cModel.getIdentifyName()+")");
-		System.out.println(" now output the uncombined results");
 		selectedInstances=returnSelectedInstances(nominalResult);
-		DataAnalysis.analyzeDataDistribution(ARFF_FORMAT.m_policy_group,nModel.m_policySubGroup,timeRange,selectedInstances,nModel.classifierName);
-		System.out.println(" now output the combined results");
+		shouyilvDescriptionsArray[1]=DataAnalysis.analyzeMarket("单模型选股",m_startYear+"01",m_endYearMonth,ARFF_FORMAT.m_policy_group,nModel.m_policySubGroup,selectedInstances,nModel.classifierName);
+		//用另一个模型合并选股
 		GeneralInstances mlpOutput=mergeResultWithData(nominalResult,continuousResult,ArffFormat.RESULT_PREDICTED_PROFIT,nModel.getModelArffFormat());
 		selectedInstances=returnSelectedInstances(mlpOutput);
-		DataAnalysis.analyzeDataDistribution(ARFF_FORMAT.m_policy_group,nModel.m_policySubGroup,timeRange,selectedInstances,nModel.classifierName);
+		shouyilvDescriptionsArray[2]=DataAnalysis.analyzeMarket("双模型选股",m_startYear+"01",m_endYearMonth,ARFF_FORMAT.m_policy_group,nModel.m_policySubGroup,selectedInstances,nModel.classifierName);
+		
+		//输出上述收益率分析的csv文件
+		output=ShouyilvDescriptiveList.mergeHorizontallyToCSV(shouyilvDescriptionsArray,0);
+		FileUtility.write(BACKTEST_RESULT_DIR+ nModel.getIdentifyName()+"-shouyilv-Summary.csv", output, "GBK");
+
+		//保存二分类器已选股结果的CSV文件
 		this.saveSelectedFileForMarkets(selectedInstances, nModel.getIdentifyName());
-		System.out.println("-----end of test backward------");
+
 	}
 
 

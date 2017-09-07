@@ -115,7 +115,7 @@ public class BackTestFullModel extends BackTest {
 //		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 
 		
-		outputStatistics(nModel, nominalResult, cModel, continuousResult);
+		saveResultsAndStatistics(nModel, nominalResult, cModel, continuousResult);
 	}
 
 //	/**

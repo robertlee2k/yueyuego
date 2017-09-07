@@ -1,17 +1,14 @@
 package yueyueGo.utility.analysis;
 
-import java.util.ArrayList;
-
 import yueyueGo.utility.FormatUtility;
 
 /*
  * Describe Shouyilv
  * "period","policy","category","count","shouyilv average","positive ratio"
  */
-public class ShouyilvDescribe {
+public class ShouyilvDescriptive {
 
 	public static final String ALL="ALL";
-	public static final String HEADER="所属区间,所用模型,均线分组,总数,收益率平均值,正收益数,正收益率平均值,负收益数,负收益率平均值,正值率,";
 	protected String period;
 	protected String policy;
 	protected String classifierName;
@@ -22,7 +19,7 @@ public class ShouyilvDescribe {
 	protected double negativeShouyilvAverage;
 	
 	
-	public ShouyilvDescribe(String period, String classifierName,String policy,  int count,  double shouyilvAverage,int positiveCount,
+	public ShouyilvDescriptive(String period, String classifierName,String policy,  int count,  double shouyilvAverage,int positiveCount,
 			double positiveShouyilvAverage, double negativeShouyilvAverage) {
 		this.period = period;
 		this.policy = policy;
@@ -57,6 +54,19 @@ public class ShouyilvDescribe {
 		result.append(",");
 		result.append(FormatUtility.formatPercent(this.getPositiveRatio(),2,2));
 		result.append(",");
+		return result.toString();
+	}
+	
+	public String toDescriptions(){
+		StringBuffer result=new StringBuffer();
+		result.append("\t shouyilv average for policy["+policy+"]=" +FormatUtility.formatPercent(shouyilvAverage,2,3)+" count="+count);
+		result.append("\r\n");
+		result.append("\t\t actual positive average="+FormatUtility.formatPercent(positiveShouyilvAverage,2,3)+" count="+positiveCount);
+		result.append("\r\n");
+		result.append("\t\t actual negative average="+FormatUtility.formatPercent(negativeShouyilvAverage,2,3)+" count="+(count-positiveCount));
+		result.append("\r\n");
+		result.append("\t\t actual positive/total="+FormatUtility.formatPercent(this.getPositiveRatio(),2,2));
+		result.append("\r\n");
 		return result.toString();
 	}
 
@@ -104,40 +114,6 @@ public class ShouyilvDescribe {
 			result=(double)positiveCount/count;
 		}
 		return result;
-	}
-
-
-	/**
-	 * @param shouyilvDescriptions
-	 * @return
-	 */
-	public static String convertListToCSV(ArrayList<ShouyilvDescribe> shouyilvDescriptions) {
-		StringBuffer outputCSV=new StringBuffer(HEADER+"\r\n");
-		   for (ShouyilvDescribe shouyilvDescribe : shouyilvDescriptions) {
-			   outputCSV.append(shouyilvDescribe.toString()+"\r\n");
-		   }
-		return outputCSV.toString();
-	}
-	
-	/*
-	 * 将同样大小的描述文件横向合并
-	 */
-	public static String mergeListsToCSV(ArrayList<ShouyilvDescribe>[] shouyilvDescriptionsArray) {
-		int repeat=shouyilvDescriptionsArray.length;
-		
-		StringBuffer outputCSV=new StringBuffer();
-		for (int i=0;i<repeat;i++){
-			outputCSV.append(HEADER);
-		}
-		outputCSV.append("\r\n");
-
-		for (int i=0;i<shouyilvDescriptionsArray[0].size();i++){
-			for (int j=0;j<repeat;j++){
-			  outputCSV.append(shouyilvDescriptionsArray[j].get(i).toString());
-			}
-			outputCSV.append("\r\n");
-		}
-		return outputCSV.toString();
 	}
 	
 
