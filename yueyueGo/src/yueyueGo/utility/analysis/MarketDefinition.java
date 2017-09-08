@@ -2,17 +2,6 @@ package yueyueGo.utility.analysis;
 /*
  * 定义市场的情况 
  * 
- 大牛市 200601-200711
- 大熊市  200712-200810
-小牛市  200811-200907
-慢熊市   200908-201306
-慢反弹  201307-201409
-大牛市  201410-201505
-大熊市   201506-201508
-小反弹  201509-201512
-小熊市    201601-201609
-慢反弹  201610-201708
-全市场  200001-209901
  */
 
 public class MarketDefinition {
@@ -32,8 +21,8 @@ public class MarketDefinition {
 //		this.marketTrend = marketTrend;
 	}
 
-	public String toString(){
-		return "市场："+explain+" @"+startYearMonth+"-"+endYearMonth;
+	public String getExplain(){
+		return explain;
 	}
 	public int getStartYearMonth() {
 		return startYearMonth;
@@ -46,9 +35,6 @@ public class MarketDefinition {
 	}
 	public void setEndYearMonth(int endYearMonth) {
 		this.endYearMonth = endYearMonth;
-	}
-	public String getExplain() {
-		return explain;
 	}
 	public void setExplain(String explain) {
 		this.explain = explain;
