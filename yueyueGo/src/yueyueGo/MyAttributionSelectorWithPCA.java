@@ -14,6 +14,9 @@ public class MyAttributionSelectorWithPCA extends AttributeSelectedClassifier {
 	public MyAttributionSelectorWithPCA() {
 		super();
 		MyPrincipalComponents pca = new MyPrincipalComponents();
+		//added libo to center & normailize data rather than standardize data in PCA @20170912
+		pca.setCenterData(true);
+		
 		Ranker rank = new Ranker();
 		setEvaluator(pca);
 		setSearch(rank);	

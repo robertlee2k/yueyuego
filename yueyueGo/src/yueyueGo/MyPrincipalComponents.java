@@ -21,6 +21,7 @@ import weka.core.matrix.Matrix;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.Center;
 import weka.filters.unsupervised.attribute.NominalToBinary;
+import weka.filters.unsupervised.attribute.Normalize;
 import weka.filters.unsupervised.attribute.Remove;
 import weka.filters.unsupervised.attribute.ReplaceMissingValues;
 import weka.filters.unsupervised.attribute.Standardize;
@@ -162,6 +163,8 @@ import weka.filters.unsupervised.attribute.Standardize;
 	  private Remove m_attributeFilter;
 	  private Center m_centerFilter;
 	  private Standardize m_standardizeFilter;
+	  // added by libo to use Normalized Filter @20170912
+	  private Normalize m_normalizeFilter;
 
 	  /** The number of attributes in the pc transformed data */
 	  private int m_outputNumAtts = -1;
@@ -731,6 +734,12 @@ import weka.filters.unsupervised.attribute.Standardize;
 
 	    // just center the data or standardize it?
 	    if (m_center) {
+	      //added by libo to normalize data before center it  	@20170912
+	      m_normalizeFilter=new Normalize();
+	      m_normalizeFilter.setInputFormat(m_trainInstances);
+	      m_trainInstances=Filter.useFilter(m_trainInstances, m_normalizeFilter);
+	      
+	      
 	      m_centerFilter = new Center();
 	      m_centerFilter.setInputFormat(m_trainInstances);
 	      m_trainInstances = Filter.useFilter(m_trainInstances, m_centerFilter);
@@ -939,6 +948,11 @@ import weka.filters.unsupervised.attribute.Standardize;
 	      m_standardizeFilter.batchFinished();
 	      tempInst = m_standardizeFilter.output();
 	    } else {
+		  //added by libo to normalize data before center it @20170912 	
+		  m_normalizeFilter.input(tempInst);
+		  m_normalizeFilter.batchFinished();
+		  tempInst=m_normalizeFilter.output();    	
+	    	
 	      m_centerFilter.input(tempInst);
 	      m_centerFilter.batchFinished();
 	      tempInst = m_centerFilter.output();
