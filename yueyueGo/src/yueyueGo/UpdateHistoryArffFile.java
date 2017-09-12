@@ -155,24 +155,17 @@ public class UpdateHistoryArffFile {
 		String arffFileName=AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT.m_arff_file_prefix;
 		String formatFileName=AppContext.getC_ROOT_DIRECTORY()+"fullFormat-"+ARFF_FORMAT.m_arff_file_prefix+".arff";
 		System.out.println("Start to create arff. source file ="+arffFileName+" format file="+formatFileName);
-		GeneralInstances fullData=DataIOHandler.getSuppier().loadDataFromFile(formatFileName);
+		GeneralInstances fullFormat=DataIOHandler.getSuppier().loadDataFromFile(formatFileName);
 
 		GeneralInstances rawData = mergeSrcTransFiles();
 	
 		//处理所有的日期字段，并插入yearmonth
 		processDateColumns(rawData);
 	
-		//处理各种nominal字段
+		//处理各种nominal字段，读入后转换为numeric
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(rawData);
-		
+		GeneralInstances fullData=instanceProcessor.calibrateAttributes(rawData, fullFormat,true);
 
-		instanceProcessor.calibrateAttributes(rawData, fullData);
-		
-		//全部读入后，对SWCODE做nominal处理（因为这个code可能会有持续更新）
-//		int swCodePos=BaseInstanceProcessor.findATTPosition(fullData, ArffFormat.SW_ZHISHU_CODE);
-//		if (swCodePos!=-1){ // some input format doesn't have swCode
-//			fullData=instanceProcessor.stringToNominal(fullData, ""+swCodePos);
-//		}
 		rawData=null; //试图释放内存
 	
 		//获取tradeDateIndex （从1开始）， 并按其排序
@@ -191,7 +184,7 @@ public class UpdateHistoryArffFile {
 		sampleData=null;//试图释放内存
 	
 		//生成模型全套文件
-		generateArffFileSet(arffFileName,fullData);
+		generateArffFileSet(arffFileName,fullData,fullFormat);
 	}
 
 
@@ -646,26 +639,30 @@ public class UpdateHistoryArffFile {
 	 * @throws IOException
 	 */
 	private static void generateArffFileSet(String originFileName,
-			GeneralInstances fullSetData) throws Exception, IOException {
+			GeneralInstances fullSetData,GeneralInstances fullFormat) throws Exception, IOException {
 	
+		//从原始格式数据中去除与训练无关的字段（因为要保留那些Nominal的属性为每日预测转换）
+		GeneralInstances dailyFormat=ARFF_FORMAT.prepareTransData(fullFormat);
+		DataIOHandler.getSaver().SaveDataIntoFile(dailyFormat, originFileName+"-daily-format.arff");
+		
+		
+		//下面保存回测数据
 		// 存下用于计算收益率的数据
 		GeneralInstances left=ARFF_FORMAT.getTransLeftPartFromAllTransaction(fullSetData);
 		DataIOHandler.getSaver().SaveDataIntoFile(left, originFileName+"-left.arff");
 		System.out.println("history Data left File saved: "+originFileName+"-left.arff"  );
 		left=null; //试图释放内存
-	
-		// 去除与训练无关的字段
+		
+		//从转换后的数据中去除与训练无关的字段
 		GeneralInstances result=ARFF_FORMAT.prepareTransData(fullSetData);
-	
 		//保存训练用的format，用于做日后的校验 
 		GeneralInstances format=new WekaInstances(result,0);
-		DataIOHandler.getSaver().SaveDataIntoFile(format, originFileName+"-format.arff");	
+		DataIOHandler.getSaver().SaveDataIntoFile(format, originFileName+"-format.arff");
+
+		
 		//保存不含计算字段的格式
 		DataIOHandler.getSaver().SaveDataIntoFile(result, originFileName+"-short.arff");
 	
-//		//添加计算字段
-//		result=ArffFormat.addCalculateAttribute(result);
-//		DataIOHandler.getSaver().SaveDataIntoFile(result, originFileName+"-new.arff");
 		System.out.println("full Set Data File saved "  );
 	
 	}

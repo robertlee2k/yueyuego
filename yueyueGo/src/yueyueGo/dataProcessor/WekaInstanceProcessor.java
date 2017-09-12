@@ -1,5 +1,7 @@
 package yueyueGo.dataProcessor;
 
+import java.util.ArrayList;
+
 import weka.core.Instances;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.AddUserFields;
@@ -9,6 +11,7 @@ import weka.filters.unsupervised.attribute.Remove;
 import weka.filters.unsupervised.attribute.StringToNominal;
 import weka.filters.unsupervised.instance.SubsetByExpression;
 import yueyueGo.dataFormat.ArffFormat;
+import yueyueGo.databeans.GeneralAttribute;
 import yueyueGo.databeans.GeneralInstance;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaAttribute;
@@ -144,23 +147,66 @@ public class WekaInstanceProcessor extends BaseInstanceProcessor {
 	}
 	
 	/**
-	 * read all data from input , add them to the output instances using output format
-	 * output instances will be changed in this method!
+	 * read all data from input , based on format  
+	 * add them to the output instances using output format
 	 */
 	@Override
-	public  void calibrateAttributes(GeneralInstances input,
-			GeneralInstances output) throws Exception, IllegalStateException {
-		compareInstancesFormat(input,output);
-			
-		System.out.println("start to calibrate Attributes");	
+	public GeneralInstances calibrateAttributes(GeneralInstances input, GeneralInstances format,boolean convertNominalToNumeric)
+				throws Exception{		
 		
+		GeneralInstances output;
+		
+		if (convertNominalToNumeric==false){ 
+			//如果无须转换nominal，则直接使用format的格式
+			output=new WekaInstances(format,0);
+		}else{ 
+			//如果需要转换nominal成numeric，则需要将format里的所有Nominal Attribute改为numberic
+			ArrayList<GeneralAttribute> originalAttributes=format.getAttributeList();
+			ArrayList<GeneralAttribute> outputAttributes=new ArrayList<GeneralAttribute>();
+			for (GeneralAttribute originalAttribute : originalAttributes) {
+				WekaAttribute newAttribute;
+				if (originalAttribute.isNominal()==true){
+					//如果需要转换Nominal，创建一个同名的新的numberic变量
+					newAttribute=new WekaAttribute(originalAttribute.name());
+				}else{
+					//如果无须转换nominal 直接拷贝
+					newAttribute=((WekaAttribute)originalAttribute).copy();
+				}
+				outputAttributes.add(newAttribute);
+			}
+			//用新的AttributeList创建新的output
+			output=new WekaInstances(format.relationName(), outputAttributes, 0);
+			
+		}
+		//比较一下input和output（主要是看看有没有不一致的名字）
+		String compareResult=compareInstancesFormat(input,output);	
+		if (compareResult!=null){
+			System.out.println("input and output structure difference in Caliberation process is:"+compareResult);
+		}
+		System.out.println("start to calibrate Attributes....");	
+		
+		//遍历每一行
 		for (int m=0; m<input.numInstances();m++){
 			WekaInstance copyTo=new WekaInstance(output.numAttributes());
 			copyTo.setDataset(output);
 			GeneralInstance copyFrom=input.instance(m);
-			fullCopyInstance(copyFrom,copyTo);
+			//遍历每一列
+			for (int n = 0; n < copyFrom.numAttributes() ; n++) { 
+				GeneralAttribute copyFromAtt =copyFrom.attribute(n);
+				GeneralAttribute copyToAtt=copyTo.attribute(n);
+				if (convertNominalToNumeric==false){ 
+					//如果无须转换nominal，则直接拷贝
+					fullCopyAttribute(copyFrom, copyTo, copyFromAtt, copyToAtt,null);
+				}else{
+					//须转换nominal，则需要把formatAtt传给拷贝函数
+					GeneralAttribute formatAtt =format.attribute(n);
+					fullCopyAttribute(copyFrom, copyTo, copyFromAtt, copyToAtt,formatAtt);
+					
+				}
+			}
 			output.add(copyTo);
 		}
+		return output;
 	}
 
 	/**

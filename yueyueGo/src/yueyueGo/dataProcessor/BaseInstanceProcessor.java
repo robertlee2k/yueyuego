@@ -30,8 +30,8 @@ public abstract class BaseInstanceProcessor {
 
 	//	从input中读取数据， 按照output的数据格式进行转换和校验，然后把数据输出到output中
 	//	* output instances will be changed in this method!
-	public abstract void calibrateAttributes(GeneralInstances input, GeneralInstances output)
-			throws Exception, IllegalStateException;
+	public abstract GeneralInstances calibrateAttributes(GeneralInstances input, GeneralInstances format,boolean convertNominalToNumeric)
+			throws Exception;
 
 	// 将给定记录集中名称为indexName的数据中等于1的数据筛选出来（这个主要用于筛选属于某种指数的数据）
 	public abstract GeneralInstances filterDataForIndex(GeneralInstances origin, String indexName)
@@ -103,56 +103,80 @@ public abstract class BaseInstanceProcessor {
 				}
 			}
 
-	public static void fullCopyInstance(GeneralInstance copyFrom, GeneralInstance copyTo)
-			throws Exception {
-				for (int n = 0; n < copyFrom.numAttributes() ; n++) { 
-					GeneralAttribute copyFromAtt =copyFrom.attribute(n);
-					GeneralAttribute copyToAtt=copyTo.attribute(n);
-					fullCopyAttribute(copyFrom, copyTo, copyFromAtt, copyToAtt);
-				}
-			}
-
+	/*
+	 * 将CopyFrom里copyFromAtt数据，拷贝到CopyToAtt中。
+	 * 1. 如果format为空，则照常拷贝，如果CopyToAtt是nominal字段，要取出StringValue做转换 
+	 * 2. 如果format不为空，表示需要转换nominal的值为numberic，则将copyFromAtt的值根据从format中取Nominal的index值转换至copyTo中
+	 * 这个目标是为了和TensorFlow以及DL4J保持一致， 因为这两个框架中没有Nominal的类型
+	 */
 	public static void fullCopyAttribute(GeneralInstance copyFrom, GeneralInstance copyTo,
-			GeneralAttribute copyFromAtt, GeneralAttribute copyToAtt) throws Exception {
+			GeneralAttribute copyFromAtt, GeneralAttribute copyToAtt,GeneralAttribute formatAtt) throws Exception {
 				String copyFromAttName=copyFromAtt.name();
 				String copyToAttName=copyToAtt.name();
 			
 				if (copyToAttName.equals(copyFromAttName)){
 					if (copyToAtt.isNominal()) {
-						String label =null;
-						try{
-							label=copyFrom.stringValue(copyFromAtt);
-						}catch(Exception e){
-							System.out.println("Cannot get String value for Attribute="+ copyFromAttName + " current ID ="+copyFrom.value(0));
-							System.out.println("try to get value ="+ copyFrom.value(copyFromAtt));
-							throw e;
+						if (formatAtt!=null){ 
+							//如果传入的FormatAtt存在，那这说明有错误（因为我们必须要转换Nominal成Numeric）
+							throw new Exception("Target Attribute should NOT be Norminal here because formatAtt exists, formatAttName="+ formatAtt.name() + " @ "+ copyToAttName+ " current ID ="+copyFrom.value(0));							
 						}
-						if ("?".equals(label)){
-							System.out.println("Attribute value is empty. value= "+ label+" @ "+ copyFromAttName + " current ID ="+copyFrom.value(0));
-						}else {
-							int index = copyToAtt.indexOfValue(label);
-							if (index != -1) {
-								copyTo.setValue(copyToAtt, index);
-							}else{
-								if ("0".equals(label) && "sw_zhishu_code".equals(copyFromAttName)){
-									System.err.println("sw_zhishu_code is 0, leave it as blank"+ " current ID ="+copyFrom.value(0));
-								}else{
-									throw new Exception("Attribute value is invalid. value= "+ label+" @ "+ copyFromAttName + " & "+ copyToAttName+ " current ID ="+copyFrom.value(0));
-								}
-							}
-						}
-					} else if (copyToAtt.isString()) {
+						//这时候copyToAtt就是自身的format
+						copyStringAttribute(copyFrom, copyTo, copyFromAtt, copyToAtt, copyToAtt, copyFromAttName,copyToAttName);
+					} else if (copyToAtt.isString()) { 
 						String label = copyFrom.stringValue(copyFromAtt);
 						copyTo.setValue(copyToAtt, label);
 					} else if (copyToAtt.isNumeric()) {
-						copyTo.setValue(copyToAtt, copyFrom.value(copyFromAtt));
+						if (formatAtt==null){ //原样拷贝的程序无须做转换
+							copyTo.setValue(copyToAtt, copyFrom.value(copyFromAtt));
+						}else{
+							//说明这里要nominalToNumeric
+							String formatAttName=formatAtt.name();
+							if (copyToAttName.equals(formatAttName)==false){
+								throw new Exception("Attribute order error! data target Attribute="+ copyToAttName + " vs. format Attribute"+ formatAttName);
+							}
+							//将copyFromAtt的值根据从format中取Nominal的index值转换至copyTo中
+							copyStringAttribute(copyFrom, copyTo, copyFromAtt, copyToAtt, formatAtt, copyFromAttName,copyToAttName);
+						}
 					} else {
-						throw new IllegalStateException("Unhandled attribute type!");
+						throw new IllegalStateException("Unhandled attribute type in caliberation process!");
 					}
 				}else {
-					throw new Exception("Attribute order error! data Attribute="+ copyFromAttName + " vs. format Attribute"+ copyToAttName);
+					throw new Exception("Attribute order error! input data Attribute="+ copyFromAttName + " vs. output Attribute"+ copyToAttName);
 				}
 			}
+
+	/**
+	 * @param copyFrom
+	 * @param copyTo
+	 * @param copyFromAtt
+	 * @param copyToAtt
+	 * @param formatAtt
+	 * @param copyFromAttName
+	 * @param copyToAttName
+	 * @throws Exception
+	 */
+	private static void copyStringAttribute(GeneralInstance copyFrom, GeneralInstance copyTo,
+			GeneralAttribute copyFromAtt, GeneralAttribute copyToAtt, GeneralAttribute formatAtt,
+			String copyFromAttName, String copyToAttName) throws Exception {
+		String label =null;
+		try{
+			label=copyFrom.stringValue(copyFromAtt);
+		}catch(Exception e){
+			System.err.println("Cannot get String value for Attribute="+ copyFromAttName + " current ID ="+copyFrom.value(0));
+			System.err.println("try to get value ="+ copyFrom.value(copyFromAtt));
+			throw e;
+		}
+		if ("?".equals(label)){
+			System.out.println("Attribute value is empty. value= "+ label+" @ "+ copyFromAttName + " current ID ="+copyFrom.value(0));
+		}else {
+			int index = formatAtt.indexOfValue(label);
+			if (index != -1) {
+				copyTo.setValue(copyToAtt, index);
+			}else{
+				throw new Exception("Attribute value is invalid. value= "+ label+" @ "+ copyFromAttName + " & "+ copyToAttName+ " current ID ="+copyFrom.value(0));
+			}
+		}
+	}
 
 	/**
 	 * @param test
@@ -160,9 +184,6 @@ public abstract class BaseInstanceProcessor {
 	 */
 	public static String compareInstancesFormat(GeneralInstances test, GeneralInstances header) {
 		String result=header.equalHeadersMsg(test);
-//		if (result!=null){
-//			System.err.println("model and testing data structure is not the same:+"+result);
-//		}
 		return result;
 	}
 
