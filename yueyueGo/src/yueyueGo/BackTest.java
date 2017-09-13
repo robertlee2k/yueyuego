@@ -491,24 +491,12 @@ public class BackTest {
 	protected  GeneralInstances getBacktestInstances(BaseClassifier clModel)
 			throws Exception {
 		GeneralInstances fullSetData;
-		// 根据模型来决定是否要使用有计算字段的ARFF
-//		String arffFile=null;
-//		if (clModel.m_noCaculationAttrib==true){
-//			arffFile=ARFF_FORMAT.m_arff_ext;
-//		}else{
-////			arffFile=ArffFormat.LONG_ARFF_FILE;
-//			throw new RuntimeException("we don't support Calculation fields any more");
-//		}
 
-		System.out.println("start to load File for fullset from File: "+ ARFF_FORMAT.m_arff_ext  );
-		fullSetData = DataIOHandler.getSuppier().loadDataFromFile( C_ROOT_DIRECTORY+ARFF_FORMAT.m_arff_ext);
+		String traingArffFileName=C_ROOT_DIRECTORY+ARFF_FORMAT.getTrainingDataFileName();
+		System.out.println("start to load File for fullset from File: "+ traingArffFileName  );
+		fullSetData = DataIOHandler.getSuppier().loadDataFromFile( traingArffFileName);
 		System.out.println("finish loading fullset Data. row : "+ fullSetData.numInstances() + " column:"+ fullSetData.numAttributes());
 		
-//		//决定是否删除申万行业数据
-//		if (clModel.m_removeSWData==true){
-//			fullSetData=ArffFormat.removeSWData(fullSetData);
-//			System.out.println("removed SW Data based on model definition. now column="+ fullSetData.numAttributes());
-//		}
 		return fullSetData;
 	}
 

@@ -11,7 +11,7 @@ public class FullModelDataFormat extends ArffFormat {
 	protected void initializeFormat() {
 		//Arff文件定义
 		m_arff_file_prefix="fullModel20052017";
-		m_arff_ext = m_arff_file_prefix+"-short.arff";
+
 		
 		//单次收益率数据中不用保存在ARFF文件中的字段
 		m_arff_data_not_in_model=new String[]{ 

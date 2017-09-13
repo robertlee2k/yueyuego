@@ -66,10 +66,12 @@ public abstract class ArffFormat {
 //		return result;
 //	}		
 	//end of 常量定义
+	
+	public boolean convertNominalToNumeric=true; //缺省需要将Nominal转换为Numeric
 
 
 	public String m_arff_file_prefix;
-	public String m_arff_ext;
+
 	
 	public String m_policy_group; // 输入输出文件中的“策略分组”名称
 	//当前模型用的训练字段 （在子类中定义）
@@ -91,7 +93,7 @@ public abstract class ArffFormat {
 	public String[] m_daily_predict_left_part;
 
 	
-	// 单次收益率增量全部数据的格式 
+	// 单次收益率增量全部数据的格式 （从数据库获得的数据，不包含计算字段如YearMonth）
 	public  String[] m_arff_data_full;
 
 	
@@ -142,84 +144,7 @@ public abstract class ArffFormat {
 		return InstanceHandler.getHandler(allData).filterAttribs(allData,TRANS_DATA_LEFT_PART);
 	}
 	
-//	// 为原始的Arff文件加上计算属性
-//	@Deprecated
-//	public static GeneralInstances addCalculateAttribute(GeneralInstances data) throws Exception {
-//		GeneralInstances result = new DataInstances(data, 0);
-//
-//		int row = data.numInstances();
-//		double[][] bias5to60 = { { 0.0, 0.0, 0.0, 0.0, 0.0 },
-//				{ 0.0, 0.0, 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0, 0.0, 0.0 } };
-////		String[][] biasAttName = {
-////				{ BIAS5, "bias10", "bias20", "bias30", "bias60" },
-////				{ "sw行业bias5", "sw行业bias10", "sw行业bias20", "sw行业bias30",
-////						"sw行业bias60" },
-////				{ "指数bias5", "指数bias10", "指数bias20", "指数bias30", "指数bias60" } };
-//		 String[][] biasAttName = {{ BIAS5, "bias10", "bias20",
-//		 "bias30","bias60"},{"sw_bias5","sw_bias10","sw_bias20","sw_bias30","sw_bias60"},{"zhishu_bias5","zhishu_bias10","zhishu_bias20","zhishu_bias30","zhishu_bias60"}
-//		 };
-//		for (int x = 0; x < bias5to60.length; x++) {
-//			for (int m = 0; m < bias5to60[x].length; m++) {
-//				for (int k = m + 1; k < bias5to60[x].length; k++) {
-//					// insert before class value
-//					result.insertAttributeAt(new DataAttribute(biasAttName[x][m]+ "-" + biasAttName[x][k]),result.numAttributes() - 1);
-//				}
-//			}
-//		}
-//
-//		// 为每一行数据处理
-//		for (int i = 0; i < row; i++) {
-//			GeneralInstance oneRow = data.instance(i);
-//			for (int x = 0; x < biasAttName.length; x++) {
-//				for (int j = 0; j < biasAttName[x].length; j++) {
-//					GeneralAttribute attribute = data.attribute(biasAttName[x][j]);
-//					bias5to60[x][j] = oneRow.value(attribute);
-//				}
-//			}
-//			DataInstance newRow = new DataInstance(result.numAttributes());
-//			newRow.setDataset(result);
-//
-//			// copy same values
-//
-//			for (int n = 0; n < data.numAttributes() - 1; n++) {
-//				GeneralAttribute att = data.attribute(n);
-//				GeneralAttribute newRowAtt=result.attribute(n);
-//				BaseInstanceProcessor.fullCopyAttribute(oneRow, newRow, att, newRowAtt);
-////				if (att != null) {
-////					if (att.isNominal()) {
-////						String label = oneRow.stringValue(att);
-////						int index = att.indexOfValue(label);
-////						if (index != -1) {
-////							newRow.setValue(n, index);
-////						}
-////					} else if (att.isNumeric()) {
-////						newRow.setValue(n, oneRow.value(att));
-////					} else {
-////						throw new IllegalStateException(
-////								"Unhandled attribute type!");
-////					}
-////				}
-//			}
-//			// 添加bias相减的部分
-//			int addColumn = 0;
-//			int insertPosition = data.numAttributes() - 1;
-//			for (int x = 0; x < bias5to60.length; x++) {
-//				for (int m = 0; m < bias5to60[x].length; m++) {
-//					for (int k = m + 1; k < bias5to60[x].length; k++) {
-//						newRow.setValue(insertPosition + addColumn,
-//								bias5to60[x][m] - bias5to60[x][k]);
-//						addColumn++;
-//					}
-//				}
-//			}
-//			// 添加最后的classvalue
-//			newRow.setValue(result.numAttributes() - 1,
-//					oneRow.value(data.numAttributes() - 1));
-//			result.add(newRow);
-//
-//		}
-//		return result;
-//	}
+
 
 	// 将输入文件和standardFormat数据字段名称顺序对比 ，不一致则报错。
 	public static GeneralInstances validateAttributeNames(GeneralInstances data,String[] standardFormat) throws Exception {
@@ -320,5 +245,33 @@ public abstract class ArffFormat {
 	}
 
 
+	
+	public String getDailyFormatFileName(boolean useCurrentFormat){
+		if (useCurrentFormat==true){
+			return this.m_arff_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")-daily-format.arff";
+		}else{
+			return this.m_arff_file_prefix+"("+ArffFormat.LEGACY_FORMAT+")-daily-format.arff";	
+		}
+	}
+	
+	public String getDailyFormatFileName(){
+		return getDailyFormatFileName(true);
+	}
+	
+	public String getTrainingFormatFileName(){ 
+		return this.m_arff_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")-train-format.arff";
+	}
+
+	public String getTrainingDataFileName(){ 
+		return this.m_arff_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")-short.arff";
+	}
+
+	public String getLeftDataFileName(){ 
+		return this.m_arff_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")-left.arff";
+	}
+	
+	public String getFullArffFileName(){ 
+		return this.m_arff_file_prefix+"("+ArffFormat.CURRENT_FORMAT+").arff";
+	}
 
 }

@@ -2,6 +2,7 @@ package yueyueGo.dataProcessor;
 
 import java.util.ArrayList;
 
+import weka.core.AttributeStats;
 import weka.core.Instances;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.AddUserFields;
@@ -17,6 +18,8 @@ import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaAttribute;
 import yueyueGo.databeans.WekaInstance;
 import yueyueGo.databeans.WekaInstances;
+import yueyueGo.datasource.DataIOHandler;
+import yueyueGo.utility.FormatUtility;
 
 public class WekaInstanceProcessor extends BaseInstanceProcessor {
 	public static final String WEKA_ATT_PREFIX = "ATT";
@@ -266,4 +269,27 @@ public class WekaInstanceProcessor extends BaseInstanceProcessor {
 				Instances newData = Filter.useFilter(wdata, remove); // apply filter
 				return new WekaInstances(newData);
 			}
+
+	/*
+	 * 分析数据文件的每一个属性
+	 */
+	public static void analyzeDataAttributes(String arffFile) throws Exception{
+		
+		System.out.println("start to load Arff File from File: "+ arffFile  );
+		GeneralInstances fullSetData =DataIOHandler.getSuppier().loadDataFromFile(arffFile);
+		System.out.println("finish loading fullset Data. row : "+ fullSetData.numInstances() + " column:"+ fullSetData.numAttributes());
+		
+		Instances  data=WekaInstances.convertToWekaInstances(fullSetData);
+		
+		for (int index=0; index<data.numAttributes();index++){
+			String name=data.attribute(index).name();
+			AttributeStats status= data.attributeStats(index);
+			System.out.println("====output attribute status for attribute: "+name + " @Column "+(index+1));
+			System.out.print(FormatUtility.printAttributeStatus(status));
+			System.out.println("====end of attribute status for attribute: "+name + " @Column "+(index+1));
+			System.out.println("");
+		}
+		
+		
+	}
 }

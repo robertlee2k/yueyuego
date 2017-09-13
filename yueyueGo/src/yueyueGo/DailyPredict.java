@@ -506,17 +506,15 @@ public class DailyPredict {
 	private  GeneralInstances calibrateAttributesForDailyData(GeneralInstances incomingData,BaseClassifier clModel) throws Exception {
 		int formatType=clModel.getModelArffFormat();
 		//与本地格式数据比较，这地方基本上会有nominal数据的label不一致，临时处理办法就是先替换掉
-		GeneralInstances outputData = getDailyPredictDataFormat(formatType);
-		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(outputData);
-		outputData=instanceProcessor.removeAttribs(outputData, ArffFormat.YEAR_MONTH_INDEX);
-//		//如果要去除swData这里也要去除。
-//		if (clModel.m_removeSWData==true){
-//			outputData=ArffFormat.removeSWData(outputData);
-//			System.out.println("removed SW Data in format based on model definition. now column="+ outputData.numAttributes());
-//		}
+		GeneralInstances dataFormat = getDailyPredictDataFormat(formatType);
+		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(dataFormat);
+		dataFormat=instanceProcessor.removeAttribs(dataFormat, ArffFormat.YEAR_MONTH_INDEX);
+
 		instanceProcessor=InstanceHandler.getHandler(incomingData);
-		instanceProcessor.calibrateAttributes(incomingData, outputData);
-		return outputData;
+		
+		//需要根据格式的定义，做相应的数据转换（比如转换Nominal为Numberic）
+		GeneralInstances output=instanceProcessor.calibrateAttributes(incomingData, dataFormat,ARFF_FORMAT.convertNominalToNumeric); 
+		return output;
 	}
 
 
@@ -546,12 +544,13 @@ public class DailyPredict {
 		String formatFile=null;
 		switch (formatType) {
 		case ArffFormat.LEGACY_FORMAT: //可以使用同一个Format文件，只是需要将无关字段去掉
-			formatFile=ARFF_FORMAT.m_arff_file_prefix+"("+ArffFormat.LEGACY_FORMAT+")-format.arff";
+			formatFile=ARFF_FORMAT.getDailyFormatFileName(false);
 			break;
 		case ArffFormat.CURRENT_FORMAT:
-			formatFile=ARFF_FORMAT.m_arff_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")-format.arff";
+			formatFile=ARFF_FORMAT.getDailyFormatFileName(true);
 			break;
 		case FullModelDataFormat.FULLMODEL_FORMAT:
+			//TODO 这个地方要修改
 			formatFile=((FullModelDataFormat)ARFF_FORMAT).m_arff_file_prefix+"("+FullModelDataFormat.FULLMODEL_FORMAT+")-format.arff";
 			break;			
 		default:
@@ -559,10 +558,7 @@ public class DailyPredict {
 		}
 
 		GeneralInstances outputData=DataIOHandler.getSuppier().loadDataFromFile(EnvConstants.PREDICT_WORK_DIR+formatFile); //C_ROOT_DIRECTORY+
-//		if (formatType==ArffFormat.LEGACY_FORMAT){//如果是原有模式，去掉扩展字段
-//			BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(outputData);
-//			outputData=instanceProcessor.removeAttribs(outputData, ArffFormat.EXT_ARFF_COLUMNS);
-//		}
+
 		return outputData;
 	}
 

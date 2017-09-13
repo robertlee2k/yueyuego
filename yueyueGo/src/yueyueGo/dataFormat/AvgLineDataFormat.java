@@ -7,7 +7,7 @@ public class AvgLineDataFormat extends ArffFormat {
 	@Override
 	protected void initializeFormat() {
 		m_arff_file_prefix="trans20052017";
-		m_arff_ext = m_arff_file_prefix+"-short.arff";// 不包含计算字段的ARFF格式，这是提供给各输入属性独立的分类器使用的，如神经网络
+
 		
 		//单次收益率数据中不用保存在ARFF文件中的字段
 		m_arff_data_not_in_model=new String[]{ 
