@@ -125,6 +125,8 @@ public class WekaInstances implements Serializable, GeneralInstances{
 		while (enu.hasMoreElements()) {
 			baseAttributes.add(new WekaAttribute((Attribute)enu.nextElement()));
 		}
+		//上述方法是不包含ClassAttribute的，再把classAttribute加进去
+		baseAttributes.add(new WekaAttribute(internalStore.classAttribute()));
 		return baseAttributes;
 	}
 

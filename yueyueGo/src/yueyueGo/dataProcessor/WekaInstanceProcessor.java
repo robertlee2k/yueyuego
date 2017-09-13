@@ -179,6 +179,7 @@ public class WekaInstanceProcessor extends BaseInstanceProcessor {
 			}
 			//用新的AttributeList创建新的output
 			output=new WekaInstances(format.relationName(), outputAttributes, 0);
+			output.setClassIndex(output.numAttributes()-1);
 			
 		}
 		//比较一下input和output（主要是看看有没有不一致的名字）

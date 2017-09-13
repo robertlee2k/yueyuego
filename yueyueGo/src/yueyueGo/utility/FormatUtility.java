@@ -144,7 +144,7 @@ public class FormatUtility {
 	      for (int i = 0; i < status.nominalCounts.length; i++) {
 	        sb.append(Utils.padLeft("C[" + i + "]", 10));
 	      }
-	    }else{
+	    }else if( status.numericStats!=null){
 	    	sb.append(Utils.padLeft("Min",9));
 	    	sb.append(Utils.padLeft("Max",9));
 	    	sb.append(Utils.padLeft("Mean",9));
@@ -176,8 +176,7 @@ public class FormatUtility {
 	      for (int i = 0; i < status.nominalCounts.length; i++) {
 	        sb.append(Utils.padLeft("" + status.nominalCounts[i], 10));
 	      }
-	    }else {
-	    	
+	    }else if( status.numericStats!=null){
 	    	weka.experiment.Stats numericStatus=status.numericStats;
 	    	sb.append("   ");
 	    	sb.append(Utils.padLeft(""+numericStatus.min, 6));

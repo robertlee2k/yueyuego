@@ -73,7 +73,7 @@ public class UpdateHistoryArffFile {
 		//获取格式文件
 		GeneralInstances fullFormat=loadFullArffFormat(currentArffFormat);
 		
-		String targetArffFilename=currentArffFormat.getFullArffFileName();
+		String targetArffFilename=AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.getFullArffFileName();
 		
 		System.out.println("Start to create arff. target file ="+targetArffFilename);
 		//获取原始CSV文件并处理
@@ -130,7 +130,7 @@ public class UpdateHistoryArffFile {
 			addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2016-2017"+fileSurfix,currentArffFormat);
 			fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
 			System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
-	//
+	
 	//		int startYear=2013;
 	//		int endYear=2015;
 	//		for (int i=startYear;i<=endYear;i=i+2){
@@ -186,6 +186,8 @@ public class UpdateHistoryArffFile {
 		GeneralInstances newArffData = convertRawdataToFullsetArff(currentArffFormat,fullFormat,newRawData);
 		//试图释放内存
 		newRawData=null;
+
+
 		
 		//比较要更新的数据与原有数据文件的格式，以及输出更新数量等信息。
 		System.out.println("verifying new data format , you should read this .... "+ originalData.equalHeadersMsg(newArffData));
@@ -227,7 +229,6 @@ public class UpdateHistoryArffFile {
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(rawData);
 		//处理所有的日期字段，并插入yearmonth
 		processDateColumns(rawData);
-		
 		//根据format 处理各种nominal字段，读入后转换为numeric
 		GeneralInstances fullData=instanceProcessor.calibrateAttributes(rawData, fullFormat,currentArffFormat.convertNominalToNumeric);
 
@@ -299,7 +300,7 @@ public class UpdateHistoryArffFile {
 	/**
 	 * 
 	 * 根据原始ARFFF文件生成模型的全套文件，包括以下几类：
-	 * 1. 格式文件 （用于训练校验的格式文件、预测数据转换和校验的格式文件
+	 * 1. 用于预测数据转换和校验的格式文件
 	 * 2. 回测建模的Arff文件
 	 * 3. 用于计算收益率的Arff文件
 	 * @param originFileName
@@ -326,9 +327,9 @@ public class UpdateHistoryArffFile {
 		//保存训练用的文件
 		DataIOHandler.getSaver().SaveDataIntoFile(result, AppContext.getC_ROOT_DIRECTORY()+arffFormat.getTrainingDataFileName());
 
-		//保存训练用的format，用于做日后的校验 
-		GeneralInstances format=new WekaInstances(result,0);
-		DataIOHandler.getSaver().SaveDataIntoFile(format, AppContext.getC_ROOT_DIRECTORY()+arffFormat.getTrainingFormatFileName());
+//		//保存训练用的format，用于做日后的校验 
+//		GeneralInstances format=new WekaInstances(result,0);
+//		DataIOHandler.getSaver().SaveDataIntoFile(format, AppContext.getC_ROOT_DIRECTORY()+arffFormat.getTrainingFormatFileName());
 	
 		System.out.println("full Set Data File saved "  );
 	

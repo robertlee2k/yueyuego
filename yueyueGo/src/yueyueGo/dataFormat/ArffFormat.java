@@ -258,9 +258,9 @@ public abstract class ArffFormat {
 		return getDailyFormatFileName(true);
 	}
 	
-	public String getTrainingFormatFileName(){ 
-		return this.m_data_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")-train-format.arff";
-	}
+//	public String getTrainingFormatFileName(){ 
+//		return this.m_data_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")-train-format.arff";
+//	}
 
 	public String getTrainingDataFileName(){ 
 		return this.m_data_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")-short.arff";

@@ -129,19 +129,23 @@ public abstract class BaseInstanceProcessor {
 						if (formatAtt==null){ //原样拷贝的程序无须做转换
 							copyTo.setValue(copyToAtt, copyFrom.value(copyFromAtt));
 						}else{
-							//说明这里要nominalToNumeric
-							String formatAttName=formatAtt.name();
-							if (copyToAttName.equals(formatAttName)==false){
-								throw new Exception("Attribute order error! data target Attribute="+ copyToAttName + " vs. format Attribute"+ formatAttName);
+							if (formatAtt.isNominal()){ //格式属性里这个是Nominal，需要转换
+								//说明这里要nominalToNumeric
+								String formatAttName=formatAtt.name();
+								if (copyToAttName.equals(formatAttName)==false){
+									throw new Exception("Attribute order error! data target Attribute="+ copyToAttName + " vs. format Attribute"+ formatAttName);
+								}
+								//将copyFromAtt的值根据从format中取Nominal的index值转换至copyTo中
+								copyStringAttribute(copyFrom, copyTo, copyFromAtt, copyToAtt, formatAtt, copyFromAttName,copyToAttName);
+							}else{ //不是nominal的直接原样拷贝无须转换
+								copyTo.setValue(copyToAtt, copyFrom.value(copyFromAtt));	
 							}
-							//将copyFromAtt的值根据从format中取Nominal的index值转换至copyTo中
-							copyStringAttribute(copyFrom, copyTo, copyFromAtt, copyToAtt, formatAtt, copyFromAttName,copyToAttName);
 						}
 					} else {
 						throw new IllegalStateException("Unhandled attribute type in caliberation process!");
 					}
 				}else {
-					throw new Exception("Attribute order error! input data Attribute="+ copyFromAttName + " vs. output Attribute"+ copyToAttName);
+					throw new Exception("Attribute order error! input data Attribute="+ copyFromAttName + " vs. output Attribute "+ copyToAttName);
 				}
 			}
 
