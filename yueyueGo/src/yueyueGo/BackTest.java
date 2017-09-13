@@ -59,10 +59,9 @@ import yueyueGo.utility.modelEvaluation.ModelStore;
 import yueyueGo.utility.modelEvaluation.ThresholdData;
 
 public class BackTest {
-	protected String C_ROOT_DIRECTORY =EnvConstants.AVG_LINE_ROOT_DIR;
+	
 	protected int RUNNING_THREADS; //并发控制，1表示仅有主线程单线运行。
-//	protected double[] shouyilv_thresholds=null; //对于胜率优先算法的收益率筛选阀值
-//	protected double[] winrate_thresholds=null; //对于收益率优先算法的胜率筛选阀值
+
 	
 	protected String BACKTEST_RESULT_DIR=null;	
 	public static final String RESULT_EXTENSION = "-Test Result.csv";
@@ -85,7 +84,7 @@ public class BackTest {
 //				new MomentumDataFormat(); 
 				new AvgLineDataFormat();
 		AppContext.clearContext();
-		AppContext.createContext(this.C_ROOT_DIRECTORY);	
+		AppContext.createContext(ARFF_FORMAT.m_data_root_directory);	
 		BACKTEST_RESULT_DIR=AppContext.getBACKTEST_RESULT_DIR();
 //		shouyilv_thresholds=EvaluationConfDefinition.SHOUYILV_FILTER_FOR_WINRATE; //对于胜率优先算法的收益率筛选阀值
 //		winrate_thresholds=EvaluationConfDefinition.WINRATE_FILTER_FOR_SHOUYILV; //对于收益率优先算法的胜率筛选阀值
@@ -255,7 +254,7 @@ public class BackTest {
 		
 		//根据分类器和数据类别确定回测模型的工作目录
 		String modelFilePath=prepareModelWorkPath(clModel);
-		String modelPrefix=ARFF_FORMAT.m_arff_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")"; //"extData2005-2016";
+		String modelPrefix=ARFF_FORMAT.m_data_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")"; //"extData2005-2016";
 		
 		GeneralInstances fullSetData = null;
 		GeneralInstances result = null;
@@ -445,7 +444,7 @@ public class BackTest {
 		//保存评估结果至文件
 		saveBacktestResultFile(result,clModel.getIdentifyName());
 		
-		FileUtility.write(BACKTEST_RESULT_DIR+ARFF_FORMAT.m_arff_file_prefix+"-"+clModel.getIdentifyName()+"-Summary.csv", modelSummaries.getEvaluationHeader()+modelSummaries.getEvaluationSummary(), "GBK");
+		FileUtility.write(BACKTEST_RESULT_DIR+ARFF_FORMAT.m_data_file_prefix+"-"+clModel.getIdentifyName()+"-Summary.csv", modelSummaries.getEvaluationHeader()+modelSummaries.getEvaluationSummary(), "GBK");
 		
 		System.out.println(clModel.getIdentifyName()+" test result file saved.");
 		return result;
@@ -492,7 +491,7 @@ public class BackTest {
 			throws Exception {
 		GeneralInstances fullSetData;
 
-		String traingArffFileName=C_ROOT_DIRECTORY+ARFF_FORMAT.getTrainingDataFileName();
+		String traingArffFileName=AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT.getTrainingDataFileName();
 		System.out.println("start to load File for fullset from File: "+ traingArffFileName  );
 		fullSetData = DataIOHandler.getSuppier().loadDataFromFile( traingArffFileName);
 		System.out.println("finish loading fullset Data. row : "+ fullSetData.numInstances() + " column:"+ fullSetData.numAttributes());
@@ -558,7 +557,7 @@ public class BackTest {
 //			left=FileUtility.loadDataFromFile(C_ROOT_DIRECTORY+ArffFormat.TRANSACTION_ARFF_PREFIX+"-left.arff");
 //		}
 
-		left=DataIOHandler.getSuppier().loadDataFromFile(C_ROOT_DIRECTORY+ARFF_FORMAT.m_arff_file_prefix+"-left.arff");
+		left=DataIOHandler.getSuppier().loadDataFromFile(AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT.m_data_file_prefix+"-left.arff");
 		MergeClassifyResults merge=new MergeClassifyResults(ARFF_FORMAT.m_policy_group);
 		GeneralInstances mergedResult =merge.mergeResults(resultData, referenceData,dataToAdd, left);
 
@@ -582,16 +581,16 @@ public class BackTest {
 
 
 	private void saveBacktestResultFile(GeneralInstances result,String classiferName) throws IOException{
-		DataIOHandler.getSaver().SaveDataIntoFile(result, BACKTEST_RESULT_DIR+"回测结果-"+ARFF_FORMAT.m_arff_file_prefix+"-"+ classiferName+".arff" );
+		DataIOHandler.getSaver().SaveDataIntoFile(result, BACKTEST_RESULT_DIR+"回测结果-"+ARFF_FORMAT.m_data_file_prefix+"-"+ classiferName+".arff" );
 	}
 	protected GeneralInstances loadBackTestResultFromFile(String classiferName) throws Exception{
-		GeneralInstances result=DataIOHandler.getSuppier().loadDataFromFile(BACKTEST_RESULT_DIR+"回测结果-"+ARFF_FORMAT.m_arff_file_prefix+"-"+ classiferName+".arff" );
+		GeneralInstances result=DataIOHandler.getSuppier().loadDataFromFile(BACKTEST_RESULT_DIR+"回测结果-"+ARFF_FORMAT.m_data_file_prefix+"-"+ classiferName+".arff" );
 		return result;
 	}
 
 	protected void saveSelectedFileForMarkets(GeneralInstances selected,String classiferName) throws Exception{
 		GeneralDataSaver dataSaver=DataIOHandler.getSaver();		
-		dataSaver.saveCSVFile(selected, BACKTEST_RESULT_DIR+"选股-"+ ARFF_FORMAT.m_arff_file_prefix+"-"+classiferName+ RESULT_EXTENSION );
+		dataSaver.saveCSVFile(selected, BACKTEST_RESULT_DIR+"选股-"+ ARFF_FORMAT.m_data_file_prefix+"-"+classiferName+ RESULT_EXTENSION );
 		
 	}
 
@@ -777,7 +776,7 @@ public class BackTest {
 			workPath=AppContext.getNOMINAL_CLASSIFIER_DIR()+clModel.getIdentifyName()+"\\";
 		}
 		//根据不同的原始数据（策略）设置不同的模型工作目录
-		workPath+=ARFF_FORMAT.m_arff_file_prefix+"\\";
+		workPath+=ARFF_FORMAT.m_data_file_prefix+"\\";
 		FileUtility.mkdirIfNotExist(workPath);
 
 		return workPath;
@@ -796,7 +795,7 @@ public class BackTest {
 	protected HashMap<String,String> findModelFiles(BaseClassifier clModel,String a_targetYearSplit) throws Exception{
 		//根据分类器和数据类别确定回测模型的工作目录
 		String modelFilePath=prepareModelWorkPath(clModel);
-		String modelPrefix=ARFF_FORMAT.m_arff_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")"; 
+		String modelPrefix=ARFF_FORMAT.m_data_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")"; 
 		EvaluationStore evaluationStore=null;
 		
 		HashMap<String,String> fileMap=new HashMap<String,String>();

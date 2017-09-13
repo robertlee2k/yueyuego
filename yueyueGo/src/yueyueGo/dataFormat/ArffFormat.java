@@ -69,8 +69,8 @@ public abstract class ArffFormat {
 	
 	public boolean convertNominalToNumeric=true; //缺省需要将Nominal转换为Numeric
 
-
-	public String m_arff_file_prefix;
+	public String m_data_root_directory; //这类数据模型的根目录（相对目录）
+	public String m_data_file_prefix; //数据文件的前缀名
 
 	
 	public String m_policy_group; // 输入输出文件中的“策略分组”名称
@@ -248,9 +248,9 @@ public abstract class ArffFormat {
 	
 	public String getDailyFormatFileName(boolean useCurrentFormat){
 		if (useCurrentFormat==true){
-			return this.m_arff_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")-daily-format.arff";
+			return this.m_data_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")-daily-format.arff";
 		}else{
-			return this.m_arff_file_prefix+"("+ArffFormat.LEGACY_FORMAT+")-daily-format.arff";	
+			return this.m_data_file_prefix+"("+ArffFormat.LEGACY_FORMAT+")-daily-format.arff";	
 		}
 	}
 	
@@ -259,19 +259,19 @@ public abstract class ArffFormat {
 	}
 	
 	public String getTrainingFormatFileName(){ 
-		return this.m_arff_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")-train-format.arff";
+		return this.m_data_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")-train-format.arff";
 	}
 
 	public String getTrainingDataFileName(){ 
-		return this.m_arff_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")-short.arff";
+		return this.m_data_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")-short.arff";
 	}
 
 	public String getLeftDataFileName(){ 
-		return this.m_arff_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")-left.arff";
+		return this.m_data_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")-left.arff";
 	}
 	
 	public String getFullArffFileName(){ 
-		return this.m_arff_file_prefix+"("+ArffFormat.CURRENT_FORMAT+").arff";
+		return this.m_data_file_prefix+"("+ArffFormat.CURRENT_FORMAT+").arff";
 	}
 
 }

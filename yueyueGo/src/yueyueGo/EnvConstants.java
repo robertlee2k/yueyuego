@@ -28,7 +28,7 @@ public class EnvConstants {
 
 	//各处共用的环境变量
 	public static String PREDICT_WORK_DIR=ROOT_DIR+"03-预测模型\\"; //用于每日预测的云端和本地目录
-	public final static String AVG_LINE_ROOT_DIR=ROOT_DIR; //均线模型的根目录
-	public final static String FULL_MODEL_ROOT_DIR=ROOT_DIR+"fullModel\\"; //短线模型的根目录
+//	public final static String AVG_LINE_ROOT_DIR=ROOT_DIR; //均线模型的根目录
+//	public final static String FULL_MODEL_ROOT_DIR=ROOT_DIR+"fullModel\\"; //短线模型的根目录
 
 }

@@ -12,7 +12,7 @@ import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaInstances;
 import yueyueGo.datasource.DataIOHandler;
 import yueyueGo.utility.AppContext;
-
+@Deprecated
 public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 	protected static FullModelDataFormat ARFF_FORMAT_FULLMODEL=new FullModelDataFormat(); //当前所用数据文件格式
 	
@@ -44,25 +44,25 @@ public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 		String endYearMonth="201612";
 		
 
-		String originFilePrefix=AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT_FULLMODEL.m_arff_file_prefix;
+		String originFilePrefix=AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT_FULLMODEL.m_data_file_prefix;
 		
 		String newDataFileName=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group5\\onceyield_group5all_optional20160901_20161031.txt";		
 		GeneralInstances newData = loadDataFromIncrementalCSVFile(newDataFileName);
 		//刷新的Arff文件
-		refreshArffFile(startYearMonth,endYearMonth,originFilePrefix,newData);
-		//为原始的历史文件Arff添加计算变量，并分拆。
-		processHistoryFileFullModel();
-
-		//以百分之一抽检率检查未被刷新数据（抽样部分）
-		int lastYear=Integer.valueOf(startYearMonth.substring(0, 4))-1; 
-		compareRefreshedInstancesForPeriod(String.valueOf(lastYear)+"11",String.valueOf(lastYear)+"12",originFilePrefix,100);
-		//以五分之一抽检率抽样检测刷新过的数据
-		compareRefreshedInstancesForPeriod(startYearMonth,endYearMonth,originFilePrefix,5);
+//		refreshArffFile(startYearMonth,endYearMonth,originFilePrefix,newData);
+//		//为原始的历史文件Arff添加计算变量，并分拆。
+//		processHistoryFileFullModel();
+//
+//		//以百分之一抽检率检查未被刷新数据（抽样部分）
+//		int lastYear=Integer.valueOf(startYearMonth.substring(0, 4))-1; 
+//		compareRefreshedInstancesForPeriod(String.valueOf(lastYear)+"11",String.valueOf(lastYear)+"12",originFilePrefix,100);
+//		//以五分之一抽检率抽样检测刷新过的数据
+//		compareRefreshedInstancesForPeriod(startYearMonth,endYearMonth,originFilePrefix,5);
 	}
 	
 	protected static void callCreateFullModelInstances() throws Exception {
 
-		String arffFileName=AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT_FULLMODEL.m_arff_file_prefix;
+		String arffFileName=AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT_FULLMODEL.m_data_file_prefix;
 		GeneralInstances rawData = mergeSrcFullModelFiles();
 		
 		//处理所有的日期字段，并插入yearmonth
@@ -71,7 +71,7 @@ public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 		//处理各种nominal字段
 		GeneralInstances fullData=DataIOHandler.getSuppier().loadDataFromFile(AppContext.getC_ROOT_DIRECTORY()+"fullModelFormat.arff");
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(rawData);
-		instanceProcessor.calibrateAttributes(rawData, fullData);
+//		instanceProcessor.calibrateAttributes(rawData, fullData);
 		rawData=null; //试图释放内存
 		
 		//获取tradeDateIndex （从1开始）， 并按其排序
@@ -159,7 +159,7 @@ public class UpdateHistoryArffFullModel extends UpdateHistoryArffFile {
 	//这是处理历史全量数据，重新切割生成各种长、短以及格式文件的方法
 	private static void processHistoryFileFullModel() throws Exception {
 		System.out.println("loading history file into memory "  );
-		String originFileName=AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT_FULLMODEL.m_arff_file_prefix;
+		String originFileName=AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT_FULLMODEL.m_data_file_prefix;
 		GeneralInstances fullSetData = DataIOHandler.getSuppier().loadDataFromFile(originFileName+".arff");
 		System.out.println("finish  loading fullset File  row : "+ fullSetData.numInstances() + " column:"+ fullSetData.numAttributes());
 		generateArffFileSetFullModel(originFileName, fullSetData);

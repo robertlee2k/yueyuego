@@ -2,6 +2,8 @@ package yueyueGo.fullModel;
 
 import java.io.IOException;
 
+import org.springframework.context.ApplicationContext;
+
 import yueyueGo.BackTest;
 import yueyueGo.BaseClassifier;
 import yueyueGo.ContinousClassifier;
@@ -20,7 +22,7 @@ import yueyueGo.utility.AppContext;
 import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.MergeClassifyResults;
 
-
+@Deprecated
 public class BackTestFullModel extends BackTest {
 	private boolean applyToMaModelInTestBack=false; //default is false
 	protected FullModelDataFormat ARFF_FORMAT_FULLMODEL; //当前所用FULLMODEL数据文件格式 
@@ -41,9 +43,9 @@ public class BackTestFullModel extends BackTest {
 		}else{
 			ARFF_FORMAT=ARFF_FORMAT_FULLMODEL; //以免误用
 		}
-		C_ROOT_DIRECTORY = EnvConstants.FULL_MODEL_ROOT_DIR;
+		
 		AppContext.clearContext();
-		AppContext.createContext(C_ROOT_DIRECTORY);	
+		AppContext.createContext(ARFF_FORMAT_FULLMODEL.m_data_root_directory);	
 		BACKTEST_RESULT_DIR=AppContext.getBACKTEST_RESULT_DIR();
 		
 		RUNNING_THREADS=1;
@@ -178,9 +180,10 @@ public class BackTestFullModel extends BackTest {
 ////			arffFile=ArffFormatFullModel.FULL_MODEL_LONG_ARFF_FILE;
 //			throw new RuntimeException("we don't support Calculation fields any more");
 //		}
-		String arffFullFileName=C_ROOT_DIRECTORY+ARFF_FORMAT_FULLMODEL.m_arff_ext;
+//		String arffFullFileName=C_ROOT_DIRECTORY+ARFF_FORMAT_FULLMODEL.m_arff_ext;
 
-		return arffFullFileName;
+//		return arffFullFileName;
+		return null;
 	}
 	
 	/**
@@ -197,8 +200,9 @@ public class BackTestFullModel extends BackTest {
 ////			arffFile=ArffFormat.LONG_ARFF_FILE;
 //			throw new RuntimeException("we don't support Calculation fields any more");
 //		}
-		String arffFullFileName=EnvConstants.AVG_LINE_ROOT_DIR+ARFF_FORMAT.m_arff_ext;
-		return arffFullFileName;
+//		String arffFullFileName=EnvConstants.AVG_LINE_ROOT_DIR+ARFF_FORMAT.m_arff_ext;
+//		return arffFullFileName;
+		return null;
 	}
 
 
@@ -207,9 +211,10 @@ public class BackTestFullModel extends BackTest {
 		GeneralInstances left=null;		
 		//读取磁盘上预先保存的左侧数据
 		if (applyToMaModelInTestBack==true){
-			left=DataIOHandler.getSuppier().loadDataFromFile(EnvConstants.AVG_LINE_ROOT_DIR+ARFF_FORMAT.m_arff_file_prefix+"-left.arff");
+			//TODO 这个地方要修改
+//			left=DataIOHandler.getSuppier().loadDataFromFile(EnvConstants.AVG_LINE_ROOT_DIR+ARFF_FORMAT.m_data_file_prefix+"-left.arff");
 		}else{
-			left=DataIOHandler.getSuppier().loadDataFromFile(C_ROOT_DIRECTORY+ARFF_FORMAT_FULLMODEL.m_arff_file_prefix+"-left.arff");
+			left=DataIOHandler.getSuppier().loadDataFromFile(AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT_FULLMODEL.m_data_file_prefix+"-left.arff");
 		}
 		
 		MergeClassifyResults merge=new MergeClassifyResults(ARFF_FORMAT.m_policy_group);
@@ -245,7 +250,7 @@ public class BackTestFullModel extends BackTest {
 		FileUtility.mkdirIfNotExist(workPath);
 		
 
-		String modelPrefix=ARFF_FORMAT.m_arff_file_prefix+"("+FullModelDataFormat.FULLMODEL_FORMAT+")"; //"extData2005-2016";
+		String modelPrefix=ARFF_FORMAT.m_data_file_prefix+"("+FullModelDataFormat.FULLMODEL_FORMAT+")"; //"extData2005-2016";
 		return workPath+modelPrefix;
 	}
 }

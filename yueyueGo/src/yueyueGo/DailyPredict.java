@@ -40,49 +40,47 @@ public class DailyPredict {
 
 	private HashMap<String, GeneralInstances> cached_daily_data=new HashMap<String, GeneralInstances>(); //从数据库里加载的每日预测数据
 
-	private void definePredictModels(String type){
+	private void definePredictModels(){
 		PREDICT_MODELS=new HashMap<String, PredictModelData>();
 
 
 		int format;
 		String classifierName;
-		if(EnvConstants.AVG_LINE_ROOT_DIR.equalsIgnoreCase(type)){
 
-			//=========================LEGACY FORMAT 不常用========================
-//			format=ArffFormat.LEGACY_FORMAT;
-//			//旧格式预测模型
-//			//BaggingM5P上次使用的预测模型
-//			classifierName=ClassifyUtility.BAGGING_M5P+ClassifyUtility.MULTI_PCA_SURFIX;
-//			addModelData(classifierName,format,"\\extData2005-2016-baggingM5P-201606 MA ");
-//			
-//			//adaboost上次使用的预测模型
-//			classifierName=ClassifyUtility.ADABOOST;
-//			addModelData(classifierName,format,"\\extData2005-2016-adaboost-201606 MA ");
-			
-			//=========================EXT FORMAT 部分========================
-			format=ArffFormat.CURRENT_FORMAT;
+		//=========================LEGACY FORMAT 不常用========================
+		//			format=ArffFormat.LEGACY_FORMAT;
+		//			//旧格式预测模型
+		//			//BaggingM5P上次使用的预测模型
+		//			classifierName=ClassifyUtility.BAGGING_M5P+ClassifyUtility.MULTI_PCA_SURFIX;
+		//			addModelData(classifierName,format,"\\extData2005-2016-baggingM5P-201606 MA ");
+		//			
+		//			//adaboost上次使用的预测模型
+		//			classifierName=ClassifyUtility.ADABOOST;
+		//			addModelData(classifierName,format,"\\extData2005-2016-adaboost-201606 MA ");
 
-			//BaggingM5P当前使用的预测模型
-			classifierName=ClassifyUtility.BAGGING_M5P+ClassifyUtility.MULTI_PCA_SURFIX;
-			addModelData(classifierName,format,"\\trans20052017(9)-baggingM5P-201707 MA ","201707");
+		//=========================EXT FORMAT 部分========================
+		format=ArffFormat.CURRENT_FORMAT;
 
-			//adaboost当前使用的预测模型
-			classifierName=ClassifyUtility.ADABOOST;
-			addModelData(classifierName,format,"\\trans20052017(9)-adaboost-201707 MA ","201707");
+		//BaggingM5P当前使用的预测模型
+		classifierName=ClassifyUtility.BAGGING_M5P+ClassifyUtility.MULTI_PCA_SURFIX;
+		addModelData(classifierName,format,"\\trans20052017(9)-baggingM5P-201707 MA ","201707");
+
+		//adaboost当前使用的预测模型
+		classifierName=ClassifyUtility.ADABOOST;
+		addModelData(classifierName,format,"\\trans20052017(9)-adaboost-201707 MA ","201707");
+
+
+		// fullmodel不保留legacy
+		//			format=FullModelDataFormat.FULLMODEL_FORMAT;
+		//			//BaggingM5PFullModel当前使用的预测模型---------FullMODEL
+		//			classifierName=ClassifyUtility.BAGGING_M5P_FULLMODEL+ClassifyUtility.MULTI_PCA_SURFIX;
+		////			addModelData(classifierName,format,"\\extData2005-2016-BaggingM5PABFullModel-201607 MA ", "\\extData2005-2016-BaggingM5PABFullModel-201607 MA ");
+		//			addModelData(classifierName,format, "\\fullModel20052017(1009)-BaggingM5PABFullModel-201609 MA ");
+		//			//BaggingJ48FullModel当前使用的预测模型---------FullMODEL
+		//			classifierName=ClassifyUtility.MYNN_MLP_FULLMODEL;
+		////			addModelData(classifierName,format,"\\extData2005-2016-myNNFullModel-2016 MA ", "\\extData2005-2016-myNNFullModel-201603 MA ");
+		//			addModelData(classifierName,format, "\\fullModel20052017(1009)-myNNFullModel-201603 MA ");
 			
-		}else if(EnvConstants.FULL_MODEL_ROOT_DIR.equals(type)){
-			// fullmodel不保留legacy
-//			format=FullModelDataFormat.FULLMODEL_FORMAT;
-//			//BaggingM5PFullModel当前使用的预测模型---------FullMODEL
-//			classifierName=ClassifyUtility.BAGGING_M5P_FULLMODEL+ClassifyUtility.MULTI_PCA_SURFIX;
-////			addModelData(classifierName,format,"\\extData2005-2016-BaggingM5PABFullModel-201607 MA ", "\\extData2005-2016-BaggingM5PABFullModel-201607 MA ");
-//			addModelData(classifierName,format, "\\fullModel20052017(1009)-BaggingM5PABFullModel-201609 MA ");
-//			//BaggingJ48FullModel当前使用的预测模型---------FullMODEL
-//			classifierName=ClassifyUtility.MYNN_MLP_FULLMODEL;
-////			addModelData(classifierName,format,"\\extData2005-2016-myNNFullModel-2016 MA ", "\\extData2005-2016-myNNFullModel-201603 MA ");
-//			addModelData(classifierName,format, "\\fullModel20052017(1009)-myNNFullModel-201603 MA ");
-			
-		}
 	}
 
 
@@ -152,13 +150,12 @@ public class DailyPredict {
 		System.out.println("==================================================");
 		System.out.println("===============starting 均线模型预测===============");
 		System.out.println("==================================================");
-		AppContext.clearContext();
-		AppContext.createContext(EnvConstants.AVG_LINE_ROOT_DIR);
 		//预先初始化各种模型文件的位置
 		worker.ARFF_FORMAT=new AvgLineDataFormat();
-		worker.definePredictModels(EnvConstants.AVG_LINE_ROOT_DIR);
-//		worker.shouyilv_thresholds=EvaluationConfDefinition.SHOUYILV_FILTER_FOR_WINRATE;//new double[] {0.005,0.005,0.01,0.03,0.03}; // {0.01,0.02,0.03,0.03,0.04};
-//		worker.winrate_thresholds=EvaluationConfDefinition.WINRATE_FILTER_FOR_SHOUYILV;//new double[]  {0.45,0.45,0.45,0.35,0.25};  //{0.3,0.3,0.3,0.25,0.25};
+		AppContext.clearContext();
+		AppContext.createContext(worker.ARFF_FORMAT.m_data_root_directory);
+
+		worker.definePredictModels();
 		return worker.dailyPredict();
 	}
 
@@ -174,13 +171,12 @@ public class DailyPredict {
 		System.out.println("==================================================");
 		System.out.println("===============starting 短线模型预测===============");
 		System.out.println("==================================================");
-		AppContext.createContext(EnvConstants.FULL_MODEL_ROOT_DIR);
+		
 		//预先初始化各种模型文件的位置
 		worker.ARFF_FORMAT=new FullModelDataFormat();
-		worker.definePredictModels(EnvConstants.FULL_MODEL_ROOT_DIR);
-//		worker.shouyilv_thresholds=EvaluationConfDefinition.FULLMODEL_SHOUYILV_FILTER_FOR_WINRATE;
-//		worker.winrate_thresholds=EvaluationConfDefinition.FULLMODEL_WINRATE_FILTER_FOR_SHOUYILV;
-		
+		AppContext.clearContext();
+		AppContext.createContext(worker.ARFF_FORMAT.m_data_root_directory);
+		worker.definePredictModels();
 		return worker.fullModelPredict();
 	}
 
@@ -551,7 +547,7 @@ public class DailyPredict {
 			break;
 		case FullModelDataFormat.FULLMODEL_FORMAT:
 			//TODO 这个地方要修改
-			formatFile=((FullModelDataFormat)ARFF_FORMAT).m_arff_file_prefix+"("+FullModelDataFormat.FULLMODEL_FORMAT+")-format.arff";
+			formatFile=((FullModelDataFormat)ARFF_FORMAT).m_data_file_prefix+"("+FullModelDataFormat.FULLMODEL_FORMAT+")-format.arff";
 			break;			
 		default:
 			throw new Exception("invalid arffFormat type");

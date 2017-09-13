@@ -29,6 +29,7 @@ public class UpdateHistoryArffFile {
 //					new MomentumDataFormat();
 					new AvgLineDataFormat();  			
 
+			AppContext.createContext(currentArffFormat.m_data_root_directory);	
 			
 			//重新创建ARFF文件
 			callCreateTransInstances(currentArffFormat);
@@ -116,16 +117,17 @@ public class UpdateHistoryArffFile {
 			
 			//传统
 			String sourceFilePrefix=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group9\\v_onceyield_group9all_";
-			GeneralInstances fullData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2005-2009.txt",currentArffFormat);
-			GeneralInstances addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2010-2012.txt",currentArffFormat);
+			String fileSurfix=".csv"; //".txt";
+			GeneralInstances fullData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2005-2009"+fileSurfix,currentArffFormat);
+			GeneralInstances addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2010-2012"+fileSurfix,currentArffFormat);
 			BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullData);
 			fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
 			
 			System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
-			addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2013-2015.txt",currentArffFormat);
+			addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2013-2015"+fileSurfix,currentArffFormat);
 			fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
 			System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
-			addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2016-2017.txt",currentArffFormat);
+			addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2016-2017"+fileSurfix,currentArffFormat);
 			fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
 			System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
 	//
@@ -239,7 +241,7 @@ public class UpdateHistoryArffFile {
 	 * @throws Exception
 	 */
 	private static GeneralInstances loadFullArffFormat(ArffFormat currentArffFormat) throws Exception {
-		String formatFileName=AppContext.getC_ROOT_DIRECTORY()+"fullFormat-"+currentArffFormat.m_arff_file_prefix+".arff";
+		String formatFileName=AppContext.getC_ROOT_DIRECTORY()+"fullFormat-"+currentArffFormat.m_data_file_prefix+".arff";
 		System.out.println("start to load format file="+formatFileName);
 		GeneralInstances fullFormat=DataIOHandler.getSuppier().loadDataFromFile(formatFileName);
 
@@ -253,14 +255,14 @@ public class UpdateHistoryArffFile {
 	 * 定义更新Arff文件时删除数据的文件名（这个未在ArffFormat中定义）
 	 */
 	protected static String getRemovedArffFileName(ArffFormat currentArffFormat){
-		return AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.m_arff_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")-removed.arff";
+		return AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.m_data_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")-removed.arff";
 	}
 
 	/*
 	 * 定义Sample数据的的文件名（这个未在ArffFormat中定义）
 	 */
 	protected static String getSampleArffFileName(ArffFormat currentArffFormat){
-		return AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.m_arff_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")-sample.arff";
+		return AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.m_data_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")-sample.arff";
 	}
 
 	/**
@@ -525,7 +527,7 @@ public class UpdateHistoryArffFile {
 	 * @throws IllegalStateException
 	 */
 	@Deprecated
-	final private static GeneralInstances mergeExtDataFromTwoFiles(String firstFile,
+	final protected static GeneralInstances mergeExtDataFromTwoFiles(String firstFile,
 			String secondFile,String[] verifyFormat) throws Exception, IllegalStateException {
 		GeneralInstances extData=DataIOHandler.getSuppier().loadDataFromExtCSVFile(firstFile,verifyFormat);
 		GeneralInstances extDataSecond=DataIOHandler.getSuppier().loadDataFromExtCSVFile(secondFile,verifyFormat);
@@ -536,7 +538,7 @@ public class UpdateHistoryArffFile {
 
 	//数据必须是以ID排序的。
 	@Deprecated
-	final private static GeneralInstances mergeTransactionWithExtension(GeneralInstances transData,GeneralInstances extData,String[] extDataFormat, String[] extArffCRC) throws Exception{
+	final protected static GeneralInstances mergeTransactionWithExtension(GeneralInstances transData,GeneralInstances extData,String[] extDataFormat, String[] extArffCRC) throws Exception{
 	
 		//找出transData中的所有待校验字段
 		GeneralAttribute[] attToCompare=new WekaAttribute[extArffCRC.length];

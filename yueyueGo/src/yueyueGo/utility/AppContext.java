@@ -1,5 +1,7 @@
 package yueyueGo.utility;
 
+import yueyueGo.EnvConstants;
+
 //singleton 
 public class AppContext {
 	private static AppContext singleton = null;
@@ -12,18 +14,18 @@ public class AppContext {
 	
 	private AppContext(String rootPath) {
     	C_ROOT_DIRECTORY=rootPath;
-		NOMINAL_CLASSIFIER_DIR = rootPath+"models\\01-二分类器\\";
-		CONTINOUS_CLASSIFIER_DIR = rootPath+"models\\02-连续分类器\\";
-		BACKTEST_RESULT_DIR=rootPath+"testResult\\";
+		NOMINAL_CLASSIFIER_DIR = rootPath+"\\models\\01-二分类器\\";
+		CONTINOUS_CLASSIFIER_DIR = rootPath+"\\models\\02-连续分类器\\";
+		BACKTEST_RESULT_DIR=rootPath+"\\testResult\\";
 
     }
 
-    public static AppContext createContext(String rootPath) {
+    public static AppContext createContext(String dataRootPath) {
        if(singleton == null) {
     	   Object obj=new Object();
     	   synchronized (obj) {
     		   if(singleton == null){
-    			   singleton = new AppContext(rootPath);
+    			   singleton = new AppContext(EnvConstants.ROOT_DIR+dataRootPath);
     		   }
     	   }
 		}

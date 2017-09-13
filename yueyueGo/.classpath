@@ -2,12 +2,12 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
-	<classpathentry exported="true" kind="lib" path="C:/trend/mysql-connector-java-5.1.29.jar"/>
-	<classpathentry exported="true" kind="lib" path="C:/trend/commons-math3-3.6.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="C:/trend/mtj-1.0-snapshot.jar"/>
-	<classpathentry exported="true" kind="lib" path="C:/trend/opencsv-2.3.jar"/>
-	<classpathentry kind="lib" path="C:/trend/xxl-job-core-1.5.0-SNAPSHOT.jar"/>
-	<classpathentry kind="lib" path="C:/trend/spring-context-3.2.3.RELEASE.jar"/>
-	<classpathentry kind="lib" path="C:/trend/weka38/weka.jar" sourcepath="C:/trend/weka38/weka-src.jar"/>
+	<classpathentry kind="lib" path="C:/trend/referenceJars/commons-math3-3.6.1.jar"/>
+	<classpathentry kind="lib" path="C:/trend/referenceJars/mtj-1.0-snapshot.jar"/>
+	<classpathentry kind="lib" path="C:/trend/referenceJars/mysql-connector-java-5.1.29.jar"/>
+	<classpathentry kind="lib" path="C:/trend/referenceJars/opencsv-2.3.jar"/>
+	<classpathentry kind="lib" path="C:/trend/referenceJars/spring-context-3.2.3.RELEASE.jar"/>
+	<classpathentry kind="lib" path="C:/trend/referenceJars/xxl-job-core-1.5.0-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="C:/trend/referenceJars/weka38/weka.jar" sourcepath="C:/trend/referenceJars/weka38/weka-src.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
