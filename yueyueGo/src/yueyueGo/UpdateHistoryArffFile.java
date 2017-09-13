@@ -117,7 +117,7 @@ public class UpdateHistoryArffFile {
 			
 			//传统
 			String sourceFilePrefix=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group9\\v_onceyield_group9all_";
-			String fileSurfix=".csv"; //".txt";
+			String fileSurfix=".txt";//".csv"; 
 			GeneralInstances fullData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2005-2009"+fileSurfix,currentArffFormat);
 			GeneralInstances addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2010-2012"+fileSurfix,currentArffFormat);
 			BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullData);
