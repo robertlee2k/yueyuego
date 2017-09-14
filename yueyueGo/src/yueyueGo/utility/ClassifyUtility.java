@@ -128,9 +128,9 @@ public class ClassifyUtility {
 	
 	
 	//bagging 内的每个模型自己有单独的PCA
-	public static Classifier buildBaggingWithMultiPCA(GeneralInstances train,Classifier model,int bagging_iteration, int bagging_samplePercent) throws Exception {
+	public static Classifier buildBaggingWithMultiPCA(GeneralInstances train,Classifier model,int bagging_iteration, int bagging_samplePercent,boolean normalization,int centerOrStandardize) throws Exception {
 		
-		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();
+		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA(normalization,centerOrStandardize);
 		classifier.setDebug(true);
 		classifier.setClassifier(model);
 	
@@ -147,14 +147,14 @@ public class ClassifyUtility {
 
 
 	//bagging 之前使用PCA，bagging大家用同一的
-	public static  Classifier buildBaggingWithSinglePCA(GeneralInstances train,Classifier model,int bagging_iteration, int bagging_samplePercent) throws Exception {
+	public static  Classifier buildBaggingWithSinglePCA(GeneralInstances train,Classifier model,int bagging_iteration, int bagging_samplePercent,boolean normalization,int centerOrStandardize) throws Exception {
 	
 	    // set up the bagger and build the classifier
 		Bagging bagger=createBaggingRunner(train.numInstances(), train.numAttributes(),bagging_iteration,bagging_samplePercent);
 		bagger.setClassifier(model);
 	    bagger.setCalcOutOfBag(true); //计算袋外误差
 	    
-		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();	    
+		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA(normalization,centerOrStandardize);	    
 	    classifier.setDebug(true);
 	    classifier.setClassifier(bagger);
 	    classifier.buildClassifier(WekaInstances.convertToWekaInstances(train));

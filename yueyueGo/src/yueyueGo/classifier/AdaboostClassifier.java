@@ -248,6 +248,7 @@ public class AdaboostClassifier extends NominalClassifier {
 	public int divided; //将trainingData分成多少份
 	public int boost_iteration; 	//boost特有参数
 	public boolean m_usePCA;
+	public int m_preprocesingBeforePCA;
 	
 	@Override
 	protected void initializeParams() {
@@ -262,7 +263,9 @@ public class AdaboostClassifier extends NominalClassifier {
 		
  
 		m_usePCA=true; //20121223尝试不使用PCA，效果一般且建模非常慢，所以放弃
-
+		m_normalize=true; //在进入分类器之前需要对数据做Normalize
+		m_preprocesingBeforePCA=MyAttributionSelectorWithPCA.CENTER_DATA;
+		
 		m_evalDataSplitMode=EvaluationStore.USE_NINE_MONTHS_DATA_FOR_EVAL; //尝试评估区间使用9个月数据（效果还不错）
 //		m_positiveLine=0.03; //尝试3%的阀值
 	}
@@ -279,7 +282,7 @@ public class AdaboostClassifier extends NominalClassifier {
 		adaboost.setNumIterations(boost_iteration);
 		adaboost.setDebug(true);
 		if (m_usePCA==true){
-			MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();
+			MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA(m_normalize,m_preprocesingBeforePCA);
 			classifier.setClassifier(adaboost);
 			classifier.setDebug(true);
 			classifier.buildClassifier(WekaInstances.convertToWekaInstances(train));

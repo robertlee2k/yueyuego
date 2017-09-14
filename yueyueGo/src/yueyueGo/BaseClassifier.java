@@ -54,7 +54,9 @@ public abstract class BaseClassifier implements Serializable{
     public int m_modelFileShareMode; //model文件的共享模式1,3,6,12 （表示共享的月份）
     public int m_evalDataSplitMode;//切分构建模型和评估数据的模式 0、6、9、12 （表示评估数据的月份）
     public int modelArffFormat; //arff的格式
-	
+    public boolean m_normalize=false; //是否需要做normalize，缺省设为在进入分类器之前需要对数据做Normalize
+    
+    
 	protected double m_positiveLine; // 用来定义收益率大于多少时算positive，缺省为0   
 	private boolean m_skipTrainInBacktest = true; //回测中使用，是否跳过训练模型阶段
 	private boolean m_skipEvalInBacktest = true;  //回测中使用，是否跳过评估模型阶段

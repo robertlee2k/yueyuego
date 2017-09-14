@@ -6,16 +6,32 @@ import weka.core.Instances;
 
 public class MyAttributionSelectorWithPCA extends AttributeSelectedClassifier {
 
+	public final static boolean NEED_NORMALIZATION=true;
+	
+	public final static int STANDARDIZE_DATA=0;
+	public final static int CENTER_DATA=1;
+	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -2060568251010962192L;
 
-	public MyAttributionSelectorWithPCA() {
+	public MyAttributionSelectorWithPCA(boolean normalization,int centerOrStandardize) {
 		super();
 		MyPrincipalComponents pca = new MyPrincipalComponents();
 		//added libo to center & normailize data rather than standardize data in PCA @20170912
-		pca.setCenterData(true);
+		switch (centerOrStandardize) {
+		case STANDARDIZE_DATA:
+			pca.setCenterData(false);	
+			break;
+		case CENTER_DATA:
+			pca.setCenterData(true);	
+			break;
+		default:
+			//default in PCA is standardize
+			break;
+		}
+		pca.setNormalize(normalization);
 		
 		Ranker rank = new Ranker();
 		setEvaluator(pca);

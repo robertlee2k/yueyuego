@@ -3,6 +3,7 @@ package yueyueGo.classifier;
 import weka.classifiers.Classifier;
 import weka.classifiers.trees.M5P;
 import yueyueGo.ContinousClassifier;
+import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.ParrallelizedRunning;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.utility.ClassifyUtility;
@@ -279,7 +280,7 @@ public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunn
 	public int bagging_iteration;
 	public int leafMinObjNum;
 	public int divided;
-	
+	public int m_preprocesingBeforePCA;
 
 	@Override
 	protected void initializeParams() {
@@ -290,6 +291,8 @@ public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunn
 		
 		m_usePCA=true; //20121223尝试不使用PCA，效果不佳，恢复PCA
 		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
+		m_normalize=true; //在进入分类器之前需要对数据做Normalize
+		m_preprocesingBeforePCA=MyAttributionSelectorWithPCA.CENTER_DATA;
 
 		bagging_iteration=10;	//bagging特有参数
 		leafMinObjNum=300; //叶子节点最小的
@@ -310,10 +313,10 @@ public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunn
 		if (m_usePCA==true){ //使用PCA
 			if (useMultiPCA==true){
 				int bagging_samplePercent=70;//bagging sample 取样率
-				return ClassifyUtility.buildBaggingWithMultiPCA(train,model,bagging_iteration,bagging_samplePercent);
+				return ClassifyUtility.buildBaggingWithMultiPCA(train,model,bagging_iteration,bagging_samplePercent,m_normalize,m_preprocesingBeforePCA);
 			}else{
 				int bagging_samplePercent=100;// PrePCA算袋外误差时要求percent都为100
-				return ClassifyUtility.buildBaggingWithSinglePCA(train,model,bagging_iteration,bagging_samplePercent);
+				return ClassifyUtility.buildBaggingWithSinglePCA(train,model,bagging_iteration,bagging_samplePercent,m_normalize,m_preprocesingBeforePCA);
 			}
 		}else{ //不用主成分分析
 			int bagging_samplePercent=70;//bagging sample 取样率
