@@ -263,7 +263,7 @@ public class AdaboostClassifier extends NominalClassifier {
 		
  
 		m_usePCA=true; //20121223尝试不使用PCA，效果一般且建模非常慢，所以放弃
-		m_normalize=false; //在进入分类器之前需要对数据做Normalize
+		m_normalize=true; //在进入分类器之前需要对数据做Normalize
 		m_preprocesingBeforePCA=MyAttributionSelectorWithPCA.CENTER_DATA;
 				//MyAttributionSelectorWithPCA.STANDARDIZE_DATA; 
 		

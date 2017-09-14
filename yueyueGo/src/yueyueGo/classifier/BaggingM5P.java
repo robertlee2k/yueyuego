@@ -291,7 +291,7 @@ public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunn
 		
 		m_usePCA=true; //20121223尝试不使用PCA，效果不佳，恢复PCA
 		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
-		m_normalize=false; //在进入分类器之前需要对数据做Normalize
+		m_normalize=true; //在进入分类器之前需要对数据做Normalize
 		m_preprocesingBeforePCA=MyAttributionSelectorWithPCA.CENTER_DATA;
 
 		bagging_iteration=10;	//bagging特有参数
