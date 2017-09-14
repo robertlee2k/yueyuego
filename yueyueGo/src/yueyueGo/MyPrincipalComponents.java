@@ -123,6 +123,7 @@ implements AttributeTransformer, OptionHandler {
 	private int m_numAttribs;
 
 	/** Number of instances */
+	@SuppressWarnings("unused")
 	private int m_numInstances;
 
 	//TODO transient added by libo to fix serialize bug @20170914
