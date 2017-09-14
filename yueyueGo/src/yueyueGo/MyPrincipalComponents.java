@@ -48,6 +48,7 @@ import weka.filters.unsupervised.attribute.Normalize;
 import weka.filters.unsupervised.attribute.Remove;
 import weka.filters.unsupervised.attribute.ReplaceMissingValues;
 import weka.filters.unsupervised.attribute.Standardize;
+import yueyueGo.utility.FormatUtility;
 
 /**
  * <!-- globalinfo-start --> Performs a principal components analysis and
@@ -562,7 +563,18 @@ implements AttributeTransformer, OptionHandler {
 		m_numAttribs = m_trainInstances.numAttributes();
 
 		fillCovariance();
-
+		//debug info added by libo
+		for (int i = 0; i < m_numAttribs; i++) {
+			for (int j = 0; j < i; j++) {
+				System.out.print("      ,");
+			}
+			for (int j = i; j < m_numAttribs; j++) {
+				System.out.print(FormatUtility.formatDouble(m_correlation.get(i, j),1,4));
+				System.out.print(",");
+			}
+			System.out.println("");
+		}
+		//end of debug
 		SymmDenseEVD evd = SymmDenseEVD.factorize(m_correlation);
 
 		m_eigenvectors = Matrices.getArray(evd.getEigenvectors());
