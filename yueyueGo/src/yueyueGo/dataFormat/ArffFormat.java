@@ -67,7 +67,7 @@ public abstract class ArffFormat {
 //	}		
 	//end of 常量定义
 	
-	public boolean convertNominalToNumeric=true; //缺省需要将Nominal转换为Numeric
+	public boolean convertNominalToNumeric=false; //缺省不需要将Nominal转换为Numeric
 
 	public String m_data_root_directory; //这类数据模型的根目录（相对目录）
 	public String m_data_file_prefix; //数据文件的前缀名

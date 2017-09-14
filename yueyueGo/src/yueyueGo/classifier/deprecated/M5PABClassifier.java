@@ -79,6 +79,7 @@ import yueyueGo.utility.modelEvaluation.ModelStore;
 //Monthly summary_judge_result summary: good number= 280 bad number=235
 //===============================end of summary=====================================for : m5pAB
 
+@Deprecated
 public class M5PABClassifier extends ContinousClassifier {
 	 
 	/**
@@ -110,15 +111,16 @@ public class M5PABClassifier extends ContinousClassifier {
 	protected Classifier buildModel(GeneralInstances train) throws Exception {
 
 		
-		//设置基础的m5p classifier参数
-		M5P model=ClassifyUtility.prepareM5P(train.numInstances(),leafMinObjNum,divided);
-	
-		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();
-		classifier.setClassifier(model);
-		classifier.buildClassifier(WekaInstances.convertToWekaInstances(train));
-		System.out.println("finish buiding"+this.getIdentifyName() +"model.");
-		
-		return classifier;
+//		//设置基础的m5p classifier参数
+//		M5P model=ClassifyUtility.prepareM5P(train.numInstances(),leafMinObjNum,divided);
+//	
+//		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();
+//		classifier.setClassifier(model);
+//		classifier.buildClassifier(WekaInstances.convertToWekaInstances(train));
+//		System.out.println("finish buiding"+this.getIdentifyName() +"model.");
+//		
+//		return classifier;
+		return null;
 	}
 	
 

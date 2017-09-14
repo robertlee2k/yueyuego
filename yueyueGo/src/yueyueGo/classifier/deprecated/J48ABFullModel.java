@@ -39,15 +39,16 @@ public class J48ABFullModel extends NominalClassifier {
 	@Override
 	protected Classifier buildModel(GeneralInstances train) throws Exception {
  
-		//设置基础的J48 classifier参数
-		J48 model=ClassifyUtility.prepareJ48(train.numInstances(),leafMinObjNum,divided);
-	
-	    
-		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();	    
-	    classifier.setDebug(true);
-	    classifier.setClassifier(model);
-	    classifier.buildClassifier(WekaInstances.convertToWekaInstances(train));
-	    return classifier;
+//		//设置基础的J48 classifier参数
+//		J48 model=ClassifyUtility.prepareJ48(train.numInstances(),leafMinObjNum,divided);
+//	
+//	    
+//		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();	    
+//	    classifier.setDebug(true);
+//	    classifier.setClassifier(model);
+//	    classifier.buildClassifier(WekaInstances.convertToWekaInstances(train));
+//	    return classifier;
+		return null;
 	}
 
 }

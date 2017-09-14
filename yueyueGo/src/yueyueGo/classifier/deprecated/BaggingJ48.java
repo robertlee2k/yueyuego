@@ -47,6 +47,7 @@ import yueyueGo.utility.modelEvaluation.ModelStore;
 //selected shouyilv average for hs300 =-0.60% count=4504
 //selected shouyilv average for zz500 =0.12% count=7940
 
+@Deprecated
 public class BaggingJ48 extends NominalClassifier implements ParrallelizedRunning{
 	
 	/**
@@ -85,15 +86,17 @@ public class BaggingJ48 extends NominalClassifier implements ParrallelizedRunnin
  
 		
 		//设置基础的m5p classifier参数
-		J48 model=ClassifyUtility.prepareJ48(train.numInstances(),leafMinObjNum,divided);
+//		J48 model=ClassifyUtility.prepareJ48(train.numInstances(),leafMinObjNum,divided);
 
-		if (useMultiPCA==true){
-			int bagging_samplePercent=70;//bagging sample 取样率
-			return ClassifyUtility.buildBaggingWithMultiPCA(train,model,bagging_iteration,bagging_samplePercent);
-		}else{
-			int bagging_samplePercent=100;// PrePCA算袋外误差时要求percent都为100
-			return ClassifyUtility.buildBaggingWithSinglePCA(train,model,bagging_iteration,bagging_samplePercent);
-		}
+		//TODO 需要修正
+//		if (useMultiPCA==true){
+//			int bagging_samplePercent=70;//bagging sample 取样率
+//			return ClassifyUtility.buildBaggingWithMultiPCA(train,model,bagging_iteration,bagging_samplePercent);
+//		}else{
+//			int bagging_samplePercent=100;// PrePCA算袋外误差时要求percent都为100
+//			return ClassifyUtility.buildBaggingWithSinglePCA(train,model,bagging_iteration,bagging_samplePercent);
+//		}
+		return null;
 	}
 
 	

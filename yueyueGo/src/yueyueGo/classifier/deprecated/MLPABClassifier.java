@@ -154,6 +154,7 @@ import yueyueGo.utility.modelEvaluation.ModelStore;
 //selected shouyilv average for hs300 =-0.31% count=5774
 //selected shouyilv average for zz500 =0.55% count=11039
 
+@Deprecated
 public class MLPABClassifier extends NominalClassifier {
 	
 	/**
@@ -178,22 +179,23 @@ public class MLPABClassifier extends NominalClassifier {
 	@Override
 	protected Classifier buildModel(GeneralInstances train) throws Exception {
 
-		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();
-
- 
-		int minNumObj=train.numInstances()/300;
-		String batchSize=Integer.toString(minNumObj);
-		MultilayerPerceptron model=new MultilayerPerceptron();
-		model.setBatchSize(batchSize);
-		model.setNumDecimalPlaces(6);
-		model.setHiddenLayers(m_hiddenLayer);
-		model.setDebug(true);
-		classifier.setClassifier(model);
-		classifier.setDebug(true);
-		classifier.buildClassifier(WekaInstances.convertToWekaInstances(train));
-		System.out.println("finish buiding mlp-AB model.");
-
-		return classifier;
+//		MyAttributionSelectorWithPCA classifier = new MyAttributionSelectorWithPCA();
+//
+// 
+//		int minNumObj=train.numInstances()/300;
+//		String batchSize=Integer.toString(minNumObj);
+//		MultilayerPerceptron model=new MultilayerPerceptron();
+//		model.setBatchSize(batchSize);
+//		model.setNumDecimalPlaces(6);
+//		model.setHiddenLayers(m_hiddenLayer);
+//		model.setDebug(true);
+//		classifier.setClassifier(model);
+//		classifier.setDebug(true);
+//		classifier.buildClassifier(WekaInstances.convertToWekaInstances(train));
+//		System.out.println("finish buiding mlp-AB model.");
+//
+//		return classifier;
+		return null;
 	}
 
 }

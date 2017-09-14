@@ -125,9 +125,11 @@ implements AttributeTransformer, OptionHandler {
 	/** Number of instances */
 	private int m_numInstances;
 
+	//TODO transient added by libo to fix serialize bug @20170914
 	/** Correlation/covariance matrix for the original data */
-	private UpperSymmDenseMatrix m_correlation;
-
+	private transient UpperSymmDenseMatrix m_correlation;
+	// end of libo's modification
+	
 	private double[] m_means;
 	private double[] m_stdDevs;
 

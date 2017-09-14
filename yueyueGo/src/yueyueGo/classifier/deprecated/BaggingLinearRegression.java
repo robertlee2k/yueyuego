@@ -90,13 +90,14 @@ public class BaggingLinearRegression extends ContinousClassifier implements Parr
 //		int bagging_samplePercent=70;//bagging sample 取样率
 //		return ClassifyUtility.buildBaggingWithoutPCA(train,model,bagging_iteration,bagging_samplePercent);
 		
-		if (useMultiPCA==true){
-			int bagging_samplePercent=70;//bagging sample 取样率
-			return ClassifyUtility.buildBaggingWithMultiPCA(train,model,bagging_iteration,bagging_samplePercent);
-		}else{
-			int bagging_samplePercent=100;// PrePCA算袋外误差时要求percent都为100
-			return ClassifyUtility.buildBaggingWithSinglePCA(train,model,bagging_iteration,bagging_samplePercent);
-		}
+//		if (useMultiPCA==true){
+//			int bagging_samplePercent=70;//bagging sample 取样率
+//			return ClassifyUtility.buildBaggingWithMultiPCA(train,model,bagging_iteration,bagging_samplePercent);
+//		}else{
+//			int bagging_samplePercent=100;// PrePCA算袋外误差时要求percent都为100
+//			return ClassifyUtility.buildBaggingWithSinglePCA(train,model,bagging_iteration,bagging_samplePercent);
+//		}
+		return null;
 	}
 	
 	@Override
