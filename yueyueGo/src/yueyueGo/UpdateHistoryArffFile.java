@@ -242,15 +242,13 @@ public class UpdateHistoryArffFile {
 	 * @throws Exception
 	 */
 	private static GeneralInstances loadFullArffFormat(ArffFormat currentArffFormat) throws Exception {
-		String formatFileName=AppContext.getC_ROOT_DIRECTORY()+"fullFormat-"+currentArffFormat.m_data_file_prefix+".arff";
+		String formatFileName=AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.getFullFormatFileName();
+//				+"fullFormat-"+currentArffFormat.m_data_file_prefix+".arff";
 		System.out.println("start to load format file="+formatFileName);
 		GeneralInstances fullFormat=DataIOHandler.getSuppier().loadDataFromFile(formatFileName);
 
 		return fullFormat;
 	}
-
-
-
 
 	/*
 	 * 定义更新Arff文件时删除数据的文件名（这个未在ArffFormat中定义）

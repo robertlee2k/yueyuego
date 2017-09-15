@@ -33,9 +33,9 @@ public abstract class BaseInstanceProcessor {
 	public abstract GeneralInstances calibrateAttributes(GeneralInstances input, GeneralInstances format,boolean convertNominalToNumeric)
 			throws Exception;
 
-	// 将给定记录集中名称为indexName的数据中等于1的数据筛选出来（这个主要用于筛选属于某种指数的数据）
-	public abstract GeneralInstances filterDataForIndex(GeneralInstances origin, String indexName)
-			throws Exception;
+//	// 将给定记录集中名称为indexName的数据中等于1的数据筛选出来（这个主要用于筛选属于某种指数的数据）
+//	public abstract GeneralInstances filterDataForIndex(GeneralInstances origin, String indexName)
+//			throws Exception;
 	
 	//在数据集中插入新的属性 （缺省应该在倒数第二位上插入） 并返回新的数据集
 	public abstract GeneralInstances AddAttributeWithValue(GeneralInstances data, String attributeName,

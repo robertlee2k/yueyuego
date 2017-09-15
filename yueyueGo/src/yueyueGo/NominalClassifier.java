@@ -45,8 +45,8 @@ public abstract class NominalClassifier extends BaseClassifier{
 		}
 		ArrayList<String> values=new ArrayList<String>();
 		//CLASS_POSITIVE_INDEX=1时这里必须按照这个顺序添加！ 
-		values.add(ArffFormat.VALUE_NO);
-		values.add(ArffFormat.VALUE_YES);
+		values.add(ArffFormat.STRING_VALUE_NO);
+		values.add(ArffFormat.STRING_VALUE_YES);
 		WekaAttribute newClassAtt=new WekaAttribute(ArffFormat.IS_POSITIVE,values);
 		//在classValue之前插入positive,然后记录下它的新位置index
 		inData.insertAttributeAt(newClassAtt,inData.numAttributes()-1);
@@ -62,9 +62,9 @@ public abstract class NominalClassifier extends BaseClassifier{
 		for (int i=0;i<inData.numInstances();i++){
 			shouyilv=inData.instance(i).classValue();
 			if (shouyilv>m_positiveLine){
-				inData.instance(i).setValue(newClassIndex, ArffFormat.VALUE_YES);
+				inData.instance(i).setValue(newClassIndex, ArffFormat.STRING_VALUE_YES);
 			}else {
-				inData.instance(i).setValue(newClassIndex, ArffFormat.VALUE_NO);
+				inData.instance(i).setValue(newClassIndex, ArffFormat.STRING_VALUE_NO);
 			}
 			
 			//暂存收益率

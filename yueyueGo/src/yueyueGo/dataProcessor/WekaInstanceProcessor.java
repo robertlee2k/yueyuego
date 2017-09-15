@@ -11,7 +11,6 @@ import weka.filters.unsupervised.attribute.NumericToNominal;
 import weka.filters.unsupervised.attribute.Remove;
 import weka.filters.unsupervised.attribute.StringToNominal;
 import weka.filters.unsupervised.instance.SubsetByExpression;
-import yueyueGo.dataFormat.ArffFormat;
 import yueyueGo.databeans.GeneralAttribute;
 import yueyueGo.databeans.GeneralInstance;
 import yueyueGo.databeans.GeneralInstances;
@@ -141,13 +140,13 @@ public class WekaInstanceProcessor extends BaseInstanceProcessor {
 
 
 	
-	// 将给定记录集中属于特定指数的数据筛选出来
-	@Override
-	public GeneralInstances filterDataForIndex(GeneralInstances origin, String indexName) throws Exception{
-		//找出所属指数的位置
-		int pos = findATTPosition(origin,indexName);
-		return getInstancesSubset(origin,WEKA_ATT_PREFIX+pos+" is '"+ ArffFormat.VALUE_YES+"'");
-	}
+//	// 将给定记录集中属于特定指数的数据筛选出来
+//	@Override
+//	public GeneralInstances filterDataForIndex(GeneralInstances origin, String indexName) throws Exception{
+//		//找出所属指数的位置
+//		int pos = findATTPosition(origin,indexName);
+//		return getInstancesSubset(origin,WEKA_ATT_PREFIX+pos+" is '"+ ArffFormat.VALUE_YES+"'");
+//	}
 	
 	/**
 	 * read all data from input , based on format  

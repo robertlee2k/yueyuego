@@ -2,12 +2,12 @@ package yueyueGo.classifier.deprecated;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.trees.J48;
-import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.NominalClassifier;
 import yueyueGo.dataFormat.FullModelDataFormat;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaInstances;
 import yueyueGo.utility.ClassifyUtility;
+import yueyueGo.utility.classiferWrapper.MyAttributionSelectorWithPCA;
 import yueyueGo.utility.modelEvaluation.ModelStore;
 @Deprecated
 public class J48ABFullModel extends NominalClassifier {

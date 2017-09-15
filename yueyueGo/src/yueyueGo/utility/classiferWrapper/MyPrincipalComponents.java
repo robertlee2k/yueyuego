@@ -19,7 +19,7 @@
  *
  */
 
-package yueyueGo;
+package yueyueGo.utility.classiferWrapper;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -48,7 +48,6 @@ import weka.filters.unsupervised.attribute.Normalize;
 import weka.filters.unsupervised.attribute.Remove;
 import weka.filters.unsupervised.attribute.ReplaceMissingValues;
 import weka.filters.unsupervised.attribute.Standardize;
-import yueyueGo.utility.FormatUtility;
 
 /**
  * <!-- globalinfo-start --> Performs a principal components analysis and

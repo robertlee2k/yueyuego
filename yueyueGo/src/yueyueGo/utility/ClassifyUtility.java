@@ -10,9 +10,9 @@ import weka.classifiers.meta.Bagging;
 import weka.classifiers.trees.J48;
 import weka.classifiers.trees.M5P;
 import yueyueGo.EnvConstants;
-import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaInstances;
+import yueyueGo.utility.classiferWrapper.MyAttributionSelectorWithPCA;
 
 // 设置一些基础分类器属性的方法组
 public class ClassifyUtility {

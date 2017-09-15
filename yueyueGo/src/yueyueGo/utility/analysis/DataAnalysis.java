@@ -105,7 +105,8 @@ public class DataAnalysis {
 
 		for (int j = BackTest.BEGIN_FROM_POLICY; j < policyStrings.length; j++) {
 			String policy = policyStrings[j];
-			GeneralInstances policyData=instanceProcessor.getInstancesSubset(data, WekaInstanceProcessor.WEKA_ATT_PREFIX +policyPos+" is '"	+ policy + "'");
+			GeneralInstances policyData=instanceProcessor.getInstancesSubset(data, WekaInstanceProcessor.WEKA_ATT_PREFIX +policyPos+" = "+ policy );
+					//" is '"	+ policy + "'");
 			
 			oneDescription = analyzeShouyilv(timeRange, shouyilvAttribute, shouyilvPos, instanceProcessor, policy,
 					policyData);

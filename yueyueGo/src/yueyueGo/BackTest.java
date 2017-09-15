@@ -100,7 +100,7 @@ public class BackTest {
 
 			//调用回测函数回测
 			worker.callRebuildModels();
-//			worker.callReEvaluateModels();
+			worker.callReEvaluateModels();
 //			worker.callTestBack();
 //			worker.callRefreshModelUseLatestData();
 			
@@ -537,7 +537,8 @@ public class BackTest {
 		if ("".equals(policy) || policy==null){
 			splitPolicy="";
 		}else{
-			splitPolicy=" and (ATT"+policyIndex+" is '"	+ policy + "')";
+			splitPolicy=" and (ATT"+policyIndex+" = "	+ policy + ")";
+					//" is '"	+ policy + "')";
 		}
 		splitClause = splitYearClause + splitPolicy ;
 		return splitClause;

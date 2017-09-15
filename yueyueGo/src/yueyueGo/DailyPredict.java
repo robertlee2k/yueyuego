@@ -427,7 +427,7 @@ public class DailyPredict {
 			System.out.println("start to load data for policy : "	+ clModel.m_policySubGroup[j]);
 			String expression=null;
 			if (maIndex>0){// 均线策略
-				expression=WekaInstanceProcessor.WEKA_ATT_PREFIX+ maIndex+" is '"+ clModel.m_policySubGroup[j] + "'";
+				expression=WekaInstanceProcessor.WEKA_ATT_PREFIX+ maIndex+" = "+ clModel.m_policySubGroup[j] ;
 				BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullData);
 				newData = instanceProcessor.getInstancesSubset(fullData, expression);
 			}else{ //短线策略（fullmodel)				

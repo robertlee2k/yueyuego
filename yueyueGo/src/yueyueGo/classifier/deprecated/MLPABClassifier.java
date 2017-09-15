@@ -1,11 +1,11 @@
 package yueyueGo.classifier.deprecated;
 import weka.classifiers.Classifier;
 import weka.classifiers.functions.MultilayerPerceptron;
-import yueyueGo.MyAttributionSelectorWithPCA;
 import yueyueGo.NominalClassifier;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaInstances;
 import yueyueGo.utility.ClassifyUtility;
+import yueyueGo.utility.classiferWrapper.MyAttributionSelectorWithPCA;
 import yueyueGo.utility.modelEvaluation.ModelStore;
 
 
