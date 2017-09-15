@@ -285,7 +285,7 @@ public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunn
 	@Override
 	protected void initializeParams() {
 
-		m_policySubGroup = new String[]{"5","10","20","30","60" };
+		m_policySubGroup = new String[]{""}; //{"5","10","20","30","60" };
 
 		classifierName=ClassifyUtility.BAGGING_M5P;	
 		
