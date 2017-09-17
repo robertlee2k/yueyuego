@@ -121,14 +121,11 @@ public class UpdateHistoryArffFile {
 //			String fileSurfix=".csv";
 			GeneralInstances fullData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2005-2009"+fileSurfix,currentArffFormat);
 
-			GeneralInstances addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2010-2012"+fileSurfix,currentArffFormat);
+			GeneralInstances addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2010-2013"+fileSurfix,currentArffFormat);
 			BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullData);
 			fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
 			System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
-			addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2013-2015"+fileSurfix,currentArffFormat);
-			fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
-			System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
-			addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2016-2017"+fileSurfix,currentArffFormat);
+			addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2014-2017"+fileSurfix,currentArffFormat);
 			fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
 			System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
 	

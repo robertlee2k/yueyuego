@@ -4,6 +4,7 @@ public class AvgLineDataFormat extends ArffFormat {
 	
 	public static final String SELECTED_AVGLINE="selected_avgline";
 
+	
 	@Override
 	protected void initializeFormat() {
 		m_data_file_prefix="trans20052017";

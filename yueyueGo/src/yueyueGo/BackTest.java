@@ -69,7 +69,7 @@ public class BackTest {
 	protected ArffFormat ARFF_FORMAT; //当前所用数据文件格式 
 	public final static int BEGIN_FROM_POLICY=0; // 当回测需要跳过某些均线时，0表示不跳过
 	protected String m_startYear= "2008";
-	protected String m_endYearMonth="201708"; //结尾月一般是当前月，这个月是没有数据的，最新数据是上月的
+	protected String m_endYearMonth="201709"; //结尾月一般是当前月，这个月是没有数据的，最新数据是上月的
 	
 	protected String[] m_handSetSplitYear=new String[] {};
 
@@ -100,7 +100,7 @@ public class BackTest {
 
 			//调用回测函数回测
 			worker.callRebuildModels();
-//			worker.callReEvaluateModels();
+			worker.callReEvaluateModels();
 //			worker.callTestBack();
 //			worker.callRefreshModelUseLatestData();
 			
@@ -169,7 +169,7 @@ public class BackTest {
 	 * @throws Exception
 	 */	
 	protected void callRebuildModels() throws Exception {
-		RUNNING_THREADS=5 ; 
+		RUNNING_THREADS=1 ; 
 		
 //		m_handSetSplitYear=
 //		new String[] {

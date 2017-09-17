@@ -13,6 +13,7 @@ public abstract class ArffFormat {
 	public static final int LEGACY_FORMAT=9;
 	public static final int CURRENT_FORMAT=10;
 	
+	
 	public static final double DOUBLE_VALUE_YES = 1;
 	public static final double DOUBLE_VALUE_NO = 0;
 	public static final String STRING_VALUE_YES = "1";
