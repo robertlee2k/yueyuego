@@ -71,7 +71,7 @@ public class BaggingM5PFullModel extends BaggingM5P {
 		divided=EnvConstants.TRAINING_DATA_LIMIT/3000;	
 		bagging_iteration=10;	//bagging特有参数
 		
-		classifierName= ClassifyUtility.BAGGING_M5P_FULLMODEL;
+		classifierName= ClassifyUtility.BAGGING_M5P;
 		m_modelFileShareMode=ModelStore.QUARTER_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式为半年
 		m_evalDataSplitMode=EvaluationStore.USE_HALF_YEAR_DATA_FOR_EVAL;//覆盖父类，设定模型和评估间隔为6个月
 		

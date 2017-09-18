@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 import yueyueGo.dataFormat.ArffFormat;
 import yueyueGo.dataFormat.AvgLineDataFormat;
-import yueyueGo.dataFormat.FullModelDataFormat;
 import yueyueGo.dataFormat.MomentumDataFormat;
 import yueyueGo.utility.ClassifyUtility;
 
@@ -40,8 +39,8 @@ public class EvaluationConfDefinition implements Serializable{
 
 	public EvaluationConfDefinition(String classifierName,String[] a_policyGroup,ArffFormat format) {
 		m_policyGroup=a_policyGroup;
-		// 缺省的配置
-		if (format==null || format instanceof AvgLineDataFormat || format instanceof FullModelDataFormat){
+
+		if (format instanceof AvgLineDataFormat ){
 			switch (classifierName) {
 			case ClassifyUtility.BAGGING_M5P:
 				//缩小选股比率
@@ -78,24 +77,9 @@ public class EvaluationConfDefinition implements Serializable{
 				SAMPLE_LOWER_LIMIT =new double[] { 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限
 				SAMPLE_UPPER_LIMIT =new double[] { 0.2, 0.2, 0.2, 0.2, 0.2 }; // 各条均线选择样本的上限
 				break;
-			case ClassifyUtility.MYNN_MLP_FULLMODEL:
-				SAMPLE_LOWER_LIMIT =new double[] { 0.02}; // 各条均线选择样本的下限
-				SAMPLE_UPPER_LIMIT =new double[] { 0.04}; // 各条均线选择样本的上限
-				break;
-			case ClassifyUtility.BAGGING_M5P_FULLMODEL:
-				SAMPLE_LOWER_LIMIT = new double[] {0.02}; // 各条均线选择样本的下限 
-				SAMPLE_UPPER_LIMIT = new double[]  {0.04};
-				break;
-			case ClassifyUtility.BAGGING_REGRESSION_FULLMODEL:
-				SAMPLE_LOWER_LIMIT =new double[] { 0.03}; // 各条均线选择样本的下限
-				SAMPLE_UPPER_LIMIT =new double[] { 0.05}; // 各条均线选择样本的上限
-				break;
-			case ClassifyUtility.ADABOOST_FULLMODEL:
-				SAMPLE_LOWER_LIMIT =new double[] { 0.02}; // 各条均线选择样本的下限
-				SAMPLE_UPPER_LIMIT =new double[] { 0.04}; // 各条均线选择样本的上限
-				break;
+
 			}
-		} else if (format instanceof MomentumDataFormat){ //  动量策略
+		}else if (format instanceof MomentumDataFormat){ //  动量策略
 			switch (classifierName) {
 			case ClassifyUtility.BAGGING_M5P:
 				SAMPLE_LOWER_LIMIT =new double[] { 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限
@@ -106,6 +90,16 @@ public class EvaluationConfDefinition implements Serializable{
 				SAMPLE_UPPER_LIMIT =new double[] { 0.06, 0.06, 0.07, 0.08, 0.09 }; // 各条均线选择样本的上限
 				break;
 			}
+		}else { //format instanceof FullModelDataFormat
+			//未定义的格式
+//		case ClassifyUtility.MYNN_MLP:
+//			SAMPLE_LOWER_LIMIT =new double[] { 0.02}; // 各条均线选择样本的下限
+//			SAMPLE_UPPER_LIMIT =new double[] { 0.04}; // 各条均线选择样本的上限
+//			break;
+//		case ClassifyUtility.BAGGING_M5P:
+//			SAMPLE_LOWER_LIMIT = new double[] {0.02}; // 各条均线选择样本的下限 
+//			SAMPLE_UPPER_LIMIT = new double[]  {0.04};
+//			break;
 		}
 	}
 
