@@ -32,7 +32,7 @@ public class UpdateHistoryArffFile {
 			AppContext.createContext(currentArffFormat.m_data_root_directory);	
 			
 			//重新创建ARFF文件
-			callCreateTransInstances(currentArffFormat);
+//			callCreateTransInstances(currentArffFormat);
 			
 //			//用最新的单次交易数据，更新原始的交易数据文件
 //			UpdateHistoryArffFile.callRefreshInstances(currentArffFormat);
@@ -43,7 +43,7 @@ public class UpdateHistoryArffFile {
 //			worker.callRefreshModelUseLatestData();
 			
 			//校验数据文件
-			WekaInstanceProcessor.analyzeDataAttributes(AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.getFullArffFileName());
+//			WekaInstanceProcessor.analyzeDataAttributes(AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.getFullArffFileName());
 			convertDataForTensorFlow(currentArffFormat);
 		} catch (Exception e) {
 			
@@ -115,7 +115,7 @@ public class UpdateHistoryArffFile {
 		int endYear=2017;
 		String attPos = WekaInstanceProcessor.WEKA_ATT_PREFIX + ArffFormat.YEAR_MONTH_INDEX;
 
-		for (int i=startYear;i<endYear;i=i+yearInterval){
+		for (int i=startYear;i<=endYear;i=i+yearInterval){
 			int fromPeriod=i*100+01;
 			int toPeriod=(i+yearInterval-1)*100+12;
 			if (toPeriod>201709) toPeriod=201709;
