@@ -39,7 +39,7 @@ public class MyNNClassifier extends NominalClassifier implements ParrallelizedRu
 //	protected double m_dropOutRate; // NN的dropoutrate参数
 	
 	@Override
-	protected void initializeParams()  {
+	protected void overrideParams()  {
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 		
 		classifierName=ClassifyUtility.MYNN_MLP;

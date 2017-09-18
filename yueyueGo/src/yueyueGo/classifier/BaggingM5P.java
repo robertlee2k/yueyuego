@@ -4,6 +4,9 @@ import weka.classifiers.Classifier;
 import weka.classifiers.trees.M5P;
 import yueyueGo.ContinousClassifier;
 import yueyueGo.ParrallelizedRunning;
+import yueyueGo.dataFormat.ArffFormat;
+import yueyueGo.dataFormat.AvgLineDataFormat;
+import yueyueGo.dataFormat.MomentumDataFormat;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.utility.ClassifyUtility;
 import yueyueGo.utility.classiferWrapper.MyAttributionSelectorWithPCA;
@@ -282,27 +285,45 @@ public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunn
 	public int divided;
 	public int m_preprocesingBeforePCA;
 
-	@Override
-	protected void initializeParams() {
-
-		m_policySubGroup = new String[]{""}; //{"5","10","20","30","60" };
-
-		classifierName=ClassifyUtility.BAGGING_M5P;	
-		
-		m_usePCA=true; //20121223尝试不使用PCA，效果不佳，恢复PCA
-		useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
-		m_normalize=true; //在进入分类器之前需要对数据做Normalize
-		m_preprocesingBeforePCA=MyAttributionSelectorWithPCA.CENTER_DATA;
-
-		bagging_iteration=10;	//bagging特有参数
-		leafMinObjNum=300; //叶子节点最小的
-		divided=300; //将trainingData分成多少份
-
-		m_modelFileShareMode=ModelStore.QUARTER_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
-		m_evalDataSplitMode=EvaluationStore.USE_NINE_MONTHS_DATA_FOR_EVAL;//USE_YEAR_DATA_FOR_EVAL; //评估区间使用一年数据 （截止20170103，这个是效果最好的）
+	public static BaggingM5P initModel(ArffFormat format,int purpose) throws Exception{
+		BaggingM5P model=null;
+		model=new BaggingM5P();
+	
+		model.initModelPurpose(purpose);
+		 if (format instanceof AvgLineDataFormat){
+			 	model.m_policySubGroup = new String[]{""}; //{"5","10","20","30","60" };		
+			 	model.m_usePCA=true; //20121223尝试不使用PCA，效果不佳，恢复PCA
+			 	model.useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
+			 	model.m_normalize=true; //在进入分类器之前需要对数据做Normalize
+			 	model.m_preprocesingBeforePCA=MyAttributionSelectorWithPCA.CENTER_DATA;
+	
+			 	model.bagging_iteration=10;	//bagging特有参数
+			 	model.leafMinObjNum=300; //叶子节点最小的
+			 	model.divided=500; //将trainingData分成多少份
+	
+			 	model.m_modelFileShareMode=ModelStore.QUARTER_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
+			 	model.m_evalDataSplitMode=EvaluationStore.USE_NINE_MONTHS_DATA_FOR_EVAL;//USE_YEAR_DATA_FOR_EVAL; //评估区间使用一年数据 （截止20170103，这个是效果最好的）
+		 }else if (format instanceof MomentumDataFormat){
+			//设置动量策略参数
+			model.m_policySubGroup = new String[]{"" };
+			model.m_usePCA=true; 
+			model.useMultiPCA=true;
+			model.bagging_iteration=10;	//bagging特有参数
+			model.leafMinObjNum=300; //叶子节点最小的
+			model.divided=300; //将trainingData分成多少份
+			model.m_modelFileShareMode=ModelStore.QUARTER_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
+			model.m_evalDataSplitMode=EvaluationStore.USE_NINE_MONTHS_DATA_FOR_EVAL;//USE_YEAR_DATA_FOR_EVAL; //评估区间使用一年数据 （截止20170103，这个是效果最好的）
+		}else{
+			throw new Exception ("undefined dataFormat!");
+		}
+		return model;
 	}
 
-	
+
+	@Override
+	protected void overrideParams() {
+		classifierName=ClassifyUtility.BAGGING_M5P;	
+	}
 
 
 	@Override

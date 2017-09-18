@@ -125,7 +125,7 @@ public class M5PClassifier extends ContinousClassifier {
 	protected int leafMinObjNum; //叶子节点最小的
 	protected int divided; //将trainingData分成多少份
 	@Override
-	protected void initializeParams() {
+	protected void overrideParams() {
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 		
 		classifierName="m5p";

@@ -74,7 +74,7 @@ public class MLPClassifier extends NominalClassifier {
 	private static final long serialVersionUID = -2373273778828888365L;
 
 	@Override
-	protected void initializeParams() {
+	protected void overrideParams() {
 
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 

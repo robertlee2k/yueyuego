@@ -4,6 +4,9 @@ import weka.classifiers.Classifier;
 import weka.classifiers.meta.AdaBoostM1;
 import weka.classifiers.trees.J48;
 import yueyueGo.NominalClassifier;
+import yueyueGo.dataFormat.ArffFormat;
+import yueyueGo.dataFormat.AvgLineDataFormat;
+import yueyueGo.dataFormat.MomentumDataFormat;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaInstances;
 import yueyueGo.utility.ClassifyUtility;
@@ -244,31 +247,52 @@ public class AdaboostClassifier extends NominalClassifier {
 	 * 
 	 */
 	private static final long serialVersionUID = 2704022707088213011L;
-	public int leafMinObjNum; 	//j48树最小节点叶子数
-	public int divided; //将trainingData分成多少份
-	public int boost_iteration; 	//boost特有参数
+	public int leafMinObjNum=-1; 	//j48树最小节点叶子数 
+	public int divided=0; //将trainingData分成多少份，这些通过初始化参数的方法实现
+	public int boost_iteration=-1; 	//boost特有参数
 	public boolean m_usePCA;
-	public int m_preprocesingBeforePCA;
+	public int m_preprocesingBeforePCA=-1;
 	
+	/*
+	 *  初始化参数类
+	 */
+	public static AdaboostClassifier initModel(ArffFormat format,int purpose) throws Exception{
+			AdaboostClassifier model=null;
+			model=new AdaboostClassifier();
+			model.initModelPurpose(purpose);
+			 if (format instanceof AvgLineDataFormat){
+					model.m_policySubGroup = new String[]{""};//{"5","10","20","30","60" };
+					model.boost_iteration=8; //迭代次数
+					model.divided=500; //将trainingData分成多少份
+					model.leafMinObjNum=300; 	//j48树最小节点叶子数
+					model.m_modelFileShareMode=ModelStore.QUARTER_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
+					model.m_evalDataSplitMode=EvaluationStore.USE_NINE_MONTHS_DATA_FOR_EVAL; //尝试评估区间使用9个月数据（效果还不错）
+					model.m_usePCA=true; //20121223尝试不使用PCA，效果一般且建模非常慢，所以放弃
+					model.m_normalize=true; //在进入分类器之前需要对数据做Normalize
+					model.m_preprocesingBeforePCA=MyAttributionSelectorWithPCA.CENTER_DATA;
+							//MyAttributionSelectorWithPCA.STANDARDIZE_DATA; 
+	//				model.m_positiveLine=0.03; //尝试3%的阀值
+			 }else if (format instanceof MomentumDataFormat){
+				//设置动量策略参数
+				model.m_policySubGroup = new String[]{"" };
+	
+				model.m_modelFileShareMode=ModelStore.QUARTER_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
+				model.m_evalDataSplitMode=EvaluationStore.USE_NINE_MONTHS_DATA_FOR_EVAL; //尝试评估区间使用9个月数据（效果还不错）
+				model.leafMinObjNum=300; 	//j48树最小节点叶子数
+				model.divided=300; //将trainingData分成多少份
+				model.boost_iteration=10; 	//boost特有参数，迭代次数
+				model.m_usePCA=true; //20121223尝试不使用PCA，效果一般且建模非常慢，所以放弃
+			}else{
+				throw new Exception ("undefined dataFormat!");
+			}
+			return model;
+		}
+
 	@Override
-	protected void initializeParams() {
-		m_policySubGroup = new String[]{""};//{"5","10","20","30","60" };
+	protected void overrideParams() {
 
 		classifierName=ClassifyUtility.ADABOOST;
-		m_modelFileShareMode=ModelStore.QUARTER_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
-		
-		leafMinObjNum=300; 	//j48树最小节点叶子数
-		divided=300; //将trainingData分成多少份
-		boost_iteration=10; 	//boost特有参数
-		
- 
-		m_usePCA=true; //20121223尝试不使用PCA，效果一般且建模非常慢，所以放弃
-		m_normalize=true; //在进入分类器之前需要对数据做Normalize
-		m_preprocesingBeforePCA=MyAttributionSelectorWithPCA.CENTER_DATA;
-				//MyAttributionSelectorWithPCA.STANDARDIZE_DATA; 
-		
-		m_evalDataSplitMode=EvaluationStore.USE_NINE_MONTHS_DATA_FOR_EVAL; //尝试评估区间使用9个月数据（效果还不错）
-//		m_positiveLine=0.03; //尝试3%的阀值
+
 	}
 		
 	@Override

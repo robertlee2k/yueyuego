@@ -69,7 +69,7 @@ public class MyNNFullModel extends MyNNClassifier {
 	protected int m_thread; //NN的固有参数
 	
 	@Override
-	protected void initializeParams() {
+	protected void overrideParams() {
 
 
 		m_policySubGroup = new String[]{"" };

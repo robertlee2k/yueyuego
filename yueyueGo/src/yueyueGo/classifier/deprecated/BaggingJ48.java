@@ -1,11 +1,9 @@
 package yueyueGo.classifier.deprecated;
 
 import weka.classifiers.Classifier;
-import weka.classifiers.trees.J48;
 import yueyueGo.NominalClassifier;
 import yueyueGo.ParrallelizedRunning;
 import yueyueGo.databeans.GeneralInstances;
-import yueyueGo.utility.ClassifyUtility;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.modelEvaluation.ModelStore;
 
@@ -60,7 +58,7 @@ public class BaggingJ48 extends NominalClassifier implements ParrallelizedRunnin
 	protected int divided;
 	
 	@Override
-	protected void initializeParams() {
+	protected void overrideParams() {
 
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 				

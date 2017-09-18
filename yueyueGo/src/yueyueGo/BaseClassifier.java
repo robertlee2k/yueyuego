@@ -76,15 +76,12 @@ public abstract class BaseClassifier implements Serializable{
 	
 	public BaseClassifier() {
 		m_positiveLine=0; //缺省的以收益率正负为二分类的正负。
-
 		modelArffFormat=ArffFormat.CURRENT_FORMAT; //缺省使用当前的arff Format
-		m_modelFileShareMode=ModelStore.MONTHLY_MODEL; //model文件和Eval的共享模式,缺省为 回测时按yearsplit和policysplit分割使用model和eval文件
-		m_evalDataSplitMode=EvaluationStore.USE_YEAR_DATA_FOR_EVAL;//缺省使用倒推一年的数据作为模型评估数据，之前用于的构建模型
-		initializeParams();		// 留给子类的初始化参数函数
+		overrideParams();		// 留给子类的初始化参数函数
 	}
 	
 	//一系列需要子类实现的抽象方法
-	protected abstract void initializeParams();
+	protected abstract void overrideParams();
 	protected abstract Classifier buildModel(GeneralInstances trainData) throws Exception;
 	protected abstract double classify(Classifier model,GeneralInstance curr) throws Exception ;
 	

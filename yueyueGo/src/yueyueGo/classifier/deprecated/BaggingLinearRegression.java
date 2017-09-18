@@ -60,7 +60,7 @@ public class BaggingLinearRegression extends ContinousClassifier implements Parr
 	
 
 	@Override
-	protected void initializeParams() {
+	protected void overrideParams() {
 
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 		classifierName=ClassifyUtility.BAGGING_LINEAR_REGRESSION;	

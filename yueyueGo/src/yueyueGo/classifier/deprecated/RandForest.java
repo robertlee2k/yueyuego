@@ -1,5 +1,5 @@
 
-package yueyueGo.classifier;
+package yueyueGo.classifier.deprecated;
 
 import weka.classifiers.Classifier;
 import yueyueGo.NominalClassifier;
@@ -103,7 +103,7 @@ public class RandForest extends NominalClassifier implements ParrallelizedRunnin
 	protected double leafMinObjNum; //叶子节点最小的大小
 
 	@Override
-	protected void initializeParams() {
+	protected void overrideParams() {
 
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 

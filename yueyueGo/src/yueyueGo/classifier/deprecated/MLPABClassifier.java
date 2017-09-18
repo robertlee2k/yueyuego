@@ -1,11 +1,8 @@
 package yueyueGo.classifier.deprecated;
 import weka.classifiers.Classifier;
-import weka.classifiers.functions.MultilayerPerceptron;
 import yueyueGo.NominalClassifier;
 import yueyueGo.databeans.GeneralInstances;
-import yueyueGo.databeans.WekaInstances;
 import yueyueGo.utility.ClassifyUtility;
-import yueyueGo.utility.classiferWrapper.MyAttributionSelectorWithPCA;
 import yueyueGo.utility.modelEvaluation.ModelStore;
 
 
@@ -165,7 +162,7 @@ public class MLPABClassifier extends NominalClassifier {
 	protected String m_hiddenLayer; //MLP的固有参数
 	
 	@Override
-	protected void initializeParams() {
+	protected void overrideParams() {
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 		
 		classifierName=ClassifyUtility.MLPAB;

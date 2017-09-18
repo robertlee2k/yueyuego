@@ -3,12 +3,9 @@ package yueyueGo.classifier.deprecated;
 
 
 import weka.classifiers.Classifier;
-import weka.classifiers.trees.M5P;
 import yueyueGo.ContinousClassifier;
 import yueyueGo.databeans.GeneralInstances;
-import yueyueGo.databeans.WekaInstances;
 import yueyueGo.utility.ClassifyUtility;
-import yueyueGo.utility.classiferWrapper.MyAttributionSelectorWithPCA;
 import yueyueGo.utility.modelEvaluation.EvaluationStore;
 import yueyueGo.utility.modelEvaluation.ModelStore;
 
@@ -90,7 +87,7 @@ public class M5PABClassifier extends ContinousClassifier {
 	protected int divided; //将trainingData分成多少份
 	
 	@Override
-	protected void initializeParams() {
+	protected void overrideParams() {
 
 		m_policySubGroup = new String[]{"5","10","20","30","60" };
 		

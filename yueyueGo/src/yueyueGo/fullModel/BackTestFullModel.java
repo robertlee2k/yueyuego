@@ -34,21 +34,21 @@ public class BackTestFullModel extends BackTest {
 			"201703"
 		};
 		
-		STRAGEY_NAME="短线策略";
+		m_currentPolicy="短线策略";
 
 		//初始化相应的Model文件数据格式
 		ARFF_FORMAT_FULLMODEL=new FullModelDataFormat();
 		if (applyToMaModelInTestBack==true){
-			ARFF_FORMAT=new AvgLineDataFormat();
+			m_currentArffFormat=new AvgLineDataFormat();
 		}else{
-			ARFF_FORMAT=ARFF_FORMAT_FULLMODEL; //以免误用
+			m_currentArffFormat=ARFF_FORMAT_FULLMODEL; //以免误用
 		}
 		
 		AppContext.clearContext();
 		AppContext.createContext(ARFF_FORMAT_FULLMODEL.m_data_root_directory);	
-		BACKTEST_RESULT_DIR=AppContext.getBACKTEST_RESULT_DIR();
+		m_backtest_result_dir=AppContext.getBACKTEST_RESULT_DIR();
 		
-		RUNNING_THREADS=1;
+		m_running_threads=1;
 		
 //		shouyilv_thresholds=EvaluationConfDefinition.FULLMODEL_SHOUYILV_FILTER_FOR_WINRATE; //对于胜率优先算法的收益率筛选阀值
 //		winrate_thresholds=EvaluationConfDefinition.FULLMODEL_WINRATE_FILTER_FOR_SHOUYILV; //对于收益率优先算法的胜率筛选阀值
@@ -76,7 +76,7 @@ public class BackTestFullModel extends BackTest {
 	protected void callRefreshFullModelUseLatestData() throws Exception{
 		BaseClassifier model=null;
 		m_handSetSplitYear=new String[] {"201609"};
-		RUNNING_THREADS=5;
+		m_running_threads=5;
 		
 		//逐次刷新数据
 		
@@ -152,7 +152,7 @@ public class BackTestFullModel extends BackTest {
 		System.out.println("start to load File for fullset from File: "+ arffFullFileName  );
 		fullSetData = DataIOHandler.getSuppier().loadDataFromFile( arffFullFileName);
 		if (applyToMaModelInTestBack==true){//用fullModel模型来测试均线模型时加载均线模型的arff
-			int pos = BaseInstanceProcessor.findATTPosition(fullSetData,ARFF_FORMAT.m_policy_group);
+			int pos = BaseInstanceProcessor.findATTPosition(fullSetData,m_currentArffFormat.m_policy_group);
 			fullSetData = InstanceHandler.getHandler(fullSetData).removeAttribs(fullSetData,""+pos );
 		}
 		System.out.println("finish loading fullset Data. row : "+fullSetData.numInstances() + " column:"+ fullSetData.numAttributes());
@@ -217,7 +217,7 @@ public class BackTestFullModel extends BackTest {
 			left=DataIOHandler.getSuppier().loadDataFromFile(AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT_FULLMODEL.m_data_file_prefix+"-left.arff");
 		}
 		
-		MergeClassifyResults merge=new MergeClassifyResults(ARFF_FORMAT.m_policy_group);
+		MergeClassifyResults merge=new MergeClassifyResults(m_currentArffFormat.m_policy_group);
 		GeneralInstances mergedResult = merge.mergeResults(resultData, referenceData,dataToAdd, left);
 		
 		//返回结果之前需要按TradeDate重新排序
@@ -250,7 +250,7 @@ public class BackTestFullModel extends BackTest {
 		FileUtility.mkdirIfNotExist(workPath);
 		
 
-		String modelPrefix=ARFF_FORMAT.m_data_file_prefix+"("+FullModelDataFormat.FULLMODEL_FORMAT+")"; //"extData2005-2016";
+		String modelPrefix=m_currentArffFormat.m_data_file_prefix+"("+FullModelDataFormat.FULLMODEL_FORMAT+")"; //"extData2005-2016";
 		return workPath+modelPrefix;
 	}
 }
