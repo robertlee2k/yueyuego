@@ -825,7 +825,7 @@ public class BackTest {
 		int threadNum=1;
 		//先按一般的模型计算线程数
 		if (classifier.is_skipTrainInBacktest()==false){ //模型需要训练，这个所需内存比较大
-			threadNum=3;
+			threadNum=4;
 		}else if (classifier.is_skipEvalInBacktest()==false) { //模型需要评估，这个需要内存中等
 			threadNum=EnvConstants.CPU_CORE_NUMBER-1;
 		}else{ //只要单纯回测，这个内存无须太多，可以全开线程

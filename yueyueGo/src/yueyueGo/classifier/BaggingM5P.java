@@ -364,7 +364,7 @@ public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunn
 		int recommendThreads=0; //缺省值
 		if (runningThreads>1){ //如果外部调用者是多线程运行
 			if (this.is_skipTrainInBacktest()==false){ //如果要重新构建模型，那最多1个线程在外面
-				recommendThreads=1;
+				recommendThreads=2;
 			}else if (this.is_skipEvalInBacktest()==false){ //如果不需要构建模型，但需要重新评估模型，那将外部并发除以3
 				recommendThreads=runningThreads/2;
 			}else{ //如果只需要回测，简单除以2后返回。
