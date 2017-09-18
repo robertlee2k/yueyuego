@@ -44,7 +44,7 @@ public class UpdateHistoryArffFile {
 			
 			//校验数据文件
 			WekaInstanceProcessor.analyzeDataAttributes(AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.getFullArffFileName());
-			
+			convertDataForTensorFlow(currentArffFormat);
 		} catch (Exception e) {
 			
 			e.printStackTrace();
@@ -102,14 +102,39 @@ public class UpdateHistoryArffFile {
 		generateArffFileSet(currentArffFormat,fullData,fullFormat);
 	}
 
+	public static void convertDataForTensorFlow(ArffFormat currentArffFormat) throws Exception{
+		System.out.println("loading original history file into memory "  );
+		GeneralInstances fullSetData = DataIOHandler.getSuppier().loadDataFromFile(AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.getFullArffFileName());
+		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullSetData);
+	
+		//对原始旧数据进行处理
+		System.out.println("finish  loading original File row : "+ fullSetData.numInstances() + " column:"+ fullSetData.numAttributes());
+		//每5年数据分割一个文件
+		int yearInterval=6;
+		int startYear=2005;
+		int endYear=2017;
+		String attPos = WekaInstanceProcessor.WEKA_ATT_PREFIX + ArffFormat.YEAR_MONTH_INDEX;
+
+		for (int i=startYear;i<endYear;i=i+yearInterval){
+			int fromPeriod=i*100+01;
+			int toPeriod=(i+yearInterval-1)*100+12;
+			if (toPeriod>201709) toPeriod=201709;
+			String splitClause="(" + attPos + " >= "+ fromPeriod + ") and (" + attPos + " <= "	+ toPeriod + ") ";
+			System.out.println("start to split fulset for: "+ splitClause);
+			GeneralInstances oneData=instanceProcessor.getInstancesSubset(fullSetData,splitClause);
+			String fileName=AppContext.getC_ROOT_DIRECTORY()+"tensorFlowData-"+fromPeriod+toPeriod;
+			DataIOHandler.getSaver().saveCSVFile(oneData, fileName);
+		}
+
+	}
+	
 	/**
 		 * 从原始CSV数据集中合并文件，返回原始的Arff
 		 * @return
 		 * @throws Exception
 		 * @throws IllegalStateException
 		 */
-		private static GeneralInstances mergeSrcTransFiles(ArffFormat currentArffFormat) throws Exception,
-		IllegalStateException {
+		private static GeneralInstances mergeSrcTransFiles(ArffFormat currentArffFormat) throws Exception{
 			
 	//		//动量
 	//		String sourceFile=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group9\\onceyield_group9all_momentum2005_2017.txt";
