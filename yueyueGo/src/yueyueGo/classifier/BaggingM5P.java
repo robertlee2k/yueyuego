@@ -288,7 +288,7 @@ public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunn
 	public static BaggingM5P initModel(ArffFormat format,int purpose) throws Exception{
 		BaggingM5P model=null;
 		model=new BaggingM5P();
-	
+		model.classifierName=ClassifyUtility.BAGGING_M5P;	
 		model.initModelPurpose(purpose);
 		 if (format instanceof AvgLineDataFormat){
 			 	model.m_policySubGroup = new String[]{""}; //{"5","10","20","30","60" };		
@@ -319,11 +319,6 @@ public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunn
 		return model;
 	}
 
-
-	@Override
-	protected void overrideParams() {
-		classifierName=ClassifyUtility.BAGGING_M5P;	
-	}
 
 
 	@Override

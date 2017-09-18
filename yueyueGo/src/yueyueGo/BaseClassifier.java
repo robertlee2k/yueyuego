@@ -77,11 +77,15 @@ public abstract class BaseClassifier implements Serializable{
 	public BaseClassifier() {
 		m_positiveLine=0; //缺省的以收益率正负为二分类的正负。
 		modelArffFormat=ArffFormat.CURRENT_FORMAT; //缺省使用当前的arff Format
-		overrideParams();		// 留给子类的初始化参数函数
+		overrideParams();		// 留给子类的覆盖初始化参数接口
+	}
+	
+
+	protected void overrideParams(){
+		
 	}
 	
 	//一系列需要子类实现的抽象方法
-	protected abstract void overrideParams();
 	protected abstract Classifier buildModel(GeneralInstances trainData) throws Exception;
 	protected abstract double classify(Classifier model,GeneralInstance curr) throws Exception ;
 	

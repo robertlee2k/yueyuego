@@ -84,8 +84,6 @@ public class BackTest {
 		AppContext.clearContext();
 		AppContext.createContext(m_currentArffFormat.m_data_root_directory);	
 		m_backtest_result_dir=AppContext.getBACKTEST_RESULT_DIR();
-//		shouyilv_thresholds=EvaluationConfDefinition.SHOUYILV_FILTER_FOR_WINRATE; //对于胜率优先算法的收益率筛选阀值
-//		winrate_thresholds=EvaluationConfDefinition.WINRATE_FILTER_FOR_SHOUYILV; //对于收益率优先算法的胜率筛选阀值
 		
 	}
 

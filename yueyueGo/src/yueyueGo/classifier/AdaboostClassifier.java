@@ -260,6 +260,8 @@ public class AdaboostClassifier extends NominalClassifier {
 			AdaboostClassifier model=null;
 			model=new AdaboostClassifier();
 			model.initModelPurpose(purpose);
+			model.classifierName=ClassifyUtility.ADABOOST;
+			
 			 if (format instanceof AvgLineDataFormat){
 					model.m_policySubGroup = new String[]{""};//{"5","10","20","30","60" };
 					model.boost_iteration=8; //迭代次数
@@ -288,12 +290,6 @@ public class AdaboostClassifier extends NominalClassifier {
 			return model;
 		}
 
-	@Override
-	protected void overrideParams() {
-
-		classifierName=ClassifyUtility.ADABOOST;
-
-	}
 		
 	@Override
 	protected Classifier buildModel(GeneralInstances train) throws Exception {
