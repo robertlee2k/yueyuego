@@ -122,7 +122,7 @@ public class UpdateHistoryArffFile {
 			String splitClause="(" + attPos + " >= "+ fromPeriod + ") and (" + attPos + " <= "	+ toPeriod + ") ";
 			System.out.println("start to split fulset for: "+ splitClause);
 			GeneralInstances oneData=instanceProcessor.getInstancesSubset(fullSetData,splitClause);
-			String fileName=AppContext.getC_ROOT_DIRECTORY()+"tensorFlowData-"+fromPeriod+toPeriod;
+			String fileName=AppContext.getC_ROOT_DIRECTORY()+"\\sourceData\\tensorFlowData("+fromPeriod+"-"+toPeriod+").csv";
 			DataIOHandler.getSaver().saveCSVFile(oneData, fileName);
 		}
 
