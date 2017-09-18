@@ -40,7 +40,7 @@ public class EvaluationConfDefinition implements Serializable{
 	public EvaluationConfDefinition(String classifierName,String[] a_policyGroup,ArffFormat format) {
 		m_policyGroup=a_policyGroup;
 
-		if (format instanceof AvgLineDataFormat ){
+		if (format instanceof AvgLineDataFormat || format==null){			//TODO ArffFormat 不能应该有NULL
 			switch (classifierName) {
 			case ClassifyUtility.BAGGING_M5P:
 				//缩小选股比率

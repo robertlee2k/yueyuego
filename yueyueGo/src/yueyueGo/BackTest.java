@@ -61,7 +61,7 @@ public class BackTest {
 	public static final String RESULT_EXTENSION = "-Test Result.csv";
 	public final static int BEGIN_FROM_POLICY=0; // 当回测需要跳过某些均线时，0表示不跳过
 	
-	protected int m_running_threads; //并发控制，1表示仅有主线程单线运行。
+	protected boolean m_concurrent=true; //并发控制，缺省为并发
 	protected String m_backtest_result_dir=null;	
 	protected String m_currentPolicy; // 策略的名称，只是用于输出。
 	protected ArffFormat m_currentArffFormat; //当前所用数据文件格式 
@@ -74,7 +74,6 @@ public class BackTest {
 	
 	//初始化环境参数，运行本类的方法必须先调用它
 	public void init(){
-		m_running_threads=10;
 		m_currentPolicy=
 //				"动量策略";
 				"均线策略";
@@ -129,7 +128,6 @@ public class BackTest {
 		m_startYear= "2017";
 		m_endYearMonth="201708"; //结尾月一般是当前月，这个月是没有数据的，最新数据是上月的
 //		m_handSetSplitYear=new String[] {"201701"};
-		m_running_threads=5;
 		
 		//逐次构建新的模型
 		model=new AdaboostClassifier();
@@ -147,7 +145,6 @@ public class BackTest {
 //				new String[] {"201602","201603","201604","201605","201606","201607",
 //						"201608","201609","201610","201611","201612",
 //						"201701","201702","201703","201704","201705"};
-		m_running_threads=15;
 		
 		//逐次构建新的模型
 		model=new AdaboostClassifier();
@@ -165,7 +162,6 @@ public class BackTest {
 	 * @throws Exception
 	 */	
 	protected void callRebuildModels() throws Exception {
-		m_running_threads=2 ; 
 		
 //		m_handSetSplitYear=
 //		new String[] {
@@ -202,7 +198,7 @@ public class BackTest {
 	 * @throws Exception
 	 */	
 	protected void callReEvaluateModels() throws Exception {
-		m_running_threads=25;
+
 		//按二分类器回测历史数据
 		AdaboostClassifier nModel=AdaboostClassifier.initModel(m_currentArffFormat, BaseClassifier.FOR_EVALUATE_MODEL);
 		GeneralInstances nominalResult=testBackward(nModel);
@@ -224,7 +220,6 @@ public class BackTest {
 
 
 	protected void callTestBack() throws Exception {
-		m_running_threads=25;
 		//按二分类器回测历史数据
 		AdaboostClassifier nModel=AdaboostClassifier.initModel(m_currentArffFormat, BaseClassifier.FOR_BACKTEST_MODEL);
 		GeneralInstances nominalResult=testBackward(nModel);
@@ -268,14 +263,11 @@ public class BackTest {
         Vector<GeneralInstances> threadResult=null;
         int threadPoolSize=0;
         
-		// 按下面的逻辑创建线程池
-		if ( m_running_threads>1 ){ 
-			if (clModel instanceof ParrallelizedRunning){//模型内部有多线程，将外部线程进行系数转换
-				threadPoolSize=((ParrallelizedRunning) clModel).recommendRunningThreads(m_running_threads);
-			}else { //算法本身没有多线程，按原计划进行并发
-				threadPoolSize=m_running_threads;
-			}
-        }
+		// 如果采用并发模式，则按下面的逻辑创建线程池
+		if ( m_concurrent==true ){ 
+			threadPoolSize=estimateConcurrentThreads(clModel);			
+        } 
+
 		if (threadPoolSize>1){
 			threadPool=BlockedThreadPoolExecutor.newFixedThreadPool(threadPoolSize);
 			threadResult=new Vector<GeneralInstances>();
@@ -823,6 +815,29 @@ public class BackTest {
 			fileMap.put(reversedFullname, modelFilePath);
 		}
 		return fileMap;
+	}
+
+
+	/*
+	 * 计算可以并发线程的数量
+	 */
+	public static int estimateConcurrentThreads(BaseClassifier classifier){
+		int threadNum=1;
+		//先按一般的模型计算线程数
+		if (classifier.is_skipTrainInBacktest()==false){ //模型需要训练，这个所需内存比较大
+			threadNum=3;
+		}else if (classifier.is_skipEvalInBacktest()==false) { //模型需要评估，这个需要内存中等
+			threadNum=EnvConstants.CPU_CORE_NUMBER-1;
+		}else{ //只要单纯回测，这个内存无须太多，可以全开线程
+			threadNum=EnvConstants.CPU_CORE_NUMBER*2;
+		}
+		
+		//对于模型自身内部就有多线程的分类器，将外部线程进行系数转换
+		if (classifier instanceof ParrallelizedRunning){//模型内部有
+			threadNum=((ParrallelizedRunning) classifier).recommendRunningThreads(threadNum);
+		}
+
+		return threadNum;
 	}
 
 

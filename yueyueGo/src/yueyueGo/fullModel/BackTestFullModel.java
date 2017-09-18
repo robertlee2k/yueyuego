@@ -48,10 +48,7 @@ public class BackTestFullModel extends BackTest {
 		AppContext.createContext(ARFF_FORMAT_FULLMODEL.m_data_root_directory);	
 		m_backtest_result_dir=AppContext.getBACKTEST_RESULT_DIR();
 		
-		m_running_threads=1;
 		
-//		shouyilv_thresholds=EvaluationConfDefinition.FULLMODEL_SHOUYILV_FILTER_FOR_WINRATE; //对于胜率优先算法的收益率筛选阀值
-//		winrate_thresholds=EvaluationConfDefinition.FULLMODEL_WINRATE_FILTER_FOR_SHOUYILV; //对于收益率优先算法的胜率筛选阀值
 	}
 
 
@@ -76,7 +73,6 @@ public class BackTestFullModel extends BackTest {
 	protected void callRefreshFullModelUseLatestData() throws Exception{
 		BaseClassifier model=null;
 		m_handSetSplitYear=new String[] {"201609"};
-		m_running_threads=5;
 		
 		//逐次刷新数据
 		

@@ -69,48 +69,13 @@ public class ClassifyUtility {
 	    // set up the bagger and build the classifier
 	    Bagging bagger = new Bagging();
 	    bagger.setNumIterations(bagging_iteration);
-	    int threads=calculateExecutionSlots(dataNum,attribNum,bagging_iteration,bagging_samplePercent);
+	    int threads=ClassifyUtility.calculateExecutionSlots(dataNum,attribNum,bagging_iteration,bagging_samplePercent);
 	    bagger.setNumExecutionSlots(threads);
 	    bagger.setBagSizePercent(bagging_samplePercent);
 	    bagger.setDebug(true);
 	    return bagger;
 
 	}
-	//根据内存大小，估算bagging的并发可行数目
-	//	内存估算依据：
-	// 在云端： 56G内存， J48FullModelBagging 2000000个 instances 153个attributes,bagging_samplePercent=70， 10个Iteration,同时10个会OOM，6个可以正常。
-	// 在本地： 6G内存,， J48FullModelBagging 550000个 instances 153个attributes,bagging_samplePercent=70， 10个Iteration 3个会OOM，2个可以正常。
-	public static int calculateExecutionSlots(int dataNum,int attribNum,int bagging_iteration,int bagging_samplePercent){
-		
-		double threads; 
-		double factor;
-		int mode=EnvConstants.HEAP_SIZE;
-		if (mode>=32) { //云端大计算模式
-			factor=((double)EnvConstants.HEAP_SIZE/56)*((double)bagging_samplePercent/70)*(153/(double)attribNum)*(2000000/(double)dataNum);
-			threads=factor*6;
-		} else { //本地机器小计算模式
-			factor=((double)EnvConstants.HEAP_SIZE/6)*((double)bagging_samplePercent/70)*(153/(double)attribNum)*(600000/(double)dataNum);
-			threads=factor*2;
-		}
-		
-		System.out.println("###caculation threads number="+threads + " while factor="+factor );
-		int executionSlots=(int)threads;
-	    if (executionSlots>bagging_iteration){ //无须超过iteration个数
-	    	executionSlots=bagging_iteration;
-	    }		
-	    if (executionSlots>EnvConstants.CPU_CORE_NUMBER-2){ //不要超过CPU个数，留点余量
-	    	executionSlots=EnvConstants.CPU_CORE_NUMBER-2;
-	    }
-	    if (executionSlots<1){//至少应该有一个执行线程（哪怕内存不够也可以试试）
-	    	System.err.println("WARNING! momeory may not enough for this bagging, anyway we try executionSlot=1");
-	    	executionSlots=1;
-	    }
-	    
-	    System.out.println("final executionSlots="+executionSlots );
-		return executionSlots; 
-		
-	}
-
 	//直接bagging不使用PCA
 	public static Classifier buildBaggingWithoutPCA(GeneralInstances train,Classifier model,int bagging_iteration, int bagging_samplePercent) throws Exception {
 		
@@ -248,5 +213,40 @@ public class ClassifyUtility {
 		EvaluationUtils eUtils=new EvaluationUtils();
 		ArrayList<Prediction> predictions=eUtils.getTestPredictions(model, WekaInstances.convertToWekaInstances(evalData));
 		return predictions;
+	}
+
+	//根据内存大小，估算bagging的并发可行数目
+	//	内存估算依据：
+	// 在云端： 56G内存， J48FullModelBagging 2000000个 instances 153个attributes,bagging_samplePercent=70， 10个Iteration,同时10个会OOM，6个可以正常。
+	// 在本地： 6G内存,， J48FullModelBagging 550000个 instances 153个attributes,bagging_samplePercent=70， 10个Iteration 3个会OOM，2个可以正常。
+	public static int calculateExecutionSlots(int dataNum,int attribNum,int bagging_iteration,int bagging_samplePercent){
+		
+		double threads; 
+		double factor;
+		int mode=EnvConstants.HEAP_SIZE;
+		if (mode>=32) { //云端大计算模式
+			factor=((double)EnvConstants.HEAP_SIZE/56)*((double)bagging_samplePercent/70)*(153/(double)attribNum)*(2000000/(double)dataNum);
+			threads=factor*6;
+		} else { //本地机器小计算模式
+			factor=((double)EnvConstants.HEAP_SIZE/6)*((double)bagging_samplePercent/70)*(153/(double)attribNum)*(600000/(double)dataNum);
+			threads=factor*2;
+		}
+		
+		System.out.println("###caculation threads number="+threads + " while factor="+factor );
+		int executionSlots=(int)threads;
+	    if (executionSlots>bagging_iteration){ //无须超过iteration个数
+	    	executionSlots=bagging_iteration;
+	    }		
+	    if (executionSlots>EnvConstants.CPU_CORE_NUMBER-1){ //不要超过CPU个数，留点余量
+	    	executionSlots=EnvConstants.CPU_CORE_NUMBER-1;
+	    }
+	    if (executionSlots<1){//至少应该有一个执行线程（哪怕内存不够也可以试试）
+	    	System.err.println("WARNING! momeory may not enough for this bagging, anyway we try executionSlot=1");
+	    	executionSlots=1;
+	    }
+	    
+	    System.out.println("final executionSlots="+executionSlots );
+		return executionSlots; 
+		
 	}
 }
