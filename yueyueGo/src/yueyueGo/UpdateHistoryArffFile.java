@@ -52,13 +52,45 @@ public class UpdateHistoryArffFile {
 //			WekaInstanceProcessor.analyzeDataAttributes(AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.getFullArffFileName());
 
 			//处理离群值
-			GeneralInstances fullSetData = DataIOHandler.getSuppier().loadDataFromFile(AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.getFullArffFileName());
-			processOutierValue(fullSetData);
-//			convertDataForTensorFlow(currentArffFormat);
+			updateArffFileOutier(currentArffFormat);
+			convertDataForTensorFlow(currentArffFormat);
 		} catch (Exception e) {
 			
 			e.printStackTrace();
 		}
+	}
+
+	/**
+	 * @param currentArffFormat
+	 * @throws Exception
+	 * @throws MathIllegalStateException
+	 * @throws MathIllegalArgumentException
+	 */
+	private static void updateArffFileOutier(ArffFormat currentArffFormat)
+			throws Exception, MathIllegalStateException, MathIllegalArgumentException {
+		System.out.println("loading original history file into memory "  );
+		//获取格式文件
+		GeneralInstances fullFormat=loadFullArffFormat(currentArffFormat);
+		String targetArffFilename=AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.getFullArffFileName();
+		GeneralInstances fullData = DataIOHandler.getSuppier().loadDataFromFile(targetArffFilename);
+		processOutierValue(fullData);
+		
+		
+		//保存Original 文件
+		System.out.println("trans arff file sorted, start to save.... number of rows="+fullData.numInstances());
+		DataIOHandler.getSaver().SaveDataIntoFile(fullData, targetArffFilename);
+		System.out.println("trans arff file saved. ");
+	
+		//取出前半年的旧数据和当年的新数据作为验证的sample数据
+		String splitSampleClause = "( ATT" + ArffFormat.YEAR_MONTH_INDEX + " >= 201606) and ( ATT" + ArffFormat.YEAR_MONTH_INDEX+ " <= 201712) ";
+		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullData);
+		GeneralInstances sampleData=instanceProcessor.getInstancesSubset(fullData, splitSampleClause);
+		DataIOHandler.getSaver().SaveDataIntoFile(sampleData, getSampleArffFileName(currentArffFormat));
+		System.out.println("sample arff file saved. ");
+		sampleData=null;//试图释放内存
+	
+		//根据原始ARFFF文件生成模型的全套文件（详见函数说明）
+		generateArffFileSet(currentArffFormat,fullData,fullFormat);
 	}
 	
 	protected static void callRefreshInstances(ArffFormat currentArffFormat) throws Exception {
@@ -119,9 +151,6 @@ public class UpdateHistoryArffFile {
 	
 		//对原始旧数据进行处理
 		System.out.println("finish  loading original File row : "+ fullSetData.numInstances() + " column:"+ fullSetData.numAttributes());
-		//去掉yearmonth
-		//todo
-		
 		
 		//每5年数据分割一个文件
 		int yearInterval=6;
@@ -136,6 +165,9 @@ public class UpdateHistoryArffFile {
 			String splitClause="(" + attPos + " >= "+ fromPeriod + ") and (" + attPos + " <= "	+ toPeriod + ") ";
 			System.out.println("start to split fulset for: "+ splitClause);
 			GeneralInstances oneData=instanceProcessor.getInstancesSubset(fullSetData,splitClause);
+			//去掉yearmonth
+			oneData = instanceProcessor.removeAttribs(oneData,  ArffFormat.YEAR_MONTH_INDEX);
+
 			String fileName=AppContext.getC_ROOT_DIRECTORY()+"\\sourceData\\tensorFlowData("+fromPeriod+"-"+toPeriod+").csv";
 			DataIOHandler.getSaver().saveCSVFile(oneData, fileName);
 		}
@@ -291,11 +323,13 @@ public class UpdateHistoryArffFile {
 			
 			double[] lowerPercentiles=new double[]{0.001,0.01,0.1,0.5,1,3,5,10};
 			System.out.println("attribute("+attribute.name()+")'s lowerLimit="+lowerLimit+" vs. min="+statistics.getMin());
-			findMatchedPercentile(statistics, lowerLimit, lowerPercentiles);
+			double matchedPercentile=findMatchedPercentile(statistics, lowerLimit, lowerPercentiles);
+			System.out.println(".....matchedPercentile="+matchedPercentile);
 			
 			double[] upperPercentiles=new double[]{90,95,97,98,99,99.5,99.9,99.99,99.999};
 			System.out.println("attribute("+attribute.name()+")'s upperLimit="+upperLimit+" vs. max="+statistics.getMax());
-			findMatchedPercentile(statistics, upperLimit, upperPercentiles);
+			matchedPercentile=findMatchedPercentile(statistics, upperLimit, upperPercentiles);
+			System.out.println(".....matchedPercentile="+matchedPercentile);
 			
 			int lowerCutCount=0;
 			int upperCutCount=0;
@@ -333,9 +367,10 @@ public class UpdateHistoryArffFile {
 			if ((lastValue<targetValue) && currentValue>targetValue){
 				matchPercentile=percentiles[i];
 				System.out.println("\t matched percentile["+percentiles[i]+"]="+currentValue);
+				System.out.println("\t lastValue before this ="+lastValue);
 				break;		
 			}else{
-				System.out.println("\t\t overpass percentile["+percentiles[i]+"]="+currentValue);
+//				System.out.println("\t\t overpass percentile["+percentiles[i]+"]="+currentValue);
 				lastValue=currentValue;
 			}
 		}
