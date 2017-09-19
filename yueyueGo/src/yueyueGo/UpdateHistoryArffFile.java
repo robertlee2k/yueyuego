@@ -38,7 +38,7 @@ public class UpdateHistoryArffFile {
 			AppContext.createContext(currentArffFormat.m_data_root_directory);	
 			
 			//重新创建ARFF文件
-//			callCreateTransInstances(currentArffFormat);
+			callCreateTransInstances(currentArffFormat);
 			
 //			//用最新的单次交易数据，更新原始的交易数据文件
 //			UpdateHistoryArffFile.callRefreshInstances(currentArffFormat);
@@ -52,8 +52,9 @@ public class UpdateHistoryArffFile {
 //			WekaInstanceProcessor.analyzeDataAttributes(AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.getFullArffFileName());
 
 			//处理离群值
-			updateArffFileOutier(currentArffFormat);
-			convertDataForTensorFlow(currentArffFormat);
+//			updateArffFileOutier(currentArffFormat);
+			//输出TensorFlow数据
+//			convertDataForTensorFlow(currentArffFormat);
 		} catch (Exception e) {
 			
 			e.printStackTrace();
@@ -66,7 +67,7 @@ public class UpdateHistoryArffFile {
 	 * @throws MathIllegalStateException
 	 * @throws MathIllegalArgumentException
 	 */
-	private static void updateArffFileOutier(ArffFormat currentArffFormat)
+	protected static void updateArffFileOutier(ArffFormat currentArffFormat)
 			throws Exception, MathIllegalStateException, MathIllegalArgumentException {
 		System.out.println("loading original history file into memory "  );
 		//获取格式文件
