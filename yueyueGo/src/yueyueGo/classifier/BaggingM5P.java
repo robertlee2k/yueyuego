@@ -291,7 +291,7 @@ public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunn
 		model.classifierName=ClassifyUtility.BAGGING_M5P;	
 		model.initModelPurpose(purpose);
 		 if (format instanceof AvgLineDataFormat){
-			 	model.m_policySubGroup = new String[]{"5","10","20","30-60" };		
+			 	model.m_policySubGroup = new String[]{"5","10","20-30-60" };		
 			 	model.m_usePCA=true; //20121223尝试不使用PCA，效果不佳，恢复PCA
 			 	model.useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
 			 	model.m_normalize=true; //在进入分类器之前需要对数据做Normalize
