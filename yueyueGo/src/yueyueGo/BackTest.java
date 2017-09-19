@@ -534,7 +534,7 @@ public class BackTest {
 				for (int i=0;i<policyArray.length-1;i++){
 					splitPolicy+=" (ATT"+policyIndex+" = "	+ policyArray[i] + ") or ";
 				}
-				splitPolicy+=" (ATT"+policyIndex+" = "	+ policy + ")";
+				splitPolicy+=" (ATT"+policyIndex+" = "	+  policyArray[policyArray.length-1] + ")";
 				splitPolicy+=" )";
 			}
 					//" is '"	+ policy + "')";
