@@ -218,8 +218,8 @@ public class ModelStore {
 			v.add(m_modelYearSplit);
 			SerializationHelper.write(modelFileName+ModelStore.MODEL_FILE_EXTENSION, v);
 			FileUtility.write(modelFileName+ModelStore.TXT_EXTENSION, m_model.toString(), "utf-8");			
-//			System.out.println("models saved to :"+ modelFileName);
-		} catch(IOException e){
+			System.out.println("models saved to :"+ modelFileName);
+		} catch(Exception e){
 			System.err.println("error when saving: "+modelFileName);
 			throw e;
 		}

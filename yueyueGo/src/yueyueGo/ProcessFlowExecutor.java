@@ -117,7 +117,7 @@ public class ProcessFlowExecutor implements Callable<String> {
 			 this.doPredictProcess();
 		 }catch (Exception e) {//某个线程出错误的时候把Exception加入对象中，不抛出。
 				clModel.getClassifySummaries().appendExceptionSummary("\r\n [yearsplit]="+yearSplit+" [policy]="+policySplit+"\r\n"+e.toString());
-				e.printStackTrace();
+				e.printStackTrace(System.err);
 		 }
 		 clModel=null;
 		 trainingData=null;

@@ -3,11 +3,17 @@ package yueyueGo;
 import java.text.ParseException;
 import java.util.ArrayList;
 
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.exception.MathIllegalStateException;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+
 import yueyueGo.dataFormat.ArffFormat;
 import yueyueGo.dataFormat.AvgLineDataFormat;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.dataProcessor.InstanceHandler;
 import yueyueGo.dataProcessor.WekaInstanceProcessor;
+import yueyueGo.dataProcessor.dpp.AttributeValueRange;
+import yueyueGo.dataProcessor.dpp.OutlierValuesDefinition;
 import yueyueGo.databeans.DataInstance;
 import yueyueGo.databeans.GeneralAttribute;
 import yueyueGo.databeans.GeneralInstance;
@@ -44,7 +50,11 @@ public class UpdateHistoryArffFile {
 			
 			//校验数据文件
 //			WekaInstanceProcessor.analyzeDataAttributes(AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.getFullArffFileName());
-			convertDataForTensorFlow(currentArffFormat);
+
+			//处理离群值
+			GeneralInstances fullSetData = DataIOHandler.getSuppier().loadDataFromFile(AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.getFullArffFileName());
+			processOutierValue(fullSetData);
+//			convertDataForTensorFlow(currentArffFormat);
 		} catch (Exception e) {
 			
 			e.printStackTrace();
@@ -109,6 +119,10 @@ public class UpdateHistoryArffFile {
 	
 		//对原始旧数据进行处理
 		System.out.println("finish  loading original File row : "+ fullSetData.numInstances() + " column:"+ fullSetData.numAttributes());
+		//去掉yearmonth
+		//todo
+		
+		
 		//每5年数据分割一个文件
 		int yearInterval=6;
 		int startYear=2005;
@@ -255,7 +269,77 @@ public class UpdateHistoryArffFile {
 		//根据format 处理各种nominal字段，读入后转换为numeric
 		GeneralInstances fullData=instanceProcessor.calibrateAttributes(rawData, fullFormat,currentArffFormat.convertNominalToNumeric);
 
+	
+		processOutierValue(fullData);
 		return fullData;
+	}
+
+	/**
+	 * @param fullData
+	 * @throws MathIllegalStateException
+	 * @throws MathIllegalArgumentException
+	 */
+	private static void processOutierValue(GeneralInstances fullData)
+			throws MathIllegalStateException, MathIllegalArgumentException {
+		//处理离群值
+		ArrayList<AttributeValueRange> attRanges=OutlierValuesDefinition.getRangeDefinitions();
+		for (AttributeValueRange attributeValueRange : attRanges) {
+			GeneralAttribute attribute=fullData.attribute(attributeValueRange.getAttributeName());
+			double lowerLimit=attributeValueRange.getLowerLimit();
+			double upperLimit=attributeValueRange.getUpperLimit();
+			DescriptiveStatistics statistics=new DescriptiveStatistics(fullData.attributeToDoubleArray(attribute.index()));
+			
+			double[] lowerPercentiles=new double[]{0.1,0.5,1,3,5,10};
+			System.out.println("attribute("+attribute.name()+")'s lowerLimit="+lowerLimit);
+			findMatchedPercentile(statistics, lowerLimit, lowerPercentiles);
+			
+			double[] upperPercentiles=new double[]{90,95,97,98,99,99.5,99.9};
+			System.out.println("attribute("+attribute.name()+")'s upperLimit="+upperLimit);
+			findMatchedPercentile(statistics, lowerLimit, upperPercentiles);
+			
+			int lowerCutCount=0;
+			int upperCutCount=0;
+			GeneralInstance curr;
+			double currentValue;
+			for (int i=0;i<fullData.numInstances();i++){
+				curr=fullData.get(i);
+				currentValue=curr.value(attribute);
+				if (currentValue<lowerLimit){
+					curr.setValue(attribute, lowerLimit);
+					lowerCutCount++;
+				}else if (currentValue>upperLimit){
+					curr.setValue(attribute, upperLimit);
+					upperCutCount++;
+				}
+			}
+			System.out.println("attribute("+attribute.name()+")'s lowerCutCount="+lowerCutCount+", upperCutCount="+upperCutCount);
+		}
+	}
+
+	/**
+	 * @param statistics
+	 * @param targetValue
+	 * @param percentiles
+	 * @throws MathIllegalStateException
+	 * @throws MathIllegalArgumentException
+	 */
+	private static double findMatchedPercentile(DescriptiveStatistics statistics, double targetValue, double[] percentiles)
+			throws MathIllegalStateException, MathIllegalArgumentException {
+		double lastValue=-999999999;
+		double currentValue=-99999999;
+		double matchPercentile=0;
+		for (int i=0;i<percentiles.length;i++){
+			currentValue=statistics.getPercentile(percentiles[i]);
+			if ((lastValue<targetValue) && currentValue>targetValue){
+				matchPercentile=percentiles[i];
+				System.out.println("\t matched percentile["+percentiles[i]+"]="+currentValue);
+				break;		
+			}else{
+				System.out.println("\t overpass percentile["+percentiles[i]+"]="+currentValue);
+				lastValue=currentValue;
+			}
+		}
+		return matchPercentile;
 	}
 
 
