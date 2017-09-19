@@ -289,11 +289,11 @@ public class UpdateHistoryArffFile {
 			double upperLimit=attributeValueRange.getUpperLimit();
 			DescriptiveStatistics statistics=new DescriptiveStatistics(fullData.attributeToDoubleArray(attribute.index()));
 			
-			double[] lowerPercentiles=new double[]{0.001,0.1,0.5,1,3,5,10};
+			double[] lowerPercentiles=new double[]{0.001,0.01,0.1,0.5,1,3,5,10};
 			System.out.println("attribute("+attribute.name()+")'s lowerLimit="+lowerLimit+" vs. min="+statistics.getMin());
 			findMatchedPercentile(statistics, lowerLimit, lowerPercentiles);
 			
-			double[] upperPercentiles=new double[]{90,95,97,98,99,99.5,99.9};
+			double[] upperPercentiles=new double[]{90,95,97,98,99,99.5,99.9,99.99,99.999};
 			System.out.println("attribute("+attribute.name()+")'s upperLimit="+upperLimit+" vs. max="+statistics.getMax());
 			findMatchedPercentile(statistics, upperLimit, upperPercentiles);
 			
