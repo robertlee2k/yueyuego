@@ -223,15 +223,15 @@ public class BackTest {
 	protected void callTestBack() throws Exception {
 		//按二分类器回测历史数据
 		AdaboostClassifier nModel=AdaboostClassifier.initModel(m_currentArffFormat, BaseClassifier.FOR_BACKTEST_MODEL);
-//		GeneralInstances nominalResult=testBackward(nModel);
+		GeneralInstances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
-		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
+//		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 
 		//按连续分类器回测历史数据
 		BaggingM5P cModel=BaggingM5P.initModel(m_currentArffFormat, BaseClassifier.FOR_BACKTEST_MODEL);
-//		GeneralInstances continuousResult=testBackward(cModel);
+		GeneralInstances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
-		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
+//		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 		
 		saveResultsAndStatistics(nModel, nominalResult, cModel, continuousResult);
 		
@@ -848,7 +848,7 @@ public class BackTest {
 		int threadNum=1;
 		//先按一般的模型计算线程数
 		if (classifier.is_skipTrainInBacktest()==false){ //模型需要训练，这个所需内存比较大
-			threadNum=4;
+			threadNum=5;
 		}else if (classifier.is_skipEvalInBacktest()==false) { //模型需要评估，这个需要内存中等
 			threadNum=EnvConstants.CPU_CORE_NUMBER-1;
 		}else{ //只要单纯回测，这个内存无须太多，可以全开线程
