@@ -107,7 +107,7 @@ public class DataAnalysis {
 			String policy = policyStrings[j];
 			GeneralInstances policyData=null;
 			if ("".equals(policy)){
-				policyData=data;
+				break; // 无须按policy分类
 			}else{
 				String splitClause=BackTest.appendSplitClause("", policyIndex, policy);
 				policyData=instanceProcessor.getInstancesSubset(data, splitClause);
