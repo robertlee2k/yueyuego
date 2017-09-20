@@ -658,12 +658,13 @@ public class BackTest {
 			GeneralInstances continuousResult) throws Exception {
 	
 
-		//输出原始数据的收益率分析统计结果 （这里假定cModel和nModel的policy分组相同，否则无法合并）
+		//输出原始数据的收益率分析统计结果 
 		ShouyilvDescriptiveList[] shouyilvDescriptionsArray=new ShouyilvDescriptiveList[3];
-		shouyilvDescriptionsArray[0]=DataAnalysis.analyzeMarket("原始数据",m_startYear+"01",m_endYearMonth,m_currentArffFormat.m_policy_group,cModel.m_policySubGroup,continuousResult);
-
+		
 		//输出分类结果和参数
 		String cModelSummary=cModel.outputClassifySummary();
+		
+		shouyilvDescriptionsArray[0]=DataAnalysis.analyzeMarket("原始数据",m_startYear+"01",m_endYearMonth,m_currentArffFormat.m_policy_group,cModel.m_policySubGroup,continuousResult);
 
 		//输出连续分类器的收益率分析统计结果
 		System.out.println("-----now output continuous predictions----------"+cModel.getIdentifyName() + " (filtered by nominal: "+nModel.getIdentifyName()+")");
@@ -685,7 +686,9 @@ public class BackTest {
 
 		//输出分类结果和参数
 		String nModelSummary=nModel.outputClassifySummary();
-
+		//再输出一遍原始数据的原因是，连续分类器和二分类器的policy分组可能不一样
+		shouyilvDescriptionsArray[0]=DataAnalysis.analyzeMarket("原始数据",m_startYear+"01",m_endYearMonth,m_currentArffFormat.m_policy_group,cModel.m_policySubGroup,continuousResult);
+		
 		System.out.println("-----now output nominal predictions----------"+nModel.getIdentifyName()+" (filtered by continuous: "+cModel.getIdentifyName()+")");
 		selectedInstances=returnSelectedInstances(nominalResult);
 		shouyilvDescriptionsArray[1]=DataAnalysis.analyzeMarket("单模型选股",m_startYear+"01",m_endYearMonth,m_currentArffFormat.m_policy_group,nModel.m_policySubGroup,selectedInstances);
