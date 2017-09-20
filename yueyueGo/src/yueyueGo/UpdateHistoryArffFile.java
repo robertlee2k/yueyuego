@@ -49,7 +49,7 @@ public class UpdateHistoryArffFile {
 //			worker.callRefreshModelUseLatestData();
 			
 			//校验数据文件
-//			WekaInstanceProcessor.analyzeDataAttributes(AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.getFullArffFileName());
+			WekaInstanceProcessor.analyzeDataAttributes(AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.getFullArffFileName());
 
 			//处理离群值
 //			updateArffFileOutier(currentArffFormat);

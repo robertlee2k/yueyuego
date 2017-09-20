@@ -94,9 +94,9 @@ public class BackTest {
 			worker.init();
 
 			//调用回测函数回测
-			worker.callRebuildModels();
-			worker.callReEvaluateModels();
-//			worker.callTestBack();
+//			worker.callRebuildModels();
+//			worker.callReEvaluateModels();
+			worker.callTestBack();
 //			worker.callRefreshModelUseLatestData();
 			
 //			worker.callDataAnlysis();
@@ -307,9 +307,9 @@ public class BackTest {
 					result = prepareResultInstances(clModel, fullSetData);
 				}
 				int policyIndex=BaseInstanceProcessor.findATTPosition(fullSetData, m_currentArffFormat.m_policy_group);
-				String splitTrainClause = getSplitClause(policyIndex,splitTrainYearClause,policy);
-				String splitEvalClause =  getSplitClause(policyIndex,splitEvalYearClause,policy);;
-				String splitTestClause =  getSplitClause(policyIndex,splitTestYearClause, policy);
+				String splitTrainClause = appendSplitClause(splitTrainYearClause,policyIndex,policy);
+				String splitEvalClause =  appendSplitClause(splitEvalYearClause,policyIndex,policy);;
+				String splitTestClause =  appendSplitClause(splitTestYearClause,policyIndex, policy);
 				
 				GeneralInstances trainingData = null;
 				
@@ -518,28 +518,33 @@ public class BackTest {
 	 * @param policy
 	 * @return
 	 */
-	protected String getSplitClause(int policyIndex,String splitYearClause,	String policy) {
+	public static String appendSplitClause(String originClause,int policyIndex,String policy) {
 		String splitClause;
 		String splitPolicy;
 		
 		//如果没有splitPolicy则不需要对policy的部分处理
 		if ("".equals(policy) || policy==null){
 			splitPolicy="";
-		}else{
+		}else{ //如果需要添加splitPolicy
+			if ("".equals(originClause)){ //如果传入条件为空，就无须添加"and"
+				splitPolicy="";
+			}else{ //否则添加Add
+				splitPolicy=" and";				
+			}
 			String[] policyArray = policy.split("-");
-			if (policyArray.length==1){ //没有合并的
-				splitPolicy=" and (ATT"+policyIndex+" = "	+ policy + ")";
+			if (policyArray.length==1){ //没有需要猜分的policy，传入参数就是合并的
+				splitPolicy+=" ("+WekaInstanceProcessor.WEKA_ATT_PREFIX+policyIndex+" = "	+ policy + ")";
 			}else { //有要拆分的
-				splitPolicy=" and (";
+				splitPolicy+=" (";
 				for (int i=0;i<policyArray.length-1;i++){
-					splitPolicy+=" (ATT"+policyIndex+" = "	+ policyArray[i] + ") or ";
+					splitPolicy+=" ("+WekaInstanceProcessor.WEKA_ATT_PREFIX+policyIndex+" = "	+ policyArray[i] + ") or ";
 				}
-				splitPolicy+=" (ATT"+policyIndex+" = "	+  policyArray[policyArray.length-1] + ")";
+				splitPolicy+=" ("+WekaInstanceProcessor.WEKA_ATT_PREFIX+policyIndex+" = "	+  policyArray[policyArray.length-1] + ")";
 				splitPolicy+=" )";
 			}
 					//" is '"	+ policy + "')";
 		}
-		splitClause = splitYearClause + splitPolicy ;
+		splitClause = originClause + splitPolicy ;
 		return splitClause;
 	}
 

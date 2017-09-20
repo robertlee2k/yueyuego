@@ -60,6 +60,7 @@ public abstract class BaseClassifier implements Serializable{
 	protected double m_positiveLine; // 用来定义收益率大于多少时算positive，缺省为0   
 	private boolean m_skipTrainInBacktest = true; //回测中使用，是否跳过训练模型阶段
 	private boolean m_skipEvalInBacktest = true;  //回测中使用，是否跳过评估模型阶段
+	private boolean m_skipPredictInBacktest = true;  //回测中使用，是否跳过用模型预测阶段
 	
 	public boolean is_skipTrainInBacktest() {
 		return m_skipTrainInBacktest;
@@ -68,7 +69,10 @@ public abstract class BaseClassifier implements Serializable{
 	public boolean is_skipEvalInBacktest() {
 		return m_skipEvalInBacktest;
 	}
-
+	
+	public boolean is_skipPredictInBacktest() {
+		return m_skipPredictInBacktest;
+	}
 
 
 	protected EvaluationStore m_evaluationStore;//eval的持久化封装类类
@@ -507,15 +511,18 @@ public abstract class BaseClassifier implements Serializable{
 		switch (purpose) {
 		case FOR_BUILD_MODEL:
 			m_skipTrainInBacktest=false;
-			m_skipEvalInBacktest=false;
+			m_skipEvalInBacktest=true;
+			m_skipPredictInBacktest=true;
 			break;
 		case FOR_EVALUATE_MODEL:
 			m_skipTrainInBacktest=true;
 			m_skipEvalInBacktest=false;
+			m_skipPredictInBacktest=false;
 			break;	
 		case FOR_BACKTEST_MODEL:
 			m_skipTrainInBacktest=true;
 			m_skipEvalInBacktest=true;
+			m_skipPredictInBacktest=false;			
 		case FOR_DAILY_PREDICT:
 			break;
 		}

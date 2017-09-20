@@ -2,12 +2,9 @@ package yueyueGo.fullModel;
 
 import java.io.IOException;
 
-import org.springframework.context.ApplicationContext;
-
 import yueyueGo.BackTest;
 import yueyueGo.BaseClassifier;
 import yueyueGo.ContinousClassifier;
-import yueyueGo.EnvConstants;
 import yueyueGo.NominalClassifier;
 import yueyueGo.dataFormat.ArffFormat;
 import yueyueGo.dataFormat.AvgLineDataFormat;

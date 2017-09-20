@@ -6,6 +6,7 @@ import weka.classifiers.Classifier;
 import yueyueGo.databeans.DataInstances;
 import yueyueGo.databeans.GeneralDataTag;
 import yueyueGo.databeans.GeneralInstances;
+import yueyueGo.utility.ClassifyUtility;
 import yueyueGo.utility.modelEvaluation.ModelStore;
 
 public class ProcessFlowExecutor implements Callable<String> {
@@ -65,18 +66,18 @@ public class ProcessFlowExecutor implements Callable<String> {
 			modelStore.saveModelToFiles();
 			System.out.println("Training finished!");
 
-			//TODO confusion matrix何时输出？ 这里需要TrainingData
-//			//输出模型的confusionMatrix
-//			boolean isNominal=false;
-//			if (clModel instanceof NominalClassifier){
-//				isNominal=true;
-//			}
-//			
-//			msg=clModel.validateEvalData(dataTags[1]);
-//			if (msg!=null){
-//				throw new Exception(msg);
-//			}
-//			ClassifyUtility.getConfusionMatrix(trainingData,evalData, model,isNominal);
+
+			//输出模型的confusionMatrix
+			boolean isNominal=false;
+			if (clModel instanceof NominalClassifier){
+				isNominal=true;
+			}
+			
+			msg=clModel.validateEvalData(dataTags[1]);
+			if (msg!=null){
+				throw new Exception(msg);
+			}
+			ClassifyUtility.getConfusionMatrix(trainingData,evalData, model,isNominal);
 		} 
 		trainingData=null;//释放内存 （不管是不是用到了）
 		model=null; //释放内存
@@ -96,12 +97,15 @@ public class ProcessFlowExecutor implements Callable<String> {
 		
 		evalData=null;//释放内存 （不管是不是用到了）
 		
-		//预测数据
-		String msg=clModel.validateTestingData(dataTags[2]);
-		if (msg!=null){
-			throw new Exception(msg);
+		//是否需要重做预测阶段
+		if (clModel.is_skipPredictInBacktest() == false) {
+			//预测数据
+			String msg=clModel.validateTestingData(dataTags[2]);
+			if (msg!=null){
+				throw new Exception(msg);
+			}
+			clModel.predictData(testingData, result,yearSplit,policySplit);
 		}
-		clModel.predictData(testingData, result,yearSplit,policySplit);
 		testingData=null;//释放内存
 		
 		

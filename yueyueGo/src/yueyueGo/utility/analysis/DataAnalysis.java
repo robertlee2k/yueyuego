@@ -94,7 +94,7 @@ public class DataAnalysis {
 		GeneralAttribute shouyilvAttribute=data.attribute(ArffFormat.SHOUYILV);
 		int shouyilvPos = BaseInstanceProcessor.findATTPosition(data,ArffFormat.SHOUYILV);
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(data);
-		int policyPos = BaseInstanceProcessor.findATTPosition(data,policyGroupName);
+		int policyIndex = BaseInstanceProcessor.findATTPosition(data,policyGroupName);
 		
 		ShouyilvDescriptive oneDescription;
 		
@@ -109,7 +109,8 @@ public class DataAnalysis {
 			if ("".equals(policy)){
 				policyData=data;
 			}else{
-				policyData=instanceProcessor.getInstancesSubset(data, WekaInstanceProcessor.WEKA_ATT_PREFIX +policyPos+" = "+ policy );
+				String splitClause=BackTest.appendSplitClause("", policyIndex, policy);
+				policyData=instanceProcessor.getInstancesSubset(data, splitClause);
 				//" is '"	+ policy + "'");
 				
 			}
