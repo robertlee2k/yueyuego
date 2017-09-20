@@ -229,9 +229,9 @@ public class BackTest {
 
 		//按连续分类器回测历史数据
 		BaggingM5P cModel=BaggingM5P.initModel(m_currentArffFormat, BaseClassifier.FOR_BACKTEST_MODEL);
-		GeneralInstances continuousResult=testBackward(cModel);
+//		GeneralInstances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
-//		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
+		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 		
 		saveResultsAndStatistics(nModel, nominalResult, cModel, continuousResult);
 		
@@ -519,8 +519,7 @@ public class BackTest {
 	 * @return
 	 */
 	public static String appendSplitClause(String originClause,int policyIndex,String policy) {
-		String splitClause;
-		String splitPolicy;
+ 		String splitPolicy;
 		
 		//如果没有splitPolicy则不需要对policy的部分处理
 		if ("".equals(policy) || policy==null){
@@ -531,8 +530,9 @@ public class BackTest {
 			}else{ //否则添加Add
 				splitPolicy=" and";				
 			}
+			//将用"-"分割的policy拆分
 			String[] policyArray = policy.split("-");
-			if (policyArray.length==1){ //没有需要猜分的policy，传入参数就是合并的
+			if (policyArray.length==1){ //没有需要拆分的policy组合，传入参数就是单一的policy
 				splitPolicy+=" ("+WekaInstanceProcessor.WEKA_ATT_PREFIX+policyIndex+" = "	+ policy + ")";
 			}else { //有要拆分的
 				splitPolicy+=" (";
@@ -544,7 +544,7 @@ public class BackTest {
 			}
 					//" is '"	+ policy + "')";
 		}
-		splitClause = originClause + splitPolicy ;
+		String	splitClause = originClause + splitPolicy ;
 		return splitClause;
 	}
 
@@ -561,7 +561,7 @@ public class BackTest {
 //			left=FileUtility.loadDataFromFile(C_ROOT_DIRECTORY+ArffFormat.TRANSACTION_ARFF_PREFIX+"-left.arff");
 //		}
 
-		left=DataIOHandler.getSuppier().loadDataFromFile(AppContext.getC_ROOT_DIRECTORY()+m_currentArffFormat.m_data_file_prefix+"-left.arff");
+		left=DataIOHandler.getSuppier().loadDataFromFile(AppContext.getC_ROOT_DIRECTORY()+m_currentArffFormat.getLeftDataFileName());
 		MergeClassifyResults merge=new MergeClassifyResults(m_currentArffFormat.m_policy_group);
 		GeneralInstances mergedResult =merge.mergeResults(resultData, referenceData,dataToAdd, left);
 
