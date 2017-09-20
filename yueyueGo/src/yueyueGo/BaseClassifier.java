@@ -451,6 +451,13 @@ public abstract class BaseClassifier implements Serializable{
 //		output.append("\r\n");
 		output.append("m_skipEvalInBacktest="+this.m_skipEvalInBacktest);
 		output.append("\r\n");
+		output.append("m_policySubGroup={");
+		for (String eachString : m_policySubGroup) {
+			output.append(eachString);
+			output.append("/");
+		}
+		output.append("}");
+		output.append("\r\n");
 		output.append("m_positiveLine="+m_positiveLine);
 		output.append("\r\n");
 		output.append("m_modelDataSplitMode="+m_evalDataSplitMode);
