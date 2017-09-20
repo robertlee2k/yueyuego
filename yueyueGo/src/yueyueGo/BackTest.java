@@ -656,24 +656,26 @@ public class BackTest {
 	 */
 	protected void saveResultsAndStatistics(NominalClassifier nModel, GeneralInstances nominalResult, ContinousClassifier cModel,
 			GeneralInstances continuousResult) throws Exception {
-	
-
+		
+		String[] targetPolicies={"5","10","20","30","60"}; //缺省输出各种均线分布
+//		targetPolicies=cModel.m_policySubGroup;//按模型输出分布
+		
 		//输出原始数据的收益率分析统计结果 
 		ShouyilvDescriptiveList[] shouyilvDescriptionsArray=new ShouyilvDescriptiveList[3];
+
+		shouyilvDescriptionsArray[0]=DataAnalysis.analyzeMarket("原始数据",m_startYear+"01",m_endYearMonth,m_currentArffFormat.m_policy_group,targetPolicies,continuousResult);
 		
 		//输出分类结果和参数
 		String cModelSummary=cModel.outputClassifySummary();
-		
-		shouyilvDescriptionsArray[0]=DataAnalysis.analyzeMarket("原始数据",m_startYear+"01",m_endYearMonth,m_currentArffFormat.m_policy_group,cModel.m_policySubGroup,continuousResult);
 
 		//输出连续分类器的收益率分析统计结果
 		System.out.println("-----now output continuous predictions----------"+cModel.getIdentifyName() + " (filtered by nominal: "+nModel.getIdentifyName()+")");
 		GeneralInstances selectedInstances=returnSelectedInstances(continuousResult);
-		shouyilvDescriptionsArray[1]=DataAnalysis.analyzeMarket("单模型选股",m_startYear+"01",m_endYearMonth,m_currentArffFormat.m_policy_group,cModel.m_policySubGroup,selectedInstances);
+		shouyilvDescriptionsArray[1]=DataAnalysis.analyzeMarket("单模型选股",m_startYear+"01",m_endYearMonth,m_currentArffFormat.m_policy_group,targetPolicies,selectedInstances);
 		//用另一个模型合并选股
 		GeneralInstances m5pOutput=mergeResultWithData(continuousResult,nominalResult,ArffFormat.RESULT_PREDICTED_WIN_RATE,cModel.getModelArffFormat());
 		selectedInstances=returnSelectedInstances(m5pOutput);
-		shouyilvDescriptionsArray[2]=DataAnalysis.analyzeMarket("双模型选股",m_startYear+"01",m_endYearMonth,m_currentArffFormat.m_policy_group,cModel.m_policySubGroup,selectedInstances);
+		shouyilvDescriptionsArray[2]=DataAnalysis.analyzeMarket("双模型选股",m_startYear+"01",m_endYearMonth,m_currentArffFormat.m_policy_group,targetPolicies,selectedInstances);
 		
 		//输出上述收益率分析的csv文件
 		String output=ShouyilvDescriptiveList.mergeHorizontallyToCSV(shouyilvDescriptionsArray)+"\r\n\r\n\r\n"+cModelSummary;
@@ -684,18 +686,20 @@ public class BackTest {
 
 		//输出二分类器的收益率分析统计结果
 
+//		targetPolicies=nModel.m_policySubGroup;//按模型输出分布
+//		//再输出一遍原始数据的原因是，连续分类器和二分类器的policy分组可能不一样，统计口径不一样
+//		shouyilvDescriptionsArray[0]=DataAnalysis.analyzeMarket("原始数据",m_startYear+"01",m_endYearMonth,m_currentArffFormat.m_policy_group,targetPolicies,nominalResult);
+
 		//输出分类结果和参数
 		String nModelSummary=nModel.outputClassifySummary();
-		//再输出一遍原始数据的原因是，连续分类器和二分类器的policy分组可能不一样，统计口径不一样
-		shouyilvDescriptionsArray[0]=DataAnalysis.analyzeMarket("原始数据",m_startYear+"01",m_endYearMonth,m_currentArffFormat.m_policy_group,nModel.m_policySubGroup,nominalResult);
 		
 		System.out.println("-----now output nominal predictions----------"+nModel.getIdentifyName()+" (filtered by continuous: "+cModel.getIdentifyName()+")");
 		selectedInstances=returnSelectedInstances(nominalResult);
-		shouyilvDescriptionsArray[1]=DataAnalysis.analyzeMarket("单模型选股",m_startYear+"01",m_endYearMonth,m_currentArffFormat.m_policy_group,nModel.m_policySubGroup,selectedInstances);
+		shouyilvDescriptionsArray[1]=DataAnalysis.analyzeMarket("单模型选股",m_startYear+"01",m_endYearMonth,m_currentArffFormat.m_policy_group,targetPolicies,selectedInstances);
 		//用另一个模型合并选股
 		GeneralInstances mlpOutput=mergeResultWithData(nominalResult,continuousResult,ArffFormat.RESULT_PREDICTED_PROFIT,nModel.getModelArffFormat());
 		selectedInstances=returnSelectedInstances(mlpOutput);
-		shouyilvDescriptionsArray[2]=DataAnalysis.analyzeMarket("双模型选股",m_startYear+"01",m_endYearMonth,m_currentArffFormat.m_policy_group,nModel.m_policySubGroup,selectedInstances);
+		shouyilvDescriptionsArray[2]=DataAnalysis.analyzeMarket("双模型选股",m_startYear+"01",m_endYearMonth,m_currentArffFormat.m_policy_group,targetPolicies,selectedInstances);
 		
 		//输出上述收益率分析的csv文件
 		output=ShouyilvDescriptiveList.mergeHorizontallyToCSV(shouyilvDescriptionsArray)+"\r\n\r\n\r\n"+nModelSummary;
