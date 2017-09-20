@@ -686,8 +686,8 @@ public class BackTest {
 
 		//输出分类结果和参数
 		String nModelSummary=nModel.outputClassifySummary();
-		//再输出一遍原始数据的原因是，连续分类器和二分类器的policy分组可能不一样
-		shouyilvDescriptionsArray[0]=DataAnalysis.analyzeMarket("原始数据",m_startYear+"01",m_endYearMonth,m_currentArffFormat.m_policy_group,cModel.m_policySubGroup,continuousResult);
+		//再输出一遍原始数据的原因是，连续分类器和二分类器的policy分组可能不一样，统计口径不一样
+		shouyilvDescriptionsArray[0]=DataAnalysis.analyzeMarket("原始数据",m_startYear+"01",m_endYearMonth,m_currentArffFormat.m_policy_group,nModel.m_policySubGroup,nominalResult);
 		
 		System.out.println("-----now output nominal predictions----------"+nModel.getIdentifyName()+" (filtered by continuous: "+cModel.getIdentifyName()+")");
 		selectedInstances=returnSelectedInstances(nominalResult);
