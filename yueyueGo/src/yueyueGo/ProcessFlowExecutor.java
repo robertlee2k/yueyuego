@@ -72,7 +72,9 @@ public class ProcessFlowExecutor implements Callable<String> {
 			if (clModel instanceof NominalClassifier){
 				isNominal=true;
 			}
-			
+
+			//设置评估或测试时所用的EvaluationStore
+			clModel.locateEvalutationStore(yearSplit,policySplit,modelFilePath,modelFilePrefix);
 			msg=clModel.validateEvalData(dataTags[1]);
 			if (msg!=null){
 				throw new Exception(msg);
