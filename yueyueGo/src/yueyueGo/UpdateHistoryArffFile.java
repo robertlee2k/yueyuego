@@ -7,6 +7,8 @@ import org.apache.commons.math3.exception.MathIllegalArgumentException;
 import org.apache.commons.math3.exception.MathIllegalStateException;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
+import weka.core.AttributeStats;
+import weka.core.Instances;
 import yueyueGo.dataFormat.ArffFormat;
 import yueyueGo.dataFormat.AvgLineDataFormat;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
@@ -49,7 +51,7 @@ public class UpdateHistoryArffFile {
 //			worker.callRefreshModelUseLatestData();
 			
 			//校验数据文件
-			WekaInstanceProcessor.analyzeDataAttributes(AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.getFullArffFileName());
+			analyzeDataAttributes(AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.getFullArffFileName());
 
 			//处理离群值
 //			updateArffFileOutier(currentArffFormat);
@@ -845,6 +847,36 @@ public class UpdateHistoryArffFile {
 		merged.setClassIndex(merged.numAttributes()-1);
 	
 		return merged;
+	}
+
+	/*
+	 * 
+	 * 分析给定Arff数据文件的每一个属性，并保存数据范围
+	 */
+	protected static void analyzeDataAttributes(String arffFile) throws Exception{
+		
+		System.out.println("start to load Arff File from File: "+ arffFile  );
+		GeneralInstances fullSetData =DataIOHandler.getSuppier().loadDataFromFile(arffFile);
+		System.out.println("finish loading fullset Data. row : "+ fullSetData.numInstances() + " column:"+ fullSetData.numAttributes());
+		
+		Instances  data=WekaInstances.convertToWekaInstances(fullSetData);
+		
+		for (int index=0; index<data.numAttributes();index++){
+			String name=data.attribute(index).name();
+			AttributeStats status= data.attributeStats(index);
+			System.out.println("====output attribute status for attribute: "+name + " @Column "+(index+1));
+			System.out.print(FormatUtility.printAttributeStatus(status));
+			System.out.println("====end of attribute status for attribute: "+name + " @Column "+(index+1));
+			System.out.println("");
+			
+			if (status.numericStats!=null){
+				double lowerLimit=status.numericStats.min;
+				double upperLimit=status.numericStats.max;
+				AttributeValueRange range=new AttributeValueRange(name,lowerLimit,upperLimit);
+			}
+		}
+		
+		
 	}
 
 

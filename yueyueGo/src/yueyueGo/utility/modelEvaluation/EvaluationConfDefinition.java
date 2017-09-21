@@ -29,7 +29,7 @@ public class EvaluationConfDefinition implements Serializable{
 	public static final int PREVIOUS_MODELS_NUM=5; 	//暂时选取之前的6个文件（加上9个月评估数据，也就是最大倒推2年左右）
 
 
-	public static final double REVERSED_TOP_AREA_RATIO=0.5; //缺省定义反向头部为50%
+	public static final double REVERSED_TOP_AREA_RATIO=0.4; //缺省定义反向头部为50%
 
 
 	public static final double TOP_AREA_RATIO=0.1; //缺省定义头部区域为10%
@@ -44,13 +44,13 @@ public class EvaluationConfDefinition implements Serializable{
 			switch (classifierName) {
 			case ClassifyUtility.BAGGING_M5P:
 				//缩小选股比率
-				SAMPLE_LOWER_LIMIT =new double[] { 0.012, 0.015, 0.02, 0.03, 0.03 }; // 各条均线选择样本的下限
-				SAMPLE_UPPER_LIMIT =new double[] { 0.03, 0.04, 0.05, 0.06, 0.06 }; // 各条均线选择样本的上限
+				SAMPLE_LOWER_LIMIT =new double[] { 0.01, 0.01, 0.02};// 0.03, 0.03 }; // 各条均线选择样本的下限
+				SAMPLE_UPPER_LIMIT =new double[] { 0.03, 0.03, 0.03};//, 0.06, 0.06 }; // 各条均线选择样本的上限
 				break;
 			case ClassifyUtility.ADABOOST:
 				//缩小选股比率
-				SAMPLE_LOWER_LIMIT =new double[] { 0.012, 0.015, 0.02, 0.03, 0.03 }; // 各条均线选择样本的下限
-				SAMPLE_UPPER_LIMIT =new double[] { 0.03, 0.04, 0.05, 0.06, 0.06 }; // 各条均线选择样本的上限
+				SAMPLE_LOWER_LIMIT =new double[] { 0.01};//, 0.015, 0.02, 0.03, 0.03 }; // 各条均线选择样本的下限
+				SAMPLE_UPPER_LIMIT =new double[] { 0.03};//, 0.04, 0.05, 0.06, 0.06 }; // 各条均线选择样本的上限
 
 //				SAMPLE_LOWER_LIMIT =new double[] { 0.02, 0.02, 0.02, 0.03, 0.03 }; // 各条均线选择样本的下限
 //				SAMPLE_UPPER_LIMIT =new double[] { 0.06, 0.06, 0.06, 0.06, 0.06 }; // 各条均线选择样本的上限

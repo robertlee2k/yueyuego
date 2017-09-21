@@ -850,7 +850,7 @@ public class BackTest {
 		if (classifier.is_skipTrainInBacktest()==false){ //模型需要训练，这个所需内存比较大
 			threadNum=5;
 		}else if (classifier.is_skipEvalInBacktest()==false) { //模型需要评估，这个需要内存中等
-			threadNum=EnvConstants.CPU_CORE_NUMBER-1;
+			threadNum=EnvConstants.CPU_CORE_NUMBER+EnvConstants.CPU_CORE_NUMBER/2;
 		}else{ //只要单纯回测，这个内存无须太多，可以全开线程
 			threadNum=EnvConstants.CPU_CORE_NUMBER*2;
 		}
