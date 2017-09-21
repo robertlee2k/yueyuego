@@ -21,7 +21,7 @@ import yueyueGo.databeans.GeneralInstances;
 			new MarketDefinition("大熊市" , 201506, 201508),
 			new MarketDefinition("小反弹" , 201509, 201512),
 			new MarketDefinition("熔断后" , 201601, 201610),
-			new MarketDefinition("平衡市" , 201610, 201707),
+			new MarketDefinition("平衡市" , 201610, 201712),
  * 
  */
 public class DataAnalysis {
@@ -39,7 +39,7 @@ public class DataAnalysis {
 			new MarketDefinition("大熊市" , 201506, 201508),
 			new MarketDefinition("小反弹" , 201509, 201512),
 			new MarketDefinition("熔断后" , 201601, 201610),
-			new MarketDefinition("平衡市" , 201610, 201707),
+			new MarketDefinition("平衡市" , 201610, 201712),
 	};
 
 
