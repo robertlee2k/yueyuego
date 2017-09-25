@@ -94,9 +94,9 @@ public class BackTest {
 			worker.init();
 
 			//调用回测函数回测
-			worker.callRebuildModels();
-			worker.callReEvaluateModels();
-//			worker.callTestBack();
+//			worker.callRebuildModels();
+//			worker.callReEvaluateModels();
+			worker.callTestBack();
 //			worker.callRefreshModelUseLatestData();
 			
 //			worker.callDataAnlysis();
@@ -669,12 +669,13 @@ public class BackTest {
 		String cModelSummary=cModel.outputClassifySummary();
 
 		//输出连续分类器的收益率分析统计结果
-		System.out.println("-----now output continuous predictions----------"+cModel.getIdentifyName() + " (filtered by nominal: "+nModel.getIdentifyName()+")");
+		System.out.println("-----now output continuous predictions----------"+cModel.getIdentifyName() );
 		GeneralInstances selectedInstances=returnSelectedInstances(continuousResult);
 		shouyilvDescriptionsArray[1]=DataAnalysis.analyzeMarket("单模型选股",m_startYear+"01",m_endYearMonth,m_currentArffFormat.m_policy_group,targetPolicies,selectedInstances);
 		//用另一个模型合并选股
 		GeneralInstances m5pOutput=mergeResultWithData(continuousResult,nominalResult,ArffFormat.RESULT_PREDICTED_WIN_RATE,cModel.getModelArffFormat());
 		selectedInstances=returnSelectedInstances(m5pOutput);
+		System.out.println("--filtered by nominal classifier:( "+nModel.getIdentifyName()+")");
 		shouyilvDescriptionsArray[2]=DataAnalysis.analyzeMarket("双模型选股",m_startYear+"01",m_endYearMonth,m_currentArffFormat.m_policy_group,targetPolicies,selectedInstances);
 		
 		//输出上述收益率分析的csv文件
@@ -693,12 +694,13 @@ public class BackTest {
 		//输出分类结果和参数
 		String nModelSummary=nModel.outputClassifySummary();
 		
-		System.out.println("-----now output nominal predictions----------"+nModel.getIdentifyName()+" (filtered by continuous: "+cModel.getIdentifyName()+")");
+		System.out.println("-----now output nominal predictions----------"+nModel.getIdentifyName());
 		selectedInstances=returnSelectedInstances(nominalResult);
 		shouyilvDescriptionsArray[1]=DataAnalysis.analyzeMarket("单模型选股",m_startYear+"01",m_endYearMonth,m_currentArffFormat.m_policy_group,targetPolicies,selectedInstances);
 		//用另一个模型合并选股
 		GeneralInstances mlpOutput=mergeResultWithData(nominalResult,continuousResult,ArffFormat.RESULT_PREDICTED_PROFIT,nModel.getModelArffFormat());
 		selectedInstances=returnSelectedInstances(mlpOutput);
+		System.out.println("--filtered by continuous classifier:( "+cModel.getIdentifyName()+")");
 		shouyilvDescriptionsArray[2]=DataAnalysis.analyzeMarket("双模型选股",m_startYear+"01",m_endYearMonth,m_currentArffFormat.m_policy_group,targetPolicies,selectedInstances);
 		
 		//输出上述收益率分析的csv文件

@@ -102,6 +102,10 @@ public class DataAnalysis {
 		//先分析整体的
 		oneDescription=analyzeShouyilv(timeRange, shouyilvAttribute,shouyilvPos,instanceProcessor,ShouyilvDescriptive.ALL,data);
 		shouyilvDesc.addDescription(oneDescription);
+		
+//		//获得整体的数据，用于在下面进行评估比较
+//		double totalSelectedCount=oneDescription.getCount();
+
 
 		for (int j = BackTest.BEGIN_FROM_POLICY; j < policyStrings.length; j++) {
 			String policy = policyStrings[j];

@@ -61,7 +61,7 @@ public class ShouyilvDescriptive {
 		result.append("\r\n");
 		result.append("\t\t actual negative average="+FormatUtility.formatPercent(negativeShouyilvAverage,2,3)+" count="+(count-positiveCount));
 		result.append("\r\n");
-		result.append("\t\t actual positive/total="+FormatUtility.formatPercent(this.getPositiveRatio(),2,2));
+		result.append("\t\t actual positive ratio="+FormatUtility.formatPercent(this.getPositiveRatio(),2,2));
 		result.append("\r\n");
 		return result.toString();
 	}

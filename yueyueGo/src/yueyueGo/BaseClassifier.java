@@ -18,6 +18,7 @@ import yueyueGo.databeans.GeneralAttribute;
 import yueyueGo.databeans.GeneralDataTag;
 import yueyueGo.databeans.GeneralInstance;
 import yueyueGo.databeans.GeneralInstances;
+import yueyueGo.databeans.WekaInstances;
 import yueyueGo.utility.ClassifySummaries;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.modelEvaluation.EvaluationConfDefinition;
@@ -119,9 +120,11 @@ public abstract class BaseClassifier implements Serializable{
 	
 	//为回测历史数据使用
 	// result parameter will be changed in this method!
-	public  void predictData(GeneralInstances test, GeneralInstances result,String yearSplit,String policySplit)
+	public  void predictData(GeneralInstances dataToPredict, GeneralInstances result,String yearSplit,String policySplit)
 			throws Exception {
 
+		//第一步： 从评估文件中获取模型，并校验之。
+		
 		//先找对应的评估结果
 		//获取评估数据
 		ThresholdData thresholdData=m_evaluationStore.loadDataFromFile();
@@ -133,39 +136,38 @@ public abstract class BaseClassifier implements Serializable{
 		else{ 
 			throw new Exception(msg);
 		}
-		
-		// There is additional ID attribute in test instances, so we should save it and remove before doing prediction
-		double[] ids=test.attributeToDoubleArray(ArffFormat.ID_POSITION - 1);  
+
+		GeneralInstances predictDataFormat=new WekaInstances(dataToPredict,0);
 		//删除已保存的ID 列，让待分类数据与模型数据一致 （此处的index是从1开始）
-		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(test);
-		test=instanceProcessor.removeAttribs(test,  Integer.toString(ArffFormat.ID_POSITION));
+		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(predictDataFormat);
+		predictDataFormat=instanceProcessor.removeAttribs(predictDataFormat,  Integer.toString(ArffFormat.ID_POSITION));
 
 		//获取预测文件中的应该用哪个modelYearSplit的模型
 		String modelYearSplit=thresholdData.getModelYearSplit();
 		//从评估结果中找到正向模型文件。		
 		ModelStore modelStore=new ModelStore(m_evaluationStore.getWorkFilePath(),thresholdData.getModelFileName(), modelYearSplit);
-		Classifier model = modelStore.loadModelFromFile(test, yearSplit);
+		Classifier model = modelStore.loadModelFromFile(predictDataFormat, yearSplit);
 
 		//获取预测文件中的应该用哪个反向模型的模型
 		String reversedModelYearSplit=thresholdData.getReversedModelYearSplit();
 
-		boolean usingOneModel=false; 
+//		boolean usingOneModel=false; 
 		Classifier reversedModel=null;
 		ModelStore reversedModelStore=null;
 		if (reversedModelYearSplit.equals(modelYearSplit)){//正向模型和方向模型是同一模型的。
-			usingOneModel=true;
+			reversedModel=model;
 			reversedModelStore=modelStore;
 		}else{
 			//从评估结果中找到反向模型文件。		
 			reversedModelStore=new ModelStore(m_evaluationStore.getWorkFilePath(),thresholdData.getReversedModelFileName(), reversedModelYearSplit);
 			//获取model
-			reversedModel=reversedModelStore.loadModelFromFile(test,yearSplit);
+			reversedModel=reversedModelStore.loadModelFromFile(predictDataFormat,yearSplit);
 		}
 
 		double thresholdMin=thresholdData.getThreshold(); //判断为1的阈值，大于该值意味着该模型判断其为1
 		double reversedThresholdMax=thresholdData.getReversedThreshold(); //判断为0的阈值，小于该值意味着该模型坚定认为其为0 （这是合并多个模型预测时使用的）
 		if (reversedThresholdMax>thresholdMin){
-			if(usingOneModel==true){
+			if(reversedModel==model){
 				throw new Exception("fatal error!!! reversedThreshold("+reversedThresholdMax+") > threshold("+thresholdMin+") using same model (modelyear="+reversedModelYearSplit+")" );
 			}else{
 				System.out.println("使用不同模型时反向阀值大于正向阀值了"+"reversedThreshold("+reversedThresholdMax+")@"+reversedModelYearSplit + " > threshold("+thresholdMin+")@"+modelYearSplit);
@@ -173,6 +175,7 @@ public abstract class BaseClassifier implements Serializable{
 		}
 
 
+		//第二步：具体预测
 		DescriptiveStatistics totalPositiveShouyilv=new DescriptiveStatistics();
 		DescriptiveStatistics totalNegativeShouyilv=new DescriptiveStatistics();
 		DescriptiveStatistics selectedPositiveShouyilv=new DescriptiveStatistics();
@@ -197,13 +200,17 @@ public abstract class BaseClassifier implements Serializable{
 		//找出输出结果集中须保留的校验字段 （将测试数据的这些值直接写入输出结果集）
 		ArrayList<GeneralAttribute> attributesToCopy=findAttributesToCopy(result);
 		
+		// There is additional ID attribute in test instances, so we should save it and remove before doing prediction
+		double[] ids=dataToPredict.attributeToDoubleArray(ArffFormat.ID_POSITION - 1);  
+		//删除已保存的ID 列，让待分类数据与模型数据一致 （此处的index是从1开始）
+		dataToPredict=InstanceHandler.getHandler(dataToPredict).removeAttribs(dataToPredict,  Integer.toString(ArffFormat.ID_POSITION));		
 		//开始循环，用分类模型和阈值对每一条数据进行预测，并存入输出结果集
 		System.out.println("actual -> predicted....... ");
-		int testInstancesNum=test.numInstances();
+		int testInstancesNum=dataToPredict.numInstances();
 		for (int i = 0; i < testInstancesNum; i++) {
-			GeneralInstance currentTestRow = test.instance(i);
+			GeneralInstance currentTestRow = dataToPredict.instance(i);
 			pred=classify(model,currentTestRow);  //调用子类的分类函数
-			if (usingOneModel==true){
+			if (reversedModel==model){ //如果反向评估模型是同一个类
 				reversedPred=pred;
 			}else{
 				reversedPred=classify(reversedModel, currentTestRow); //调用反向评估模型的分类函数
@@ -251,7 +258,7 @@ public abstract class BaseClassifier implements Serializable{
 			
 			//最后将那些无须结算的校验字段的值直接从测试数据集拷贝到输出结果集
 			for (GeneralAttribute resultAttribute : attributesToCopy) {
-				GeneralAttribute testAttribute = test.attribute(resultAttribute.name());
+				GeneralAttribute testAttribute = dataToPredict.attribute(resultAttribute.name());
 				// test attribute which is be present in the result data set
 				if (testAttribute != null) {
 					if (testAttribute.isNominal()) {
@@ -273,6 +280,7 @@ public abstract class BaseClassifier implements Serializable{
 		
 		
 
+		//第三步： 输出各种统计值
 		double percentile=thresholdData.getPercent();
 		boolean isGuessed=thresholdData.isGuessed();
 		String defaultThresholdUsed=" ";
