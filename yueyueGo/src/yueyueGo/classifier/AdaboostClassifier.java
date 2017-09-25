@@ -270,10 +270,9 @@ public class AdaboostClassifier extends NominalClassifier {
 					model.m_modelFileShareMode=ModelStore.QUARTER_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 					model.m_evalDataSplitMode=EvaluationStore.USE_NINE_MONTHS_DATA_FOR_EVAL; //尝试评估区间使用9个月数据（效果还不错）
 					model.m_usePCA=true; //20121223尝试不使用PCA，效果一般且建模非常慢，所以放弃
-					model.m_normalize=true; //在进入分类器之前需要对数据做Normalize
-					model.m_preprocesingBeforePCA=MyAttributionSelectorWithPCA.CENTER_DATA;
-							//MyAttributionSelectorWithPCA.STANDARDIZE_DATA; 
-	//				model.m_positiveLine=0.03; //尝试3%的阀值
+				 	model.m_normalize=false;//true; //在进入分类器之前需要对数据做Normalize
+				 	model.m_preprocesingBeforePCA=MyAttributionSelectorWithPCA.STANDARDIZE_DATA;//MyAttributionSelectorWithPCA.CENTER_DATA;
+	//				model.m_positiveLine=0.03; //尝试3%的阈值
 			 }else if (format instanceof MomentumDataFormat){
 				//设置动量策略参数
 				model.m_policySubGroup = new String[]{"" };

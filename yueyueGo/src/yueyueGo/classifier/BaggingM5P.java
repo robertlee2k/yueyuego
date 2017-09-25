@@ -294,8 +294,8 @@ public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunn
 			 	model.m_policySubGroup = new String[]{"5","10","20-30-60" };		
 			 	model.m_usePCA=true; //20121223尝试不使用PCA，效果不佳，恢复PCA
 			 	model.useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
-			 	model.m_normalize=true; //在进入分类器之前需要对数据做Normalize
-			 	model.m_preprocesingBeforePCA=MyAttributionSelectorWithPCA.CENTER_DATA;
+			 	model.m_normalize=false;//true; //在进入分类器之前需要对数据做Normalize
+			 	model.m_preprocesingBeforePCA=MyAttributionSelectorWithPCA.STANDARDIZE_DATA;//MyAttributionSelectorWithPCA.CENTER_DATA;
 	
 			 	model.bagging_iteration=10;	//bagging特有参数
 			 	model.leafMinObjNum=300; //叶子节点最小的
