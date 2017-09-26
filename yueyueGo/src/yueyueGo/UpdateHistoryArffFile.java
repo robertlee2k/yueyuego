@@ -231,8 +231,7 @@ public class UpdateHistoryArffFile {
 		int originInstancesNum=originalData.numInstances();
 		System.out.println ("refreshing period from: "+ startYearMonth+" to:" +endYearMonth+ "while fullsize ="+ originInstancesNum);
 		//将原始文件里属于该时间段的数据保留下来供后期对比
-		//TODO ATT should be processed
-		String splitRemovedDataClause = "( ATT" + ArffFormat.YEAR_MONTH_INDEX + " >= " + startYearMonth+ ") and ( ATT" + ArffFormat.YEAR_MONTH_INDEX+ " <= " + endYearMonth + ") ";
+		String splitRemovedDataClause = "( "+WekaInstanceProcessor.WEKA_ATT_PREFIX + ArffFormat.YEAR_MONTH_INDEX + " >= " + startYearMonth+ ") and ( "+WekaInstanceProcessor.WEKA_ATT_PREFIX + ArffFormat.YEAR_MONTH_INDEX+ " <= " + endYearMonth + ") ";
 		GeneralInstances removedData=instanceProcessor.getInstancesSubset(originalData, splitRemovedDataClause);
 		int removedNumber=removedData.numInstances();
 		System.out.println("number of rows removed = "+ removedNumber+" Now saving it to -removed.arff for future comparision");
@@ -241,8 +240,7 @@ public class UpdateHistoryArffFile {
 		removedData=null;
 		//下面才是真正的对原始数据的删除处理
 		//将原始文件里不属于该时间段的数据过滤出来（相当于把属于该段时间的原有数据删除）
-		//TODO ATT should be processed
-		String splitCurrentYearClause = "( ATT" + ArffFormat.YEAR_MONTH_INDEX + " < " + startYearMonth+ ") or ( ATT" + ArffFormat.YEAR_MONTH_INDEX+ " > " + endYearMonth + ") ";
+		String splitCurrentYearClause = "( "+WekaInstanceProcessor.WEKA_ATT_PREFIX + ArffFormat.YEAR_MONTH_INDEX + " < " + startYearMonth+ ") or ( "+WekaInstanceProcessor.WEKA_ATT_PREFIX + ArffFormat.YEAR_MONTH_INDEX+ " > " + endYearMonth + ") ";
 		originalData=instanceProcessor.getInstancesSubset(originalData, splitCurrentYearClause);
 		int filteredNumber=originalData.numInstances() ;
 		if (removedNumber!=(originInstancesNum-filteredNumber)){
@@ -540,10 +538,9 @@ public class UpdateHistoryArffFile {
 				lastDate=tradeDate;
 				lastCode=code;
 			}
-	
-			//TODO ATT should be replaced
-			originDailyData=instanceProcessor.getInstancesSubset(removedOriginalData, "(ATT"+tradeDateIndex +" is '"+ tradeDate+"') and (ATT"+codeIndex+" is '"+code+"')");
-			refreshedDailyData=instanceProcessor.getInstancesSubset(refreshedData, "(ATT"+tradeDateIndex +" is '"+ tradeDate+"') and (ATT"+codeIndex+" is '"+code+"')");
+			
+			originDailyData=instanceProcessor.getInstancesSubset(removedOriginalData, "("+WekaInstanceProcessor.WEKA_ATT_PREFIX+tradeDateIndex +" is '"+ tradeDate+"') and ("+WekaInstanceProcessor.WEKA_ATT_PREFIX+codeIndex+" is '"+code+"')");
+			refreshedDailyData=instanceProcessor.getInstancesSubset(refreshedData, "("+WekaInstanceProcessor.WEKA_ATT_PREFIX+tradeDateIndex +" is '"+ tradeDate+"') and ("+WekaInstanceProcessor.WEKA_ATT_PREFIX+codeIndex+" is '"+code+"')");
 	
 			int refreshedDailyDataSize=refreshedDailyData.numInstances();
 			int originDailyDataSize=originDailyData.numInstances();

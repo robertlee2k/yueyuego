@@ -26,7 +26,7 @@ public class EvaluationConfDefinition implements Serializable{
 	protected String[] m_policyGroup;
 
 
-	public static final int PREVIOUS_MODELS_NUM=5; 	//暂时选取之前的6个文件（加上9个月评估数据，也就是最大倒推2年左右）
+	public static final int PREVIOUS_MODELS_NUM=3; 	//暂时选取之前的3个文件（加上9个月评估数据，也就是最大倒推1.5年左右，太久远的数据建模没意义）
 
 
 	public static final double REVERSED_TOP_AREA_RATIO=0.4; //缺省定义反向头部为50%

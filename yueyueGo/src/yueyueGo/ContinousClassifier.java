@@ -218,7 +218,6 @@ public abstract class ContinousClassifier extends BaseClassifier {
 
 	//对于连续变量，返回预测值
 	protected  double classify(Classifier model,GeneralInstance curr) throws Exception {
-		//TODO 以后需要把classifyInstance抽象化
 		double pred =  model.classifyInstance(WekaInstance.convertToWekaInstance(curr));
 		return pred;
 	}

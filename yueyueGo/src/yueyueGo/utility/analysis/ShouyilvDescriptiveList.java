@@ -85,7 +85,7 @@ public class ShouyilvDescriptiveList {
 
 		//接下来按行合并
 		int dataRows=shouyilvDescriptionsArray[0].size();
-		//TODO 跳过相应字段
+
 		for (int i=0;i<dataRows;i++){
 			for (int j=0;j<listNumber;j++){
 			  outputCSV.append(shouyilvDescriptionsArray[j].getDescriptionAt(i).toCSVString());
