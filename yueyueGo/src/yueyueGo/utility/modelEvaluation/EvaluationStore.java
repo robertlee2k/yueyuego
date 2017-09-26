@@ -362,7 +362,7 @@ protected void outputFilesForDebug(ModelStore selectedModel, ArrayList<Predictio
 				continue;
 			}else{
 				modelYears.add(modelYearSplit);
-				startYear=getNMonthsForYearSplit(1, modelYearSplit); //向前推一个月循环找前面的模型
+				startYear=backNMonthsForYearSplit(1, modelYearSplit); //向前推一个月循环找前面的模型
 			}
 
 		}
@@ -580,7 +580,7 @@ protected void outputFilesForDebug(ModelStore selectedModel, ArrayList<Predictio
 	}
 
 	//	当前周期前推N个月的分隔线，比如 如果N=9是201003 则返回200909
-	public static String getNMonthsForYearSplit(int nMonths,String yearSplit){
+	public static String backNMonthsForYearSplit(int nMonths,String yearSplit){
 
 		int lastPeriod=0;
 		if (yearSplit.length()==4){ //最后一位-1 （2010-1=2009）再拼接一个12-nMonth+1
@@ -623,7 +623,7 @@ protected void outputFilesForDebug(ModelStore selectedModel, ArrayList<Predictio
 		case EvaluationStore.USE_YEAR_DATA_FOR_EVAL:
 		case EvaluationStore.USE_HALF_YEAR_DATA_FOR_EVAL:
 		case EvaluationStore.USE_NINE_MONTHS_DATA_FOR_EVAL:
-			evalYearSplit=EvaluationStore.getNMonthsForYearSplit(evalDataSplitMode,targetYearSplit);			
+			evalYearSplit=EvaluationStore.backNMonthsForYearSplit(evalDataSplitMode,targetYearSplit);			
 			break;
 		}
 		System.out.println("目标日期="+targetYearSplit+" 评估数据切分日期="+evalYearSplit+"（评估数据切分模式="+evalDataSplitMode+"）");
