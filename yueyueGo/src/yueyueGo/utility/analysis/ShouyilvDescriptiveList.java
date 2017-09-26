@@ -6,7 +6,7 @@ public class ShouyilvDescriptiveList {
 
 	protected String marketName;
 	protected ArrayList<ShouyilvDescriptive> shouyilvDescriptions;
-	public static final String[] HEADER={"所属区间","所用模型","均线分组","总机会数","收益率平均值","正收益数","正收益率平均值","负收益数","负收益率平均值","正值率"};
+	public static final String[] HEADER={"所属区间","均线分组","总机会数","收益率平均值","正收益数","正收益率平均值","负收益数","负收益率平均值","正值率"};
 	
 	
 	public ShouyilvDescriptiveList(String marketName) {
