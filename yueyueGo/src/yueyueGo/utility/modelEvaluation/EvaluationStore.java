@@ -129,7 +129,7 @@ public class EvaluationStore {
 	 * 校验评估阶段准备用于Evaluating的data是否符合要求
 	 * 返回null的时候表示符合要求
 	 */	
-	public String validateEvalData(GeneralDataTag dataTag){
+	public String validateEvalData(GeneralDataTag dataTag,int skipRecentNMonthForEval){
 		String msg="";
 		if (dataTag.getDataType()!=GeneralDataTag.EVALUATION_DATA){
 			msg+=" incoming dataType is not evaluation data! ";
@@ -138,8 +138,9 @@ public class EvaluationStore {
 			msg+=" incoming data FromPeriod="+dataTag.getFromPeriod()+" while expected m_m_evalYearSplit="+this.m_evalYearSplit;
 		}
 
-		if (this.m_targetYearSplit.equals(dataTag.getToPeriod())==false){
-			msg+=" incoming data toPeriod="+dataTag.getToPeriod()+" while expected m_targetYearSplit="+this.m_targetYearSplit;
+		String evalEndYearSplit=EvaluationStore.backNMonthsForYearSplit(skipRecentNMonthForEval, m_targetYearSplit);
+		if (evalEndYearSplit.equals(dataTag.getToPeriod())==false){
+			msg+=" incoming data toPeriod="+dataTag.getToPeriod()+" while expected m_targetYearSplit="+this.m_targetYearSplit +" skipRecentNMonthForEval="+skipRecentNMonthForEval;
 		}
 		if ("".equals(msg))
 			return null;

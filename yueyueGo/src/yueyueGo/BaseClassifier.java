@@ -392,7 +392,7 @@ public abstract class BaseClassifier implements Serializable{
 	 * @see yueyueGo.utility.modelEvaluation.ModelStore#validateEvalData(yueyueGo.databeans.GeneralDataTag)
 	 */
 	public String validateEvalData(GeneralDataTag dataTag) {
-		return m_evaluationStore.validateEvalData(dataTag);
+		return m_evaluationStore.validateEvalData(dataTag,this.m_SkipRecentNMonthForEval);
 	}
 
 	/**
