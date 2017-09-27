@@ -473,7 +473,11 @@ public abstract class BaseClassifier implements Serializable{
 		output.append("\r\n");
 		output.append("m_modelDataSplitMode="+m_evalDataSplitMode);
 		output.append("\r\n");
+		output.append("m_useRecentNYearForTraining="+this.m_useRecentNYearForTraining);
+		output.append("\r\n");
 		output.append("m_modelEvalFileShareMode="+m_modelFileShareMode);
+		output.append("\r\n");
+		output.append("m_SkipRecentNMonthForEval="+this.m_SkipRecentNMonthForEval);
 		output.append("\r\n");
 		output.append("modelArffFormat="+modelArffFormat);
 		output.append("\r\n");
