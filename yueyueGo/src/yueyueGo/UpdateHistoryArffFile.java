@@ -25,6 +25,7 @@ import yueyueGo.databeans.WekaInstances;
 import yueyueGo.datasource.DataIOHandler;
 import yueyueGo.utility.AppContext;
 import yueyueGo.utility.FormatUtility;
+import yueyueGo.utility.YearMonthProcessor;
 
 public class UpdateHistoryArffFile {
 
@@ -428,7 +429,7 @@ public class UpdateHistoryArffFile {
 			curr=newData.instance(i);
 			tradeDate=curr.stringValue(tradeDateAtt);
 			//设置yearmonth
-			ym=FormatUtility.parseYearMonth(tradeDate);
+			ym=YearMonthProcessor.parseYearMonth(tradeDate);
 			curr.setValue(yearMonthAtt, ym);
 			//修改日期格式
 			curr.setValue(tradeDateAtt, FormatUtility.convertDate(tradeDate));

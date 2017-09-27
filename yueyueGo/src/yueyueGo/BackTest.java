@@ -42,7 +42,6 @@ import yueyueGo.dataProcessor.WekaInstanceProcessor;
 import yueyueGo.databeans.DataInstances;
 import yueyueGo.databeans.GeneralDataTag;
 import yueyueGo.databeans.GeneralInstances;
-import yueyueGo.databeans.WekaDataTag;
 import yueyueGo.datasource.DataIOHandler;
 import yueyueGo.datasource.GeneralDataSaver;
 import yueyueGo.utility.AppContext;
@@ -51,6 +50,7 @@ import yueyueGo.utility.ClassifySummaries;
 import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.MergeClassifyResults;
+import yueyueGo.utility.YearMonthProcessor;
 import yueyueGo.utility.analysis.DataAnalysis;
 import yueyueGo.utility.analysis.ShouyilvDescriptiveList;
 import yueyueGo.utility.modelEvaluation.EvaluationStore;
@@ -287,7 +287,7 @@ public class BackTest {
 			System.out.println("****************************start ****************************   "+splitMark);
 
 			//获取分割年的clause
-			GeneralDataTag[] splitYearTags = getDataSplitTags(clModel,splitMark);
+			GeneralDataTag[] splitYearTags = YearMonthProcessor.getDataSplitTags(clModel,splitMark);
 			String splitTrainYearClause=splitYearTags[0].getSplitClause();
 			String splitEvalYearClause=splitYearTags[1].getSplitClause();
 			String splitTestYearClause=splitYearTags[2].getSplitClause();
@@ -487,32 +487,6 @@ public class BackTest {
 		return fullSetData;
 	}
 
-	/**
-	 * 	从全量数据中获取分割training和eval以及test的clause， test数据比较简单，就是当月的。
-	 * train和eval的逻辑由ModelStore定义:
-	 */
-	public static GeneralDataTag[] getDataSplitTags(BaseClassifier clModel,String targetYearSplit) {
-		String evalYearSplit=EvaluationStore.caculateEvalYearSplit(targetYearSplit, clModel.m_evalDataSplitMode);
-		String modelYearSplit=ModelStore.caculateModelYearSplit(evalYearSplit, clModel.m_modelFileShareMode);
-
-		//用N年的训练数据
-		String modelDataStartYearSplit=ModelStore.modelDataStartYearSplit(modelYearSplit, clModel.m_useRecentNYearForTraining);
-
-		GeneralDataTag[] dataTags=new WekaDataTag[3];
-		
-		dataTags[0]=new WekaDataTag(GeneralDataTag.TRAINING_DATA,modelDataStartYearSplit,modelYearSplit);
-		//此处减掉最近N个月的数据，因为实际每日预测时，最近的数据往往并不准确（收益率还未更新）
-		String evalEndYearSplit=EvaluationStore.backNMonthsForYearSplit(clModel.m_SkipRecentNMonthForEval, targetYearSplit);
-		dataTags[1]=new WekaDataTag(GeneralDataTag.EVALUATION_DATA,evalYearSplit,evalEndYearSplit);
-		dataTags[2]=new WekaDataTag(GeneralDataTag.TESTING_DATA,targetYearSplit,targetYearSplit);
-
-		System.out.println("模型构建数据 from "+modelDataStartYearSplit+" to "+modelYearSplit+"评估数据 from"+evalYearSplit+" to "+evalEndYearSplit+" 测试数据时间="+targetYearSplit);
-	
-		return dataTags;
-	}
-
-	
-	
 	/**
 	 * 根据policy拼出相应的分割表达式，可以在子类中被覆盖
 	 * @param splitTrainYearClause

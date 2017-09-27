@@ -65,21 +65,6 @@ public class FormatUtility {
 		return df.format(d);
 	}
 
-	/**
-	 从日期输入日期变量中获取 yearmonth 并以数值返回(YYYYMM)类型
-	 */
-	public static double parseYearMonth(String tradeDate) throws ParseException {
-		SimpleDateFormat ft = new SimpleDateFormat(ArffFormat.INPUT_DATE_FORMAT);
-		Date tDate = ft.parse(tradeDate);
-
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(tDate);
-		int y = cal.get(Calendar.YEAR);
-		int m = cal.get(Calendar.MONTH)+1;
-		double ym = y * 100 + m;
-		return ym;
-	}
-
 	public static String convertDate(String tradeDate) throws ParseException {
 		SimpleDateFormat input = new SimpleDateFormat(ArffFormat.INPUT_DATE_FORMAT);
 		SimpleDateFormat output = new SimpleDateFormat(ArffFormat.ARFF_DATE_FORMAT);

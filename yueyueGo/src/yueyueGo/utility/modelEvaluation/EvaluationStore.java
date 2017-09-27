@@ -26,6 +26,7 @@ import yueyueGo.utility.ClassifyUtility;
 import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.TpFpStatistics;
+import yueyueGo.utility.YearMonthProcessor;
 
 public class EvaluationStore {
 	protected String m_evalFileName;
@@ -92,7 +93,7 @@ public class EvaluationStore {
 		this.m_modelFileShareMode=clModel.m_modelFileShareMode;
 		this.m_evalDataSplitMode=clModel.m_evalDataSplitMode;
 		this.m_policySplit=policySplit;
-		m_evalYearSplit=caculateEvalYearSplit(m_targetYearSplit,m_evalDataSplitMode);
+		m_evalYearSplit=YearMonthProcessor.caculateEvalYearSplit(m_targetYearSplit,m_evalDataSplitMode);
 	}
 
 	//回测时调用的，设置model文件和eval文件名称
@@ -103,7 +104,7 @@ public class EvaluationStore {
 		this.m_evalDataSplitMode=clModel.m_evalDataSplitMode;
 
 		//根据modelDataSplitMode推算出评估数据的起始区间 （目前主要有三种： 最近6个月、9个月、12个月）
-		String evalYearSplit=caculateEvalYearSplit(targetYearSplit,m_evalDataSplitMode);
+		String evalYearSplit=YearMonthProcessor.caculateEvalYearSplit(targetYearSplit,m_evalDataSplitMode);
 
 		if ( clModel instanceof NominalClassifier){
 			this.m_isNominal=true; //记录评估的目标类型（是否为二分类）
@@ -138,7 +139,7 @@ public class EvaluationStore {
 			msg+=" incoming data FromPeriod="+dataTag.getFromPeriod()+" while expected m_m_evalYearSplit="+this.m_evalYearSplit;
 		}
 
-		String evalEndYearSplit=EvaluationStore.backNMonthsForYearSplit(skipRecentNMonthForEval, m_targetYearSplit);
+		String evalEndYearSplit=YearMonthProcessor.backNMonthsForYearSplit(skipRecentNMonthForEval, m_targetYearSplit);
 		if (evalEndYearSplit.equals(dataTag.getToPeriod())==false){
 			msg+=" incoming data toPeriod="+dataTag.getToPeriod()+" while expected m_targetYearSplit="+this.m_targetYearSplit +" skipRecentNMonthForEval="+skipRecentNMonthForEval;
 		}
@@ -352,7 +353,7 @@ protected void outputFilesForDebug(ModelStore selectedModel, ArrayList<Predictio
 		//尝试获得有效的前PREVIOUS_MODELS_NUM个用于评估的ModelYearSplit
 		
 		for (int i=0;i<EvaluationConfDefinition.PREVIOUS_MODELS_NUM;i++){
-			String modelYearSplit=ModelStore.caculateModelYearSplit(startYear,this.m_modelFileShareMode);
+			String modelYearSplit=YearMonthProcessor.caculateModelYearSplit(startYear,this.m_modelFileShareMode);
 			if (modelYearSplit.length()==6){ //201708格式
 				currentYearSplit=Integer.valueOf(modelYearSplit).intValue();
 			}else{// 2017格式
@@ -363,7 +364,7 @@ protected void outputFilesForDebug(ModelStore selectedModel, ArrayList<Predictio
 				continue;
 			}else{
 				modelYears.add(modelYearSplit);
-				startYear=backNMonthsForYearSplit(1, modelYearSplit); //向前推一个月循环找前面的模型
+				startYear=YearMonthProcessor.backNMonthsForYearSplit(1, modelYearSplit); //向前推一个月循环找前面的模型
 			}
 
 		}
@@ -580,56 +581,7 @@ protected void outputFilesForDebug(ModelStore selectedModel, ArrayList<Predictio
 	
 	}
 
-	//	当前周期前推N个月的分隔线，比如 如果N=9是201003 则返回200909
-	public static String backNMonthsForYearSplit(int nMonths,String yearSplit){
-
-		int lastPeriod=0;
-		if (yearSplit.length()==4){ //最后一位-1 （2010-1=2009）再拼接一个12-nMonth+1
-			lastPeriod=Integer.valueOf(yearSplit).intValue();
-			lastPeriod=lastPeriod-1;
-			if (lastPeriod<YEAR_SPLIT_LIMIT) {
-				lastPeriod=YEAR_SPLIT_LIMIT;
-			}
-			lastPeriod=lastPeriod*100+12-nMonths+1;
-		}else {//最后两位数（n）大于nMonths的话减nMonths，小于等于的话向年借位12
-			int inputYear=Integer.parseInt(yearSplit.substring(0,4)); //输入的年份
-			int inputMonth=Integer.parseInt(yearSplit.substring(4,6)); //输入的月份
-			if (inputMonth>nMonths){
-				inputMonth=inputMonth-nMonths;
-			}else{
-				inputMonth=12+inputMonth-nMonths;
-				inputYear=inputYear-1;
-			}
-			lastPeriod=inputYear*100+inputMonth;
-			if (lastPeriod<YEAR_SPLIT_LIMIT*100+1){ 
-				lastPeriod=YEAR_SPLIT_LIMIT*100+1;
-			}
-		}
-		return String.valueOf(lastPeriod);
-	}
-
-	/*
-	 * 获取用于评估阀值的yearSplit（目前主要有三种： 最近6个月、9个月、12个月）
-	 * 全量历史数据会分解为模型构建数据及其评估数据
-	 * 比如，若是一年区间， 则取最近的1年间数据作为评估数据用。之前的数据再去getModelYearSplit看选多少作为模型构建数据（因为不是每月都有模型）
-	 * 如果是2010.mdl，则取2009年01月之前的数据build，2009当年数据做评估用
-	 */
-	public static String caculateEvalYearSplit(String targetYearSplit,int evalDataSplitMode){
-		//找到回测创建评估预测时应该使用modelStore对象（主要为获取model文件和eval文件名称）-- 评估时创建的mdl并不是当前年份的，而是前推一年的
-		String evalYearSplit=null;
-		switch (evalDataSplitMode) {
-		case EvaluationStore.NO_SEPERATE_DATA_FOR_EVAL: //使用全量数据构建模型（不常用）
-			evalYearSplit=targetYearSplit; 
-			break;
-		case EvaluationStore.USE_YEAR_DATA_FOR_EVAL:
-		case EvaluationStore.USE_HALF_YEAR_DATA_FOR_EVAL:
-		case EvaluationStore.USE_NINE_MONTHS_DATA_FOR_EVAL:
-			evalYearSplit=EvaluationStore.backNMonthsForYearSplit(evalDataSplitMode,targetYearSplit);			
-			break;
-		}
-		System.out.println("目标日期="+targetYearSplit+" 评估数据切分日期="+evalYearSplit+"（评估数据切分模式="+evalDataSplitMode+"）");
-		return evalYearSplit;
-	}
+	
 
 //	/*
 //	 * 输出当前的评估的数据
