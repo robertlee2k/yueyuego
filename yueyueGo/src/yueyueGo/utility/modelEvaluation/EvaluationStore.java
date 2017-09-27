@@ -12,8 +12,8 @@ import weka.classifiers.evaluation.NumericPrediction;
 import weka.classifiers.evaluation.Prediction;
 import weka.classifiers.evaluation.ThresholdCurve;
 import weka.core.SerializationHelper;
-import yueyueGo.BaseClassifier;
-import yueyueGo.NominalClassifier;
+import yueyueGo.AbstractModel;
+import yueyueGo.NominalModel;
 import yueyueGo.databeans.DataInstances;
 import yueyueGo.databeans.GeneralAttribute;
 import yueyueGo.databeans.GeneralDataTag;
@@ -83,7 +83,7 @@ public class EvaluationStore {
 	}
 
 	//预测时调用的
-	public EvaluationStore(BaseClassifier clModel,String workpath,String eval_filename,String a_targetYearSplit, String policySplit) {
+	public EvaluationStore(AbstractModel clModel,String workpath,String eval_filename,String a_targetYearSplit, String policySplit) {
 		this.m_workFilePath=workpath;
 		this.m_evalFileName=eval_filename;
 		//每日预测时用最后的训练数据月做校验
@@ -97,7 +97,7 @@ public class EvaluationStore {
 	}
 
 	//回测时调用的，设置model文件和eval文件名称
-	public  EvaluationStore(String targetYearSplit,String policySplit,String modelFilePath, String modelFilePrefix, BaseClassifier clModel){
+	public  EvaluationStore(String targetYearSplit,String policySplit,String modelFilePath, String modelFilePrefix, AbstractModel clModel){
 		
 		
 		this.m_modelFileShareMode=clModel.m_modelFileShareMode;
@@ -106,7 +106,7 @@ public class EvaluationStore {
 		//根据modelDataSplitMode推算出评估数据的起始区间 （目前主要有三种： 最近6个月、9个月、12个月）
 		String evalYearSplit=YearMonthProcessor.caculateEvalYearSplit(targetYearSplit,m_evalDataSplitMode);
 
-		if ( clModel instanceof NominalClassifier){
+		if ( clModel instanceof NominalModel){
 			this.m_isNominal=true; //记录评估的目标类型（是否为二分类）
 		}
 		this.m_targetYearSplit=targetYearSplit; //记录下用于评测的目标月份，以便日后校验
@@ -607,9 +607,9 @@ protected void outputFilesForDebug(ModelStore selectedModel, ArrayList<Predictio
 		//先根据ratio截取预测的数据范围
 		ArrayList<Prediction> topPedictions=getTopPredictedValues(fullPredictions,ratio,isReversed);
 		ThresholdCurve tc = new ThresholdCurve();
-		int classIndex = NominalClassifier.CLASS_POSITIVE_INDEX;
+		int classIndex = NominalModel.CLASS_POSITIVE_INDEX;
 		if (isReversed){
-			classIndex=NominalClassifier.CLASS_NEGATIVE_INDEX;
+			classIndex=NominalModel.CLASS_NEGATIVE_INDEX;
 		}
 		GeneralInstances result = new DataInstances(tc.getCurve(topPedictions, classIndex));
 		return result;
@@ -635,9 +635,9 @@ protected void outputFilesForDebug(ModelStore selectedModel, ArrayList<Predictio
 		//否则，需要进行数据处理
 		DescriptiveStatistics probs=new DescriptiveStatistics();
 		double predicted=0.0;
-		int targetClassIndex=NominalClassifier.CLASS_POSITIVE_INDEX;
+		int targetClassIndex=NominalModel.CLASS_POSITIVE_INDEX;
 		if (reverse==true){
-			targetClassIndex=NominalClassifier.CLASS_NEGATIVE_INDEX;
+			targetClassIndex=NominalModel.CLASS_NEGATIVE_INDEX;
 		}
 
 		ArrayList<Prediction> convertedPrections; 
@@ -660,12 +660,12 @@ protected void outputFilesForDebug(ModelStore selectedModel, ArrayList<Predictio
 				double actual;
 				//根据连续变量的实际值大于0与否，构建预测实际值的分类
 				if (pred.actual()>0){
-					actual=NominalClassifier.CLASS_POSITIVE_INDEX;
+					actual=NominalModel.CLASS_POSITIVE_INDEX;
 				}else{
-					actual=NominalClassifier.CLASS_NEGATIVE_INDEX;
+					actual=NominalModel.CLASS_NEGATIVE_INDEX;
 				}
-				distribution[NominalClassifier.CLASS_NEGATIVE_INDEX]=pred.predicted()*-1; //简单取反
-				distribution[NominalClassifier.CLASS_POSITIVE_INDEX]=pred.predicted();
+				distribution[NominalModel.CLASS_NEGATIVE_INDEX]=pred.predicted()*-1; //简单取反
+				distribution[NominalModel.CLASS_POSITIVE_INDEX]=pred.predicted();
 				
 				NominalPrediction nominalPrediction=new NominalPrediction(actual, distribution);
 				convertedPrections.add(nominalPrediction);

@@ -2,7 +2,7 @@ package yueyueGo.classifier.deprecated;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.functions.MultilayerPerceptron;
-import yueyueGo.NominalClassifier;
+import yueyueGo.NominalModel;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaInstances;
 import yueyueGo.utility.modelEvaluation.ModelStore;
@@ -10,7 +10,7 @@ import yueyueGo.utility.modelEvaluation.ModelStore;
 //结论1： 5单元格的不可靠，偶然性因素太大， 应该在10-30单元格中间选择
 //结论2： 这个分类器适用沪深300, 全市场不大合适大熊市（因为2008年亏损大收益率偏低）
 @Deprecated
-public class MLPClassifier extends NominalClassifier {
+public class MLPClassifier extends NominalModel {
 	// 1. HS300 2008-2016 20-30单元格年均10% 中证500 20/30/50  8%;全市场20/30/50  8-9% 但全市场因为2008年起步亏损大(2008净值最差0.55），累计净值不高;  全市场整体胜率 38183/98804
 	// 参数：  eval 0.5 / 单独评估阀值/ TP——FP RATIO { 1.8, 1.5, 1.2, 1.0, 1.0 }, UPPer { 0.07, 0.09, 0.11, 0.15, 0.2 } TP_FP_BOTTOM_LINE=0.5
 	//lower_limit  { 0.01, 0.01, 0.02, 0.02,0.02 } DEFAULT_THRESHOLD=0.6

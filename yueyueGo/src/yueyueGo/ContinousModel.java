@@ -4,7 +4,7 @@ import weka.classifiers.Classifier;
 import yueyueGo.databeans.GeneralInstance;
 import yueyueGo.databeans.WekaInstance;
 
-public abstract class ContinousClassifier extends BaseClassifier {
+public abstract class ContinousModel extends AbstractModel {
 
 
 

@@ -3,9 +3,9 @@ package yueyueGo.fullModel;
 import java.io.IOException;
 
 import yueyueGo.BackTest;
-import yueyueGo.BaseClassifier;
-import yueyueGo.ContinousClassifier;
-import yueyueGo.NominalClassifier;
+import yueyueGo.AbstractModel;
+import yueyueGo.ContinousModel;
+import yueyueGo.NominalModel;
 import yueyueGo.dataFormat.ArffFormat;
 import yueyueGo.dataFormat.AvgLineDataFormat;
 import yueyueGo.dataFormat.FullModelDataFormat;
@@ -68,17 +68,17 @@ public class BackTestFullModel extends BackTest {
 	 * @throws Exception
 	 */
 	protected void callRefreshFullModelUseLatestData() throws Exception{
-		BaseClassifier model=null;
+		AbstractModel model=null;
 		m_handSetSplitYear=new String[] {"201609"};
 		
 		//逐次刷新数据
 		
 		model=new BaggingM5PFullModel();
-		model.initModelPurpose(BaseClassifier.FOR_EVALUATE_MODEL);
+		model.initModelPurpose(AbstractModel.FOR_EVALUATE_MODEL);
 		testBackward(model);
 		
 		model=new MyNNFullModel();
-		model.initModelPurpose(BaseClassifier.FOR_EVALUATE_MODEL);
+		model.initModelPurpose(AbstractModel.FOR_EVALUATE_MODEL);
 		testBackward(model);
 	}
 	/**
@@ -90,7 +90,7 @@ public class BackTestFullModel extends BackTest {
 		BaggingM5PFullModel cModel=new BaggingM5PFullModel();
 //		BaggingRegressionFullModel cModel=new BaggingRegressionFullModel();
 		if (applyToMaModelInTestBack==true){//用fullModel模型来测试均线模型时不用重新build和评估
-			cModel.initModelPurpose(BaseClassifier.FOR_BACKTEST_MODEL);
+			cModel.initModelPurpose(AbstractModel.FOR_BACKTEST_MODEL);
 		}
 
 		GeneralInstances continuousResult=testBackward(cModel);
@@ -102,7 +102,7 @@ public class BackTestFullModel extends BackTest {
 //		AdaboostFullModel nModel=new AdaboostFullModel();
 		MyNNFullModel nModel=new MyNNFullModel();
 		if (applyToMaModelInTestBack==true){//用fullModel模型来测试均线模型时不用重新build和评估
-			nModel.initModelPurpose(BaseClassifier.FOR_BACKTEST_MODEL);
+			nModel.initModelPurpose(AbstractModel.FOR_BACKTEST_MODEL);
 		}	
 		
 		GeneralInstances nominalResult=testBackward(nModel);
@@ -132,7 +132,7 @@ public class BackTestFullModel extends BackTest {
 	 * @throws Exception
 	 */
 	@Override
-	protected GeneralInstances getBacktestInstances(BaseClassifier clModel)
+	protected GeneralInstances getBacktestInstances(AbstractModel clModel)
 			throws Exception {
 
 		String arffFullFileName = null;
@@ -164,7 +164,7 @@ public class BackTestFullModel extends BackTest {
 	 * @param clModel
 	 * @return
 	 */
-	private String getFullModelArffFileName(BaseClassifier clModel) {
+	private String getFullModelArffFileName(AbstractModel clModel) {
 		// 根据模型来决定是否要使用有计算字段的ARFF
 //		String arffFile=null;
 //		if (clModel.m_noCaculationAttrib==true){
@@ -184,7 +184,7 @@ public class BackTestFullModel extends BackTest {
 	 * @param clModel
 	 * @return
 	 */
-	private String getMaArffFileName(BaseClassifier clModel) {
+	private String getMaArffFileName(AbstractModel clModel) {
 		// 根据模型来决定是否要使用有计算字段的ARFF
 //		String arffFile=null;
 //		if (clModel.m_noCaculationAttrib==true){
@@ -231,11 +231,11 @@ public class BackTestFullModel extends BackTest {
 
 	
 	//override 父类，设置历史回测的目录
-	protected String prepareModelWorkPath(BaseClassifier clModel){
+	protected String prepareModelWorkPath(AbstractModel clModel){
 		String workPath=null;
-		if (clModel instanceof ContinousClassifier){
+		if (clModel instanceof ContinousModel){
 			workPath=AppContext.getCONTINOUS_CLASSIFIER_DIR()+clModel.getIdentifyName()+"\\";
-		}else if (clModel instanceof NominalClassifier){
+		}else if (clModel instanceof NominalModel){
 			workPath=AppContext.getNOMINAL_CLASSIFIER_DIR()+clModel.getIdentifyName()+"\\";
 		}
 		//根据不同的原始数据（策略）设置不同的模型工作目录

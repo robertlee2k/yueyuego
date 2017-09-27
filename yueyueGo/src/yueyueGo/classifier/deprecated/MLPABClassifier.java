@@ -1,6 +1,6 @@
 package yueyueGo.classifier.deprecated;
 import weka.classifiers.Classifier;
-import yueyueGo.NominalClassifier;
+import yueyueGo.NominalModel;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.utility.ClassifyUtility;
 import yueyueGo.utility.modelEvaluation.ModelStore;
@@ -152,7 +152,7 @@ import yueyueGo.utility.modelEvaluation.ModelStore;
 //selected shouyilv average for zz500 =0.55% count=11039
 
 @Deprecated
-public class MLPABClassifier extends NominalClassifier {
+public class MLPABClassifier extends NominalModel {
 	
 	/**
 	 * 

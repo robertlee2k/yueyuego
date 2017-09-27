@@ -5,7 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-import yueyueGo.BaseClassifier;
+import yueyueGo.AbstractModel;
 import yueyueGo.dataFormat.ArffFormat;
 import yueyueGo.databeans.GeneralDataTag;
 import yueyueGo.databeans.WekaDataTag;
@@ -161,7 +161,7 @@ public class YearMonthProcessor {
 	 * 	从全量数据中获取分割training和eval以及test的clause， test数据比较简单，就是当月的。
 	 * train和eval的逻辑由ModelStore定义:
 	 */
-	public static GeneralDataTag[] getDataSplitTags(BaseClassifier clModel,String targetYearSplit) {
+	public static GeneralDataTag[] getDataSplitTags(AbstractModel clModel,String targetYearSplit) {
 		String evalYearSplit=caculateEvalYearSplit(targetYearSplit, clModel.m_evalDataSplitMode);
 		String modelYearSplit=caculateModelYearSplit(evalYearSplit, clModel.m_modelFileShareMode);
 	
@@ -176,7 +176,7 @@ public class YearMonthProcessor {
 		dataTags[1]=new WekaDataTag(GeneralDataTag.EVALUATION_DATA,evalYearSplit,evalEndYearSplit);
 		dataTags[2]=new WekaDataTag(GeneralDataTag.TESTING_DATA,targetYearSplit,targetYearSplit);
 	
-		System.out.println("模型构建数据 from "+modelDataStartYearSplit+" to "+modelYearSplit+"评估数据 from"+evalYearSplit+" to "+evalEndYearSplit+" 测试数据时间="+targetYearSplit);
+		System.out.println("模型构建数据 from "+modelDataStartYearSplit+" before "+modelYearSplit+"评估数据 from"+evalYearSplit+" before "+evalEndYearSplit+" 测试数据时间="+targetYearSplit);
 	
 		return dataTags;
 	}

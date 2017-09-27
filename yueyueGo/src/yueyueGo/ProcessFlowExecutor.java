@@ -10,7 +10,7 @@ import yueyueGo.utility.ClassifyUtility;
 import yueyueGo.utility.modelEvaluation.ModelStore;
 
 public class ProcessFlowExecutor implements Callable<String> {
-	private BaseClassifier clModel;
+	private AbstractModel clModel;
 	private GeneralInstances result;
 	private String yearSplit;
 	private String policySplit;
@@ -21,7 +21,7 @@ public class ProcessFlowExecutor implements Callable<String> {
 	private String modelFilePath;
 	private String modelFilePrefix;
 	
-	public ProcessFlowExecutor(BaseClassifier a_clModel,
+	public ProcessFlowExecutor(AbstractModel a_clModel,
 			 GeneralInstances a_result, String a_yearSplit,
 			String a_policySplit,GeneralInstances a_trainingData,
 			GeneralInstances a_evalData, GeneralInstances a_testingData,GeneralDataTag[] a_dataTags,String a_modelFilePath, String a_modelFilePrefix){
@@ -69,7 +69,7 @@ public class ProcessFlowExecutor implements Callable<String> {
 
 			//输出模型的confusionMatrix
 			boolean isNominal=false;
-			if (clModel instanceof NominalClassifier){
+			if (clModel instanceof NominalModel){
 				isNominal=true;
 			}
 
@@ -106,7 +106,8 @@ public class ProcessFlowExecutor implements Callable<String> {
 			if (msg!=null){
 				throw new Exception(msg);
 			}
-			clModel.predictData(testingData, result,yearSplit,policySplit);
+			ModelPredictor predictor=new ModelPredictor(clModel,testingData,result, yearSplit); 
+			predictor.predictData(policySplit);
 		}
 		testingData=null;//释放内存
 		

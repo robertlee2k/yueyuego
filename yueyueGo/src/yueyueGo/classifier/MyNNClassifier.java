@@ -2,11 +2,11 @@ package yueyueGo.classifier;
 
 import weka.classifiers.Classifier;
 import yueyueGo.EnvConstants;
-import yueyueGo.NominalClassifier;
-import yueyueGo.ParrallelizedRunning;
+import yueyueGo.NominalModel;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaInstances;
 import yueyueGo.utility.ClassifyUtility;
+import yueyueGo.utility.ParrallelizedRunning;
 import yueyueGo.utility.classiferWrapper.ext.WekaNeuralNetwork;
 import yueyueGo.utility.modelEvaluation.ModelStore;
 //20161010
@@ -26,7 +26,7 @@ import yueyueGo.utility.modelEvaluation.ModelStore;
 //number of records for full market=1436457
 //shouyilv average for full market=0.79%
 //selected shouyilv average for full market =2.71% count=70633
-public class MyNNClassifier extends NominalClassifier implements ParrallelizedRunning {
+public class MyNNClassifier extends NominalModel implements ParrallelizedRunning {
 
 	/**
 	 * 

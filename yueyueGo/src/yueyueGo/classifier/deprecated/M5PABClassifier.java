@@ -3,7 +3,7 @@ package yueyueGo.classifier.deprecated;
 
 
 import weka.classifiers.Classifier;
-import yueyueGo.ContinousClassifier;
+import yueyueGo.ContinousModel;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.utility.ClassifyUtility;
 import yueyueGo.utility.modelEvaluation.EvaluationStore;
@@ -77,7 +77,7 @@ import yueyueGo.utility.modelEvaluation.ModelStore;
 //===============================end of summary=====================================for : m5pAB
 
 @Deprecated
-public class M5PABClassifier extends ContinousClassifier {
+public class M5PABClassifier extends ContinousModel {
 	 
 	/**
 	 * 

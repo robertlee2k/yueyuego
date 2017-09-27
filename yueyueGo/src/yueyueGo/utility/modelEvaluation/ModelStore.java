@@ -5,7 +5,7 @@ import java.util.Vector;
 
 import weka.classifiers.Classifier;
 import weka.core.SerializationHelper;
-import yueyueGo.BaseClassifier;
+import yueyueGo.AbstractModel;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.databeans.DataInstances;
 import yueyueGo.databeans.GeneralDataTag;
@@ -54,7 +54,7 @@ public class ModelStore {
 	}
 
 	//回测时调用的，新建模型时设置model文件名称
-	public  ModelStore(String targetYearSplit,String policySplit,String modelFilePath, String modelFilePrefix, BaseClassifier clModel){
+	public  ModelStore(String targetYearSplit,String policySplit,String modelFilePath, String modelFilePrefix, AbstractModel clModel){
 		
 		String classifierName=clModel.classifierName;
 		int modelFileShareMode=clModel.m_modelFileShareMode;

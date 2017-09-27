@@ -1,6 +1,6 @@
 package yueyueGo.utility;
 
-import yueyueGo.BaseClassifier;
+import yueyueGo.ModelPredictor;
 import yueyueGo.dataFormat.ArffFormat;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.dataProcessor.InstanceHandler;
@@ -153,10 +153,10 @@ public class MergeClassifyResults {
 						double selected=resultCurr.value(resultSelectedAtt);
 						//参考结果的选股结果（-1.0的排除）
 						double referenceSelected=referenceCurr.value(referenceData.attribute(ArffFormat.RESULT_SELECTED));
-						if (selected==BaseClassifier.VALUE_SELECTED){
+						if (selected==ModelPredictor.VALUE_SELECTED){
 							//当合并数据时，如果参照的二分类器的选择值为-1 则不选择该条记录
-							if (referenceSelected==BaseClassifier.VALUE_NEVER_SELECT){
-								selected=BaseClassifier.VALUE_NOT_SURE;
+							if (referenceSelected==ModelPredictor.VALUE_NEVER_SELECT){
+								selected=ModelPredictor.VALUE_NOT_SURE;
 								resultChanged++;
 								if (shouyilvAtt!=null){
 									double shouyilv=leftCurr.value(shouyilvAtt);
@@ -169,9 +169,9 @@ public class MergeClassifyResults {
 							}else{ //不需要修改选股结果
 								finalSelected++;
 							}
-						}else if (selected==BaseClassifier.VALUE_NEVER_SELECT){
+						}else if (selected==ModelPredictor.VALUE_NEVER_SELECT){
 							//这个是因为要兼容交易程序（只接受0和1两个值，不接受-1）
-							selected=BaseClassifier.VALUE_NOT_SURE;
+							selected=ModelPredictor.VALUE_NOT_SURE;
 						}
 						
 						newData.setValue(outputPredictAtt, profit);

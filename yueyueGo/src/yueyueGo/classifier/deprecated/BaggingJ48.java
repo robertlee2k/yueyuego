@@ -1,10 +1,10 @@
 package yueyueGo.classifier.deprecated;
 
 import weka.classifiers.Classifier;
-import yueyueGo.NominalClassifier;
-import yueyueGo.ParrallelizedRunning;
+import yueyueGo.NominalModel;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.utility.FormatUtility;
+import yueyueGo.utility.ParrallelizedRunning;
 import yueyueGo.utility.modelEvaluation.ModelStore;
 
 // 按月分析（全年使用同一模型和评估值）
@@ -46,7 +46,7 @@ import yueyueGo.utility.modelEvaluation.ModelStore;
 //selected shouyilv average for zz500 =0.12% count=7940
 
 @Deprecated
-public class BaggingJ48 extends NominalClassifier implements ParrallelizedRunning{
+public class BaggingJ48 extends NominalModel implements ParrallelizedRunning{
 	
 	/**
 	 * 

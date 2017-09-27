@@ -2,11 +2,11 @@
 package yueyueGo.classifier.deprecated;
 
 import weka.classifiers.Classifier;
-import yueyueGo.NominalClassifier;
-import yueyueGo.ParrallelizedRunning;
+import yueyueGo.NominalModel;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaInstances;
 import yueyueGo.utility.ClassifyUtility;
+import yueyueGo.utility.ParrallelizedRunning;
 import yueyueGo.utility.classiferWrapper.MyRandomForestClassifer;
 import yueyueGo.utility.modelEvaluation.EvaluationStore;
 import yueyueGo.utility.modelEvaluation.ModelStore;
@@ -92,7 +92,7 @@ import yueyueGo.utility.modelEvaluation.ModelStore;
 //selected shouyilv average for full market =2.2911% count=27392
 //-----now output nominal predictions----------RandForest (filtered by continuous: baggingM5P-multiPCA)
 @Deprecated 
-public class RandForest extends NominalClassifier implements ParrallelizedRunning{
+public class RandForest extends NominalModel implements ParrallelizedRunning{
 
 	/**
 	 * 

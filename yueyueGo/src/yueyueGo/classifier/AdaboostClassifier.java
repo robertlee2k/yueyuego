@@ -3,7 +3,7 @@ package yueyueGo.classifier;
 import weka.classifiers.Classifier;
 import weka.classifiers.meta.AdaBoostM1;
 import weka.classifiers.trees.J48;
-import yueyueGo.NominalClassifier;
+import yueyueGo.NominalModel;
 import yueyueGo.dataFormat.ArffFormat;
 import yueyueGo.dataFormat.AvgLineDataFormat;
 import yueyueGo.dataFormat.MomentumDataFormat;
@@ -241,7 +241,7 @@ import yueyueGo.utility.modelEvaluation.ModelStore;
 //shouyilv average for full market=0.5761%
 //selected shouyilv average for full market =1.9868% count=21742
 //-----end of test backward------
-public class AdaboostClassifier extends NominalClassifier {
+public class AdaboostClassifier extends NominalModel {
 
 	/**
 	 * 

@@ -2,7 +2,7 @@ package yueyueGo.classifier.deprecated;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.trees.M5P;
-import yueyueGo.ContinousClassifier;
+import yueyueGo.ContinousModel;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaInstances;
 import yueyueGo.utility.ClassifyUtility;
@@ -11,7 +11,7 @@ import yueyueGo.utility.ClassifyUtility;
 //结论1： 5单元格的不可靠，偶然性因素太大， 应该在10-30单元格中间选择
 //结论2： 这个分类器适用于中证500及全市场， 沪深300上大不合适（选股少）。
 @Deprecated
-public class M5PClassifier extends ContinousClassifier {
+public class M5PClassifier extends ContinousModel {
 	//方案1适合中证500
 	// 1. 全市场 2008-2016最优10单元格年均14% （20单元格11%），中证500 10-20都是14%，30-50都是12%（均为不单独评估），hs300 10格有13% （20格9%） 29941/82650
 	// 参数：  eval 0.1 / 沪深单独评估阀值/ TP——FP RATIO { 1.6, 1.4, 1.3, 1.1, 0.9 }, UPPer { 0.1, 0.1, 0.1, 0.1, 0.1 }TP_FP_BOTTOM_LINE=0.5

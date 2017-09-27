@@ -50,6 +50,7 @@ import yueyueGo.utility.ClassifySummaries;
 import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.MergeClassifyResults;
+import yueyueGo.utility.ParrallelizedRunning;
 import yueyueGo.utility.YearMonthProcessor;
 import yueyueGo.utility.analysis.DataAnalysis;
 import yueyueGo.utility.analysis.ShouyilvDescriptiveList;
@@ -95,8 +96,8 @@ public class BackTest {
 
 			//调用回测函数回测
 //			worker.callRebuildModels();
-			worker.callReEvaluateModels();
-//			worker.callTestBack();
+//			worker.callReEvaluateModels();
+			worker.callTestBack();
 //			worker.callRefreshModelUseLatestData();
 			
 //			worker.callDataAnlysis();
@@ -108,7 +109,7 @@ public class BackTest {
 		}
 	}
 	public void callDataAnlysis() throws Exception{
-	   BaseClassifier  cModel=new BaggingM5P();
+	   AbstractModel  cModel=new BaggingM5P();
 	   GeneralInstances fulldata=getBacktestInstances(cModel);
 	   ShouyilvDescriptiveList shouyilvDescriptions=DataAnalysis.analyzeMarket("原始数据",m_startYear+"01",m_endYearMonth,m_currentArffFormat.m_policy_group,cModel.m_policySubGroup,fulldata);
 
@@ -123,7 +124,7 @@ public class BackTest {
 	 * @throws Exception
 	 */
 	protected void callRefreshModelUseLatestData() throws Exception{
-		BaseClassifier model=null;
+		AbstractModel model=null;
 		
 		m_startYear= "2017";
 		m_endYearMonth="201708"; //结尾月一般是当前月，这个月是没有数据的，最新数据是上月的
@@ -131,12 +132,12 @@ public class BackTest {
 		
 		//逐次构建新的模型
 		model=new AdaboostClassifier();
-		model.initModelPurpose(BaseClassifier.FOR_BUILD_MODEL);
+		model.initModelPurpose(AbstractModel.FOR_BUILD_MODEL);
 		
 		testBackward(model);
 		
 		model=new BaggingM5P();
-		model.initModelPurpose(BaseClassifier.FOR_BUILD_MODEL);
+		model.initModelPurpose(AbstractModel.FOR_BUILD_MODEL);
 		testBackward(model);
 
 		//重新评估模型 （因为模型的评估数据受影响比构建数据受影响多，所以这里前推一年
@@ -148,11 +149,11 @@ public class BackTest {
 		
 		//逐次构建新的模型
 		model=new AdaboostClassifier();
-		model.initModelPurpose(BaseClassifier.FOR_EVALUATE_MODEL);
+		model.initModelPurpose(AbstractModel.FOR_EVALUATE_MODEL);
 		testBackward(model);
 		
 		model=new BaggingM5P();
-		model.initModelPurpose(BaseClassifier.FOR_EVALUATE_MODEL);
+		model.initModelPurpose(AbstractModel.FOR_EVALUATE_MODEL);
 		testBackward(model);
 		
 	}
@@ -176,13 +177,13 @@ public class BackTest {
 //		};
 
 		//按连续分类器回测历史数据
-		BaggingM5P cModel=BaggingM5P.initModel(m_currentArffFormat, BaseClassifier.FOR_BUILD_MODEL);
+		BaggingM5P cModel=BaggingM5P.initModel(m_currentArffFormat, AbstractModel.FOR_BUILD_MODEL);
 		testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
 //		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 		
 		//按二分类器回测历史数据
-		AdaboostClassifier nModel=AdaboostClassifier.initModel(m_currentArffFormat, BaseClassifier.FOR_BUILD_MODEL);
+		AdaboostClassifier nModel=AdaboostClassifier.initModel(m_currentArffFormat, AbstractModel.FOR_BUILD_MODEL);
 		testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
 //		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
@@ -201,13 +202,13 @@ public class BackTest {
 	protected void callReEvaluateModels() throws Exception {
 
 		//按二分类器回测历史数据
-		AdaboostClassifier nModel=AdaboostClassifier.initModel(m_currentArffFormat, BaseClassifier.FOR_EVALUATE_MODEL);
+		AdaboostClassifier nModel=AdaboostClassifier.initModel(m_currentArffFormat, AbstractModel.FOR_EVALUATE_MODEL);
 		GeneralInstances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
 //		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 		
 		//按连续分类器回测历史数据
-		BaggingM5P cModel=BaggingM5P.initModel(m_currentArffFormat, BaseClassifier.FOR_EVALUATE_MODEL);
+		BaggingM5P cModel=BaggingM5P.initModel(m_currentArffFormat, AbstractModel.FOR_EVALUATE_MODEL);
 		GeneralInstances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
 //		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
@@ -222,13 +223,13 @@ public class BackTest {
 
 	protected void callTestBack() throws Exception {
 		//按二分类器回测历史数据
-		AdaboostClassifier nModel=AdaboostClassifier.initModel(m_currentArffFormat, BaseClassifier.FOR_BACKTEST_MODEL);
+		AdaboostClassifier nModel=AdaboostClassifier.initModel(m_currentArffFormat, AbstractModel.FOR_BACKTEST_MODEL);
 		GeneralInstances nominalResult=testBackward(nModel);
 		//不真正回测了，直接从以前的结果文件中加载
 //		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 
 		//按连续分类器回测历史数据
-		BaggingM5P cModel=BaggingM5P.initModel(m_currentArffFormat, BaseClassifier.FOR_BACKTEST_MODEL);
+		BaggingM5P cModel=BaggingM5P.initModel(m_currentArffFormat, AbstractModel.FOR_BACKTEST_MODEL);
 		GeneralInstances continuousResult=testBackward(cModel);
 		//不真正回测了，直接从以前的结果文件中加载
 //		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
@@ -241,7 +242,7 @@ public class BackTest {
 
 
 	//历史回测
-	protected  GeneralInstances testBackward(BaseClassifier clModel) throws Exception{
+	protected  GeneralInstances testBackward(AbstractModel clModel) throws Exception{
 		
 		//根据分类器和数据类别确定回测模型的工作目录
 		String modelFilePath=prepareModelWorkPath(clModel);
@@ -304,7 +305,7 @@ public class BackTest {
 				BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullSetData);
 				// 准备输出数据格式
 				if (result == null) {// initialize result instances
-					result = prepareResultInstances(clModel, fullSetData);
+					result = ModelPredictor.prepareResultInstances(clModel, fullSetData);
 				}
 				int policyIndex=BaseInstanceProcessor.findATTPosition(fullSetData, m_currentArffFormat.m_policy_group);
 				String splitTrainClause = appendSplitClause(splitTrainYearClause,policyIndex,policy);
@@ -321,8 +322,8 @@ public class BackTest {
 						trainingData=new DataInstances(trainingData,trainingDataSize-EnvConstants.TRAINING_DATA_LIMIT,EnvConstants.TRAINING_DATA_LIMIT);
 					}
 					//对于二分类器，这里要把输入的收益率转换为分类变量
-					if (clModel instanceof NominalClassifier ){
-						trainingData=((NominalClassifier)clModel).processDataForNominalClassifier(trainingData,false);
+					if (clModel instanceof NominalModel ){
+						trainingData=((NominalModel)clModel).processDataForNominalClassifier(trainingData);
 					}
 					trainingData = instanceProcessor.removeAttribs(trainingData,  Integer.toString(ArffFormat.ID_POSITION)+","+ArffFormat.YEAR_MONTH_INDEX);
 
@@ -336,8 +337,8 @@ public class BackTest {
 					System.out.println("start to split evaluation set from  data: "+ splitEvalClause);
 					evaluationData=instanceProcessor.getInstancesSubset(fullSetData,splitEvalClause);
 					//对于二分类器，这里要把输入的收益率转换为分类变量
-					if (clModel instanceof NominalClassifier ){
-						evaluationData=((NominalClassifier)clModel).processDataForNominalClassifier(evaluationData,false);
+					if (clModel instanceof NominalModel ){
+						evaluationData=((NominalModel)clModel).processDataForNominalClassifier(evaluationData);
 					}
 					evaluationData = instanceProcessor.removeAttribs(evaluationData,  Integer.toString(ArffFormat.ID_POSITION)+","+ArffFormat.YEAR_MONTH_INDEX);
 					System.out.println(" evaluation data size , row : "
@@ -353,10 +354,11 @@ public class BackTest {
 				//处理testingData
 				testingData = instanceProcessor.removeAttribs(testingData, ArffFormat.YEAR_MONTH_INDEX);
 
-				//对于二分类器，这里要把输入的收益率转换为分类变量
-				if (clModel instanceof NominalClassifier ){
-					testingData=((NominalClassifier)clModel).processDataForNominalClassifier(testingData,true);
-				}
+				
+//				//对于二分类器，这里要把输入的收益率转换为分类变量------预测数据中不需要这个了
+//				if (clModel instanceof NominalModel ){
+//					testingData=((NominalModel)clModel).processDataForNominalClassifier(testingData,true);
+//				}
 
 				System.out.println(" testing raw data size , row : "
 						+ testingData.numInstances() + " column: "
@@ -372,7 +374,7 @@ public class BackTest {
 					//多线程的时候clone一个clModel执行任务，当前的Model继续走下去。
 					ClassifySummaries commonSummaries=clModel.getClassifySummaries();
 					clModel.setClassifySummaries(null); //不要clone classifySummaries，这个需要各线程同用一个对象
-					BaseClassifier clModelClone=BaseClassifier.makeCopy(clModel);//利用序列化方法完整深度复制
+					AbstractModel clModelClone=AbstractModel.makeCopy(clModel);//利用序列化方法完整深度复制
 					clModel.setClassifySummaries(commonSummaries);
 					clModelClone.setClassifySummaries(commonSummaries);
 
@@ -442,40 +444,10 @@ public class BackTest {
 	/**
 	 * 可以考虑子类中覆盖
 	 * @param clModel
-	 * @param fullSetData
 	 * @return
 	 * @throws Exception
 	 */
-	protected GeneralInstances prepareResultInstances(BaseClassifier clModel,
-			GeneralInstances fullSetData) throws Exception {
-		GeneralInstances result;
-		DataInstances header = new DataInstances(fullSetData, 0);
-		// 去除不必要的字段，保留ID（第1），YEARMONTH（第二）均线策略（第3）、bias5（第4）、收益率（最后一列）、增加预测值、是否被选择。
-		int removeFromIndex=BaseInstanceProcessor.findATTPosition(fullSetData, ArffFormat.BIAS5)+1;
-		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(header);
-//		ArffFormat.YEAR_MONTH_INDEX + ","+
-		result = instanceProcessor.removeAttribs(header, removeFromIndex+"-"
-				+ (header.numAttributes() - 1));
-		if (clModel instanceof NominalClassifier ){
-			result = instanceProcessor.AddAttribute(result, ArffFormat.RESULT_PREDICTED_WIN_RATE,
-					result.numAttributes());
-		}else{
-			result = instanceProcessor.AddAttribute(result, ArffFormat.RESULT_PREDICTED_PROFIT,
-					result.numAttributes());
-		}
-		result = instanceProcessor.AddAttribute(result, ArffFormat.RESULT_SELECTED,
-				result.numAttributes());
-		return result;
-		
-	}
-
-	/**
-	 * 可以考虑子类中覆盖
-	 * @param clModel
-	 * @return
-	 * @throws Exception
-	 */
-	protected  GeneralInstances getBacktestInstances(BaseClassifier clModel)
+	protected  GeneralInstances getBacktestInstances(AbstractModel clModel)
 			throws Exception {
 		GeneralInstances fullSetData;
 
@@ -585,7 +557,7 @@ public class BackTest {
 		//返回选股结果		
 		int pos = BaseInstanceProcessor.findATTPosition(fullOutput,ArffFormat.RESULT_SELECTED);
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullOutput);
-		GeneralInstances fullMarketSelected=instanceProcessor.getInstancesSubset(fullOutput, WekaInstanceProcessor.WEKA_ATT_PREFIX +pos+" = "+BaseClassifier.VALUE_SELECTED);
+		GeneralInstances fullMarketSelected=instanceProcessor.getInstancesSubset(fullOutput, WekaInstanceProcessor.WEKA_ATT_PREFIX +pos+" = "+ModelPredictor.VALUE_SELECTED);
 		return fullMarketSelected;
 	}
 
@@ -629,7 +601,7 @@ public class BackTest {
 	 * @param continuousResult
 	 * @throws Exception
 	 */
-	protected void saveResultsAndStatistics(NominalClassifier nModel, GeneralInstances nominalResult, ContinousClassifier cModel,
+	protected void saveResultsAndStatistics(NominalModel nModel, GeneralInstances nominalResult, ContinousModel cModel,
 			GeneralInstances continuousResult) throws Exception {
 		
 		String[] targetPolicies={"5","10","20","30","60"}; //缺省输出各种均线分布
@@ -688,7 +660,7 @@ public class BackTest {
 	}
 
 
-	protected String[] generateSplitYearForModel(BaseClassifier clModel,String startYear,String endYearMonth){
+	protected String[] generateSplitYearForModel(AbstractModel clModel,String startYear,String endYearMonth){
 	
 		String[] result=null;
 		if(clModel.is_skipTrainInBacktest()==false){ //需要构建模型
@@ -756,11 +728,11 @@ public class BackTest {
 	 /*
 	  * 设置回测时模型和评估文件的存储位置
 	  */
-	protected String prepareModelWorkPath(BaseClassifier clModel){
+	protected String prepareModelWorkPath(AbstractModel clModel){
 		String workPath=null;
-		if (clModel instanceof ContinousClassifier){
+		if (clModel instanceof ContinousModel){
 			workPath=AppContext.getCONTINOUS_CLASSIFIER_DIR()+clModel.getIdentifyName()+"\\";
-		}else if (clModel instanceof NominalClassifier){
+		}else if (clModel instanceof NominalModel){
 			workPath=AppContext.getNOMINAL_CLASSIFIER_DIR()+clModel.getIdentifyName()+"\\";
 		}
 		//根据不同的原始数据（策略）设置不同的模型工作目录
@@ -780,7 +752,7 @@ public class BackTest {
 	}
 
 	
-	protected HashMap<String,String> findModelFiles(BaseClassifier clModel,String a_targetYearSplit) throws Exception{
+	protected HashMap<String,String> findModelFiles(AbstractModel clModel,String a_targetYearSplit) throws Exception{
 		//根据分类器和数据类别确定回测模型的工作目录
 		String modelFilePath=prepareModelWorkPath(clModel);
 		String modelPrefix=m_currentArffFormat.m_data_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")"; 
@@ -821,7 +793,7 @@ public class BackTest {
 	/*
 	 * 计算可以并发线程的数量
 	 */
-	public static int estimateConcurrentThreads(BaseClassifier classifier){
+	public static int estimateConcurrentThreads(AbstractModel classifier){
 		int threadNum=1;
 		//先按一般的模型计算线程数
 		if (classifier.is_skipTrainInBacktest()==false){ //模型需要训练，这个所需内存比较大

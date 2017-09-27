@@ -111,12 +111,12 @@ public class DailyPredict {
 		BaggingM5P cBagModel=new BaggingM5P();
 		//Adaboost
 		AdaboostClassifier adaModel=new AdaboostClassifier();
-		BaseClassifier[] models=new BaseClassifier[2];
+		AbstractModel[] models=new AbstractModel[2];
 		models[0]=cBagModel;
 		models[1]=adaModel;
 
 		int fileNum=0;
-		for (BaseClassifier model : models) {
+		for (AbstractModel model : models) {
 			fileMap=worker.findModelFiles(model, currentMonth);
 			String targetPath=getPredictPath(model);
 			FileUtility.mkdirIfNotExist(targetPath);
@@ -248,8 +248,8 @@ public class DailyPredict {
 	 * @throws Exception
 	 * return 合并的文件名称（暂时返回连续分类器的值）
 	 */
-	public String combinePreditions(BaseClassifier cModel,
-			GeneralInstances cInstances, BaseClassifier nModel,
+	public String combinePreditions(AbstractModel cModel,
+			GeneralInstances cInstances, AbstractModel nModel,
 			GeneralInstances nInstances) throws Exception {
 		
 		
@@ -310,7 +310,7 @@ public class DailyPredict {
 
 
 
-	private static String getLeftArffFileName(BaseClassifier clModel){
+	private static String getLeftArffFileName(AbstractModel clModel){
 		return PREDICT_RESULT_DIR+"LEFT ("+clModel.getModelArffFormat()+") "+FormatUtility.getDateStringFor(1)+".arff";
 	}
 
@@ -328,7 +328,7 @@ public class DailyPredict {
 
 
 	//直接访问数据库预测每天的自选股数据，不单独保存每个模型的选股
-	private GeneralInstances predictWithDB(BaseClassifier clModel) throws Exception {
+	private GeneralInstances predictWithDB(AbstractModel clModel) throws Exception {
 		int dataFormat=clModel.getModelArffFormat();
 	
 		GeneralInstances dailyData = null;
@@ -386,7 +386,7 @@ public class DailyPredict {
 
 	//用模型预测数据
 
-	private  GeneralInstances predict(BaseClassifier clModel, GeneralInstances inData) throws Exception {
+	private  GeneralInstances predict(AbstractModel clModel, GeneralInstances inData) throws Exception {
 		System.out.println("predict using classifier : "+clModel.getIdentifyName()+" @ prediction work path :"+EnvConstants.PREDICT_WORK_DIR);
 		System.out.println("-----------------------------");
 		
@@ -409,9 +409,10 @@ public class DailyPredict {
 		//获得”均线策略"的位置属性, 如果数据集内没有“均线策略”（短线策略的fullmodel），MaIndex为-1
 		int maIndex=BaseInstanceProcessor.findATTPosition(fullData,ARFF_FORMAT.m_policy_group);
 
-		if (clModel instanceof NominalClassifier ){
-			fullData=((NominalClassifier)clModel).processDataForNominalClassifier(fullData,false);
-		}
+//		------预测数据中不需要这个了
+//		if (clModel instanceof NominalModel ){
+//			fullData=((NominalModel)clModel).processDataForNominalClassifier(fullData,false);
+//		}
 
 		//获取预定义的model文件
 		String id=clModel.getIdentifyName()+clModel.modelArffFormat;
@@ -448,7 +449,7 @@ public class DailyPredict {
 				BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(header);
 				result=instanceProcessor.filterAttribs(header, ARFF_FORMAT.m_daily_predict_left_part);
 
-				if (clModel instanceof NominalClassifier ){
+				if (clModel instanceof NominalModel ){
 					result = instanceProcessor.AddAttribute(result, ArffFormat.RESULT_PREDICTED_WIN_RATE,
 							result.numAttributes());
 				}else{
@@ -459,8 +460,8 @@ public class DailyPredict {
 						result.numAttributes());
 
 			}
-
-			clModel.predictData(newData, result,clModel.m_policySubGroup[j]);
+			ModelPredictor predictor=new ModelPredictor(clModel,newData,result,""); 
+			predictor.predictData(clModel.m_policySubGroup[j]);
 			System.out.println("accumulated predicted rows: "+ result.numInstances());
 			System.out.println("complete for : "+ clModel.m_policySubGroup[j]);
 			
@@ -481,7 +482,7 @@ public class DailyPredict {
 	 * @param formatType
 	 * @return
 	 */
-	private static String getPredictPath(BaseClassifier clModel) {
+	private static String getPredictPath(AbstractModel clModel) {
 //		switch (modelFormatType) {
 //		case ArffFormat.LEGACY_FORMAT:
 //			return "\\00-legacy\\";
@@ -499,7 +500,7 @@ public class DailyPredict {
 
 	
 	//这是对增量数据nominal label的处理 （因为增量数据中的nominal数据，label会可能不全）
-	private  GeneralInstances calibrateAttributesForDailyData(GeneralInstances incomingData,BaseClassifier clModel) throws Exception {
+	private  GeneralInstances calibrateAttributesForDailyData(GeneralInstances incomingData,AbstractModel clModel) throws Exception {
 		int formatType=clModel.getModelArffFormat();
 		//与本地格式数据比较，这地方基本上会有nominal数据的label不一致，临时处理办法就是先替换掉
 		GeneralInstances dataFormat = getDailyPredictDataFormat(formatType);

@@ -2,13 +2,13 @@ package yueyueGo.classifier;
 
 import weka.classifiers.Classifier;
 import weka.classifiers.trees.M5P;
-import yueyueGo.ContinousClassifier;
-import yueyueGo.ParrallelizedRunning;
+import yueyueGo.ContinousModel;
 import yueyueGo.dataFormat.ArffFormat;
 import yueyueGo.dataFormat.AvgLineDataFormat;
 import yueyueGo.dataFormat.MomentumDataFormat;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.utility.ClassifyUtility;
+import yueyueGo.utility.ParrallelizedRunning;
 import yueyueGo.utility.classiferWrapper.MyAttributionSelectorWithPCA;
 import yueyueGo.utility.modelEvaluation.EvaluationStore;
 import yueyueGo.utility.modelEvaluation.ModelStore;
@@ -272,7 +272,7 @@ import yueyueGo.utility.modelEvaluation.ModelStore;
 //number of records for full market=1548274
 //shouyilv average for full market=0.5761%
 //selected shouyilv average for full market =2.0438% count=30995
-public class BaggingM5P extends ContinousClassifier implements ParrallelizedRunning{
+public class BaggingM5P extends ContinousModel implements ParrallelizedRunning{
 	/**
 	 * 
 	 */

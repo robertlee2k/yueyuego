@@ -3,10 +3,10 @@ package yueyueGo.classifier.deprecated;
 import weka.classifiers.Classifier;
 import weka.classifiers.functions.LinearRegression;
 import weka.core.SelectedTag;
-import yueyueGo.ContinousClassifier;
-import yueyueGo.ParrallelizedRunning;
+import yueyueGo.ContinousModel;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.utility.ClassifyUtility;
+import yueyueGo.utility.ParrallelizedRunning;
 import yueyueGo.utility.modelEvaluation.ModelStore;
 
 
@@ -47,7 +47,7 @@ import yueyueGo.utility.modelEvaluation.ModelStore;
 //selected shouyilv average for full market =3.17% count=39216
 //-----now output nominal predictions----------adaboost
 @Deprecated
-public class BaggingLinearRegression extends ContinousClassifier implements ParrallelizedRunning {
+public class BaggingLinearRegression extends ContinousModel implements ParrallelizedRunning {
 
 	/**
 	 * 
