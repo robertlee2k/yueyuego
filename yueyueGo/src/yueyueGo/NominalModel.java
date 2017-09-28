@@ -2,14 +2,11 @@ package yueyueGo;
 
 import java.util.ArrayList;
 
-import weka.classifiers.Classifier;
 import yueyueGo.dataFormat.ArffFormat;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.dataProcessor.InstanceHandler;
-import yueyueGo.databeans.GeneralInstance;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaAttribute;
-import yueyueGo.databeans.WekaInstance;
 import yueyueGo.utility.FormatUtility;
 
 public abstract class NominalModel extends AbstractModel{
@@ -25,12 +22,12 @@ public abstract class NominalModel extends AbstractModel{
 
 
 
-	//对于二分类变量，返回分类1的预测可能性
-	@Override
-	protected  double classify(Classifier model,GeneralInstance curr) throws Exception {
-		double[] problity =  model.distributionForInstance(WekaInstance.convertToWekaInstance(curr));
-		return problity[CLASS_POSITIVE_INDEX];
-	}
+//	//对于二分类变量，返回分类1的预测可能性
+//	@Override
+//	protected  double classify(Classifier model,GeneralInstance curr) throws Exception {
+//		double[] problity =  model.distributionForInstance(WekaInstance.convertToWekaInstance(curr));
+//		return problity[CLASS_POSITIVE_INDEX];
+//	}
 	
 	//将原始数据变换为nominal Classifier需要的形式（更换class 变量等等）
 	public GeneralInstances processDataForNominalClassifier(GeneralInstances inData) throws Exception{

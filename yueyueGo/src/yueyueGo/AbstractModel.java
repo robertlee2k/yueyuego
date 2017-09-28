@@ -81,7 +81,6 @@ public abstract class AbstractModel implements Serializable{
 	
 	//一系列需要子类实现的抽象方法
 	protected abstract Classifier buildModel(GeneralInstances trainData) throws Exception;
-	protected abstract double classify(Classifier model,GeneralInstance curr) throws Exception ;
 	
 	
 	public Classifier trainData(GeneralInstances train) throws Exception {
@@ -208,11 +207,11 @@ public abstract class AbstractModel implements Serializable{
 		output.append("\r\n");
 		output.append("modelArffFormat="+modelArffFormat);
 		output.append("\r\n");
-		output.append("compare AUC PREVIOUS_MODELS_NUM="+EvaluationConfDefinition.PREVIOUS_MODELS_NUM);
+		output.append("compare AUC PREVIOUS_MODELS_NUM="+EvaluationStore.PREVIOUS_MODELS_NUM);
 		output.append("\r\n");
-		output.append("TOP AREA RATIO="+EvaluationConfDefinition.TOP_AREA_RATIO);
+		output.append("TOP AREA RATIO="+EvaluationStore.TOP_AREA_RATIO);
 		output.append("\r\n");
-		output.append("reversed TOP AREA RATIO="+EvaluationConfDefinition.REVERSED_TOP_AREA_RATIO);
+		output.append("reversed TOP AREA RATIO="+EvaluationStore.REVERSED_TOP_AREA_RATIO);
 		output.append("\r\n");
 		EvaluationConfDefinition evalConf=new EvaluationConfDefinition(this.classifierName ,this.m_policySubGroup,null);
 		output.append(evalConf.showEvaluationParameters());

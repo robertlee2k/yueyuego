@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import weka.classifiers.Classifier;
+import weka.core.Instance;
 import yueyueGo.dataFormat.ArffFormat;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.dataProcessor.InstanceHandler;
@@ -14,6 +15,7 @@ import yueyueGo.databeans.DataInstances;
 import yueyueGo.databeans.GeneralAttribute;
 import yueyueGo.databeans.GeneralInstance;
 import yueyueGo.databeans.GeneralInstances;
+import yueyueGo.databeans.WekaInstance;
 import yueyueGo.databeans.WekaInstances;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.modelEvaluation.ModelStore;
@@ -118,11 +120,6 @@ public class ModelPredictor {
 
 		// 第三步： 输出评估参数
 		double percentile = thresholdData.getDefaultPercentile();
-		boolean isGuessed = thresholdData.isGuessed();
-		String defaultThresholdUsed = " ";
-		if (isGuessed) {
-			defaultThresholdUsed = "Y";
-		}
 		double[] modelAUC = thresholdData.getModelAUC();
 		double reversedPercentile = thresholdData.getReversedPercent();
 
@@ -130,7 +127,7 @@ public class ModelPredictor {
 			// 输出评估结果及所使用阀值及期望样本百分比
 			String evalSummary = "\r\n\t ( with params: modelYearSplit=" + modelYearSplit + " threshold="
 					+ FormatUtility.formatDouble(thresholdMin, 0, 3) + " , percentile="
-					+ FormatUtility.formatPercent(percentile / 100) + " ,defaultThresholdUsed=" + defaultThresholdUsed;
+					+ FormatUtility.formatPercent(percentile / 100) ;
 			evalSummary += " ,reversedModelYearSplit=" + reversedModelYearSplit + " ,reversedThreshold="
 					+ FormatUtility.formatDouble(reversedThresholdMax, 0, 3) + " , reversedPercentile="
 					+ FormatUtility.formatPercent(reversedPercentile / 100);
@@ -151,7 +148,7 @@ public class ModelPredictor {
 			// 输出评估结果及所使用阀值及期望样本百分比
 			String evalSummary = yearSplit + "," + policy + "," + modelYearSplit + ","
 					+ FormatUtility.formatDouble(thresholdMin, 0, 3) + ","
-					+ FormatUtility.formatPercent(percentile / 100) + "," + defaultThresholdUsed + ",";
+					+ FormatUtility.formatPercent(percentile / 100) + ",";
 			evalSummary += reversedModelYearSplit + "," + FormatUtility.formatDouble(reversedThresholdMax, 0, 3) + ","
 					+ FormatUtility.formatPercent(reversedPercentile / 100) + ",";
 			for (double d : modelAUC) {
@@ -162,7 +159,7 @@ public class ModelPredictor {
 		}
 
 		// 具体预测
-		predictOneDay(clModel, dataToPredict, result, yearSplit);
+		predictOneDay(dataToPredict, result, yearSplit);
 
 		// // 第三步： 输出各种统计值
 		// if ("".equals(yearSplit)) {
@@ -188,7 +185,7 @@ public class ModelPredictor {
 	 * @throws Exception
 	 * @throws IllegalStateException
 	 */
-	private void predictOneDay(AbstractModel clModel, GeneralInstances dataToPredict, GeneralInstances result,
+	private void predictOneDay(GeneralInstances dataToPredict, GeneralInstances result,
 			String yearSplit) throws Exception {
 		double pred;
 		double reversedPred;
@@ -205,11 +202,11 @@ public class ModelPredictor {
 		int testInstancesNum = dataToPredict.numInstances();
 		for (int i = 0; i < testInstancesNum; i++) {
 			GeneralInstance currentTestRow = dataToPredict.instance(i);
-			pred = clModel.classify(model, currentTestRow); // 调用子类的分类函数
+			pred = ModelPredictor.classify(model, currentTestRow); // 调用分类函数
 			if (reversedModel == model) { // 如果反向评估模型是同一个类
 				reversedPred = pred;
 			} else {
-				reversedPred = clModel.classify(reversedModel, currentTestRow); // 调用反向评估模型的分类函数
+				reversedPred = ModelPredictor.classify(reversedModel, currentTestRow); // 调用反向评估模型的分类函数
 			}
 
 			// 准备输出结果
@@ -221,16 +218,9 @@ public class ModelPredictor {
 			resultRow.setValue(m_yearMonthAtt, yearMonth);
 
 			// Nominal数据的格式需要额外处理
-			if (clModel instanceof NominalModel) {
+			if (m_shouyilvCache!=null) {
 				// 获取原始数据中的实际收益率值
 				double shouyilv = getShouyilv(i, ids[i], currentTestRow.classValue());
-				// if (shouyilv > clModel.getPositiveLine()) { //
-				// 这里的positive是个相对于positiveLine的相对概念
-				// totalPositiveShouyilv.addValue(shouyilv);
-				// } else {
-				// totalNegativeShouyilv.addValue(shouyilv);
-				// }
-				// 将原始数据的实际收益率值设定入结果集
 				resultRow.setValue(m_shouyilvAtt, shouyilv);
 			}
 			// 将获得的预测值设定入结果集
@@ -246,13 +236,6 @@ public class ModelPredictor {
 			// 如果正向模型与方向模型得出的值矛盾（在使用不同模型时），则用正向模型的数据覆盖方向模型（因为毕竟正向模型的ratio比较小）
 			if (pred >= thresholdMin) { // 本模型估计当前数据是1值
 				selected = ModelPredictor.VALUE_SELECTED;
-
-				// if (shouyilv > clModel.getPositiveLine()) { //
-				// 这里的positive是个相对于positiveLine的相对概念
-				// selectedPositiveShouyilv.addValue(shouyilv);
-				// } else {
-				// selectedNegativeShouyilv.addValue(shouyilv);
-				// }
 			}
 			resultRow.setValue(m_selectedAtt, selected);
 
@@ -378,5 +361,20 @@ public class ModelPredictor {
 		GeneralInstances structure = new DataInstances("cachedOldClass", fvWekaAttributes, 0);
 		structure.setClassIndex(structure.numAttributes() - 1);
 		return structure;
+	}
+
+	/**
+	 * classify the results
+	 * 
+	 */
+	public static double classify(Classifier classifier, GeneralInstance targetInstance) throws Exception {
+		Instance curr = WekaInstance.convertToWekaInstance(targetInstance);
+		double[] dist = classifier.distributionForInstance(curr);
+		if (curr.classAttribute().isNominal()) {
+			return dist[NominalModel.CLASS_POSITIVE_INDEX];
+		} else {
+			return dist[0];
+		}
+
 	}
 }

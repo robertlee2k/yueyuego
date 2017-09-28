@@ -1,13 +1,6 @@
 package yueyueGo;
 
-import weka.classifiers.Classifier;
-import yueyueGo.databeans.GeneralInstance;
-import yueyueGo.databeans.WekaInstance;
-
 public abstract class ContinousModel extends AbstractModel {
-
-
-
 
 	/**
 	 * 
@@ -216,11 +209,11 @@ public abstract class ContinousModel extends AbstractModel {
 	//	}
 
 
-	//对于连续变量，返回预测值
-	protected  double classify(Classifier model,GeneralInstance curr) throws Exception {
-		double pred =  model.classifyInstance(WekaInstance.convertToWekaInstance(curr));
-		return pred;
-	}
+//	//对于连续变量，返回预测值
+//	protected  double classify(Classifier model,GeneralInstance curr) throws Exception {
+//		double pred =  model.classifyInstance(WekaInstance.convertToWekaInstance(curr));
+//		return pred;
+//	}
 
 //	// 创建评估模型的arff结构（预测值-实际值）
 //	protected Instances CreateEvalInstances() {

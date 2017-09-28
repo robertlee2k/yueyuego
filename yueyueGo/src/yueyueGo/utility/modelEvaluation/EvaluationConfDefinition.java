@@ -7,6 +7,8 @@ import yueyueGo.dataFormat.AvgLineDataFormat;
 import yueyueGo.dataFormat.MomentumDataFormat;
 import yueyueGo.utility.ClassifyUtility;
 
+
+@Deprecated
 /**
  * @author robert
  *  用于评估模型的各种参数
@@ -25,14 +27,6 @@ public class EvaluationConfDefinition implements Serializable{
 	
 	protected String[] m_policyGroup;
 
-
-	public static final int PREVIOUS_MODELS_NUM=3; 	//暂时选取之前的3个文件（加上9个月评估数据，也就是最大倒推1.5年左右，太久远的数据建模没意义）
-
-
-	public static final double REVERSED_TOP_AREA_RATIO=0.4; //缺省定义反向头部为50%
-
-
-	public static final double TOP_AREA_RATIO=0.1; //缺省定义头部区域为10%
 
 	public static double LIFT_UP_TARGET=1.8; //选择样本阀值时TP FP RATIO从何开始，这个是常量
 

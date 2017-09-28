@@ -1,5 +1,6 @@
 package yueyueGo.utility.modelEvaluation;
 
+@Deprecated
 public class EvaluationParams {
 	protected double lower_limit;// 各条均线选择样本的下限
 	protected double upper_limit;// 各条均线选择样本的上限

@@ -1,8 +1,6 @@
 package yueyueGo.utility.modelEvaluation;
 import java.io.Serializable;
 
-import org.apache.commons.math3.analysis.solvers.NewtonRaphsonSolver;
-
 
 public class ThresholdData implements Serializable{
 	/**
@@ -17,10 +15,10 @@ public class ThresholdData implements Serializable{
 	private double[] modelAUC; //当前评估数据的不同Top 比例应用于对应Model所计算的AUC列表
 
 	//正向评估数据
-	private double[] threshold; //判断为1的阈值，大于该值意味着该模型判断其为1
-	private double[] percentile;  //阈值对应的percentile
-
-	private boolean isGuessed=false; //阀值是使用的缺省值
+	private double[] thresholds;   //阈值列表
+	private double[] percentiles;  //阈值对应的percentile列表
+	private int defaultThresholdIndex; 	//缺省阈值在阈值列表中的索引（由0开始），大于该阈值意味着该模型判断其为1
+	
 	private String modelYearSplit; //当前评估数据下所选择的模型数据结束年月 
 	private String modelFileName=null;//当前评估数据下所选择的模型文件名称
 	
@@ -65,12 +63,12 @@ public class ThresholdData implements Serializable{
 		data.append("\r\n"+" policySplit="+policySplit+" targetYearSplit="+targetYearSplit+
 				" evalYearSplit="+evalYearSplit);
 		data.append("\r\n threshold=");
-		for (double d : threshold) {
+		for (double d : thresholds) {
 			data.append(d);
 			data.append(',');			
 		}
 		data.append("\r\n @percentile=");
-		for (double d : percentile) {
+		for (double d : percentiles) {
 			data.append(d);
 			data.append(',');			
 		}
@@ -142,7 +140,6 @@ public class ThresholdData implements Serializable{
 	}
 
 
-
 	public String getModelFileName() {
 		return modelFileName;
 	}
@@ -150,44 +147,34 @@ public class ThresholdData implements Serializable{
 	public void setModelFileName(String modelFileName) {
 		this.modelFileName = modelFileName;
 	}
-
-	public double[] getThreshold() {
-		return threshold;
-	}
 	
 	public double getDefaultThreshold() {
-		//FIXME
-		return threshold[1];
+		return thresholds[defaultThresholdIndex];
 	}
 
 	public double getDefaultPercentile() {
-		//FIXME
-		return percentile[1];
+		return percentiles[defaultThresholdIndex];
+	}
+	public double[] getThresholds() {
+		return thresholds;
 	}
 	
-	public void setPercent(double[] startPercent) {
-		this.percentile = startPercent;
+	public void setThresholds(double[] thresholds) {
+		this.thresholds = thresholds;
 	}
-
-
-	public void setThreshold(double[] thresholdMin) {
-		this.threshold = thresholdMin;
+	public double[] getPercentiles() {
+		return percentiles;
 	}
-
-
-
-	public double[] getPercent() {
-		return percentile;
+	public void setPercentiles(double[] percentiles) {
+		this.percentiles = percentiles;
 	}
-
-
-	public boolean isGuessed() {
-		return isGuessed;
+	public int getDefaultThresholdIndex() {
+		return defaultThresholdIndex;
 	}
-
-	public void setIsGuessed(boolean isGuessed) {
-		this.isGuessed = isGuessed;
+	public void setDefaultThresholdIndex(int defaultThresholdIndex) {
+		this.defaultThresholdIndex = defaultThresholdIndex;
 	}
+	
 
 
 	
