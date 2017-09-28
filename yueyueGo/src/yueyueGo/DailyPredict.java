@@ -460,8 +460,8 @@ public class DailyPredict {
 						result.numAttributes());
 
 			}
-			ModelPredictor predictor=new ModelPredictor(clModel,newData,result,""); 
-			predictor.predictData(clModel.m_policySubGroup[j]);
+			ModelPredictor predictor=new ModelPredictor(); 
+			predictor.predictData(clModel,newData,result,"",clModel.m_policySubGroup[j]);
 			System.out.println("accumulated predicted rows: "+ result.numInstances());
 			System.out.println("complete for : "+ clModel.m_policySubGroup[j]);
 			

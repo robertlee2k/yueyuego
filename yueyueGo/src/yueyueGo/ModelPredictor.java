@@ -15,7 +15,6 @@ import yueyueGo.databeans.GeneralAttribute;
 import yueyueGo.databeans.GeneralInstance;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.databeans.WekaInstances;
-import yueyueGo.utility.ClassifySummaries;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.modelEvaluation.ModelStore;
 import yueyueGo.utility.modelEvaluation.ThresholdData;
@@ -26,12 +25,11 @@ public class ModelPredictor {
 	public static final int VALUE_NOT_SURE = 0; // 模型预测结果为“无法判断”
 	public static final int VALUE_NEVER_SELECT = -1; // 模型预测结果为“坚决不选”
 
-
 	private GeneralInstances m_shouyilvCache = null;
-	
+
 	GeneralAttribute m_idAttInResult;
 	GeneralAttribute m_yearMonthAtt;
-	 GeneralAttribute m_shouyilvAtt;
+	GeneralAttribute m_shouyilvAtt;
 	GeneralAttribute m_selectedAtt;
 	GeneralAttribute m_predAtt;
 	ArrayList<GeneralAttribute> m_attributesToCopy;
@@ -40,24 +38,15 @@ public class ModelPredictor {
 	Classifier reversedModel;
 	double thresholdMin;
 	double reversedThresholdMax;
-	
-	AbstractModel clModel;
-	GeneralInstances dataToPredict; 
-	GeneralInstances result;
-	String yearSplit;
 
-	public ModelPredictor(AbstractModel a_clModel, GeneralInstances a_dataToPredict, GeneralInstances a_result,
-			String a_yearSplit) throws Exception {
-		
-		clModel=a_clModel;
-		dataToPredict=a_dataToPredict;
-		result=a_result;
-		yearSplit=a_yearSplit;
-		
+	// 为回测历史数据使用
+	// result parameter will be changed in this method!
+	public void predictData(AbstractModel clModel, GeneralInstances dataToPredict, GeneralInstances result,
+			String yearSplit, String policy) throws Exception {
 		// 第一步： 定义输出结果集的各种须特殊设置的Attribute属性
 		m_idAttInResult = result.attribute(ArffFormat.ID);
 		m_yearMonthAtt = result.attribute(ArffFormat.YEAR_MONTH);
-		 m_shouyilvAtt = result.attribute(ArffFormat.SHOUYILV);
+		m_shouyilvAtt = result.attribute(ArffFormat.SHOUYILV);
 		m_selectedAtt = result.attribute(ArffFormat.RESULT_SELECTED);
 		// 找出输出结果集中须保留的校验字段 （将测试数据的这些值直接写入输出结果集）
 		m_attributesToCopy = ModelPredictor.findAttributesToCopy(result);
@@ -77,8 +66,8 @@ public class ModelPredictor {
 		m_predAtt = null;
 		if (clModel instanceof NominalModel) {
 			// Nominal数据的格式需要额外处理
-			m_shouyilvCache=this.cacheShouyilvData(dataToPredict);
-			dataToPredict= ((NominalModel) clModel).processDataForNominalClassifier(dataToPredict);
+			m_shouyilvCache = this.cacheShouyilvData(dataToPredict);
+			dataToPredict = ((NominalModel) clModel).processDataForNominalClassifier(dataToPredict);
 			m_predAtt = result.attribute(ArffFormat.RESULT_PREDICTED_WIN_RATE);
 		} else {
 			m_predAtt = result.attribute(ArffFormat.RESULT_PREDICTED_PROFIT);
@@ -160,7 +149,8 @@ public class ModelPredictor {
 		} else {
 
 			// 输出评估结果及所使用阀值及期望样本百分比
-			String evalSummary = "," + modelYearSplit + "," + FormatUtility.formatDouble(thresholdMin, 0, 3) + ","
+			String evalSummary = yearSplit + "," + policy + "," + modelYearSplit + ","
+					+ FormatUtility.formatDouble(thresholdMin, 0, 3) + ","
 					+ FormatUtility.formatPercent(percentile / 100) + "," + defaultThresholdUsed + ",";
 			evalSummary += reversedModelYearSplit + "," + FormatUtility.formatDouble(reversedThresholdMax, 0, 3) + ","
 					+ FormatUtility.formatPercent(reversedPercentile / 100) + ",";
@@ -170,27 +160,9 @@ public class ModelPredictor {
 			evalSummary += "\r\n";
 			clModel.classifySummaries.appendEvaluationSummary(evalSummary);
 		}
-	}
 
-	
-
-	// 为回测历史数据使用
-	// result parameter will be changed in this method!
-	public void predictData(String policy) throws Exception {
-
-		// // 具体预测
-		// DescriptiveStatistics totalPositiveShouyilv = new
-		// DescriptiveStatistics();
-		// DescriptiveStatistics totalNegativeShouyilv = new
-		// DescriptiveStatistics();
-		// DescriptiveStatistics selectedPositiveShouyilv = new
-		// DescriptiveStatistics();
-		// DescriptiveStatistics selectedNegativeShouyilv = new
-		// DescriptiveStatistics();
-
-
-		
-		predictOneDay();
+		// 具体预测
+		predictOneDay(clModel, dataToPredict, result, yearSplit);
 
 		// // 第三步： 输出各种统计值
 		// if ("".equals(yearSplit)) {
@@ -216,7 +188,8 @@ public class ModelPredictor {
 	 * @throws Exception
 	 * @throws IllegalStateException
 	 */
-	private void predictOneDay() throws  Exception {
+	private void predictOneDay(AbstractModel clModel, GeneralInstances dataToPredict, GeneralInstances result,
+			String yearSplit) throws Exception {
 		double pred;
 		double reversedPred;
 		double yearMonth = Double.valueOf(yearSplit).doubleValue();
@@ -250,15 +223,15 @@ public class ModelPredictor {
 			// Nominal数据的格式需要额外处理
 			if (clModel instanceof NominalModel) {
 				// 获取原始数据中的实际收益率值
-			 double shouyilv = getShouyilv(i, ids[i],currentTestRow.classValue());
-			 // if (shouyilv > clModel.getPositiveLine()) { //
-			 // 这里的positive是个相对于positiveLine的相对概念
-			 // totalPositiveShouyilv.addValue(shouyilv);
-			 // } else {
-			 // totalNegativeShouyilv.addValue(shouyilv);
-			 // }
-			 // 将原始数据的实际收益率值设定入结果集
-			 resultRow.setValue(m_shouyilvAtt, shouyilv);
+				double shouyilv = getShouyilv(i, ids[i], currentTestRow.classValue());
+				// if (shouyilv > clModel.getPositiveLine()) { //
+				// 这里的positive是个相对于positiveLine的相对概念
+				// totalPositiveShouyilv.addValue(shouyilv);
+				// } else {
+				// totalNegativeShouyilv.addValue(shouyilv);
+				// }
+				// 将原始数据的实际收益率值设定入结果集
+				resultRow.setValue(m_shouyilvAtt, shouyilv);
 			}
 			// 将获得的预测值设定入结果集
 			resultRow.setValue(m_predAtt, pred);
@@ -357,9 +330,6 @@ public class ModelPredictor {
 		return attributesToCopy;
 	}
 
-
-
-
 	protected double getShouyilv(int index, double id, double newClassValue) throws Exception {
 		if (m_shouyilvCache == null) {
 			return Double.NaN;
@@ -382,7 +352,7 @@ public class ModelPredictor {
 	}
 
 	protected GeneralInstances cacheShouyilvData(GeneralInstances inData) {
-		GeneralInstances cache=CreateCachedOldClassInstances();
+		GeneralInstances cache = CreateCachedOldClassInstances();
 		double shouyilv = 0;
 		for (int i = 0; i < inData.numInstances(); i++) {
 			shouyilv = inData.instance(i).classValue();
@@ -397,7 +367,6 @@ public class ModelPredictor {
 		}
 		return cache;
 	}
-	
 
 	// 创建暂存oldClassValue（目前情况下为暂存收益率）的arff结构（id-收益率）
 	protected GeneralInstances CreateCachedOldClassInstances() {

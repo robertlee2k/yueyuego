@@ -434,7 +434,7 @@ public class BackTest {
 		//保存评估结果至文件
 		saveBacktestResultFile(result,clModel.getIdentifyName());
 		
-		FileUtility.write(m_backtest_result_dir+m_currentArffFormat.m_data_file_prefix+"-"+clModel.getIdentifyName()+"-Summary.csv", modelSummaries.getEvaluationHeader()+modelSummaries.getEvaluationSummary(), "GBK");
+		FileUtility.write(m_backtest_result_dir+m_currentArffFormat.m_data_file_prefix+"-"+clModel.getIdentifyName()+"-AUCs.csv", modelSummaries.getEvaluationHeader()+modelSummaries.getEvaluationSummary(), "GBK");
 		
 		System.out.println(clModel.getIdentifyName()+" test result file saved.");
 		return result;
