@@ -1,6 +1,8 @@
 package yueyueGo.utility.modelEvaluation;
 import java.io.Serializable;
 
+import org.apache.commons.math3.analysis.solvers.NewtonRaphsonSolver;
+
 
 public class ThresholdData implements Serializable{
 	/**
@@ -15,8 +17,9 @@ public class ThresholdData implements Serializable{
 	private double[] modelAUC; //当前评估数据的不同Top 比例应用于对应Model所计算的AUC列表
 
 	//正向评估数据
-	private double threshold=99999; //判断为1的阈值，大于该值意味着该模型判断其为1
-	private double percent=99999;  //阈值对应的percentile
+	private double[] threshold; //判断为1的阈值，大于该值意味着该模型判断其为1
+	private double[] percentile;  //阈值对应的percentile
+
 	private boolean isGuessed=false; //阀值是使用的缺省值
 	private String modelYearSplit; //当前评估数据下所选择的模型数据结束年月 
 	private String modelFileName=null;//当前评估数据下所选择的模型文件名称
@@ -61,7 +64,16 @@ public class ThresholdData implements Serializable{
 		}
 		data.append("\r\n"+" policySplit="+policySplit+" targetYearSplit="+targetYearSplit+
 				" evalYearSplit="+evalYearSplit);
-		data.append("\r\n threshold="+threshold+"@percentile="+percent);
+		data.append("\r\n threshold=");
+		for (double d : threshold) {
+			data.append(d);
+			data.append(',');			
+		}
+		data.append("\r\n @percentile=");
+		for (double d : percentile) {
+			data.append(d);
+			data.append(',');			
+		}
 		data.append("\r\n modelYearsplit="+modelYearSplit+" modelFileName="+modelFileName);
 		data.append("\r\n reversedthreshold="+reversedThreshold+"@reversedPercentile="+reversedPercent);
 		data.append("\r\n reversedModelYearsplit="+reversedModelYearSplit+" reversedModelFileName="+reversedModelFileName);
@@ -139,23 +151,33 @@ public class ThresholdData implements Serializable{
 		this.modelFileName = modelFileName;
 	}
 
-	public double getThreshold() {
+	public double[] getThreshold() {
 		return threshold;
 	}
+	
+	public double getDefaultThreshold() {
+		//FIXME
+		return threshold[1];
+	}
 
-	public void setPercent(double startPercent) {
-		this.percent = startPercent;
+	public double getDefaultPercentile() {
+		//FIXME
+		return percentile[1];
+	}
+	
+	public void setPercent(double[] startPercent) {
+		this.percentile = startPercent;
 	}
 
 
-	public void setThreshold(double thresholdMin) {
+	public void setThreshold(double[] thresholdMin) {
 		this.threshold = thresholdMin;
 	}
 
 
 
-	public double getPercent() {
-		return percent;
+	public double[] getPercent() {
+		return percentile;
 	}
 
 

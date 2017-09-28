@@ -227,8 +227,8 @@ public class EvaluationStore {
 		if (tp_fp_bottom_line<0.4){ //too small
 			tp_fp_bottom_line=0.4;
 		}
-		EvaluationParams evalParams=m_evalConf.getEvaluationInstance(m_policySplit);
-		thresholdData=doModelEvaluation(result,evalParams,tp_fp_bottom_line);
+//		EvaluationParams evalParams=m_evalConf.getEvaluationInstance(m_policySplit);
+		thresholdData=doModelEvaluation(result);//,evalParams,tp_fp_bottom_line);
 
 		//将focusAreaRatio及对应的ModelAUC保存
 		thresholdData.setFocosAreaRatio(m_focusAreaRatio);
@@ -254,16 +254,16 @@ public class EvaluationStore {
 
 		
 		EvaluationParams reversedEvalParams=new EvaluationParams(EvaluationConfDefinition.REVERSED_TOP_AREA_RATIO, EvaluationConfDefinition.REVERSED_TOP_AREA_RATIO*1.1, 1.2);
-		ThresholdData reversedThresholdData=doModelEvaluation(reversedResult,reversedEvalParams,1/tp_fp_bottom_line);
+		ThresholdData reversedThresholdData=doModelEvaluation(reversedResult);//,reversedEvalParams,1/tp_fp_bottom_line);
 
 		//将反向评估结果的阈值恢复取反前的值
 		double reversedThreshold;
 		if (m_isNominal){
-			reversedThreshold=1-reversedThresholdData.getThreshold();
+			reversedThreshold=1-reversedThresholdData.getDefaultThreshold();
 		}else{
-			reversedThreshold=reversedThresholdData.getThreshold()*-1;
+			reversedThreshold=reversedThresholdData.getDefaultThreshold()*-1;
 		}
-		if (reversedThreshold>thresholdData.getThreshold()){
+		if (reversedThreshold>thresholdData.getDefaultThreshold()){
 			String reversedModelYear=reversedModel.getModelYearSplit();
 			String selectdModelYear=selectedModel.getModelYearSplit();
 			if (reversedModelYear.equals(selectdModelYear)){
@@ -272,7 +272,7 @@ public class EvaluationStore {
 				System.out.println("thread:"+Thread.currentThread().getName()+"使用不同模型时反向阀值大于正向阀值了"+"reversedThreshold("+reversedThreshold+")@"+reversedModelYear + " > threshold("+thresholdData.getThreshold()+")@"+selectdModelYear);
 			}
 		}
-		double reversedPercentile=100-reversedThresholdData.getPercent();
+		double reversedPercentile=100-reversedThresholdData.getDefaultPercentile();
 		//将反向评估结果存入数据中
 		thresholdData.setReversedThreshold(reversedThreshold);
 		thresholdData.setReversedPercent(reversedPercentile);
@@ -313,27 +313,38 @@ protected void outputFilesForDebug(ModelStore selectedModel, ArrayList<Predictio
 		}
 	}
 
-	private ThresholdData doModelEvaluation( GeneralInstances result,EvaluationParams evalParams,double tp_fp_bottom_line)
+	private ThresholdData doModelEvaluation( GeneralInstances result)//,EvaluationParams evalParams,double tp_fp_bottom_line)
 			throws Exception {
-		ThresholdData thresholdData=null;
+//		ThresholdData thresholdData=null;
 
-		int round=1;
-		//		System.out.println("use the tp_fp_bottom_line based on training history data = "+tp_fp_bottom_line);
-		double trying_tp_fp=tp_fp_bottom_line*evalParams.getLift_up_target();
-		System.out.println("thread:"+Thread.currentThread().getName()+"start from the trying_tp_fp = "+trying_tp_fp + " / while  lift up target="+evalParams.getLift_up_target());
-		while (thresholdData == null && trying_tp_fp > tp_fp_bottom_line){
-			thresholdData= computeThresholds(trying_tp_fp,evalParams, result);
-			if (thresholdData!=null){
-				System.out.println(" threshold got at trying round No.: "+round);
-				break;
-			}else {
-				trying_tp_fp=trying_tp_fp*0.95;
-				round++;
-			}
-		}// end while;
-		if (thresholdData==null){  //如果已达到TPFP_BOTTOM_LINE但无法找到合适的阀值
-			thresholdData=computeDefaultThresholds(evalParams,result);//设置下限
+//		int round=1;
+//		//		System.out.println("use the tp_fp_bottom_line based on training history data = "+tp_fp_bottom_line);
+//		double trying_tp_fp=tp_fp_bottom_line*evalParams.getLift_up_target();
+//		System.out.println("thread:"+Thread.currentThread().getName()+"start from the trying_tp_fp = "+trying_tp_fp + " / while  lift up target="+evalParams.getLift_up_target());
+//		while (thresholdData == null && trying_tp_fp > tp_fp_bottom_line){
+//			thresholdData= computeThresholds(trying_tp_fp,evalParams, result);
+//			if (thresholdData!=null){
+//				System.out.println(" threshold got at trying round No.: "+round);
+//				break;
+//			}else {
+//				trying_tp_fp=trying_tp_fp*0.95;
+//				round++;
+//			}
+//		}// end while;
+//		if (thresholdData==null){  //如果已达到TPFP_BOTTOM_LINE但无法找到合适的阀值
+//			thresholdData=computeDefaultThresholds(evalParams,result);//设置下限
+//		}
+		double[] ratio={0.005,0.01,0.02,0.03,0.04,0.05,0.06};
+		double[] threshold=new double[ratio.length];
+		double[] percentile=new double[ratio.length];
+		for (int i=0;i<ratio.length;i++) {
+			EvaluationParams evalParams=new EvaluationParams(ratio[i],0,0);
+			threshold[i]=computeDefaultThresholds(evalParams,result);//设置下限
+			percentile[i]=100*(1-ratio[i]); //将sampleSize转换为percent
 		}
+		ThresholdData thresholdData=new ThresholdData();
+		thresholdData.setThreshold(threshold);
+		thresholdData.setPercent(percentile);
 
 		return thresholdData;
 	}
@@ -461,83 +472,83 @@ protected void outputFilesForDebug(ModelStore selectedModel, ArrayList<Predictio
 		return auc;
 	}
 
-	private ThresholdData computeThresholds(double tp_fp_ratio, EvaluationParams evalParams, GeneralInstances result) {
-	
-		double sample_limit=evalParams.getLower_limit(); 
-		double sample_upper=evalParams.getUpper_limit();
-	
-		double thresholdBottom = 0.0;
-		//		double lift_max = 0.0;
-		//		double lift_max_tp=0.0;
-		//		double lift_max_fp=0.0;
-		//		double lift_max_sample=0.0;
-	
-		double finalSampleSize = 0.0;
-		double sampleSize = 0.0;
-		double tp = 0.0;
-		double fp = 0.0;
-		double final_tp=0.0;
-		double final_fp=0.0;
-		GeneralAttribute att_tp = result.attribute(ThresholdCurve.TRUE_POS_NAME);
-		GeneralAttribute att_fp = result.attribute(ThresholdCurve.FALSE_POS_NAME);
-		//		GeneralAttribute att_lift = result.attribute(ThresholdCurve.LIFT_NAME);
-		GeneralAttribute att_threshold = result.attribute(ThresholdCurve.THRESHOLD_NAME);
-		GeneralAttribute att_samplesize = result.attribute(ThresholdCurve.SAMPLE_SIZE_NAME);
-	
-	
-		for (int i = 0; i < result.numInstances(); i++) {
-			GeneralInstance curr = result.instance(i);
-			sampleSize = curr.value(att_samplesize); // to get sample range
-			if (sampleSize >= sample_limit && sampleSize <=sample_upper) {
-				tp = curr.value(att_tp);
-				fp = curr.value(att_fp);
-	
-				//统计该范围内lift最大的值是多少（仅为输出用）
-				//				double current_lift=curr.value(att_lift);
-				//				if (current_lift>lift_max){
-				//					lift_max=current_lift;
-				//					lift_max_tp=tp;
-				//					lift_max_fp=fp;
-				//					lift_max_sample=sampleSize;
-				//				}
-	
-				//查找合适的阀值
-				if (tp>fp*tp_fp_ratio ){
-					thresholdBottom = curr.value(att_threshold);
-					finalSampleSize = sampleSize;
-					final_tp=tp;
-					final_fp=fp;
-				}
-			}
-		}
-	
-	
-		ThresholdData thresholdData=null;
-		if (thresholdBottom>0){ //找到阀值时输出并设置对象的值
-			System.out.print("#############################thresholdBottom is : " + FormatUtility.formatDouble(thresholdBottom));
-			System.out.print("/samplesize is : " + FormatUtility.formatPercent(finalSampleSize) );
-			System.out.print("/True Positives is : " + final_tp);
-			System.out.println("/False Positives is : " + final_fp);
-	
-			thresholdData=new ThresholdData();
-			thresholdData.setThreshold(thresholdBottom);
-			double percentile=100*(1-finalSampleSize); //将sampleSize转换为percent
-			thresholdData.setPercent(percentile);
-	
-	
-		}else{
-			//			double max_tp_fp_ratio=Double.NaN;
-			//			if (lift_max_fp>0){
-			//				max_tp_fp_ratio=lift_max_tp/lift_max_fp;
-			//			}
-			//			System.out.println("###possible lift max in range is : " + FormatUtility.formatDouble(lift_max) + "@ sample="+FormatUtility.formatDouble(lift_max_sample)+" where tp="+lift_max_tp+" /fp="+lift_max_fp);
-			//			System.out.println("### max tp fp ratio="+max_tp_fp_ratio+ " while trying threshold="+tp_fp_ratio+ " isNormal="+(max_tp_fp_ratio<tp_fp_ratio));
-		}
-	
-		return thresholdData;
-	}
+//	private ThresholdData computeThresholds(double tp_fp_ratio, EvaluationParams evalParams, GeneralInstances result) {
+//	
+//		double sample_limit=evalParams.getLower_limit(); 
+//		double sample_upper=evalParams.getUpper_limit();
+//	
+//		double thresholdBottom = 0.0;
+//		//		double lift_max = 0.0;
+//		//		double lift_max_tp=0.0;
+//		//		double lift_max_fp=0.0;
+//		//		double lift_max_sample=0.0;
+//	
+//		double finalSampleSize = 0.0;
+//		double sampleSize = 0.0;
+//		double tp = 0.0;
+//		double fp = 0.0;
+//		double final_tp=0.0;
+//		double final_fp=0.0;
+//		GeneralAttribute att_tp = result.attribute(ThresholdCurve.TRUE_POS_NAME);
+//		GeneralAttribute att_fp = result.attribute(ThresholdCurve.FALSE_POS_NAME);
+//		//		GeneralAttribute att_lift = result.attribute(ThresholdCurve.LIFT_NAME);
+//		GeneralAttribute att_threshold = result.attribute(ThresholdCurve.THRESHOLD_NAME);
+//		GeneralAttribute att_samplesize = result.attribute(ThresholdCurve.SAMPLE_SIZE_NAME);
+//	
+//	
+//		for (int i = 0; i < result.numInstances(); i++) {
+//			GeneralInstance curr = result.instance(i);
+//			sampleSize = curr.value(att_samplesize); // to get sample range
+//			if (sampleSize >= sample_limit && sampleSize <=sample_upper) {
+//				tp = curr.value(att_tp);
+//				fp = curr.value(att_fp);
+//	
+//				//统计该范围内lift最大的值是多少（仅为输出用）
+//				//				double current_lift=curr.value(att_lift);
+//				//				if (current_lift>lift_max){
+//				//					lift_max=current_lift;
+//				//					lift_max_tp=tp;
+//				//					lift_max_fp=fp;
+//				//					lift_max_sample=sampleSize;
+//				//				}
+//	
+//				//查找合适的阀值
+//				if (tp>fp*tp_fp_ratio ){
+//					thresholdBottom = curr.value(att_threshold);
+//					finalSampleSize = sampleSize;
+//					final_tp=tp;
+//					final_fp=fp;
+//				}
+//			}
+//		}
+//	
+//	
+//		ThresholdData thresholdData=null;
+//		if (thresholdBottom>0){ //找到阀值时输出并设置对象的值
+//			System.out.print("#############################thresholdBottom is : " + FormatUtility.formatDouble(thresholdBottom));
+//			System.out.print("/samplesize is : " + FormatUtility.formatPercent(finalSampleSize) );
+//			System.out.print("/True Positives is : " + final_tp);
+//			System.out.println("/False Positives is : " + final_fp);
+//	
+//			thresholdData=new ThresholdData();
+//			thresholdData.setThreshold(thresholdBottom);
+//			double percentile=100*(1-finalSampleSize); //将sampleSize转换为percent
+//			thresholdData.setPercent(percentile);
+//	
+//	
+//		}else{
+//			//			double max_tp_fp_ratio=Double.NaN;
+//			//			if (lift_max_fp>0){
+//			//				max_tp_fp_ratio=lift_max_tp/lift_max_fp;
+//			//			}
+//			//			System.out.println("###possible lift max in range is : " + FormatUtility.formatDouble(lift_max) + "@ sample="+FormatUtility.formatDouble(lift_max_sample)+" where tp="+lift_max_tp+" /fp="+lift_max_fp);
+//			//			System.out.println("### max tp fp ratio="+max_tp_fp_ratio+ " while trying threshold="+tp_fp_ratio+ " isNormal="+(max_tp_fp_ratio<tp_fp_ratio));
+//		}
+//	
+//		return thresholdData;
+//	}
 
-	private ThresholdData computeDefaultThresholds(EvaluationParams evalParams, GeneralInstances result) throws Exception{
+	private double computeDefaultThresholds(EvaluationParams evalParams, GeneralInstances result) throws Exception{
 		double sample_limit=evalParams.getLower_limit(); 
 		double sampleSize=1.0;  //SampleSize应该是倒序下来的
 		double lastSampleSize=1.0;
@@ -568,16 +579,12 @@ protected void outputFilesForDebug(ModelStore selectedModel, ArrayList<Predictio
 		}else {
 			System.err.println("thread:"+Thread.currentThread().getName()+"got default threshold "+ threshold+" at sample_limit="+sample_limit +" actual sampleSize="+FormatUtility.formatDouble(sampleSize,1,6));
 		}
-		ThresholdData thresholdData=new ThresholdData();
-		thresholdData.setThreshold(threshold);
-		double startPercent=100*(1-evalParams.getLower_limit()); //将sampleSize转换为percent
-		thresholdData.setPercent(startPercent);
 	
 	
-		//使用缺省值时设置此标志位
-		thresholdData.setIsGuessed(true);
+//		//使用缺省值时设置此标志位
+//		thresholdData.setIsGuessed(true);
 	
-		return thresholdData;
+		return threshold;
 	
 	}
 

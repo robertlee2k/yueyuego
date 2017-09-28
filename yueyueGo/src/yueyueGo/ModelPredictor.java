@@ -103,7 +103,7 @@ public class ModelPredictor {
 			reversedModel = reversedModelStore.loadModelFromFile(predictDataFormat, yearSplit);
 		}
 
-		thresholdMin = thresholdData.getThreshold(); // 判断为1的阈值，大于该值意味着该模型判断其为1
+		thresholdMin = thresholdData.getDefaultThreshold(); // 判断为1的阈值，大于该值意味着该模型判断其为1
 		reversedThresholdMax = thresholdData.getReversedThreshold(); // 判断为0的阈值，小于该值意味着该模型坚定认为其为0
 																		// （这是合并多个模型预测时使用的）
 		if (reversedThresholdMax > thresholdMin) {
@@ -117,7 +117,7 @@ public class ModelPredictor {
 		}
 
 		// 第三步： 输出评估参数
-		double percentile = thresholdData.getPercent();
+		double percentile = thresholdData.getDefaultPercentile();
 		boolean isGuessed = thresholdData.isGuessed();
 		String defaultThresholdUsed = " ";
 		if (isGuessed) {
