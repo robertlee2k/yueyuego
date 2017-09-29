@@ -44,12 +44,13 @@ public class DataAnalysis {
 
 
 	
+	
 	/*
 	 * fromYearMonth 待统计数据的起始区间
 	 * toYearMonth 待统计数据的结束区间
 	 * 针对这个区间的数据，分别统计各种市场情况下的收益率分布
 	 */
-	public static ShouyilvDescriptiveList analyzeMarket(String identify,String fromYearMonth,String toYearMonth,String policyGroupName,String[] policyStrings,GeneralInstances fullData)throws Exception{
+	public static ShouyilvDescriptiveList analyzeByMarketTrend(String identify,String fromYearMonth,String toYearMonth,String policyGroupName,String[] policyStrings,GeneralInstances fullData)throws Exception{
 		int earliest=Integer.valueOf(fromYearMonth).intValue();
 		int latest=Integer.valueOf(toYearMonth).intValue();
 		int marketStartMonth;
@@ -163,6 +164,34 @@ public class DataAnalysis {
 
 	}
 	
+	/*
+	 * 按月分析收益率结果
+	 */
+	public static ShouyilvDescriptiveList analyzeByMonth(String identify,String startYear,String toYearMonth,String policyGroupName,String[] policyStrings,GeneralInstances fullData)throws Exception{
+		String[] monthList=BackTest.manipulateYearMonth(startYear, toYearMonth, 1);
+
+		System.out.println(" now analyzing classifier result by month :"+identify);
+		//先分析全时间段
+		ShouyilvDescriptiveList descriptions=analyzeDataDistribution(policyGroupName,policyStrings,ALL_HISTORY.getExplain(),fullData);
+
+		
+		ShouyilvDescriptiveList	shouyilvDescriptions=new ShouyilvDescriptiveList(identify);
+		shouyilvDescriptions.mergeDescriptionList(descriptions);	
+		int yearMonthPos=BaseInstanceProcessor.findATTPosition(fullData,ArffFormat.YEAR_MONTH);
+		String attPos=WekaInstanceProcessor.WEKA_ATT_PREFIX + yearMonthPos;
+		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullData);
+		//分段分析并保存
+		String targetMonth;
+		for (int i=0;i<monthList.length;i++){
+			targetMonth=monthList[i];
+			String splitClause ="(" + attPos + " = "+ targetMonth + ")";
+			GeneralInstances marketData=instanceProcessor.getInstancesSubset(fullData, splitClause);
+			descriptions=analyzeDataDistribution(policyGroupName,policyStrings,targetMonth,marketData);
+			shouyilvDescriptions.mergeDescriptionList(descriptions);
+		}
+		return shouyilvDescriptions;
+
 	
+	}
 
 }
