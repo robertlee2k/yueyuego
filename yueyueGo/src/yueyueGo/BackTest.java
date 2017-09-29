@@ -676,9 +676,9 @@ public class BackTest {
 				mainModel.getModelArffFormat());
 		selectedInstances = returnSelectedInstances(classifyResult);
 		System.out.println("--filtered by secondary classifier:( " + secondaryModel.getIdentifyName() + ")");
-		marketTrendAnalysis[2] = DataAnalysis.analyzeByMonth("双模型选股:"+mainModel.getIdentifyName(), m_startYear + "01", m_endYearMonth,
+		marketTrendAnalysis[2] = DataAnalysis.analyzeByMarketTrend("双模型选股:"+mainModel.getIdentifyName(), m_startYear + "01", m_endYearMonth,
 				m_currentArffFormat.m_policy_group, targetPolicies, selectedInstances);
-		monthlyShouyilvAnalysis[2] = DataAnalysis.analyzeByMarketTrend("双模型选股:"+mainModel.getIdentifyName(), m_startYear, m_endYearMonth,
+		monthlyShouyilvAnalysis[2] = DataAnalysis.analyzeByMonth("双模型选股:"+mainModel.getIdentifyName(), m_startYear, m_endYearMonth,
 				m_currentArffFormat.m_policy_group, targetPolicies, selectedInstances);
 
 		// 输出上述收益率分析的csv文件(按市场和按月）
