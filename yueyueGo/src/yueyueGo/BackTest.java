@@ -620,9 +620,9 @@ public class BackTest {
 		ShouyilvDescriptiveList[] marketTrendAnalysis = new ShouyilvDescriptiveList[3];
 		ShouyilvDescriptiveList[] monthlyShouyilvAnalysis = new ShouyilvDescriptiveList[3];
 
-		marketTrendAnalysis[0] = DataAnalysis.analyzeByMarketTrend("原始数据", m_startYear + "01", m_endYearMonth,
+		marketTrendAnalysis[0] = DataAnalysis.analyzeByMarketTrend(ShouyilvDescriptiveList.ORIGINAL_DATA, m_startYear + "01", m_endYearMonth,
 				m_currentArffFormat.m_policy_group, targetPolicies, continuousResult);
-		monthlyShouyilvAnalysis[0] = DataAnalysis.analyzeByMonth("原始数据", m_startYear, m_endYearMonth,
+		monthlyShouyilvAnalysis[0] = DataAnalysis.analyzeByMonth(ShouyilvDescriptiveList.ORIGINAL_DATA, m_startYear, m_endYearMonth,
 				m_currentArffFormat.m_policy_group, targetPolicies, continuousResult);
 
 		// 输出连续分类器的收益率分析统计结果
@@ -682,12 +682,12 @@ public class BackTest {
 				m_currentArffFormat.m_policy_group, targetPolicies, selectedInstances);
 
 		// 输出上述收益率分析的csv文件(按市场和按月）
-		String output = ShouyilvDescriptiveList.mergeHorizontallyToCSV(marketTrendAnalysis) + "\r\n\r\n\r\n"
+		String output = ShouyilvDescriptiveList.mergeHorizontallyToCSV(marketTrendAnalysis[0],marketTrendAnalysis[1],marketTrendAnalysis[2]) + "\r\n\r\n\r\n"
 				+ cModelSummary;
 		FileUtility.write(m_backtest_result_dir + "市场牛熊区间分析-" + mainModel.getIdentifyName()
 				+ FormatUtility.getDateStringFor(0) + ".csv", output, "GBK");
 		// 按月分析
-		String monthlyOutput = ShouyilvDescriptiveList.mergeHorizontallyToCSV(monthlyShouyilvAnalysis) + "\r\n\r\n\r\n"
+		String monthlyOutput = ShouyilvDescriptiveList.mergeHorizontallyToCSV(monthlyShouyilvAnalysis[0],monthlyShouyilvAnalysis[1],monthlyShouyilvAnalysis[2]) + "\r\n\r\n\r\n"
 				+ cModelSummary;
 		FileUtility.write(m_backtest_result_dir + "按月分析-" + mainModel.getIdentifyName()
 				+ FormatUtility.getDateStringFor(0) + ".csv", monthlyOutput, "GBK");
