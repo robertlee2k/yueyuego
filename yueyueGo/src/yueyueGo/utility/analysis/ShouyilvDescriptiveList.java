@@ -78,7 +78,7 @@ public class ShouyilvDescriptiveList {
 			// 接下来处理"选股率"
 			double selectedRatio = 0;
 			if (last.count > 0) {
-				selectedRatio = current.count / last.count;
+				selectedRatio = ((double)current.count) / last.count;
 			}
 			content.append(FormatUtility.formatPercent(selectedRatio));
 			content.append(",");
@@ -92,10 +92,9 @@ public class ShouyilvDescriptiveList {
 			// 接下来处理"正值提升率"
 			double liftUp = 0;
 			if (last.getPositiveRatio() > 0) {
-				liftUp = current.getPositiveRatio() / last.getPositiveRatio();
+				liftUp = current.getPositiveRatio() / last.getPositiveRatio()-1;
 			}
 			content.append(FormatUtility.formatPercent(liftUp));
-			content.append(",");
 		}
 
 		return content;
