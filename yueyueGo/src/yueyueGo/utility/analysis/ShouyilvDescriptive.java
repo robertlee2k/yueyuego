@@ -49,7 +49,6 @@ public class ShouyilvDescriptive {
 		result.append(FormatUtility.formatPercent(negativeShouyilvAverage,2,3));
 		result.append(",");
 		result.append(FormatUtility.formatPercent(this.getPositiveRatio(),2,2));
-		result.append(",");
 		return result.toString();
 	}
 	
