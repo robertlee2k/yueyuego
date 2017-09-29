@@ -60,7 +60,7 @@ public class DataAnalysis {
 		//先分析全时间段的并输出打印，下面的明细就不打印了。
 		ShouyilvDescriptiveList descriptions=analyzeDataDistribution(policyGroupName,policyStrings,ALL_HISTORY.getExplain(),fullData);
 		System.out.println(descriptions.toDescriptionList());
-		System.out.println("\t.......breakdown details are shown below: ");
+		
 		ShouyilvDescriptiveList	shouyilvDescriptions=new ShouyilvDescriptiveList(identify);
 		shouyilvDescriptions.mergeDescriptionList(descriptions);	
 		int yearMonthPos=BaseInstanceProcessor.findATTPosition(fullData,ArffFormat.YEAR_MONTH);

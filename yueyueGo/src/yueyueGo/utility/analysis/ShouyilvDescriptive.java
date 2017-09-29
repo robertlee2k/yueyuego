@@ -55,13 +55,20 @@ public class ShouyilvDescriptive {
 	
 	public String toDescriptions(){
 		StringBuffer result=new StringBuffer();
-		result.append("\t shouyilv average for policy["+policy+"]=" +FormatUtility.formatPercent(shouyilvAverage,2,3)+" count="+count);
+		String tab;
+		//根据policy不同决定是否要加tab缩进
+		if (ALL.equals(this.policy)){
+			tab="";
+		}else{
+			tab="\t";
+		}
+		result.append(tab+" shouyilv average for policy["+policy+"]=" +FormatUtility.formatPercent(shouyilvAverage,2,3)+" count="+count);
 		result.append("\r\n");
-		result.append("\t\t actual positive average="+FormatUtility.formatPercent(positiveShouyilvAverage,2,3)+" count="+positiveCount);
+		result.append(tab+"\t actual positive average="+FormatUtility.formatPercent(positiveShouyilvAverage,2,3)+" count="+positiveCount);
 		result.append("\r\n");
-		result.append("\t\t actual negative average="+FormatUtility.formatPercent(negativeShouyilvAverage,2,3)+" count="+(count-positiveCount));
+		result.append(tab+"\t actual negative average="+FormatUtility.formatPercent(negativeShouyilvAverage,2,3)+" count="+(count-positiveCount));
 		result.append("\r\n");
-		result.append("\t\t actual positive ratio="+FormatUtility.formatPercent(this.getPositiveRatio(),2,2));
+		result.append(tab+"\t actual positive ratio="+FormatUtility.formatPercent(this.getPositiveRatio(),2,2));
 		result.append("\r\n");
 		return result.toString();
 	}
