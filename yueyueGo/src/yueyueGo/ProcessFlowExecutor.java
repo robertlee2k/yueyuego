@@ -8,6 +8,7 @@ import yueyueGo.databeans.GeneralDataTag;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.utility.ClassifyUtility;
 import yueyueGo.utility.modelEvaluation.ModelStore;
+import yueyueGo.utility.modelPredict.ModelPredictor;
 
 public class ProcessFlowExecutor implements Callable<String> {
 	private AbstractModel clModel;

@@ -238,8 +238,8 @@ public class EvaluationStore {
 
 		// 获取正向评估结果
 		//FIXME
-		double[] sampleSize = { 0.005, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06,EvaluationStore.TOP_AREA_RATIO};
-		int defaultThresholdIndex=1;
+		double[] sampleSize = { 0.002,0.005,0.006,0.008, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06,EvaluationStore.TOP_AREA_RATIO};
+		int defaultThresholdIndex=6;
 		double[] thresholds = findThresholds(result, sampleSize);
 		double[] percentiles = new double[sampleSize.length];
 		for (int i = 0; i < sampleSize.length; i++) {

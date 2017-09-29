@@ -57,6 +57,7 @@ import yueyueGo.utility.analysis.ShouyilvDescriptiveList;
 import yueyueGo.utility.modelEvaluation.EvaluationStore;
 import yueyueGo.utility.modelEvaluation.ModelStore;
 import yueyueGo.utility.modelEvaluation.ThresholdData;
+import yueyueGo.utility.modelPredict.ModelPredictor;
 
 public class BackTest {
 	public static final String RESULT_EXTENSION = "-Test Result.csv";
@@ -94,8 +95,8 @@ public class BackTest {
 
 			// 调用回测函数回测
 			// worker.callRebuildModels();
-//			worker.callReEvaluateModels();
-			 worker.callTestBack();
+			worker.callReEvaluateModels();
+//			 worker.callTestBack();
 			// worker.callRefreshModelUseLatestData();
 
 			// worker.callDataAnlysis();
@@ -228,15 +229,15 @@ public class BackTest {
 	protected void callTestBack() throws Exception {
 		// 按二分类器回测历史数据
 		AdaboostClassifier nModel = AdaboostClassifier.initModel(m_currentArffFormat, AbstractModel.FOR_BACKTEST_MODEL);
-//		GeneralInstances nominalResult = testBackward(nModel);
+		GeneralInstances nominalResult = testBackward(nModel);
 		// 不真正回测了，直接从以前的结果文件中加载
-		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
+//		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 
 		// 按连续分类器回测历史数据
 		BaggingM5P cModel = BaggingM5P.initModel(m_currentArffFormat, AbstractModel.FOR_BACKTEST_MODEL);
-//		GeneralInstances continuousResult = testBackward(cModel);
+		GeneralInstances continuousResult = testBackward(cModel);
 		// 不真正回测了，直接从以前的结果文件中加载
-		 GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
+//		 GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 
 		saveResultsAndStatistics(nModel, nominalResult, cModel, continuousResult);
 

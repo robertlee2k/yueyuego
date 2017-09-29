@@ -1,4 +1,4 @@
-package yueyueGo;
+package yueyueGo.utility.modelPredict;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -6,6 +6,8 @@ import java.util.List;
 
 import weka.classifiers.Classifier;
 import weka.core.Instance;
+import yueyueGo.AbstractModel;
+import yueyueGo.NominalModel;
 import yueyueGo.dataFormat.ArffFormat;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.dataProcessor.InstanceHandler;
@@ -40,11 +42,16 @@ public class ModelPredictor {
 	Classifier reversedModel;
 	double thresholdMin;
 	double reversedThresholdMax;
+	
+	PredictStatus m_predictStatus;
 
 	// 为回测历史数据使用
 	// result parameter will be changed in this method!
 	public void predictData(AbstractModel clModel, GeneralInstances dataToPredict, GeneralInstances result,
 			String yearSplit, String policy) throws Exception {
+		//生成存储预测中间结果的对象
+		m_predictStatus=new PredictStatus(yearSplit, policy);
+		
 		// 第一步： 定义输出结果集的各种须特殊设置的Attribute属性
 		m_idAttInResult = result.attribute(ArffFormat.ID);
 		m_yearMonthAtt = result.attribute(ArffFormat.YEAR_MONTH);
@@ -187,6 +194,8 @@ public class ModelPredictor {
 	 */
 	private void predictOneDay(GeneralInstances dataToPredict, GeneralInstances result,
 			String yearSplit) throws Exception {
+
+		
 		double pred;
 		double reversedPred;
 		double yearMonth = Double.valueOf(yearSplit).doubleValue();
@@ -199,8 +208,10 @@ public class ModelPredictor {
 				Integer.toString(ArffFormat.ID_POSITION));
 		// 开始循环，用分类模型和阈值对每一条数据进行预测，并存入输出结果集
 		System.out.println("actual -> predicted....... ");
-		int testInstancesNum = dataToPredict.numInstances();
-		for (int i = 0; i < testInstancesNum; i++) {
+
+		int selectedCount=0;
+		int predictedCount = dataToPredict.numInstances();
+		for (int i = 0; i < predictedCount; i++) {
 			GeneralInstance currentTestRow = dataToPredict.instance(i);
 			pred = ModelPredictor.classify(model, currentTestRow); // 调用分类函数
 			if (reversedModel == model) { // 如果反向评估模型是同一个类
@@ -236,6 +247,7 @@ public class ModelPredictor {
 			// 如果正向模型与方向模型得出的值矛盾（在使用不同模型时），则用正向模型的数据覆盖方向模型（因为毕竟正向模型的ratio比较小）
 			if (pred >= thresholdMin) { // 本模型估计当前数据是1值
 				selected = ModelPredictor.VALUE_SELECTED;
+				selectedCount++;
 			}
 			resultRow.setValue(m_selectedAtt, selected);
 
@@ -260,6 +272,8 @@ public class ModelPredictor {
 
 			result.add(resultRow);
 		}
+		m_predictStatus.addCummulativePredicted(predictedCount);
+		m_predictStatus.addCummulativeSelected(selectedCount);
 	}
 
 	/**

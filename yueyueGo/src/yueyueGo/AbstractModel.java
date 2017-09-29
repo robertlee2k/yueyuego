@@ -65,8 +65,8 @@ public abstract class AbstractModel implements Serializable{
 	}
 
 
-	protected EvaluationStore m_evaluationStore;//eval的持久化封装类类
-	protected ClassifySummaries classifySummaries;//分类的统计信息
+	public EvaluationStore m_evaluationStore;//eval的持久化封装类类
+	public ClassifySummaries classifySummaries;//分类的统计信息
 
 	public AbstractModel() {
 		m_positiveLine=0; //缺省的以收益率正负为二分类的正负。

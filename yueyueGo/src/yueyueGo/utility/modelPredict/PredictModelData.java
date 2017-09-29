@@ -1,4 +1,4 @@
-package yueyueGo.utility;
+package yueyueGo.utility.modelPredict;
 
 
 public class PredictModelData {

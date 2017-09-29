@@ -1,6 +1,5 @@
 package yueyueGo.utility;
 
-import yueyueGo.ModelPredictor;
 import yueyueGo.dataFormat.ArffFormat;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.dataProcessor.InstanceHandler;
@@ -9,6 +8,7 @@ import yueyueGo.databeans.DataInstances;
 import yueyueGo.databeans.GeneralAttribute;
 import yueyueGo.databeans.GeneralInstance;
 import yueyueGo.databeans.GeneralInstances;
+import yueyueGo.utility.modelPredict.ModelPredictor;
 
 
 public class MergeClassifyResults {
