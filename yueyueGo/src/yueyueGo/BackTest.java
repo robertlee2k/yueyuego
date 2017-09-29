@@ -659,11 +659,11 @@ public class BackTest {
 		String cModelSummary = mainModel.outputClassifySummary();
 
 		// 输出主分类器的收益率分析统计结果
-		System.out.println("-----now output main model predictions----------" + mainModel.getIdentifyName());
+		System.out.println("\r\n-----now output main model predictions----------" + mainModel.getIdentifyName());
 		GeneralInstances selectedInstances = returnSelectedInstances(mainResult);
-		marketTrendAnalysis[1] = DataAnalysis.analyzeByMarketTrend("单模型选股", m_startYear + "01", m_endYearMonth,
+		marketTrendAnalysis[1] = DataAnalysis.analyzeByMarketTrend("单模型选股:"+mainModel.getIdentifyName(), m_startYear + "01", m_endYearMonth,
 				m_currentArffFormat.m_policy_group, targetPolicies, selectedInstances);
-		monthlyShouyilvAnalysis[1] = DataAnalysis.analyzeByMarketTrend("单模型选股", m_startYear, m_endYearMonth,
+		monthlyShouyilvAnalysis[1] = DataAnalysis.analyzeByMonth("单模型选股:"+mainModel.getIdentifyName(), m_startYear, m_endYearMonth,
 				m_currentArffFormat.m_policy_group, targetPolicies, selectedInstances);
 		String dataToAdd = null;
 		if (mainModel instanceof ContinousModel) {
@@ -676,9 +676,9 @@ public class BackTest {
 				mainModel.getModelArffFormat());
 		selectedInstances = returnSelectedInstances(classifyResult);
 		System.out.println("--filtered by secondary classifier:( " + secondaryModel.getIdentifyName() + ")");
-		marketTrendAnalysis[2] = DataAnalysis.analyzeByMarketTrend("双模型选股", m_startYear + "01", m_endYearMonth,
+		marketTrendAnalysis[2] = DataAnalysis.analyzeByMonth("双模型选股:"+mainModel.getIdentifyName(), m_startYear + "01", m_endYearMonth,
 				m_currentArffFormat.m_policy_group, targetPolicies, selectedInstances);
-		monthlyShouyilvAnalysis[2] = DataAnalysis.analyzeByMarketTrend("双模型选股", m_startYear, m_endYearMonth,
+		monthlyShouyilvAnalysis[2] = DataAnalysis.analyzeByMarketTrend("双模型选股:"+mainModel.getIdentifyName(), m_startYear, m_endYearMonth,
 				m_currentArffFormat.m_policy_group, targetPolicies, selectedInstances);
 
 		// 输出上述收益率分析的csv文件(按市场和按月）
