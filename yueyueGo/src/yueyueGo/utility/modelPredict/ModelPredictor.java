@@ -118,7 +118,7 @@ public class ModelPredictor {
 			stepSize = 1;
 		}
 
-		for (int k = 0; k < (dataToPredict.numInstances() + stepSize); k += stepSize) {
+		for (int k = 0; k < dataToPredict.numInstances(); k += stepSize) {
 			// TODO 提取方法
 
 			double[] thresholds = thresholdData.getThresholds();
@@ -128,7 +128,7 @@ public class ModelPredictor {
 
 			// 如果迄今为止已选股票的百分比已经大于threshold中的预期百分比，则提升阈值单位。
 			double adjustedPercentile;
-			double currentPercentile = m_predictStatus.getCummulativeSelectRatio();
+			double currentPercentile = m_predictStatus.getCummulativeSelectRatio()*100;
 			if (Double.isNaN(currentPercentile)) { // 还未开始本批次预测时
 				adjustedPercentile = targetPercentile;
 			} else {
@@ -139,7 +139,7 @@ public class ModelPredictor {
 			}
 
 			m_thresholdMin = thresholds[adjustedIndex]; // 判断为1的阈值，大于该值意味着该模型判断其为1
-			System.out.println("new threshold set to " + m_thresholdMin);
+			System.out.println("adjusted threshold set to " + m_thresholdMin);
 			// TODO end
 
 			m_reversedThresholdMax = thresholdData.getReversedThreshold(); // 判断为0的阈值，小于该值意味着该模型坚定认为其为0
