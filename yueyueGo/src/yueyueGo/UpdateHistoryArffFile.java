@@ -881,22 +881,23 @@ public class UpdateHistoryArffFile {
 	protected static void outputAttributesRange(ArffFormat currentArffFormat) throws Exception{
 		
 		StringBuffer outputCSV=new StringBuffer();
-		outputCSV.append("field_name(字段名),min(历史最小值),max(历史最大值),date_type(时间类别0标示所有时间1 结束日期前一年)");
+		outputCSV.append("field_name(字段名),min(历史最小值),max(历史最大值),date_type(时间类别),update_date(分析数据生成日期）\r\n");
 		
 		System.out.println("Start to load arff from csv files");
 		//获取原始CSV文件并处理
 		GeneralInstances rawData = mergeSrcTransFiles(currentArffFormat);
 		System.out.println("finish loading fullset Data. row : "+ rawData.numInstances() + " column:"+ rawData.numAttributes());
+		String currentYearMonth=FormatUtility.getCurrentYearMonth();
 		
 		//添加所有数据
-		outputCSV.append(getAttributesRange(rawData,0));
+		outputCSV.append(getAttributesRange(rawData,currentYearMonth,0));
 		
 		//添加最近一年数据
 		GeneralInstances newData=new WekaInstances(rawData,0);
 		GeneralAttribute tradeDateAtt=rawData.attribute(ArffFormat.TRADE_DATE);
 		GeneralInstance curr;
 		String tradeDate;
-		double lastYear=201709-100;
+		double lastYear=Double.valueOf(currentYearMonth)-100;
 		double ym;
 		for (int i=0;i<rawData.numInstances();i++){
 			curr=rawData.instance(i);
@@ -906,7 +907,7 @@ public class UpdateHistoryArffFile {
 				newData.add(curr);
 			}
 		}
-		outputCSV.append(getAttributesRange(newData,1));
+		outputCSV.append(getAttributesRange(newData,currentYearMonth,1));
 		FileUtility.write(currentArffFormat.getFullArffFileName()+"_attribute_ranges.csv", outputCSV.toString(), "GBK");
 		System.out.println("done");
 	}
@@ -914,7 +915,7 @@ public class UpdateHistoryArffFile {
 	/**
 	 * 时间类别"0"标示所有时间，"1" 结束日期前一年
 	 */
-	private static StringBuffer getAttributesRange( GeneralInstances rawData, int timeRange)
+	private static StringBuffer getAttributesRange( GeneralInstances rawData,String currentYearMonth, int timeRange)
 			throws RuntimeException {
 		StringBuffer outputContents=new StringBuffer();
 		Instances  data=WekaInstances.convertToWekaInstances(rawData);
@@ -930,7 +931,7 @@ public class UpdateHistoryArffFile {
 			}
 			AttributeValueRange range=new AttributeValueRange(name,lowerLimit,upperLimit);
 			outputContents.append(range.getCSVString());
-			outputContents.append(","+timeRange+"\r\n");
+			outputContents.append(","+timeRange+","+currentYearMonth+"\r\n");
 		}
 		return outputContents;
 	}
