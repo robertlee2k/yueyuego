@@ -55,7 +55,7 @@ public class PredictStatus implements Serializable {
 	
 	//累计的选股比率
 	public double getCummulativeSelectRatio(){
-		double ratio=0.0;
+		double ratio=Double.NaN;
 		if (cummulativePredicted>0){
 			ratio=((double)cummulativeSelected)/cummulativePredicted;
 		}

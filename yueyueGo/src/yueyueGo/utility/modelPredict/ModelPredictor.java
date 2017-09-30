@@ -31,27 +31,27 @@ public class ModelPredictor {
 
 	private GeneralInstances m_shouyilvCache = null;
 
-	GeneralAttribute m_idAttInResult;
-	GeneralAttribute m_yearMonthAtt;
-	GeneralAttribute m_shouyilvAtt;
-	GeneralAttribute m_selectedAtt;
-	GeneralAttribute m_predAtt;
-	ArrayList<GeneralAttribute> m_attributesToCopy;
+	private GeneralAttribute m_idAttInResult;
+	private GeneralAttribute m_yearMonthAtt;
+	private GeneralAttribute m_shouyilvAtt;
+	private GeneralAttribute m_selectedAtt;
+	private GeneralAttribute m_predAtt;
+	private ArrayList<GeneralAttribute> m_attributesToCopy;
 
-	Classifier model;
-	Classifier reversedModel;
-	double thresholdMin;
-	double reversedThresholdMax;
-	
-	PredictStatus m_predictStatus;
+	private Classifier m_model;
+	private Classifier m_reversedModel;
+	private double m_thresholdMin;
+	private double m_reversedThresholdMax;
+
+	private PredictStatus m_predictStatus;
 
 	// 为回测历史数据使用
 	// result parameter will be changed in this method!
 	public void predictData(AbstractModel clModel, GeneralInstances dataToPredict, GeneralInstances result,
 			String yearSplit, String policy) throws Exception {
-		//生成存储预测中间结果的对象
-		m_predictStatus=new PredictStatus(yearSplit, policy);
-		
+		// 生成存储预测中间结果的对象
+		m_predictStatus = new PredictStatus(yearSplit, policy);
+
 		// 第一步： 定义输出结果集的各种须特殊设置的Attribute属性
 		m_idAttInResult = result.attribute(ArffFormat.ID);
 		m_yearMonthAtt = result.attribute(ArffFormat.YEAR_MONTH);
@@ -93,50 +93,90 @@ public class ModelPredictor {
 		// 从评估结果中找到正向模型文件。
 		ModelStore modelStore = new ModelStore(clModel.m_evaluationStore.getWorkFilePath(),
 				thresholdData.getModelFileName(), modelYearSplit);
-		model = modelStore.loadModelFromFile(predictDataFormat, yearSplit);
+		m_model = modelStore.loadModelFromFile(predictDataFormat, yearSplit);
 
 		// 获取预测文件中的应该用哪个反向模型的模型
 		String reversedModelYearSplit = thresholdData.getReversedModelYearSplit();
 
 		// boolean usingOneModel=false;
-		reversedModel = null;
+		m_reversedModel = null;
 		ModelStore reversedModelStore = null;
 		if (reversedModelYearSplit.equals(modelYearSplit)) {// 正向模型和方向模型是同一模型的。
-			reversedModel = model;
+			m_reversedModel = m_model;
 			reversedModelStore = modelStore;
 		} else {
 			// 从评估结果中找到反向模型文件。
 			reversedModelStore = new ModelStore(clModel.m_evaluationStore.getWorkFilePath(),
 					thresholdData.getReversedModelFileName(), reversedModelYearSplit);
 			// 获取model
-			reversedModel = reversedModelStore.loadModelFromFile(predictDataFormat, yearSplit);
+			m_reversedModel = reversedModelStore.loadModelFromFile(predictDataFormat, yearSplit);
 		}
 
-		thresholdMin = thresholdData.getDefaultThreshold(); // 判断为1的阈值，大于该值意味着该模型判断其为1
-		reversedThresholdMax = thresholdData.getReversedThreshold(); // 判断为0的阈值，小于该值意味着该模型坚定认为其为0
-																		// （这是合并多个模型预测时使用的）
-		if (reversedThresholdMax > thresholdMin) {
-			if (reversedModel == model) {
-				throw new Exception("fatal error!!! reversedThreshold(" + reversedThresholdMax + ") > threshold("
-						+ thresholdMin + ") using same model (modelyear=" + reversedModelYearSplit + ")");
+		int epoch = 20;
+		int stepSize = dataToPredict.numInstances() / epoch;
+		if (stepSize == 0) { // 万一该月数量小于20不够除，就一条条做
+			stepSize = 1;
+		}
+
+		for (int k = 0; k < (dataToPredict.numInstances() + stepSize); k += stepSize) {
+			// TODO 提取方法
+
+			double[] thresholds = thresholdData.getThresholds();
+			double[] percentiles = thresholdData.getPercentiles();
+			int adjustedIndex = 4; // FIXME
+			double targetPercentile = percentiles[adjustedIndex];
+
+			// 如果迄今为止已选股票的百分比已经大于threshold中的预期百分比，则提升阈值单位。
+			double adjustedPercentile;
+			double currentPercentile = m_predictStatus.getCummulativeSelectRatio();
+			if (Double.isNaN(currentPercentile)) { // 还未开始本批次预测时
+				adjustedPercentile = targetPercentile;
 			} else {
-				System.out.println("使用不同模型时反向阀值大于正向阀值了" + "reversedThreshold(" + reversedThresholdMax + ")@"
-						+ reversedModelYearSplit + " > threshold(" + thresholdMin + ")@" + modelYearSplit);
+				// 找到调整的阈值数量
+				adjustedPercentile = targetPercentile + (targetPercentile - currentPercentile);
+				// percentile可认定为是个递减数组 TODO
+				adjustedIndex = findNearestIndexInArray(percentiles, adjustedPercentile);
 			}
+
+			m_thresholdMin = thresholds[adjustedIndex]; // 判断为1的阈值，大于该值意味着该模型判断其为1
+			System.out.println("new threshold set to " + m_thresholdMin);
+			// TODO end
+
+			m_reversedThresholdMax = thresholdData.getReversedThreshold(); // 判断为0的阈值，小于该值意味着该模型坚定认为其为0
+																			// （这是合并多个模型预测时使用的）
+			if (m_reversedThresholdMax > m_thresholdMin) {
+				if (m_reversedModel == m_model) {
+					throw new Exception("fatal error!!! reversedThreshold(" + m_reversedThresholdMax + ") > threshold("
+							+ m_thresholdMin + ") using same model (modelyear=" + reversedModelYearSplit + ")");
+				} else {
+					System.out.println("使用不同模型时反向阀值大于正向阀值了" + "reversedThreshold(" + m_reversedThresholdMax + ")@"
+							+ reversedModelYearSplit + " > threshold(" + m_thresholdMin + ")@" + modelYearSplit);
+				}
+			}
+			// 具体预测
+			int startFrom = k;
+			int endAt = k + stepSize - 1;
+			if (endAt >= dataToPredict.numInstances()) {
+				endAt = dataToPredict.numInstances() - 1;
+			}
+			System.out.println("predict from: "+startFrom+" to: "+endAt +" of all="+dataToPredict.numInstances());
+			GeneralInstances batchData = new WekaInstances(dataToPredict, startFrom, endAt);
+
+			predictOneDay(batchData, result, yearSplit);
 		}
 
 		// 第三步： 输出评估参数
-		double percentile = thresholdData.getDefaultPercentile();
 		double[] modelAUC = thresholdData.getModelAUC();
 		double reversedPercentile = thresholdData.getReversedPercent();
 
 		if ("".equals(yearSplit)) {
 			// 输出评估结果及所使用阀值及期望样本百分比
 			String evalSummary = "\r\n\t ( with params: modelYearSplit=" + modelYearSplit + " threshold="
-					+ FormatUtility.formatDouble(thresholdMin, 0, 3) + " , percentile="
-					+ FormatUtility.formatPercent(percentile / 100) ;
+					+ FormatUtility.formatDouble(m_thresholdMin, 0, 3);
+			// + " , percentile="+ FormatUtility.formatPercent(targetPercentile
+			// / 100) ;
 			evalSummary += " ,reversedModelYearSplit=" + reversedModelYearSplit + " ,reversedThreshold="
-					+ FormatUtility.formatDouble(reversedThresholdMax, 0, 3) + " , reversedPercentile="
+					+ FormatUtility.formatDouble(m_reversedThresholdMax, 0, 3) + " , reversedPercentile="
 					+ FormatUtility.formatPercent(reversedPercentile / 100);
 			evalSummary += " ,modelAUC@focusAreaRatio=";
 			double[] focusAreaRatio = thresholdData.getFocosAreaRatio();
@@ -151,12 +191,11 @@ public class ModelPredictor {
 			clModel.classifySummaries.appendEvaluationSummary(evalSummary);
 
 		} else {
-
 			// 输出评估结果及所使用阀值及期望样本百分比
-			String evalSummary = yearSplit + "," + policy + "," + modelYearSplit + ","
-					+ FormatUtility.formatDouble(thresholdMin, 0, 3) + ","
-					+ FormatUtility.formatPercent(percentile / 100) + ",";
-			evalSummary += reversedModelYearSplit + "," + FormatUtility.formatDouble(reversedThresholdMax, 0, 3) + ","
+			String evalSummary = yearSplit + "," + policy + "," + modelYearSplit + ",";
+			// + FormatUtility.formatDouble(m_thresholdMin, 0, 3) + ","
+			// + FormatUtility.formatPercent(targetPercentile / 100) + ",";
+			evalSummary += reversedModelYearSplit + "," + FormatUtility.formatDouble(m_reversedThresholdMax, 0, 3) + ","
 					+ FormatUtility.formatPercent(reversedPercentile / 100) + ",";
 			for (double d : modelAUC) {
 				evalSummary += FormatUtility.formatDouble(d, 0, 4) + ",";
@@ -164,9 +203,6 @@ public class ModelPredictor {
 			evalSummary += "\r\n";
 			clModel.classifySummaries.appendEvaluationSummary(evalSummary);
 		}
-
-		// 具体预测
-		predictOneDay(dataToPredict, result, yearSplit);
 
 		// // 第三步： 输出各种统计值
 		// if ("".equals(yearSplit)) {
@@ -184,6 +220,41 @@ public class ModelPredictor {
 	}
 
 	/**
+	 * 根据当前选股计算调整的threshold值
+	 * 
+	 * @param thresholdData
+	 * @return
+	 */
+
+	/**
+	 * 给定一个从大到小排序的数组，查找数组内最接近某一数组的数值的下标
+	 * 
+	 * @param sortedValues
+	 * @param targetValue
+	 * @return
+	 */
+	public static int findNearestIndexInArray(double[] sortedValues, double targetValue) {
+		int currentIndex;
+		int high = 0;
+		int low = sortedValues.length - 1;
+		for (int i = 0; i < sortedValues.length; i++) {
+			if (targetValue < sortedValues[i]) {
+				high = i;
+			} else {
+				low = i;
+				break;
+			}
+		}
+		if ((sortedValues[high] - targetValue) > targetValue - sortedValues[low]) {
+			currentIndex = low;
+		} else {
+			currentIndex = high;
+		}
+		System.out.println("find targetValue(" + targetValue + ") near" + sortedValues[currentIndex]);
+		return currentIndex;
+	}
+
+	/**
 	 * @param clModel
 	 * @param dataToPredict
 	 * @param result
@@ -192,10 +263,9 @@ public class ModelPredictor {
 	 * @throws Exception
 	 * @throws IllegalStateException
 	 */
-	private void predictOneDay(GeneralInstances dataToPredict, GeneralInstances result,
-			String yearSplit) throws Exception {
+	private void predictOneDay(GeneralInstances dataToPredict, GeneralInstances result, String yearSplit)
+			throws Exception {
 
-		
 		double pred;
 		double reversedPred;
 		double yearMonth = Double.valueOf(yearSplit).doubleValue();
@@ -209,15 +279,15 @@ public class ModelPredictor {
 		// 开始循环，用分类模型和阈值对每一条数据进行预测，并存入输出结果集
 		System.out.println("actual -> predicted....... ");
 
-		int selectedCount=0;
+		int selectedCount = 0;
 		int predictedCount = dataToPredict.numInstances();
 		for (int i = 0; i < predictedCount; i++) {
 			GeneralInstance currentTestRow = dataToPredict.instance(i);
-			pred = ModelPredictor.classify(model, currentTestRow); // 调用分类函数
-			if (reversedModel == model) { // 如果反向评估模型是同一个类
+			pred = ModelPredictor.classify(m_model, currentTestRow); // 调用分类函数
+			if (m_reversedModel == m_model) { // 如果反向评估模型是同一个类
 				reversedPred = pred;
 			} else {
-				reversedPred = ModelPredictor.classify(reversedModel, currentTestRow); // 调用反向评估模型的分类函数
+				reversedPred = ModelPredictor.classify(m_reversedModel, currentTestRow); // 调用反向评估模型的分类函数
 			}
 
 			// 准备输出结果
@@ -229,7 +299,7 @@ public class ModelPredictor {
 			resultRow.setValue(m_yearMonthAtt, yearMonth);
 
 			// Nominal数据的格式需要额外处理
-			if (m_shouyilvCache!=null) {
+			if (m_shouyilvCache != null) {
 				// 获取原始数据中的实际收益率值
 				double shouyilv = getShouyilv(i, ids[i], currentTestRow.classValue());
 				resultRow.setValue(m_shouyilvAtt, shouyilv);
@@ -240,12 +310,12 @@ public class ModelPredictor {
 			// 计算选股结果
 			double selected = ModelPredictor.VALUE_NOT_SURE;
 			// 先用反向模型判断
-			if (reversedPred < reversedThresholdMax) {
+			if (reversedPred < m_reversedThresholdMax) {
 				selected = ModelPredictor.VALUE_NEVER_SELECT;// 反向模型坚定认为当前数据为0
 																// （这是合并多个模型预测时使用的）
 			}
 			// 如果正向模型与方向模型得出的值矛盾（在使用不同模型时），则用正向模型的数据覆盖方向模型（因为毕竟正向模型的ratio比较小）
-			if (pred >= thresholdMin) { // 本模型估计当前数据是1值
+			if (pred >= m_thresholdMin) { // 本模型估计当前数据是1值
 				selected = ModelPredictor.VALUE_SELECTED;
 				selectedCount++;
 			}
