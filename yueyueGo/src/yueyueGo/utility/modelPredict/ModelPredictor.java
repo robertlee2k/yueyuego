@@ -112,7 +112,7 @@ public class ModelPredictor {
 			m_reversedModel = reversedModelStore.loadModelFromFile(predictDataFormat, yearSplit);
 		}
 
-		int epoch = 5;
+		int epoch = 20;
 		int stepSize = dataToPredict.numInstances() / epoch;
 		if (stepSize == 0) { // 万一该月数量小于20不够除，就一条条做
 			stepSize = 1;
@@ -123,7 +123,7 @@ public class ModelPredictor {
 
 			double[] thresholds = thresholdData.getThresholds();
 			double[] percentiles = thresholdData.getPercentiles();
-			int adjustedIndex = 4; // FIXME
+			int adjustedIndex = 5; // FIXME
 			double targetPercentile = percentiles[adjustedIndex];
 
 			// 如果迄今为止已选股票的百分比已经大于threshold中的预期百分比，则提升阈值单位。
@@ -162,14 +162,14 @@ public class ModelPredictor {
 			}else{
 				copyNum=stepSize;
 			}
-			System.out.println("predict from: "+startFrom+" to: "+copyNum +" of all="+dataToPredict.numInstances());
-			GeneralInstances batchData;
-			try{
-				batchData = new WekaInstances(dataToPredict, startFrom, copyNum);
-			}catch (Exception e){
-				System.err.println("error at : startFrom(i)="+startFrom+" endAt="+copyNum+" stepSize="+stepSize );
-				throw e;
-			}
+//			System.out.println("predict from: "+startFrom+" copied: "+copyNum +" of all="+dataToPredict.numInstances());
+			GeneralInstances batchData= new WekaInstances(dataToPredict, startFrom, copyNum);
+//			try{
+//				batchData= new WekaInstances(dataToPredict, startFrom, copyNum); 
+//			}catch (Exception e){
+//				System.err.println("error at : startFrom(i)="+startFrom+" endAt="+copyNum+" stepSize="+stepSize );
+//				throw e;
+//			}
 
 			predictMiniBatch(batchData, result, yearSplit,startFrom);
 		}
