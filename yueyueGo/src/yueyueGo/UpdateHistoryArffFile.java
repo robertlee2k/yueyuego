@@ -42,7 +42,10 @@ public class UpdateHistoryArffFile {
 			AppContext.createContext(currentArffFormat.m_data_root_directory);	
 			
 			//重新创建ARFF文件
-			callCreateTransInstances(currentArffFormat);
+//			callCreateTransInstances(currentArffFormat);
+			//校验数据文件
+//			analyzeDataAttributes(AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.getFullArffFileName());
+			outputAttributesRange(currentArffFormat);
 			
 //			//用最新的单次交易数据，更新原始的交易数据文件
 //			UpdateHistoryArffFile.callRefreshInstances(currentArffFormat);
@@ -52,9 +55,7 @@ public class UpdateHistoryArffFile {
 //			worker.init();
 //			worker.callRefreshModelUseLatestData();
 			
-			//校验数据文件
-//			analyzeDataAttributes(AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.getFullArffFileName());
-			outputAttributesRange(currentArffFormat);
+
 
 			//处理离群值
 //			updateArffFileOutier(currentArffFormat);
@@ -880,6 +881,7 @@ public class UpdateHistoryArffFile {
 	protected static void outputAttributesRange(ArffFormat currentArffFormat) throws Exception{
 		
 		StringBuffer outputCSV=new StringBuffer();
+		outputCSV.append("field_name(字段名),min(历史最小值),max(历史最大值),date_type(时间类别0标示所有时间1 结束日期前一年)");
 		
 		System.out.println("Start to load arff from csv files");
 		//获取原始CSV文件并处理
@@ -890,9 +892,23 @@ public class UpdateHistoryArffFile {
 		outputCSV.append(getAttributesRange(rawData,0));
 		
 		//添加最近一年数据
-		
+		GeneralInstances newData=new WekaInstances(rawData,0);
+		GeneralAttribute tradeDateAtt=rawData.attribute(ArffFormat.TRADE_DATE);
+		GeneralInstance curr;
+		String tradeDate;
+		double lastYear=201709-100;
+		double ym;
+		for (int i=0;i<rawData.numInstances();i++){
+			curr=rawData.instance(i);
+			tradeDate=curr.stringValue(tradeDateAtt);
+			ym=YearMonthProcessor.parseYearMonth(tradeDate);
+			if (ym>=lastYear){
+				newData.add(curr);
+			}
+		}
+		outputCSV.append(getAttributesRange(newData,1));
 		FileUtility.write(currentArffFormat.getFullArffFileName()+"_attribute_ranges.csv", outputCSV.toString(), "GBK");
-		
+		System.out.println("done");
 	}
 
 	/**
@@ -911,8 +927,6 @@ public class UpdateHistoryArffFile {
 			if (status.numericStats!=null){
 				lowerLimit=status.numericStats.min;
 				upperLimit=status.numericStats.max;
-			}else{
-				outputContents.append("NA,NA,");
 			}
 			AttributeValueRange range=new AttributeValueRange(name,lowerLimit,upperLimit);
 			outputContents.append(range.getCSVString());
