@@ -874,8 +874,8 @@ public class UpdateHistoryArffFile {
 	}
 	
 	/*
-	 * 
-	 * 分析给定Arff数据文件的每一个属性，并保存数据范围
+	 * 为数据生成源程序提供校验文件
+	 * 作用： 分析给定Arff数据文件的每一个属性，并保存数据范围至csv文件
 	 * field_name(字段名),min(历史最小值),max(历史最大值),date_type(时间类别"0"标示所有时间，"1" 结束日期前一年)
 	 */
 	protected static void outputAttributesRange(ArffFormat currentArffFormat) throws Exception{

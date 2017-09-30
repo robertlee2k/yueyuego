@@ -52,14 +52,13 @@ public class FormatUtility {
 
 	// 缺省保留小数点后二位
 	public static String formatDouble(double d) {
-		NumberFormat df = NumberFormat.getNumberInstance();
-		df.setMaximumFractionDigits(2);
-		return df.format(d);
+		return formatDouble(d,2,0);
 	}
 
 	public static String formatDouble(double d, int integerDigits,
 			int fractionDigits) {
 		NumberFormat df = NumberFormat.getNumberInstance();
+		df.setGroupingUsed(false); //不用逗号分组
 		df.setMaximumIntegerDigits(integerDigits);// 小数点前保留几位
 		df.setMaximumFractionDigits(fractionDigits);// 小数点后保留几位
 		return df.format(d);
