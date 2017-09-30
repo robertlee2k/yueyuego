@@ -133,8 +133,10 @@ public class ModelPredictor {
 			if (Double.isNaN(currentPercentile)) { // 还未开始本批次预测时
 				adjustedPercentile = targetPercentile;
 			} else {
+				
 				// 找到调整的阈值数量
-				adjustedPercentile = targetPercentile + (targetPercentile - currentPercentile);
+				double predictedCount=m_predictStatus.getCummulativePredicted();
+				adjustedPercentile = (targetPercentile*(predictedCount+stepSize)-currentPercentile*predictedCount)/stepSize;
 				// percentile可认定为是个递减数组 TODO
 				adjustedIndex = findNearestIndexInArray(percentiles, adjustedPercentile);
 			}
