@@ -24,4 +24,16 @@ public class AttributeValueRange {
 		return upperLimit;
 	}
 	
+	public StringBuffer getCSVString(){
+		StringBuffer result=new StringBuffer();
+		result.append(attributeName);
+		result.append(',');
+		result.append(lowerLimit);
+		result.append(',');
+		result.append(upperLimit);
+		result.append(',');
+		return result;
+	}
+	
+	
 }

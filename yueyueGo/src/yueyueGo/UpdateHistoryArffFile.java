@@ -24,6 +24,7 @@ import yueyueGo.databeans.WekaAttribute;
 import yueyueGo.databeans.WekaInstances;
 import yueyueGo.datasource.DataIOHandler;
 import yueyueGo.utility.AppContext;
+import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.YearMonthProcessor;
 
@@ -52,7 +53,8 @@ public class UpdateHistoryArffFile {
 //			worker.callRefreshModelUseLatestData();
 			
 			//校验数据文件
-			analyzeDataAttributes(AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.getFullArffFileName());
+//			analyzeDataAttributes(AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.getFullArffFileName());
+			outputAttributesRange(currentArffFormat);
 
 			//处理离群值
 //			updateArffFileOutier(currentArffFormat);
@@ -847,6 +849,7 @@ public class UpdateHistoryArffFile {
 		return merged;
 	}
 
+	
 	/*
 	 * 
 	 * 分析给定Arff数据文件的每一个属性，并保存数据范围
@@ -866,15 +869,56 @@ public class UpdateHistoryArffFile {
 			System.out.print(FormatUtility.printAttributeStatus(status));
 			System.out.println("====end of attribute status for attribute: "+name + " @Column "+(index+1));
 			System.out.println("");
-			
-			if (status.numericStats!=null){
-				double lowerLimit=status.numericStats.min;
-				double upperLimit=status.numericStats.max;
-				AttributeValueRange range=new AttributeValueRange(name,lowerLimit,upperLimit);
-			}
 		}
+	}
+	
+	/*
+	 * 
+	 * 分析给定Arff数据文件的每一个属性，并保存数据范围
+	 * field_name(字段名),min(历史最小值),max(历史最大值),date_type(时间类别"0"标示所有时间，"1" 结束日期前一年)
+	 */
+	protected static void outputAttributesRange(ArffFormat currentArffFormat) throws Exception{
 		
+		StringBuffer outputCSV=new StringBuffer();
 		
+		System.out.println("Start to load arff from csv files");
+		//获取原始CSV文件并处理
+		GeneralInstances rawData = mergeSrcTransFiles(currentArffFormat);
+		System.out.println("finish loading fullset Data. row : "+ rawData.numInstances() + " column:"+ rawData.numAttributes());
+		
+		//添加所有数据
+		outputCSV.append(getAttributesRange(rawData,0));
+		
+		//添加最近一年数据
+		
+		FileUtility.write(currentArffFormat.getFullArffFileName()+"_attribute_ranges.csv", outputCSV.toString(), "GBK");
+		
+	}
+
+	/**
+	 * 时间类别"0"标示所有时间，"1" 结束日期前一年
+	 */
+	private static StringBuffer getAttributesRange( GeneralInstances rawData, int timeRange)
+			throws RuntimeException {
+		StringBuffer outputContents=new StringBuffer();
+		Instances  data=WekaInstances.convertToWekaInstances(rawData);
+		
+		for (int index=0; index<data.numAttributes();index++){
+			String name=data.attribute(index).name();
+			double lowerLimit=Double.NaN;
+			double upperLimit=Double.NaN;
+			AttributeStats status= data.attributeStats(index);
+			if (status.numericStats!=null){
+				lowerLimit=status.numericStats.min;
+				upperLimit=status.numericStats.max;
+			}else{
+				outputContents.append("NA,NA,");
+			}
+			AttributeValueRange range=new AttributeValueRange(name,lowerLimit,upperLimit);
+			outputContents.append(range.getCSVString());
+			outputContents.append(","+timeRange+"\r\n");
+		}
+		return outputContents;
 	}
 
 
