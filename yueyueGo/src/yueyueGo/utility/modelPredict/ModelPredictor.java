@@ -156,16 +156,18 @@ public class ModelPredictor {
 			}
 			// 具体预测
 			int startFrom = k;
-			int endAt = k + stepSize - 1;
-			if (endAt >= dataToPredict.numInstances()) {
-				endAt = dataToPredict.numInstances() - 1;
+			int copyNum;
+			if (startFrom + stepSize - 1 >= dataToPredict.numInstances()) {
+				copyNum = dataToPredict.numInstances() - startFrom;
+			}else{
+				copyNum=stepSize;
 			}
-			System.out.println("predict from: "+startFrom+" to: "+endAt +" of all="+dataToPredict.numInstances());
+			System.out.println("predict from: "+startFrom+" to: "+copyNum +" of all="+dataToPredict.numInstances());
 			GeneralInstances batchData;
 			try{
-				batchData = new WekaInstances(dataToPredict, startFrom, endAt);
+				batchData = new WekaInstances(dataToPredict, startFrom, copyNum);
 			}catch (Exception e){
-				System.err.println("error at : startFrom(i)="+startFrom+" endAt="+endAt+" stepSize="+stepSize );
+				System.err.println("error at : startFrom(i)="+startFrom+" endAt="+copyNum+" stepSize="+stepSize );
 				throw e;
 			}
 
