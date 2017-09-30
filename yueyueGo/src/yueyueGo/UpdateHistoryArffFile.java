@@ -907,6 +907,7 @@ public class UpdateHistoryArffFile {
 				newData.add(curr);
 			}
 		}
+		System.out.println("get recent one year data , number="+newData.numInstances());
 		outputCSV.append(getAttributesRange(newData,currentYearMonth,1));
 		FileUtility.write(AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.getFullArffFileName()+"_attribute_ranges.csv", outputCSV.toString(), "GBK");
 		System.out.println("done");
