@@ -162,7 +162,7 @@ public class ModelPredictor {
 			System.out.println("predict from: "+startFrom+" to: "+endAt +" of all="+dataToPredict.numInstances());
 			GeneralInstances batchData = new WekaInstances(dataToPredict, startFrom, endAt);
 
-			predictOneDay(batchData, result, yearSplit);
+			predictMiniBatch(batchData, result, yearSplit,startFrom);
 		}
 
 		// 第三步： 输出评估参数
@@ -263,7 +263,7 @@ public class ModelPredictor {
 	 * @throws Exception
 	 * @throws IllegalStateException
 	 */
-	private void predictOneDay(GeneralInstances dataToPredict, GeneralInstances result, String yearSplit)
+	private void predictMiniBatch(GeneralInstances dataToPredict, GeneralInstances result, String yearSplit,int startIndex)
 			throws Exception {
 
 		double pred;
@@ -301,7 +301,7 @@ public class ModelPredictor {
 			// Nominal数据的格式需要额外处理
 			if (m_shouyilvCache != null) {
 				// 获取原始数据中的实际收益率值
-				double shouyilv = getShouyilv(i, ids[i], currentTestRow.classValue());
+				double shouyilv = getShouyilv(i+startIndex, ids[i], currentTestRow.classValue());
 				resultRow.setValue(m_shouyilvAtt, shouyilv);
 			}
 			// 将获得的预测值设定入结果集
