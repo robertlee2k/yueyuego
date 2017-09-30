@@ -112,7 +112,7 @@ public class ModelPredictor {
 			m_reversedModel = reversedModelStore.loadModelFromFile(predictDataFormat, yearSplit);
 		}
 
-		int epoch = 20;
+		int epoch = 5;
 		int stepSize = dataToPredict.numInstances() / epoch;
 		if (stepSize == 0) { // 万一该月数量小于20不够除，就一条条做
 			stepSize = 1;
@@ -128,7 +128,8 @@ public class ModelPredictor {
 
 			// 如果迄今为止已选股票的百分比已经大于threshold中的预期百分比，则提升阈值单位。
 			double adjustedPercentile;
-			double currentPercentile = m_predictStatus.getCummulativeSelectRatio()*100;
+			double currentPercentile = (1-m_predictStatus.getCummulativeSelectRatio())*100;
+			System.out.println("targetPercentile=" + targetPercentile+", currentPercentile="+currentPercentile);
 			if (Double.isNaN(currentPercentile)) { // 还未开始本批次预测时
 				adjustedPercentile = targetPercentile;
 			} else {
@@ -160,7 +161,13 @@ public class ModelPredictor {
 				endAt = dataToPredict.numInstances() - 1;
 			}
 			System.out.println("predict from: "+startFrom+" to: "+endAt +" of all="+dataToPredict.numInstances());
-			GeneralInstances batchData = new WekaInstances(dataToPredict, startFrom, endAt);
+			GeneralInstances batchData;
+			try{
+				batchData = new WekaInstances(dataToPredict, startFrom, endAt);
+			}catch (Exception e){
+				System.err.println("error at : startFrom(i)="+startFrom+" endAt="+endAt+" stepSize="+stepSize );
+				throw e;
+			}
 
 			predictMiniBatch(batchData, result, yearSplit,startFrom);
 		}
