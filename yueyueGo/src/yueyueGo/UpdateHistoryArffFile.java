@@ -908,7 +908,7 @@ public class UpdateHistoryArffFile {
 			}
 		}
 		outputCSV.append(getAttributesRange(newData,currentYearMonth,1));
-		FileUtility.write(currentArffFormat.getFullArffFileName()+"_attribute_ranges.csv", outputCSV.toString(), "GBK");
+		FileUtility.write(AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.getFullArffFileName()+"_attribute_ranges.csv", outputCSV.toString(), "GBK");
 		System.out.println("done");
 	}
 

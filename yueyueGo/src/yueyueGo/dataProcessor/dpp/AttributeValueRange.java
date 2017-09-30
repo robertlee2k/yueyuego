@@ -31,7 +31,6 @@ public class AttributeValueRange {
 		result.append(lowerLimit);
 		result.append(',');
 		result.append(upperLimit);
-		result.append(',');
 		return result;
 	}
 	
