@@ -936,5 +936,4 @@ public class UpdateHistoryArffFile {
 		return outputContents;
 	}
 
-
 }

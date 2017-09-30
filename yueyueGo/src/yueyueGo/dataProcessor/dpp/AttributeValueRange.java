@@ -1,5 +1,7 @@
 package yueyueGo.dataProcessor.dpp;
 
+import yueyueGo.utility.FormatUtility;
+
 public class AttributeValueRange {
 
 	private String attributeName;
@@ -28,9 +30,9 @@ public class AttributeValueRange {
 		StringBuffer result=new StringBuffer();
 		result.append(attributeName);
 		result.append(',');
-		result.append(lowerLimit);
+		result.append(FormatUtility.formatDouble(lowerLimit,8,6));
 		result.append(',');
-		result.append(upperLimit);
+		result.append(FormatUtility.formatDouble(upperLimit,8,6));
 		return result;
 	}
 	
