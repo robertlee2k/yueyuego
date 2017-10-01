@@ -44,7 +44,7 @@ public class EvaluationStore {
 	protected double[] m_focusAreaRatio = { EvaluationStore.TOP_AREA_RATIO, 1 };// 评估时关注评估数据的不同Top
 																							// 比例;
 	public static final int PREVIOUS_MODELS_NUM=3; 	//暂时选取之前的3个文件（加上9个月评估数据，也就是最大倒推1.5年左右，太久远的数据建模没意义）
-	public static final double REVERSED_TOP_AREA_RATIO=0.4; //缺省定义反向头部为50%
+	public static final double REVERSED_TOP_AREA_RATIO=0.5; //缺省定义反向头部为50%
 	public static final double TOP_AREA_RATIO=0.1; //缺省定义头部区域为10%
 
 	public static final int YEAR_SPLIT_LIMIT = 2007; // 回测模型的起始点， 在这之前无数据
@@ -238,8 +238,8 @@ public class EvaluationStore {
 
 		// 获取正向评估结果
 		//FIXME
-		double[] sampleSize = { 0.002,0.005,0.006,0.008, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06,EvaluationStore.TOP_AREA_RATIO};
-		int defaultThresholdIndex=5;
+		double[] sampleSize = {0.001,0.002,0.005,0.006,0.008, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06,EvaluationStore.TOP_AREA_RATIO};
+		int defaultThresholdIndex=6;
 		double[] thresholds = findThresholds(result, sampleSize);
 		double[] percentiles = new double[sampleSize.length];
 		for (int i = 0; i < sampleSize.length; i++) {

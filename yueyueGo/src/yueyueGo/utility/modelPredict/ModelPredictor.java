@@ -118,30 +118,37 @@ public class ModelPredictor {
 			stepSize = 1;
 		}
 
+		double[] thresholds = thresholdData.getThresholds();
+		double[] percentiles = thresholdData.getPercentiles();
+		double targetPercentile = thresholdData.getDefaultPercentile(); //目标值
+		int adjustedIndex = thresholdData.getDefaultThresholdIndex(); //初始值
+
 		for (int k = 0; k < dataToPredict.numInstances(); k += stepSize) {
 			// TODO 提取方法
-
-			double[] thresholds = thresholdData.getThresholds();
-			double[] percentiles = thresholdData.getPercentiles();
-			int adjustedIndex = 5; // FIXME
-			double targetPercentile = percentiles[adjustedIndex];
-
 			// 如果迄今为止已选股票的百分比已经大于threshold中的预期百分比，则提升阈值单位。
 			double adjustedPercentile;
 			double currentPercentile = (1-m_predictStatus.getCummulativeSelectRatio())*100;
 			System.out.println("targetPercentile=" + targetPercentile+", currentPercentile="+currentPercentile);
 			if (Double.isNaN(currentPercentile)) { // 还未开始本批次预测时
 				adjustedPercentile = targetPercentile;
+				m_thresholdMin = thresholds[adjustedIndex]; // 判断为1的阈值，大于该值意味着该模型判断其为1
 			} else {
-				
 				// 找到调整的阈值数量
 				double predictedCount=m_predictStatus.getCummulativePredicted();
+				
+				//TODO改成每日平均值的计算
 				adjustedPercentile = (targetPercentile*(predictedCount+stepSize)-currentPercentile*predictedCount)/stepSize;
-				// percentile可认定为是个递减数组 TODO
-				adjustedIndex = findNearestIndexInArray(percentiles, adjustedPercentile);
+
+				if (adjustedPercentile<100){ //已选股不多还可以继续选
+					// percentile可认定为是个递减数组 TODO
+					adjustedIndex = findNearestIndexInArray(percentiles, adjustedPercentile);
+					m_thresholdMin = thresholds[adjustedIndex]; // 判断为1的阈值，大于该值意味着该模型判断其为1
+				}else {
+					// 已选股太多时是否直接设后续不选
+					m_thresholdMin = Double.MAX_VALUE;
+				}
 			}
 
-			m_thresholdMin = thresholds[adjustedIndex]; // 判断为1的阈值，大于该值意味着该模型判断其为1
 			System.out.println("adjusted threshold set to " + m_thresholdMin);
 			// TODO end
 
