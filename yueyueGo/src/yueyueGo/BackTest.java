@@ -332,7 +332,7 @@ public class BackTest {
 						trainingData = ((NominalModel) clModel).processDataForNominalClassifier(trainingData);
 					}
 					trainingData = instanceProcessor.removeAttribs(trainingData,
-							Integer.toString(ArffFormat.ID_POSITION) + "," + ArffFormat.YEAR_MONTH_INDEX);
+							Integer.toString(ArffFormat.ID_POSITION) + "-" + ArffFormat.YEAR_MONTH_INDEX);
 
 					System.out.println(" training data size , row : " + trainingData.numInstances() + " column: "
 							+ trainingData.numAttributes());
@@ -347,7 +347,7 @@ public class BackTest {
 						evaluationData = ((NominalModel) clModel).processDataForNominalClassifier(evaluationData);
 					}
 					evaluationData = instanceProcessor.removeAttribs(evaluationData,
-							Integer.toString(ArffFormat.ID_POSITION) + "," + ArffFormat.YEAR_MONTH_INDEX);
+							Integer.toString(ArffFormat.ID_POSITION) + "-" + ArffFormat.YEAR_MONTH_INDEX);
 					System.out.println(" evaluation data size , row : " + evaluationData.numInstances() + " column: "
 							+ evaluationData.numAttributes());
 				}

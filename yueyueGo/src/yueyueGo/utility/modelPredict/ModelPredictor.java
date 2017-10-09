@@ -89,7 +89,7 @@ public class ModelPredictor {
 		// 删除已保存的ID列，让待分类数据与模型数据一致 （此处的index是从1开始）
 		BaseInstanceProcessor instanceProcessor = InstanceHandler.getHandler(predictDataFormat);
 		predictDataFormat = instanceProcessor.removeAttribs(predictDataFormat,
-				Integer.toString(ArffFormat.ID_POSITION) + "," + ArffFormat.YEAR_MONTH_INDEX);
+				Integer.toString(ArffFormat.ID_POSITION) + "-" + ArffFormat.YEAR_MONTH_INDEX);
 //				Integer.toString(ArffFormat.ID_POSITION));
 
 		// 获取预测文件中的应该用哪个modelYearSplit的模型
@@ -327,7 +327,7 @@ public class ModelPredictor {
 		double[] ids = miniBatchData.attributeToDoubleArray(ArffFormat.ID_POSITION - 1);
 		// 删除已保存的ID 列，让待分类数据与模型数据一致 （此处的index是从1开始）
 		miniBatchData = InstanceHandler.getHandler(miniBatchData).removeAttribs(miniBatchData,
-				Integer.toString(ArffFormat.ID_POSITION) + "," + ArffFormat.YEAR_MONTH_INDEX);
+				Integer.toString(ArffFormat.ID_POSITION) + "-" + ArffFormat.YEAR_MONTH_INDEX);
 //				Integer.toString(ArffFormat.ID_POSITION));
 		// 开始循环，用分类模型和阈值对每一条数据进行预测，并存入输出结果集
 		System.out.println("actual -> predicted....... ");
