@@ -130,7 +130,7 @@ public class ModelPredictor {
 		SimpleDateFormat sdFormat=new SimpleDateFormat(ArffFormat.ARFF_DATE_FORMAT);
 		
 		//循环处理每天的数据
-		int tradeDateIndex=dataToPredict.attribute(ArffFormat.TRADE_DATE).index();
+		int tradeDateIndex=dataToPredict.attribute(ArffFormat.TRADE_DATE).index()+1; //下面过滤的地方index是从1开始
 		String oneDay=null;
 		for (Date date : tradeDateList) {
 			//获取一日的数据
