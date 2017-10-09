@@ -7,8 +7,12 @@ import org.apache.commons.math3.stat.descriptive.SynchronizedDescriptiveStatisti
 public class ClassifySummaries {
 
 	//ClassifySummary的表头部分
-	public static final String SUMMARY_HEADER="时间段,均线策略,正向模型时间,正向阈值,阈值百分比,阈值使用缺省值,反向模型时间,反向阀值,反向阀值百分比,正向AUC[TOP],正向AUC[ALL]";
-//			"时间段,均线策略,整体正收益股数,整体股数,整体TPR,选股比率,所选正收益股数,所选总股数,所选股TPR,提升率,所选股平均收益率,整体平均收益率,收益率差,是否改善,正向模型时间,正向阈值,阈值百分比,阈值使用缺省值,反向模型时间,反向阀值,反向阀值百分比,正向AUC[TOP],正向AUC[ALL]";
+	public static final String SUMMARY_HEADER="时间段,均线策略,反向模型时间,反向阀值百分比,反向阀值,正向模型时间,正向目标百分比,正向AUC[TOP],正向AUC[ALL]";
+	
+	//DailySummary的表头部分
+	public static final String DAILY_SUMMARY_HEADER="yearMonth,policy,date,目标百分位,累计百分位,当期选股阈值,当期机会数,当期选股数,当期选股比率\r\n";
+	
+
 	//统计信息
 	protected SynchronizedDescriptiveStatistics summary_selected_TPR;
 	protected SynchronizedDescriptiveStatistics summary_selected_positive;
@@ -19,8 +23,11 @@ public class ClassifySummaries {
 	protected SynchronizedDescriptiveStatistics summary_selectedShouyilv;
 	protected SynchronizedDescriptiveStatistics summary_totalShouyilv;
 	
-	protected String evaluationHeader=SUMMARY_HEADER;;
+	protected String evaluationHeader=SUMMARY_HEADER;
 	protected String evaluationSummary="";
+
+	protected String dailyHeader=DAILY_SUMMARY_HEADER;
+	protected String dailySummary="";
 	
 	protected String identityName;
 	
@@ -41,6 +48,15 @@ public class ClassifySummaries {
 		return evaluationSummary;
 	}
 	
+	public String getDailyHeader() {
+		return dailyHeader;
+	}
+
+	public String getDailySummary() {
+		return dailySummary;
+	}
+
+
 	public synchronized void setEvaluationSummary(String evalSummary) {
 		this.evaluationSummary = evalSummary;
 	}
@@ -48,6 +64,10 @@ public class ClassifySummaries {
 	public synchronized void appendEvaluationSummary(String stringToAppend) {
 		
 		this.evaluationSummary = evaluationSummary+stringToAppend;
+	}
+
+	public synchronized void appendDailySummary(String stringToAppend) {
+		this.dailySummary = dailySummary+stringToAppend;
 	}
 	
 	
@@ -75,6 +95,7 @@ public class ClassifySummaries {
 
 	}	
 
+	@Deprecated
 	public void computeClassifySummaries(String yearSplit, String policySplit,DescriptiveStatistics totalPositiveShouyilv,DescriptiveStatistics totalNegativeShouyilv,DescriptiveStatistics selectedPositiveShouyilv,DescriptiveStatistics selectedNegativeShouyilv) {
 		
 		double selected_TPR=0;
@@ -179,6 +200,7 @@ public class ClassifySummaries {
 //	对于回测来说，对于选股评估的规则，选收益率还是选liftup？：
 	 * @return
 	 */
+	@Deprecated
 	private int judgeResult(double selectedShouyilv, double totalShouyilv,	long selectedCount) {
 		int resultJudgement=0;
 		

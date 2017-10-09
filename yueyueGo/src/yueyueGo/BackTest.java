@@ -442,9 +442,14 @@ public class BackTest {
 
 		FileUtility.write(
 				m_backtest_result_dir + m_currentArffFormat.m_data_file_prefix + "-" + clModel.getIdentifyName()
-						+ "-AUCs.csv",
+						+ "-monthlyAUCs.csv",
 				modelSummaries.getEvaluationHeader() + modelSummaries.getEvaluationSummary(), "GBK");
 
+		FileUtility.write(
+				m_backtest_result_dir + m_currentArffFormat.m_data_file_prefix + "-" + clModel.getIdentifyName()
+						+ "-dailySummary.csv",
+				modelSummaries.getDailyHeader() + modelSummaries.getDailySummary(), "GBK");
+		
 		System.out.println(clModel.getIdentifyName() + " test result file saved.");
 		return result;
 	}

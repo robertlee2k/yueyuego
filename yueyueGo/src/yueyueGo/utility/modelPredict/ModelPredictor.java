@@ -40,8 +40,8 @@ public class ModelPredictor {
 	private GeneralAttribute m_predAtt;
 	private ArrayList<GeneralAttribute> m_attributesToCopy;
 
-	private Classifier m_model;
-	private Classifier m_reversedModel;
+//	private Classifier m_model;
+//	private Classifier m_reversedModel;
 
 
 	private PredictStatus m_predictStatus;
@@ -93,25 +93,27 @@ public class ModelPredictor {
 		// 获取预测文件中的应该用哪个modelYearSplit的模型
 		String modelYearSplit = thresholdData.getModelYearSplit();
 		// 从评估结果中找到正向模型文件。
+		Classifier model;
+		Classifier reversedModel;
 		ModelStore modelStore = new ModelStore(clModel.m_evaluationStore.getWorkFilePath(),
 				thresholdData.getModelFileName(), modelYearSplit);
-		m_model = modelStore.loadModelFromFile(predictDataFormat, yearSplit);
+		model = modelStore.loadModelFromFile(predictDataFormat, yearSplit);
 
 		// 获取预测文件中的应该用哪个反向模型的模型
 		String reversedModelYearSplit = thresholdData.getReversedModelYearSplit();
 
 		// boolean usingOneModel=false;
-		m_reversedModel = null;
+		reversedModel = null;
 		ModelStore reversedModelStore = null;
 		if (reversedModelYearSplit.equals(modelYearSplit)) {// 正向模型和方向模型是同一模型的。
-			m_reversedModel = m_model;
+			reversedModel = model;
 			reversedModelStore = modelStore;
 		} else {
 			// 从评估结果中找到反向模型文件。
 			reversedModelStore = new ModelStore(clModel.m_evaluationStore.getWorkFilePath(),
 					thresholdData.getReversedModelFileName(), reversedModelYearSplit);
 			// 获取model
-			m_reversedModel = reversedModelStore.loadModelFromFile(predictDataFormat, yearSplit);
+			reversedModel = reversedModelStore.loadModelFromFile(predictDataFormat, yearSplit);
 		}
 
 		double[] thresholds = thresholdData.getThresholds();
@@ -130,6 +132,9 @@ public class ModelPredictor {
 		SimpleDateFormat sdFormat=new SimpleDateFormat(ArffFormat.ARFF_DATE_FORMAT);
 		
 		//循环处理每天的数据
+		StringBuffer dailyStatusBuffer=new StringBuffer();
+		
+
 		int tradeDateIndex=dataToPredict.attribute(ArffFormat.TRADE_DATE).index()+1; //下面过滤的地方index是从1开始
 		String oneDay=null;
 		for (Date date : tradeDateList) {
@@ -138,14 +143,15 @@ public class ModelPredictor {
 			String split=WekaInstanceProcessor.WEKA_ATT_PREFIX + tradeDateIndex + " is '" + oneDay+"'";
 			GeneralInstances oneDayData=instanceProcessor.getInstancesSubset(dataToPredict, split);
 			int nextDataSize=oneDayData.size();
-			System.out.println("got one day data. date="+oneDay+" number="+nextDataSize);
+
+//			System.out.println("got one day data. date="+oneDay+" number="+nextDataSize);
 			
 			//开始调整阈值
 			thresholdMin=adjustThreshold(nextDataSize, thresholds, percentiles, targetPercentile, defaultIndex);
-			System.out.println("adjusted threshold set to " + thresholdMin);
+//			System.out.println("adjusted threshold set to " + thresholdMin);
 
 			if (reversedThresholdMax > thresholdMin) {
-				if (m_reversedModel == m_model) {
+				if (reversedModel == model) {
 					throw new Exception("fatal error!!! reversedThreshold(" + reversedThresholdMax + ") > threshold("
 							+ thresholdMin + ") using same model (modelyear=" + reversedModelYearSplit + ")");
 				} else {
@@ -154,9 +160,27 @@ public class ModelPredictor {
 				}
 			}
 			// 具体预测
-			predictMiniBatch(clModel,oneDayData, result, yearSplit,thresholdMin,reversedThresholdMax);
-		}
+			StringBuffer resultString=predictMiniBatch(clModel,oneDayData, result, yearSplit,model,reversedModel,thresholdMin,reversedThresholdMax);
+			
+			//输出统计值
+			dailyStatusBuffer.append(yearSplit);
+			dailyStatusBuffer.append(',');
+			dailyStatusBuffer.append(policy);
+			dailyStatusBuffer.append(',');
+			dailyStatusBuffer.append(oneDay);
+			dailyStatusBuffer.append(',');
+			dailyStatusBuffer.append(1-targetPercentile/100);
+			dailyStatusBuffer.append(',');
+			dailyStatusBuffer.append(m_predictStatus.getCummulativeSelectRatio());
+			dailyStatusBuffer.append(',');
+			dailyStatusBuffer.append(thresholdMin);
+			dailyStatusBuffer.append(',');
+			dailyStatusBuffer.append(resultString);
+			dailyStatusBuffer.append("\r\n");
 
+		}
+		clModel.classifySummaries.appendDailySummary(dailyStatusBuffer.toString());
+		
 		// 第三步： 输出评估参数
 		double[] modelAUC = thresholdData.getModelAUC();
 		double reversedPercentile = thresholdData.getReversedPercent();
@@ -184,11 +208,10 @@ public class ModelPredictor {
 
 		} else {
 			// 输出评估结果及所使用阀值及期望样本百分比
-			String evalSummary = yearSplit + "," + policy + "," + modelYearSplit + ",";
-			// + FormatUtility.formatDouble(m_thresholdMin, 0, 3) + ","
-			// + FormatUtility.formatPercent(targetPercentile / 100) + ",";
-			evalSummary += reversedModelYearSplit + "," + FormatUtility.formatDouble(reversedThresholdMax, 0, 3) + ","
-					+ FormatUtility.formatPercent(reversedPercentile / 100) + ",";
+			String evalSummary = yearSplit + "," + policy +",";
+			evalSummary += reversedModelYearSplit + "," + FormatUtility.formatPercent(reversedPercentile / 100) + ","
+					+FormatUtility.formatDouble(reversedThresholdMax, 0, 3) + ",";
+			evalSummary += modelYearSplit + ","	 + FormatUtility.formatPercent(targetPercentile / 100) + ",";
 			for (double d : modelAUC) {
 				evalSummary += FormatUtility.formatDouble(d, 0, 4) + ",";
 			}
@@ -196,22 +219,10 @@ public class ModelPredictor {
 			clModel.classifySummaries.appendEvaluationSummary(evalSummary);
 		}
 
-		// // 第三步： 输出各种统计值
-		// if ("".equals(yearSplit)) {
-		// // 这是预测每日数据时，没有实际收益率数据可以做评估 (上述逻辑会让所有的数据都进入negative的分支）
-		// clModel.classifySummaries.savePredictSummaries(policySplit,
-		// totalNegativeShouyilv,
-		// selectedNegativeShouyilv);
-		// } else {
-		// // 这是进行历史回测数据时，根据历史收益率数据进行阶段评估
-		// clModel.classifySummaries.computeClassifySummaries(yearSplit,
-		// policySplit, totalPositiveShouyilv,
-		// totalNegativeShouyilv, selectedPositiveShouyilv,
-		// selectedNegativeShouyilv);
-		// }
 	}
 
 	/**
+	 * 获取输入数据中的所有日期，并升序排列
 	 * @param data
 	 */
 	private ArrayList<Date> getTradeDateList(GeneralInstances data) throws Exception{
@@ -304,23 +315,18 @@ public class ModelPredictor {
 		} else {
 			currentIndex = high;
 		}
-		System.out.println("find targetValue(" + targetValue + ") near" + sortedValues[currentIndex]);
+//		System.out.println("find targetValue(" + targetValue + ") near" + sortedValues[currentIndex]);
 		return currentIndex;
 	}
 
 	/**
-	 * @param clModel
-	 * @param miniBatchData
-	 * @param result
-	 * @param yearSplit
-	 * @throws NumberFormatException
-	 * @throws Exception
-	 * @throws IllegalStateException
+	 * 按天预测
 	 */
-	private void predictMiniBatch(AbstractModel clModel,GeneralInstances miniBatchData, GeneralInstances result, String yearSplit,
+	private StringBuffer predictMiniBatch(AbstractModel clModel,GeneralInstances miniBatchData, GeneralInstances result, String yearSplit,
+			Classifier classifier,Classifier reversedClassifier,
 			double thresholdMin, double reversedThresholdMax
-			)
-			throws Exception {
+			)	throws Exception {
+
 
 		double pred;
 		double reversedPred;
@@ -339,20 +345,19 @@ public class ModelPredictor {
 		// 删除已保存的ID 列，让待分类数据与模型数据一致 （此处的index是从1开始）
 		miniBatchData = InstanceHandler.getHandler(miniBatchData).removeAttribs(miniBatchData,
 				Integer.toString(ArffFormat.ID_POSITION) + "-" + ArffFormat.YEAR_MONTH_INDEX);
-//				Integer.toString(ArffFormat.ID_POSITION));
-		// 开始循环，用分类模型和阈值对每一条数据进行预测，并存入输出结果集
-		System.out.println("actual -> predicted....... ");
 
+		
+//		System.out.println("actual -> predicted....... ");
 		int selectedCount = 0;
 		int predictedCount = miniBatchData.numInstances();
-
+		// 开始循环，用分类模型和阈值对每一条数据进行预测，并存入输出结果集
 		for (int i = 0; i < predictedCount; i++) {
 			GeneralInstance currentTestRow = miniBatchData.instance(i);
-			pred = ModelPredictor.classify(m_model, currentTestRow); // 调用分类函数
-			if (m_reversedModel == m_model) { // 如果反向评估模型是同一个类
+			pred = ModelPredictor.classify(classifier, currentTestRow); // 调用分类函数
+			if (reversedClassifier == classifier) { // 如果反向评估模型是同一个类
 				reversedPred = pred;
 			} else {
-				reversedPred = ModelPredictor.classify(m_reversedModel, currentTestRow); // 调用反向评估模型的分类函数
+				reversedPred = ModelPredictor.classify(reversedClassifier, currentTestRow); // 调用反向评估模型的分类函数
 			}
 
 			// 准备输出结果
@@ -409,6 +414,13 @@ public class ModelPredictor {
 		}
 		m_predictStatus.addCummulativePredicted(predictedCount);
 		m_predictStatus.addCummulativeSelected(selectedCount);
+		StringBuffer resultString=new StringBuffer();
+		resultString.append(predictedCount);
+		resultString.append(',');
+		resultString.append(selectedCount);
+		resultString.append(',');
+		resultString.append(((double)selectedCount)/predictedCount);
+		return resultString;
 	}
 
 	/**
