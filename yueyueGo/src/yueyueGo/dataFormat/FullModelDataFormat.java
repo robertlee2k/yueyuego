@@ -15,7 +15,7 @@ public class FullModelDataFormat extends ArffFormat {
 		
 		//单次收益率数据中不用保存在ARFF文件中的字段
 		m_arff_data_not_in_model=new String[]{ 
-				TRADE_DATE,CODE, SELL_DATE, DATA_DATE, "chicang_days",IS_POSITIVE
+				CODE, SELL_DATE, DATA_DATE, "chicang_days",IS_POSITIVE
 		};
 		
 		m_policy_group ="";

@@ -10,7 +10,7 @@ public class MomentumDataFormat extends ArffFormat {
 		
 		//单次收益率数据中不用保存在ARFF文件中的字段
 		m_arff_data_not_in_model=new String[]{ 
-				TRADE_DATE,CODE, SELL_DATE, DATA_DATE, IS_POSITIVE
+				CODE, SELL_DATE, DATA_DATE, IS_POSITIVE
 		};
 		m_policy_group = "period"; // 输入输出文件中的“策略分组”名称
 		

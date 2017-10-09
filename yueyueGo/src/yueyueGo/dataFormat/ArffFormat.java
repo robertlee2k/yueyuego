@@ -141,7 +141,7 @@ public abstract class ArffFormat {
 	public GeneralInstances getTransLeftPartFromAllTransaction(GeneralInstances allData)
 			throws Exception {
 		String[] TRANS_DATA_LEFT_PART = new String[] { ID,
-				YEAR_MONTH, TRADE_DATE, CODE, SELL_DATE,  
+				YEAR_MONTH,  CODE, SELL_DATE,  
 				DATA_DATE, IS_POSITIVE, m_policy_group,BIAS5,IS_SZ50 ,IS_HS300 , 
 				IS_ZZ500,SHOUYILV };
 		return InstanceHandler.getHandler(allData).filterAttribs(allData,TRANS_DATA_LEFT_PART);

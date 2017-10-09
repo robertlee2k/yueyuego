@@ -2,6 +2,7 @@ package yueyueGo.utility.modelPredict;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import weka.classifiers.Classifier;
@@ -11,6 +12,7 @@ import yueyueGo.NominalModel;
 import yueyueGo.dataFormat.ArffFormat;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.dataProcessor.InstanceHandler;
+import yueyueGo.dataProcessor.WekaInstanceProcessor;
 import yueyueGo.databeans.DataAttribute;
 import yueyueGo.databeans.DataInstance;
 import yueyueGo.databeans.DataInstances;
@@ -31,6 +33,7 @@ public class ModelPredictor {
 
 	private GeneralInstances m_shouyilvCache = null;
 
+	
 	private GeneralAttribute m_idAttInResult;
 	private GeneralAttribute m_yearMonthAtt;
 	private GeneralAttribute m_shouyilvAtt;
@@ -83,10 +86,11 @@ public class ModelPredictor {
 		}
 		GeneralInstances predictDataFormat = new WekaInstances(dataToPredict, 0);
 
-		// 删除已保存的ID 列，让待分类数据与模型数据一致 （此处的index是从1开始）
+		// 删除已保存的ID列，让待分类数据与模型数据一致 （此处的index是从1开始）
 		BaseInstanceProcessor instanceProcessor = InstanceHandler.getHandler(predictDataFormat);
 		predictDataFormat = instanceProcessor.removeAttribs(predictDataFormat,
-				Integer.toString(ArffFormat.ID_POSITION));
+				Integer.toString(ArffFormat.ID_POSITION) + "," + ArffFormat.YEAR_MONTH_INDEX);
+//				Integer.toString(ArffFormat.ID_POSITION));
 
 		// 获取预测文件中的应该用哪个modelYearSplit的模型
 		String modelYearSplit = thresholdData.getModelYearSplit();
@@ -117,18 +121,22 @@ public class ModelPredictor {
 		double targetPercentile = thresholdData.getDefaultPercentile(); //目标值
 		int defaultIndex = thresholdData.getDefaultThresholdIndex(); //初始值
 
-		//TODO改成每日平均值的计算
-		int epoch = 20;
-		int stepSize = dataToPredict.numInstances() / epoch;
-		if (stepSize == 0) { // 万一该月数量小于20不够除，就一条条做
-			stepSize = 1;
-		}
-
 		
 
-		for (int k = 0; k < dataToPredict.numInstances(); k += stepSize) {
+		//获取所有的不同tradeDate，并排序。
+		ArrayList<String> tradeDateList=getTradeDateList(dataToPredict);
+
+		//循环处理每天的数据
+		int tradeDateIndex=dataToPredict.attribute(ArffFormat.TRADE_DATE).index();
+		for (String tradeDate : tradeDateList) {
+			//获取一日的数据
+			String split=WekaInstanceProcessor.WEKA_ATT_PREFIX + tradeDateIndex + " is " + tradeDate;
+			GeneralInstances oneDayData=instanceProcessor.getInstancesSubset(dataToPredict, split);
+			int nextDataSize=oneDayData.size();
+			System.out.println("got one day data. date="+tradeDate+" number="+nextDataSize);
 			
-			m_thresholdMin=adjustThreshold(stepSize, thresholds, percentiles, targetPercentile, defaultIndex);
+			//开始调整阈值
+			m_thresholdMin=adjustThreshold(nextDataSize, thresholds, percentiles, targetPercentile, defaultIndex);
 			System.out.println("adjusted threshold set to " + m_thresholdMin);
 
 			m_reversedThresholdMax = thresholdData.getReversedThreshold(); // 判断为0的阈值，小于该值意味着该模型坚定认为其为0
@@ -143,23 +151,7 @@ public class ModelPredictor {
 				}
 			}
 			// 具体预测
-			int startFrom = k;
-			int copyNum;
-			if (startFrom + stepSize - 1 >= dataToPredict.numInstances()) {
-				copyNum = dataToPredict.numInstances() - startFrom;
-			}else{
-				copyNum=stepSize;
-			}
-//			System.out.println("predict from: "+startFrom+" copied: "+copyNum +" of all="+dataToPredict.numInstances());
-			GeneralInstances batchData= new WekaInstances(dataToPredict, startFrom, copyNum);
-//			try{
-//				batchData= new WekaInstances(dataToPredict, startFrom, copyNum); 
-//			}catch (Exception e){
-//				System.err.println("error at : startFrom(i)="+startFrom+" endAt="+copyNum+" stepSize="+stepSize );
-//				throw e;
-//			}
-
-			predictMiniBatch(batchData, result, yearSplit,startFrom);
+			predictMiniBatch(oneDayData, result, yearSplit);
 		}
 
 		// 第三步： 输出评估参数
@@ -214,6 +206,29 @@ public class ModelPredictor {
 		// totalNegativeShouyilv, selectedPositiveShouyilv,
 		// selectedNegativeShouyilv);
 		// }
+	}
+
+	/**
+	 * @param data
+	 */
+	private ArrayList<String> getTradeDateList(GeneralInstances data) {
+		GeneralAttribute tradeDateAtt=data.attribute(ArffFormat.TRADE_DATE);
+		ArrayList<String> tradeDateList=new ArrayList<String>();
+		String current="2099/12/31";
+		String next=null;
+		for (int i=0;i<data.numInstances();i++){
+			next=data.get(i).stringValue(tradeDateAtt);
+			if (current.equals(next)==false){
+				tradeDateList.add(next);
+				current=next;
+			}else{
+				continue;
+			}
+		}
+		
+		//TODO 日期这里的排序要检查一下是不是2017/10/5 排在2017/10/21之后了
+		Collections.sort(tradeDateList);
+		return tradeDateList;
 	}
 
 	/**
@@ -293,14 +308,14 @@ public class ModelPredictor {
 
 	/**
 	 * @param clModel
-	 * @param dataToPredict
+	 * @param miniBatchData
 	 * @param result
 	 * @param yearSplit
 	 * @throws NumberFormatException
 	 * @throws Exception
 	 * @throws IllegalStateException
 	 */
-	private void predictMiniBatch(GeneralInstances dataToPredict, GeneralInstances result, String yearSplit,int startIndex)
+	private void predictMiniBatch(GeneralInstances miniBatchData, GeneralInstances result, String yearSplit)
 			throws Exception {
 
 		double pred;
@@ -309,17 +324,19 @@ public class ModelPredictor {
 
 		// There is additional ID attribute in test instances, so we should save
 		// it and remove before doing prediction
-		double[] ids = dataToPredict.attributeToDoubleArray(ArffFormat.ID_POSITION - 1);
+		double[] ids = miniBatchData.attributeToDoubleArray(ArffFormat.ID_POSITION - 1);
 		// 删除已保存的ID 列，让待分类数据与模型数据一致 （此处的index是从1开始）
-		dataToPredict = InstanceHandler.getHandler(dataToPredict).removeAttribs(dataToPredict,
-				Integer.toString(ArffFormat.ID_POSITION));
+		miniBatchData = InstanceHandler.getHandler(miniBatchData).removeAttribs(miniBatchData,
+				Integer.toString(ArffFormat.ID_POSITION) + "," + ArffFormat.YEAR_MONTH_INDEX);
+//				Integer.toString(ArffFormat.ID_POSITION));
 		// 开始循环，用分类模型和阈值对每一条数据进行预测，并存入输出结果集
 		System.out.println("actual -> predicted....... ");
 
 		int selectedCount = 0;
-		int predictedCount = dataToPredict.numInstances();
+		int predictedCount = miniBatchData.numInstances();
+		int startIndexInBatch=m_predictStatus.getCummulativePredicted(); // 本次预测整个预测中的起始位置（这个主要是为了查找cache用的）
 		for (int i = 0; i < predictedCount; i++) {
-			GeneralInstance currentTestRow = dataToPredict.instance(i);
+			GeneralInstance currentTestRow = miniBatchData.instance(i);
 			pred = ModelPredictor.classify(m_model, currentTestRow); // 调用分类函数
 			if (m_reversedModel == m_model) { // 如果反向评估模型是同一个类
 				reversedPred = pred;
@@ -338,7 +355,7 @@ public class ModelPredictor {
 			// Nominal数据的格式需要额外处理
 			if (m_shouyilvCache != null) {
 				// 获取原始数据中的实际收益率值
-				double shouyilv = getShouyilv(i+startIndex, ids[i], currentTestRow.classValue());
+				double shouyilv = getShouyilv(i+startIndexInBatch, ids[i], currentTestRow.classValue());
 				resultRow.setValue(m_shouyilvAtt, shouyilv);
 			}
 			// 将获得的预测值设定入结果集
@@ -360,7 +377,7 @@ public class ModelPredictor {
 
 			// 最后将那些无须结算的校验字段的值直接从测试数据集拷贝到输出结果集
 			for (GeneralAttribute resultAttribute : m_attributesToCopy) {
-				GeneralAttribute testAttribute = dataToPredict.attribute(resultAttribute.name());
+				GeneralAttribute testAttribute = miniBatchData.attribute(resultAttribute.name());
 				// test attribute which is be present in the result data set
 				if (testAttribute != null) {
 					if (testAttribute.isNominal()) {
