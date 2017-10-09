@@ -33,9 +33,6 @@ public class ModelPredictor {
 	public static final int VALUE_NOT_SURE = 0; // 模型预测结果为“无法判断”
 	public static final int VALUE_NEVER_SELECT = -1; // 模型预测结果为“坚决不选”
 
-	private GeneralInstances m_shouyilvCache = null;
-
-	
 	private GeneralAttribute m_idAttInResult;
 	private GeneralAttribute m_yearMonthAtt;
 	private GeneralAttribute m_shouyilvAtt;
@@ -45,8 +42,7 @@ public class ModelPredictor {
 
 	private Classifier m_model;
 	private Classifier m_reversedModel;
-	private double m_thresholdMin;
-	private double m_reversedThresholdMax;
+
 
 	private PredictStatus m_predictStatus;
 
@@ -78,15 +74,15 @@ public class ModelPredictor {
 		}
 
 		m_predAtt = null;
+		//先new出一个格式对象进行格式校验
+		GeneralInstances predictDataFormat = new WekaInstances(dataToPredict, 0);
 		if (clModel instanceof NominalModel) {
 			// Nominal数据的格式需要额外处理
-			m_shouyilvCache = this.cacheShouyilvData(dataToPredict);
-			dataToPredict = ((NominalModel) clModel).processDataForNominalClassifier(dataToPredict);
+			predictDataFormat = ((NominalModel) clModel).processDataForNominalClassifier(predictDataFormat);
 			m_predAtt = result.attribute(ArffFormat.RESULT_PREDICTED_WIN_RATE);
 		} else {
 			m_predAtt = result.attribute(ArffFormat.RESULT_PREDICTED_PROFIT);
 		}
-		GeneralInstances predictDataFormat = new WekaInstances(dataToPredict, 0);
 
 		// 删除已保存的ID列，让待分类数据与模型数据一致 （此处的index是从1开始）
 		BaseInstanceProcessor instanceProcessor = InstanceHandler.getHandler(predictDataFormat);
@@ -123,7 +119,11 @@ public class ModelPredictor {
 		double targetPercentile = thresholdData.getDefaultPercentile(); //目标值
 		int defaultIndex = thresholdData.getDefaultThresholdIndex(); //初始值
 
-		
+		//初始值（下面的循环内函数内也会重设）
+		double thresholdMin=thresholdData.getDefaultThreshold();
+		//判断为0的阈值，小于该值意味着该模型坚定认为其为0 （这是合并多个模型预测时使用的）
+		double 	reversedThresholdMax = thresholdData.getReversedThreshold();  
+
 
 		//获取所有的不同tradeDate，并排序。
 		ArrayList<Date> tradeDateList=getTradeDateList(dataToPredict);
@@ -141,22 +141,20 @@ public class ModelPredictor {
 			System.out.println("got one day data. date="+oneDay+" number="+nextDataSize);
 			
 			//开始调整阈值
-			m_thresholdMin=adjustThreshold(nextDataSize, thresholds, percentiles, targetPercentile, defaultIndex);
-			System.out.println("adjusted threshold set to " + m_thresholdMin);
+			thresholdMin=adjustThreshold(nextDataSize, thresholds, percentiles, targetPercentile, defaultIndex);
+			System.out.println("adjusted threshold set to " + thresholdMin);
 
-			m_reversedThresholdMax = thresholdData.getReversedThreshold(); // 判断为0的阈值，小于该值意味着该模型坚定认为其为0
-																			// （这是合并多个模型预测时使用的）
-			if (m_reversedThresholdMax > m_thresholdMin) {
+			if (reversedThresholdMax > thresholdMin) {
 				if (m_reversedModel == m_model) {
-					throw new Exception("fatal error!!! reversedThreshold(" + m_reversedThresholdMax + ") > threshold("
-							+ m_thresholdMin + ") using same model (modelyear=" + reversedModelYearSplit + ")");
+					throw new Exception("fatal error!!! reversedThreshold(" + reversedThresholdMax + ") > threshold("
+							+ thresholdMin + ") using same model (modelyear=" + reversedModelYearSplit + ")");
 				} else {
-					System.err.println("使用不同模型时反向阀值大于正向阀值了" + "reversedThreshold(" + m_reversedThresholdMax + ")@"
-							+ reversedModelYearSplit + " > threshold(" + m_thresholdMin + ")@" + modelYearSplit);
+					System.err.println("使用不同模型时反向阀值大于正向阀值了" + "reversedThreshold(" + reversedThresholdMax + ")@"
+							+ reversedModelYearSplit + " > threshold(" + thresholdMin + ")@" + modelYearSplit);
 				}
 			}
 			// 具体预测
-			predictMiniBatch(oneDayData, result, yearSplit);
+			predictMiniBatch(clModel,oneDayData, result, yearSplit,thresholdMin,reversedThresholdMax);
 		}
 
 		// 第三步： 输出评估参数
@@ -166,11 +164,11 @@ public class ModelPredictor {
 		if ("".equals(yearSplit)) { //TODO 预测的时候应该也传相应的yearSplit进来，不应该为空
 			// 输出评估结果及所使用阀值及期望样本百分比
 			String evalSummary = "\r\n\t ( with params: modelYearSplit=" + modelYearSplit + " threshold="
-					+ FormatUtility.formatDouble(m_thresholdMin, 0, 3);
+					+ FormatUtility.formatDouble(thresholdMin, 0, 3);
 			// + " , percentile="+ FormatUtility.formatPercent(targetPercentile
 			// / 100) ;
 			evalSummary += " ,reversedModelYearSplit=" + reversedModelYearSplit + " ,reversedThreshold="
-					+ FormatUtility.formatDouble(m_reversedThresholdMax, 0, 3) + " , reversedPercentile="
+					+ FormatUtility.formatDouble(reversedThresholdMax, 0, 3) + " , reversedPercentile="
 					+ FormatUtility.formatPercent(reversedPercentile / 100);
 			evalSummary += " ,modelAUC@focusAreaRatio=";
 			double[] focusAreaRatio = thresholdData.getFocosAreaRatio();
@@ -189,7 +187,7 @@ public class ModelPredictor {
 			String evalSummary = yearSplit + "," + policy + "," + modelYearSplit + ",";
 			// + FormatUtility.formatDouble(m_thresholdMin, 0, 3) + ","
 			// + FormatUtility.formatPercent(targetPercentile / 100) + ",";
-			evalSummary += reversedModelYearSplit + "," + FormatUtility.formatDouble(m_reversedThresholdMax, 0, 3) + ","
+			evalSummary += reversedModelYearSplit + "," + FormatUtility.formatDouble(reversedThresholdMax, 0, 3) + ","
 					+ FormatUtility.formatPercent(reversedPercentile / 100) + ",";
 			for (double d : modelAUC) {
 				evalSummary += FormatUtility.formatDouble(d, 0, 4) + ",";
@@ -319,13 +317,22 @@ public class ModelPredictor {
 	 * @throws Exception
 	 * @throws IllegalStateException
 	 */
-	private void predictMiniBatch(GeneralInstances miniBatchData, GeneralInstances result, String yearSplit)
+	private void predictMiniBatch(AbstractModel clModel,GeneralInstances miniBatchData, GeneralInstances result, String yearSplit,
+			double thresholdMin, double reversedThresholdMax
+			)
 			throws Exception {
 
 		double pred;
 		double reversedPred;
 		double yearMonth = Double.valueOf(yearSplit).doubleValue();
 
+		GeneralInstances shouyilvCache = null;
+		if (clModel instanceof NominalModel) {
+			// Nominal数据的格式需要额外处理
+			shouyilvCache = cacheShouyilvData(miniBatchData);
+			miniBatchData = ((NominalModel) clModel).processDataForNominalClassifier(miniBatchData);
+		}
+		
 		// There is additional ID attribute in test instances, so we should save
 		// it and remove before doing prediction
 		double[] ids = miniBatchData.attributeToDoubleArray(ArffFormat.ID_POSITION - 1);
@@ -357,9 +364,9 @@ public class ModelPredictor {
 			resultRow.setValue(m_yearMonthAtt, yearMonth);
 
 			// Nominal数据的格式需要额外处理
-			if (m_shouyilvCache != null) {
+			if (shouyilvCache != null) {
 				// 获取原始数据中的实际收益率值
-				double shouyilv = getShouyilv(i+startIndexInBatch, ids[i], currentTestRow.classValue());
+				double shouyilv = getShouyilv(shouyilvCache,i+startIndexInBatch, ids[i], currentTestRow.classValue());
 				resultRow.setValue(m_shouyilvAtt, shouyilv);
 			}
 			// 将获得的预测值设定入结果集
@@ -368,12 +375,12 @@ public class ModelPredictor {
 			// 计算选股结果
 			double selected = ModelPredictor.VALUE_NOT_SURE;
 			// 先用反向模型判断
-			if (reversedPred < m_reversedThresholdMax) {
+			if (reversedPred < reversedThresholdMax) {
 				selected = ModelPredictor.VALUE_NEVER_SELECT;// 反向模型坚定认为当前数据为0
 																// （这是合并多个模型预测时使用的）
 			}
 			// 如果正向模型与方向模型得出的值矛盾（在使用不同模型时），则用正向模型的数据覆盖方向模型（因为毕竟正向模型的ratio比较小）
-			if (pred >= m_thresholdMin) { // 本模型估计当前数据是1值
+			if (pred >= thresholdMin) { // 本模型估计当前数据是1值
 				selected = ModelPredictor.VALUE_SELECTED;
 				selectedCount++;
 			}
@@ -455,19 +462,19 @@ public class ModelPredictor {
 		return attributesToCopy;
 	}
 
-	protected double getShouyilv(int index, double id, double newClassValue) throws Exception {
-		if (m_shouyilvCache == null) {
+	protected double getShouyilv(GeneralInstances a_shouyilvCache,int index, double id, double newClassValue) throws Exception {
+		if (a_shouyilvCache == null) {
 			return Double.NaN;
 		}
-		if (index >= m_shouyilvCache.numInstances()) {
+		if (index >= a_shouyilvCache.numInstances()) {
 			throw new Exception("Old Class Value has not been cached for index: " + index);
 		}
-		double cachedID = m_shouyilvCache.instance(index).value(0);
+		double cachedID = a_shouyilvCache.instance(index).value(0);
 		if (cachedID != id) {
 			throw new Exception("Data inconsistent error! Cached old class value id = " + cachedID
 					+ " while incoming id =" + id + " for index: " + index);
 		}
-		double shouyilv = m_shouyilvCache.instance(index).classValue();
+		double shouyilv = a_shouyilvCache.instance(index).classValue();
 		if (newClassValue == 0 && shouyilv > 0 || newClassValue == 1 && shouyilv <= 0) {
 			throw new Exception("Data inconsistent error! Cached old class value id = " + shouyilv
 					+ " while incoming newClassValue =" + newClassValue + " for index: " + index
