@@ -42,9 +42,10 @@ public class UpdateHistoryArffFile {
 			AppContext.createContext(currentArffFormat.m_data_root_directory);	
 			
 			//重新创建ARFF文件
-//			callCreateTransInstances(currentArffFormat);
+			callCreateTransInstances(currentArffFormat);
 			//校验数据文件
-//			analyzeDataAttributes(AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.getFullArffFileName());
+			analyzeDataAttributes(AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.getFullArffFileName());
+			//输出数值范围
 			outputAttributesRange(currentArffFormat);
 			
 //			//用最新的单次交易数据，更新原始的交易数据文件
@@ -173,7 +174,7 @@ public class UpdateHistoryArffFile {
 			System.out.println("start to split fulset for: "+ splitClause);
 			GeneralInstances oneData=instanceProcessor.getInstancesSubset(fullSetData,splitClause);
 			//去掉yearmonth
-			oneData = instanceProcessor.removeAttribs(oneData,  ArffFormat.YEAR_MONTH_INDEX);
+			oneData = instanceProcessor.removeAttribs(oneData, ""+ArffFormat.YEAR_MONTH_INDEX);
 
 			String fileName=AppContext.getC_ROOT_DIRECTORY()+"\\sourceData\\tensorFlowData("+fromPeriod+"-"+toPeriod+").csv";
 			DataIOHandler.getSaver().saveCSVFile(oneData, fileName);
@@ -418,7 +419,8 @@ public class UpdateHistoryArffFile {
 	 */
 	final protected static void processDateColumns(GeneralInstances newData)
 			throws ParseException {
-		int yearMonthIndex=BaseInstanceProcessor.findATTPosition(newData, ArffFormat.ID); //在ID之后插入
+		int yearMonthIndex=ArffFormat.YEAR_MONTH_INDEX-1; //找到应该插入的yearMonthIndex位置
+//				BaseInstanceProcessor.findATTPosition(newData, ArffFormat.ID); //在ID之后插入
 		newData.insertAttributeAt(new WekaAttribute(ArffFormat.YEAR_MONTH), yearMonthIndex);
 		//重新计算yearmonth
 		GeneralAttribute tradeDateAtt=newData.attribute(ArffFormat.TRADE_DATE);

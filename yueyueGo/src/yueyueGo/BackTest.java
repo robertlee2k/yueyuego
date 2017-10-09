@@ -356,8 +356,8 @@ public class BackTest {
 				// prepare testing data
 				System.out.println("start to split testing set: " + splitTestClause);
 				testingData = instanceProcessor.getInstancesSubset(fullSetData, splitTestClause);
-				// 处理testingData
-				testingData = instanceProcessor.removeAttribs(testingData, ArffFormat.YEAR_MONTH_INDEX);
+				// 处理testingData：注意，预测数据的处理方式不大一样，需要保留tradeDate
+				testingData = instanceProcessor.removeAttribs(testingData, ""+ArffFormat.YEAR_MONTH_INDEX);
 
 				// //对于二分类器，这里要把输入的收益率转换为分类变量------预测数据中不需要这个了
 				// if (clModel instanceof NominalModel ){

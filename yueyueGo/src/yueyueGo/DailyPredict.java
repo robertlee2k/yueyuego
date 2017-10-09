@@ -506,7 +506,7 @@ public class DailyPredict {
 		//与本地格式数据比较，这地方基本上会有nominal数据的label不一致，临时处理办法就是先替换掉
 		GeneralInstances dataFormat = getDailyPredictDataFormat(formatType);
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(dataFormat);
-		dataFormat=instanceProcessor.removeAttribs(dataFormat, ArffFormat.YEAR_MONTH_INDEX);
+		dataFormat=instanceProcessor.removeAttribs(dataFormat, ""+ArffFormat.YEAR_MONTH_INDEX);
 
 		instanceProcessor=InstanceHandler.getHandler(incomingData);
 		

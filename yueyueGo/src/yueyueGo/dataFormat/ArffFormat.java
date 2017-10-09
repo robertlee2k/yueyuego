@@ -40,7 +40,7 @@ public abstract class ArffFormat {
 	
 	public static final String ID = "id";
 	public static final int ID_POSITION = 1; // ID的位置
-	public static final String YEAR_MONTH_INDEX = "2"; // yearmonth所处位置，理论上说可以不用这个定义，用findAttPosition查找，暂时保留吧
+	public static final int YEAR_MONTH_INDEX = 3; // yearmonth所处位置，理论上说可以不用这个定义，用findAttPosition查找，暂时保留吧
 
 	// 读取的数据源（每日预测数据和单次收益率数据）中的日期格式
 	public static final String INPUT_DATE_FORMAT = "yyyy/M/d";
