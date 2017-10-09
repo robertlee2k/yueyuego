@@ -102,12 +102,12 @@ public abstract class ArffFormat {
 	public ArffFormat() {
 		//先调用子类的方法对相应数据赋值
 		initializeFormat();
-		m_daily_data_to_predict_format_legacy = FormatUtility.concatStrings(new String[]{ID},m_model_attribute_format_legacy,new String[]{CODE});
-		m_daily_data_to_predict_format = FormatUtility.concatStrings(new String[]{ID},m_model_attribute_format,new String[]{CODE});
-		String[] temp = FormatUtility.concatStrings(new String[]{ID},m_arff_data_not_in_model);
+		m_daily_data_to_predict_format_legacy = FormatUtility.concatStrings(new String[]{ID,TRADE_DATE},m_model_attribute_format_legacy,new String[]{CODE});
+		m_daily_data_to_predict_format = FormatUtility.concatStrings(new String[]{ID,TRADE_DATE},m_model_attribute_format,new String[]{CODE});
+		String[] temp = FormatUtility.concatStrings(new String[]{ID,TRADE_DATE},m_arff_data_not_in_model);
 		m_arff_data_full=FormatUtility.concatStrings(temp,m_model_attribute_format, new String[]{SHOUYILV});
 		
-		m_daily_predict_left_part=new String[]{ID,m_policy_group,BIAS5,CODE,IS_POSITIVE,SHOUYILV};
+		m_daily_predict_left_part=new String[]{ID,TRADE_DATE,m_policy_group,BIAS5,CODE,IS_POSITIVE,SHOUYILV};
 	}
 
 	protected abstract void initializeFormat();
