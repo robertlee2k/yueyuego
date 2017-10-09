@@ -1,8 +1,10 @@
 package yueyueGo.utility.modelPredict;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import weka.classifiers.Classifier;
@@ -124,16 +126,19 @@ public class ModelPredictor {
 		
 
 		//获取所有的不同tradeDate，并排序。
-		ArrayList<String> tradeDateList=getTradeDateList(dataToPredict);
-
+		ArrayList<Date> tradeDateList=getTradeDateList(dataToPredict);
+		SimpleDateFormat sdFormat=new SimpleDateFormat(ArffFormat.ARFF_DATE_FORMAT);
+		
 		//循环处理每天的数据
 		int tradeDateIndex=dataToPredict.attribute(ArffFormat.TRADE_DATE).index();
-		for (String tradeDate : tradeDateList) {
+		String oneDay=null;
+		for (Date date : tradeDateList) {
 			//获取一日的数据
-			String split=WekaInstanceProcessor.WEKA_ATT_PREFIX + tradeDateIndex + " is " + tradeDate;
+			oneDay=sdFormat.format(date);
+			String split=WekaInstanceProcessor.WEKA_ATT_PREFIX + tradeDateIndex + " is '" + oneDay+"'";
 			GeneralInstances oneDayData=instanceProcessor.getInstancesSubset(dataToPredict, split);
 			int nextDataSize=oneDayData.size();
-			System.out.println("got one day data. date="+tradeDate+" number="+nextDataSize);
+			System.out.println("got one day data. date="+oneDay+" number="+nextDataSize);
 			
 			//开始调整阈值
 			m_thresholdMin=adjustThreshold(nextDataSize, thresholds, percentiles, targetPercentile, defaultIndex);
@@ -211,22 +216,21 @@ public class ModelPredictor {
 	/**
 	 * @param data
 	 */
-	private ArrayList<String> getTradeDateList(GeneralInstances data) {
+	private ArrayList<Date> getTradeDateList(GeneralInstances data) throws Exception{
 		GeneralAttribute tradeDateAtt=data.attribute(ArffFormat.TRADE_DATE);
-		ArrayList<String> tradeDateList=new ArrayList<String>();
+		ArrayList<Date> tradeDateList=new ArrayList<Date>();
+		SimpleDateFormat sdFormat=new SimpleDateFormat(ArffFormat.ARFF_DATE_FORMAT);
 		String current="2099/12/31";
 		String next=null;
 		for (int i=0;i<data.numInstances();i++){
 			next=data.get(i).stringValue(tradeDateAtt);
 			if (current.equals(next)==false){
-				tradeDateList.add(next);
 				current=next;
-			}else{
-				continue;
+				//转换为日期以便于排序，免得将字符串中的2017/10/5 排在2017/10/21之后了
+				Date d = sdFormat.parse(next);
+				tradeDateList.add(d);
 			}
 		}
-		
-		//TODO 日期这里的排序要检查一下是不是2017/10/5 排在2017/10/21之后了
 		Collections.sort(tradeDateList);
 		return tradeDateList;
 	}
@@ -260,7 +264,7 @@ public class ModelPredictor {
 			adjustedPercentile = (targetPercentile*(predictedCount+nextBatchSize)-currentPercentile*predictedCount)/nextBatchSize;
 
 			if (adjustedPercentile<100){ //已选股不多还可以继续选
-				// percentile可认定为是个递减数组 TODO
+				// percentile目前假定为是个递减数组 TODO
 				int adjustedInex = findNearestIndexInArray(percentiles, adjustedPercentile);
 				adjustedThreshold = thresholds[adjustedInex]; // 判断为1的阈值，大于该值意味着该模型判断其为1
 			}else {
