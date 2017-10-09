@@ -345,7 +345,7 @@ public class ModelPredictor {
 
 		int selectedCount = 0;
 		int predictedCount = miniBatchData.numInstances();
-		int startIndexInBatch=m_predictStatus.getCummulativePredicted(); // 本次预测整个预测中的起始位置（这个主要是为了查找cache用的）
+
 		for (int i = 0; i < predictedCount; i++) {
 			GeneralInstance currentTestRow = miniBatchData.instance(i);
 			pred = ModelPredictor.classify(m_model, currentTestRow); // 调用分类函数
@@ -366,7 +366,7 @@ public class ModelPredictor {
 			// Nominal数据的格式需要额外处理
 			if (shouyilvCache != null) {
 				// 获取原始数据中的实际收益率值
-				double shouyilv = getShouyilv(shouyilvCache,i+startIndexInBatch, ids[i], currentTestRow.classValue());
+				double shouyilv = getShouyilv(shouyilvCache,i, ids[i], currentTestRow.classValue());
 				resultRow.setValue(m_shouyilvAtt, shouyilv);
 			}
 			// 将获得的预测值设定入结果集
