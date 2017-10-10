@@ -416,8 +416,11 @@ public class ModelPredictor {
 
 			result.add(resultRow);
 		}
+		//更新统计
 		m_predictStatus.addCummulativePredicted(predictedCount);
 		m_predictStatus.addCummulativeSelected(selectedCount);
+		
+		//输出统计CSV
 		StringBuffer resultString=new StringBuffer();
 		resultString.append(thresholdMin);
 		resultString.append(',');
@@ -426,8 +429,8 @@ public class ModelPredictor {
 		resultString.append(selectedCount);
 		resultString.append(',');
 		resultString.append(((double)selectedCount)/predictedCount);
-		resultString.append(m_predictStatus.getCummulativeSelectRatio());
 		resultString.append(',');
+		resultString.append(m_predictStatus.getCummulativeSelectRatio());
 		return resultString;
 	}
 
