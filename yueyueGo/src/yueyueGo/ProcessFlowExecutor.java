@@ -107,7 +107,7 @@ public class ProcessFlowExecutor implements Callable<String> {
 			if (msg!=null){
 				throw new Exception(msg);
 			}
-			ModelPredictor predictor=new ModelPredictor(); 
+			ModelPredictor predictor=new ModelPredictor(clModel.getIdentifyName(),yearSplit,policySplit); 
 			predictor.predictData(clModel,testingData,result,yearSplit,policySplit);
 		}
 		testingData=null;//释放内存

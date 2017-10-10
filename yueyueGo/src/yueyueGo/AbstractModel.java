@@ -7,7 +7,6 @@ import weka.classifiers.Classifier;
 import weka.core.SerializedObject;
 import yueyueGo.dataFormat.ArffFormat;
 import yueyueGo.databeans.GeneralDataTag;
-import yueyueGo.databeans.GeneralInstance;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.utility.ClassifySummaries;
 import yueyueGo.utility.FormatUtility;
@@ -100,24 +99,12 @@ public abstract class AbstractModel implements Serializable{
 
 	}
 
-	// 对于连续分类器， 收益率就是classvalue，缺省直接返回， 对于nominal分类器，调用子类的方法获取暂存的收益率
-	protected double getShouyilv(int index,double id, double newClassValue) throws Exception{
-		return newClassValue;
+	
+	// 对于连续分类器，positiveLine就是0， 缺省直接返回0， 对于nominal分类器，调用子类的方法获取m_positiveLine
+	protected double getPositiveLine(){
+		return 0;
 	}
-//	
-//	// 对于连续分类器，positiveLine就是0， 缺省直接返回0， 对于nominal分类器，调用子类的方法获取m_positiveLine
-//	protected double getPositiveLine(){
-//		return 0;
-//	}
 
-//	
-//	public static String verifyDataFormat(GeneralInstances test, GeneralInstances header) throws Exception {
-////		//在使用旧格式时，如果有使用旧字段名的模型，试着将其改名后使用
-////		if (modelArffFormat==ArffFormat.LEGACY_FORMAT){
-////			header=ArffFormat.renameOldArffName(header);
-////		}
-//		return BaseInstanceProcessor.compareInstancesFormat(test, header);
-//	}
 
 	
 	//找到回测评估、预测时应该使用evaluationStore对象（主要为获取model文件和eval文件名称）

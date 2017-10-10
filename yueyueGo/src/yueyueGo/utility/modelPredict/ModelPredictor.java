@@ -29,10 +29,16 @@ import yueyueGo.utility.modelEvaluation.ThresholdData;
 
 public class ModelPredictor {
 
+	/*
+	 * 常量定义区域
+	 */
 	public static final int VALUE_SELECTED = 1; // 模型预测结果为“选择”
 	public static final int VALUE_NOT_SURE = 0; // 模型预测结果为“无法判断”
 	public static final int VALUE_NEVER_SELECT = -1; // 模型预测结果为“坚决不选”
 
+	/*
+	 * 工作常量定义区域
+	 */
 	private GeneralAttribute m_idAttInResult;
 	private GeneralAttribute m_yearMonthAtt;
 	private GeneralAttribute m_shouyilvAtt;
@@ -40,18 +46,40 @@ public class ModelPredictor {
 	private GeneralAttribute m_predAtt;
 	private ArrayList<GeneralAttribute> m_attributesToCopy;
 
-//	private Classifier m_model;
-//	private Classifier m_reversedModel;
 
-
+	/*
+	 * 存储月度预测状态的变量（用以控制月度阈值）
+	 */
 	private PredictStatus m_predictStatus;
+	
+	
 
-	// 为回测历史数据使用
-	// result parameter will be changed in this method!
+	/*
+	 * 初始化新的predictStatus对象，这个适合于回测时或预测的第一天
+	 */
+	public ModelPredictor(String modelID,String yearSplit, String policy) {
+		// 生成存储预测中间结果的对象
+		m_predictStatus = new PredictStatus(modelID,yearSplit, policy);
+	}
+
+	/*
+	 * 在既存predictStatus对象上生成status，这个适合于平时预测时
+	 */
+	public ModelPredictor(PredictStatus predictStatus) {
+		m_predictStatus = predictStatus;
+	}
+
+	/*
+	 * 预测数据
+	 * result parameter will be changed in this method!
+	 */
 	public void predictData(AbstractModel clModel, GeneralInstances dataToPredict, GeneralInstances result,
 			String yearSplit, String policy) throws Exception {
-		// 生成存储预测中间结果的对象
-		m_predictStatus = new PredictStatus(yearSplit, policy);
+		
+		//以防万一，校验predictStatus对象的有效性
+		if (m_predictStatus.verifyStatusData(clModel.getIdentifyName(), policy)==false){
+			throw new Exception("predictStatus data mismatch for policy="+policy+" modelID="+clModel.getIdentifyName());
+		}
 
 		// 第一步： 定义输出结果集的各种须特殊设置的Attribute属性
 		m_idAttInResult = result.attribute(ArffFormat.ID);
@@ -263,7 +291,7 @@ public class ModelPredictor {
 		double adjustedThreshold=0.0;
 		
 		double currentPercentile = (1-m_predictStatus.getCummulativeSelectRatio())*100;
-		System.out.println("targetPercentile=" + targetPercentile+", currentPercentile="+currentPercentile);
+//		System.out.println("targetPercentile=" + targetPercentile+", currentPercentile="+currentPercentile);
 
 		if (Double.isNaN(currentPercentile)) { // 还未开始本批次预测时
 			adjustedThreshold = thresholds[currentIndex]; // 缺省的判断为1的阈值，大于该值意味着该模型判断其为1

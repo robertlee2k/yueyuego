@@ -2,6 +2,7 @@ package yueyueGo.utility.modelEvaluation;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
@@ -238,8 +239,10 @@ public class EvaluationStore {
 
 		// 获取正向评估结果
 		//FIXME
-		double[] sampleSize = {0.001,0.002,0.005,0.006,0.008, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06,EvaluationStore.TOP_AREA_RATIO};
-		int defaultThresholdIndex=6;
+		double[] sampleSize = {0.001,0.002,0.003,0.005,0.006,0.008,0.009, 0.01,0.011,0.012,0.013,0.014,0.015,0.016,0.017,0.018,0.019, 0.02,0.022,0.025,0.03,0.035,0.04,0.045, 0.05, 0.06,0.07,0.08,EvaluationStore.TOP_AREA_RATIO};
+		
+		int defaultThresholdIndex=Arrays.binarySearch(sampleSize,0.02);
+
 		double[] thresholds = findThresholds(result, sampleSize);
 		double[] percentiles = new double[sampleSize.length];
 		for (int i = 0; i < sampleSize.length; i++) {

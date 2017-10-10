@@ -2,9 +2,11 @@ package yueyueGo;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import weka.core.SerializationHelper;
 import yueyueGo.classifier.AdaboostClassifier;
 import yueyueGo.classifier.BaggingM5P;
 import yueyueGo.dataFormat.ArffFormat;
@@ -26,8 +28,10 @@ import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.FormatUtility;
 import yueyueGo.utility.MergeClassifyResults;
 import yueyueGo.utility.modelEvaluation.EvaluationStore;
+import yueyueGo.utility.modelEvaluation.ModelStore;
 import yueyueGo.utility.modelPredict.ModelPredictor;
 import yueyueGo.utility.modelPredict.PredictModelData;
+import yueyueGo.utility.modelPredict.PredictStatus;
 
 public class DailyPredict {
 
@@ -36,9 +40,6 @@ public class DailyPredict {
 	private static String PREDICT_RESULT_DIR=EnvConstants.PREDICT_WORK_DIR+"\\88-预测结果\\"; 
 	private HashMap<String, PredictModelData> PREDICT_MODELS;
 	
-//	private double[] shouyilv_thresholds; //对于胜率优先算法的收益率筛选阀值
-//	private double[] winrate_thresholds; //对于收益率优先算法的胜率筛选阀值
-
 	private HashMap<String, GeneralInstances> cached_daily_data=new HashMap<String, GeneralInstances>(); //从数据库里加载的每日预测数据
 
 	private void definePredictModels(){
@@ -425,11 +426,11 @@ public class DailyPredict {
 		
 		//分策略组预测
 		for (int j = 0; j < clModel.m_policySubGroup.length; j++) {
-
-			System.out.println("start to load data for policy : "	+ clModel.m_policySubGroup[j]);
+			String policy=clModel.m_policySubGroup[j];
+			System.out.println("start to load data for policy : "	+ policy);
 			String expression=null;
-			if (maIndex>0){// 均线策略
-				expression=WekaInstanceProcessor.WEKA_ATT_PREFIX+ maIndex+" = "+ clModel.m_policySubGroup[j] ;
+			if (maIndex>0){// 均线策略、动量策略
+				expression=WekaInstanceProcessor.WEKA_ATT_PREFIX+ maIndex+" = "+ policy ;
 				BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullData);
 				newData = instanceProcessor.getInstancesSubset(fullData, expression);
 			}else{ //短线策略（fullmodel)				
@@ -437,8 +438,8 @@ public class DailyPredict {
 			}
 
 				
-			String evalFileName =  evalPredefined + clModel.m_policySubGroup[j]+EvaluationStore.THRESHOLD_EXTENSION;
-			EvaluationStore evaluation=new EvaluationStore(clModel,predictPath,evalFileName,evalTargetSplitYear,clModel.m_policySubGroup[j]);
+			String evalFileName =  evalPredefined + policy+EvaluationStore.THRESHOLD_EXTENSION;
+			EvaluationStore evaluation=new EvaluationStore(clModel,predictPath,evalFileName,evalTargetSplitYear,policy);
 			clModel.setEvaluationStore(evaluation);
 
 
@@ -461,7 +462,22 @@ public class DailyPredict {
 						result.numAttributes());
 
 			}
-			ModelPredictor predictor=new ModelPredictor(); 
+
+			//尝试获取保存的本月预测数据统计值
+			String modelID=clModel.getIdentifyName();
+			
+			String predictStatusFile=predictPath+DailyPredict.concatStatusFileName(policy,modelID);
+			
+			ModelPredictor predictor;
+ 			//初始化ModelPredictor，如果文件不存在则新建status对象，否则从文件里读取    
+			File file =new File(predictStatusFile);   
+			if  (file.exists()) {       
+				PredictStatus predictorStatus=DailyPredict.loadPredictStatusFromFile(predictStatusFile, modelID,policy);
+				predictor=new ModelPredictor(predictorStatus);
+			}else{
+				predictor=new ModelPredictor(modelID,"",policy);
+			}
+			 
 			predictor.predictData(clModel,newData,result,"",clModel.m_policySubGroup[j]);
 			System.out.println("accumulated predicted rows: "+ result.numInstances());
 			System.out.println("complete for : "+ clModel.m_policySubGroup[j]);
@@ -560,5 +576,50 @@ public class DailyPredict {
 		return outputData;
 	}
 
+	
+	/*
+	 * Predict Status 文件的命名规则
+	 */
+	public static String concatStatusFileName(String policySplit, String modelID) {
+		return PredictStatus.FILE_PREFIX + "-" + modelID +  "-" + policySplit+".sav";
+	}
+
+
+	/*
+	 * 每日预测时使用
+	 * 从文件中反序列化数据
+	 */
+	public static PredictStatus loadPredictStatusFromFile(String filename,String a_modelID, String a_policy,String tradeDate) throws Exception {
+		@SuppressWarnings("unchecked")
+		ArrayList<PredictStatus> statusList = (ArrayList<PredictStatus>) SerializationHelper.read(filename);
+		if (statusList.size()!=2){
+			System.err.println("请注意：Status文件中保存的对象数不为2");
+		}
+		
+		if (status.verifyStatusData(a_modelID, a_policy)==false){
+			throw new Exception("Serialized predictStatus file data mismatch");
+		}
+		
+		return statusList;
+	}
+	
+	/*
+	 * 每日预测时使用
+	 * 因为每日预测会重复运行（目前至少晚上和凌晨各一次），为了保障重复运行时统计数据不变化，需要保留最近两日的数据
+	 * 保存下来当前的status至文件
+	 */
+	public void saveToFile(String filename,ArrayList<PredictStatus> statusList) throws Exception {
+		if (statusList.size()!=2){
+			System.err.println("请注意：Status文件中保存的对象数不为2");
+		}
+		SerializationHelper.write(filename, statusList);
+		StringBuffer statusListBuffer=new StringBuffer();
+		for (PredictStatus predictStatus : statusList) {
+			statusListBuffer.append(predictStatus.toTXTString());
+			statusListBuffer.append("\r\n");
+		}
+		FileUtility.write(filename + ModelStore.TXT_EXTENSION, statusListBuffer.toString(), "utf-8");
+		System.out.println("predict status saved to :"+ filename);
+	}
 
 }
