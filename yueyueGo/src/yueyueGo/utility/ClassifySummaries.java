@@ -10,7 +10,7 @@ public class ClassifySummaries {
 	public static final String SUMMARY_HEADER="时间段,均线策略,反向模型时间,反向阀值百分比,反向阀值,正向模型时间,正向目标百分比,正向AUC[TOP],正向AUC[ALL]";
 	
 	//DailySummary的表头部分
-	public static final String DAILY_SUMMARY_HEADER="yearMonth,policy,date,目标百分位,累计百分位,当期选股阈值,当期机会数,当期选股数,当期选股比率\r\n";
+	public static final String DAILY_SUMMARY_HEADER="月份,策略分组,日期,目标选股率,当月之前机会数,当月之前选股数,当月之前选股率,当日选股阈值,当日机会数,当日选股数,当日选股比率,当期后选股率\r\n";
 	
 
 	//统计信息

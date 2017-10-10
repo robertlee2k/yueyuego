@@ -159,9 +159,6 @@ public class ModelPredictor {
 							+ reversedModelYearSplit + " > threshold(" + thresholdMin + ")@" + modelYearSplit);
 				}
 			}
-			// 具体预测
-			StringBuffer resultString=predictMiniBatch(clModel,oneDayData, result, yearSplit,model,reversedModel,thresholdMin,reversedThresholdMax);
-			
 			//输出统计值
 			dailyStatusBuffer.append(yearSplit);
 			dailyStatusBuffer.append(',');
@@ -171,10 +168,17 @@ public class ModelPredictor {
 			dailyStatusBuffer.append(',');
 			dailyStatusBuffer.append(1-targetPercentile/100);
 			dailyStatusBuffer.append(',');
+			dailyStatusBuffer.append(m_predictStatus.getCummulativePredicted());
+			dailyStatusBuffer.append(',');
+			dailyStatusBuffer.append(m_predictStatus.getCummulativeSelected());
+			dailyStatusBuffer.append(',');
 			dailyStatusBuffer.append(m_predictStatus.getCummulativeSelectRatio());
 			dailyStatusBuffer.append(',');
-			dailyStatusBuffer.append(thresholdMin);
-			dailyStatusBuffer.append(',');
+
+			// 具体预测
+			StringBuffer resultString=predictMiniBatch(clModel,oneDayData, result, yearSplit,model,reversedModel,thresholdMin,reversedThresholdMax);
+
+			//输出预测后统计值
 			dailyStatusBuffer.append(resultString);
 			dailyStatusBuffer.append("\r\n");
 
@@ -415,11 +419,15 @@ public class ModelPredictor {
 		m_predictStatus.addCummulativePredicted(predictedCount);
 		m_predictStatus.addCummulativeSelected(selectedCount);
 		StringBuffer resultString=new StringBuffer();
+		resultString.append(thresholdMin);
+		resultString.append(',');
 		resultString.append(predictedCount);
 		resultString.append(',');
 		resultString.append(selectedCount);
 		resultString.append(',');
 		resultString.append(((double)selectedCount)/predictedCount);
+		resultString.append(m_predictStatus.getCummulativeSelectRatio());
+		resultString.append(',');
 		return resultString;
 	}
 
