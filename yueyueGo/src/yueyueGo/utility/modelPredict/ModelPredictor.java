@@ -54,6 +54,10 @@ public class ModelPredictor {
 	
 	
 
+	public PredictStatus getPredictStatus() {
+		return m_predictStatus;
+	}
+
 	/*
 	 * 初始化新的predictStatus对象，这个适合于回测时或预测的第一天
 	 */
@@ -259,7 +263,7 @@ public class ModelPredictor {
 	 * 获取输入数据中的所有日期，并升序排列
 	 * @param data
 	 */
-	private ArrayList<Date> getTradeDateList(GeneralInstances data) throws Exception{
+	public static ArrayList<Date> getTradeDateList(GeneralInstances data) throws Exception{
 		GeneralAttribute tradeDateAtt=data.attribute(ArffFormat.TRADE_DATE);
 		ArrayList<Date> tradeDateList=new ArrayList<Date>();
 		SimpleDateFormat sdFormat=new SimpleDateFormat(ArffFormat.ARFF_DATE_FORMAT);
@@ -281,6 +285,8 @@ public class ModelPredictor {
 	/**
 	 * 动态调整阈值
 	 * 如果迄今为止已选股票的百分比已经大于threshold中的预期百分比，则提升阈值单位。
+	 * TODO 按总数调整似乎不尽合理（如果某天大涨选了很多票，会影响后续天数的选股），是否应该结合日平均的方式？（但也要排除日100%但选股极少的情况）
+	 * 是否每日分母的机会数用上月的日平均？或中位数？
 	 * @param nextBatchSize
 	 * @param thresholds
 	 * @param percentiles

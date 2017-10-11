@@ -1,7 +1,9 @@
 package yueyueGo.utility.modelPredict;
 
 import java.io.Serializable;
+import java.util.Date;
 
+import weka.core.SerializedObject;
 import yueyueGo.utility.FormatUtility;
 
 /*
@@ -20,6 +22,7 @@ public class PredictStatus implements Serializable {
 	private String yearSplit; //年月分类
 	private String policy;  //策略分类
 	private String startDate; //以下的累计数值的起始日 （这个是在每日预测中使用）
+	private Date tradeDate; //最终更新数据的日期 （这个是在每日预测中使用）
 	private int cummulativePredicted=0; //累计预测总数
 	private int cummulativeSelected=0; //累计选股数
 
@@ -77,12 +80,20 @@ public class PredictStatus implements Serializable {
 		result.append("\r\n");
 		result.append("本月累计选股数"+cummulativeSelected);
 		result.append("\r\n");
-		result.append("generateDate="+FormatUtility.getDateStringFor(0));
+		result.append("tradeDate="+tradeDate);
 		result.append("\r\n");
 		return result.toString();
 	}
 
 
+
+	public Date getTradeDate() {
+		return tradeDate;
+	}
+
+	public void setTradeDate(Date tradeDate) {
+		this.tradeDate = tradeDate;
+	}
 
 	/*
 	 * 反序列化后的校验
@@ -94,4 +105,15 @@ public class PredictStatus implements Serializable {
 			 return false;
 		 }
 	}	
+	
+	/**
+	 * Creates a deep copy of the given status using serialization.
+	 *
+	 * @return a deep copy of the status
+	 * @exception Exception if an error occurs
+	 */
+	public static PredictStatus makeCopy(PredictStatus status) throws Exception {
+
+		return (PredictStatus) new SerializedObject(status).getObject();
+	}
 }

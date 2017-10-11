@@ -40,33 +40,24 @@ public class ProcessFlowExecutor implements Callable<String> {
 	
 
 	public void doPredictProcess() throws Exception {
-
-		
 		System.out.println("----Entering ProcessFlowExecutor for " + yearSplit + "------policy=" + policySplit);
-
 		Classifier model = null;
-
-		
-		
 
 		//基于数据构建模型 
 		if (clModel.is_skipTrainInBacktest() == false) {
 			//初始化回测创建模型时使用的modelStore对象（按yearSplit和policysplit分割处理）
 			ModelStore modelStore=new ModelStore(yearSplit,policySplit,modelFilePath,modelFilePrefix,clModel);
-			
 			System.out.println("start to build model");
 			String msg=modelStore.validateTrainingData(dataTags[0]);
 			if (msg!=null){
 				throw new Exception(msg);
 			}
-
 			model=clModel.trainData(trainingData);
 			// save model + header
 			modelStore.setModel(model);
 			modelStore.setModelFormat(new DataInstances(trainingData, 0));
 			modelStore.saveModelToFiles();
 			System.out.println("Training finished!");
-
 
 			//输出模型的confusionMatrix
 			boolean isNominal=false;
@@ -84,7 +75,6 @@ public class ProcessFlowExecutor implements Callable<String> {
 		} 
 		trainingData=null;//释放内存 （不管是不是用到了）
 		model=null; //释放内存
-
 		
 		//设置评估或测试时所用的EvaluationStore
 		clModel.locateEvalutationStore(yearSplit,policySplit,modelFilePath,modelFilePrefix);
@@ -97,7 +87,6 @@ public class ProcessFlowExecutor implements Callable<String> {
 			}
 			clModel.evaluateModel(evalData);
 		}
-		
 		evalData=null;//释放内存 （不管是不是用到了）
 		
 		//是否需要重做预测阶段

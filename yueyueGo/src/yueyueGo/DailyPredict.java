@@ -3,6 +3,7 @@ package yueyueGo;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
@@ -371,16 +372,22 @@ public class DailyPredict {
 			//去掉多读入的CODE部分
 			instanceProcessor=InstanceHandler.getHandler(dailyData);
 			dailyData=instanceProcessor.removeAttribs(dailyData, new String[]{ArffFormat.CODE});
-//			//决定是否删除申万行业数据
-//			if (clModel.m_removeSWData==true){
-//				dailyData=ArffFormat.removeSWData(dailyData);
-//				System.out.println("removed SW Data based on model definition. now column="+ dailyData.numAttributes());
-//			}
+
 			//将结果放入缓存
 			this.cached_daily_data.put(cacheKey, dailyData);
 		}
+		//从dailyData中获取tradeDate并校验
+		ArrayList<Date> datelist=ModelPredictor.getTradeDateList(dailyData);
+		if (datelist.size()!=1){
+			System.err.println("Warning!! tradeDate is not unique in daily data!!!");
+		}
+		Date tradeDate=datelist.get(0);
 		
-		GeneralInstances result=predict(clModel,  dailyData);
+		//校验一下tradeDate应该不能小于当前日期
+		if (tradeDate.compareTo(FormatUtility.getCurrentDate())<0) {
+			throw new Exception (" tradeDate in daily data =" +tradeDate+" < currentDate!");
+		}
+		GeneralInstances result=predict(clModel,  dailyData,tradeDate);
 
 		return result;
 	}
@@ -388,7 +395,7 @@ public class DailyPredict {
 
 	//用模型预测数据
 
-	private  GeneralInstances predict(AbstractModel clModel, GeneralInstances inData) throws Exception {
+	private  GeneralInstances predict(AbstractModel clModel, GeneralInstances inData, Date tradeDate) throws Exception {
 		System.out.println("predict using classifier : "+clModel.getIdentifyName()+" @ prediction work path :"+EnvConstants.PREDICT_WORK_DIR);
 		System.out.println("-----------------------------");
 		
@@ -401,11 +408,7 @@ public class DailyPredict {
 
 		GeneralInstances fullData=calibrateAttributesForDailyData(inData,clModel);
 
-//		//如果模型需要计算字段，则把计算字段加上---20170109取消
-//		if (clModel.m_noCaculationAttrib==false){
-////			fullData=ArffFormat.addCalculateAttribute(fullData);
-//			throw new RuntimeException("we don't support caculated attributes since 20170109");
-//		}
+
 
 
 		//获得”均线策略"的位置属性, 如果数据集内没有“均线策略”（短线策略的fullmodel），MaIndex为-1
@@ -419,7 +422,6 @@ public class DailyPredict {
 		//获取预定义的model文件
 		String id=clModel.getIdentifyName()+clModel.modelArffFormat;
 		PredictModelData modelData=this.PREDICT_MODELS.get(id);
-//		int formatType=modelData.getModelFormatType();
 		String evalTargetSplitYear=modelData.getTargetYearSplit(); 
 		String predictPath=getPredictPath(clModel);
 		String evalPredefined=modelData.getEvalFileName();
@@ -436,13 +438,10 @@ public class DailyPredict {
 			}else{ //短线策略（fullmodel)				
 				newData=fullData;
 			}
-
 				
 			String evalFileName =  evalPredefined + policy+EvaluationStore.THRESHOLD_EXTENSION;
 			EvaluationStore evaluation=new EvaluationStore(clModel,predictPath,evalFileName,evalTargetSplitYear,policy);
 			clModel.setEvaluationStore(evaluation);
-
-
 
 			System.out.println(" new data size , row : "+ newData.numInstances() + " column: "	+ newData.numAttributes());
 			if (result == null) {// initialize result instances
@@ -469,16 +468,31 @@ public class DailyPredict {
 			String predictStatusFile=predictPath+DailyPredict.concatStatusFileName(policy,modelID);
 			
 			ModelPredictor predictor;
+			PredictStatus predictorStatus=null;
  			//初始化ModelPredictor，如果文件不存在则新建status对象，否则从文件里读取    
 			File file =new File(predictStatusFile);   
 			if  (file.exists()) {       
-				PredictStatus predictorStatus=DailyPredict.loadPredictStatusFromFile(predictStatusFile, modelID,policy);
-				predictor=new ModelPredictor(predictorStatus);
-			}else{
+				predictorStatus=loadPredictStatusFromFile(predictStatusFile, modelID,policy,tradeDate);
+			}
+			if (predictorStatus!=null){ //如果获取到历史的status则接着它运行
+				//复制一个新的status对象，因为原有的status对象也要放入List中
+				PredictStatus newStatus=PredictStatus.makeCopy(predictorStatus);
+				predictor=new ModelPredictor(newStatus);
+			}else{ //否则就直接开始预测
 				predictor=new ModelPredictor(modelID,"",policy);
 			}
-			 
+			
+			//储存序列化的列表
+			ArrayList<PredictStatus> statusList=new ArrayList<PredictStatus>();
+			//将预测前的旧状态数据加入（为了重复多次运行）
+			statusList.add(predictorStatus);
+			//进行预测
 			predictor.predictData(clModel,newData,result,"",clModel.m_policySubGroup[j]);
+			//将预测后的新状态数据加入
+			statusList.add(predictor.getPredictStatus());
+			//序列化statusList
+			savePredictStatusToFile(predictStatusFile, statusList);
+			
 			System.out.println("accumulated predicted rows: "+ result.numInstances());
 			System.out.println("complete for : "+ clModel.m_policySubGroup[j]);
 			
@@ -587,20 +601,36 @@ public class DailyPredict {
 
 	/*
 	 * 每日预测时使用
-	 * 从文件中反序列化数据
+	 * 从文件中反序列化数据，取离tradeDate最近的一个，但不能等于TradeDate（因为可能重复运行）
+	 * 有可能返回null的（比如第一天运行时的重复运行时）
 	 */
-	public static PredictStatus loadPredictStatusFromFile(String filename,String a_modelID, String a_policy,String tradeDate) throws Exception {
+	public static PredictStatus loadPredictStatusFromFile(String filename,String a_modelID, String a_policy,Date tradeDate) throws Exception {
 		@SuppressWarnings("unchecked")
 		ArrayList<PredictStatus> statusList = (ArrayList<PredictStatus>) SerializationHelper.read(filename);
 		if (statusList.size()!=2){
 			System.err.println("请注意：Status文件中保存的对象数不为2");
 		}
+		// Arraylist中是时间正序保存的，最近的TradeDate在最后面，我们的目标是选取最近的且不等于TradeDate的status返回去
+		PredictStatus status=null;
 		
-		if (status.verifyStatusData(a_modelID, a_policy)==false){
+		for(int i=statusList.size()-1;i==0;i--){
+			PredictStatus predictStatus=statusList.get(i);
+			if (predictStatus!=null){
+				int compareResult=tradeDate.compareTo(predictStatus.getTradeDate());
+				if (compareResult>0){
+					status=predictStatus;
+				}else if (compareResult<0){
+					System.err.println("Warning!!! date in predictStatus is newer than current tradeDate");
+				}
+			}
+		}
+		if (status==null){
+			System.err.println("No suitable predictStatus in serialized file, you will start over predictor");
+		}else if (status.verifyStatusData(a_modelID, a_policy)==false){
 			throw new Exception("Serialized predictStatus file data mismatch");
 		}
 		
-		return statusList;
+		return status;
 	}
 	
 	/*
@@ -608,7 +638,7 @@ public class DailyPredict {
 	 * 因为每日预测会重复运行（目前至少晚上和凌晨各一次），为了保障重复运行时统计数据不变化，需要保留最近两日的数据
 	 * 保存下来当前的status至文件
 	 */
-	public void saveToFile(String filename,ArrayList<PredictStatus> statusList) throws Exception {
+	public static void savePredictStatusToFile(String filename,ArrayList<PredictStatus> statusList) throws Exception {
 		if (statusList.size()!=2){
 			System.err.println("请注意：Status文件中保存的对象数不为2");
 		}
