@@ -648,8 +648,10 @@ public class DailyPredict {
 		SerializationHelper.write(filename, statusList);
 		StringBuffer statusListBuffer=new StringBuffer();
 		for (PredictStatus predictStatus : statusList) {
-			statusListBuffer.append(predictStatus.toTXTString());
-			statusListBuffer.append("\r\n");
+			if (predictStatus!=null){
+				statusListBuffer.append(predictStatus.toTXTString());
+				statusListBuffer.append("\r\n");
+			}
 		}
 		FileUtility.write(filename + ModelStore.TXT_EXTENSION, statusListBuffer.toString(), "utf-8");
 		System.out.println("predict status saved to :"+ filename);
