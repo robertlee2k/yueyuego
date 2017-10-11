@@ -91,9 +91,9 @@ public class DailyPredict {
 		try {
 			System.out.println("Database URL in USE : "+EnvConstants.URL + " Please ensure this is the correct environment you want to use.....");
 //			callFullModelPredict();
-//			callDailyPredict();
+			callDailyPredict();
 			
-			copyPredictModels();
+//			copyPredictModels();
 
 		} catch (Exception e) {
 
@@ -111,9 +111,9 @@ public class DailyPredict {
 		worker.init();
 		
 		//BaggingM5P
-		BaggingM5P cBagModel=new BaggingM5P();
+		BaggingM5P cBagModel=BaggingM5P.initModel(new AvgLineDataFormat(), AbstractModel.FOR_DAILY_PREDICT);
 		//Adaboost
-		AdaboostClassifier adaModel=new AdaboostClassifier();
+		AdaboostClassifier adaModel=AdaboostClassifier.initModel(new AvgLineDataFormat(), AbstractModel.FOR_DAILY_PREDICT);
 		AbstractModel[] models=new AbstractModel[2];
 		models[0]=cBagModel;
 		models[1]=adaModel;
