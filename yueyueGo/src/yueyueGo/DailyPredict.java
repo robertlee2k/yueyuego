@@ -2,7 +2,9 @@ package yueyueGo;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -17,6 +19,7 @@ import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.dataProcessor.InstanceHandler;
 import yueyueGo.dataProcessor.WekaInstanceProcessor;
 import yueyueGo.databeans.DataInstances;
+import yueyueGo.databeans.GeneralAttribute;
 import yueyueGo.databeans.GeneralInstance;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.datasource.DataIOHandler;
@@ -377,7 +380,7 @@ public class DailyPredict {
 			this.cached_daily_data.put(cacheKey, dailyData);
 		}
 		//从dailyData中获取tradeDate并校验
-		ArrayList<Date> datelist=ModelPredictor.getTradeDateList(dailyData);
+		ArrayList<Date> datelist=getTradeDateList(dailyData);
 		if (datelist.size()!=1){
 			System.err.println("Warning!! tradeDate is not unique in daily data!!!");
 		}
@@ -651,5 +654,28 @@ public class DailyPredict {
 		FileUtility.write(filename + ModelStore.TXT_EXTENSION, statusListBuffer.toString(), "utf-8");
 		System.out.println("predict status saved to :"+ filename);
 	}
-
+	
+	
+	/**
+	 * 获取输入数据中的所有日期，并升序排列
+	 * @param data
+	 */
+	private ArrayList<Date> getTradeDateList(GeneralInstances data) throws Exception{
+		GeneralAttribute tradeDateAtt=data.attribute(ArffFormat.TRADE_DATE);
+		ArrayList<Date> tradeDateList=new ArrayList<Date>();
+		SimpleDateFormat sdFormat=new SimpleDateFormat(ArffFormat.DB_DATE_FORMAT);
+		String current="2099/12/31";
+		String next=null;
+		for (int i=0;i<data.numInstances();i++){
+			next=data.get(i).stringValue(tradeDateAtt);
+			if (current.equals(next)==false){
+				current=next;
+				//转换为日期以便于排序，免得将字符串中的2017/10/5 排在2017/10/21之后了
+				Date d = sdFormat.parse(next);
+				tradeDateList.add(d);
+			}
+		}
+		Collections.sort(tradeDateList);
+		return tradeDateList;
+	}
 }

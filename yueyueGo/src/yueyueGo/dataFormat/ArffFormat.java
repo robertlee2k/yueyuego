@@ -46,6 +46,8 @@ public abstract class ArffFormat {
 	public static final String INPUT_DATE_FORMAT = "yyyy/M/d";
 	// ARFF文件中的日期格式
 	public static final String ARFF_DATE_FORMAT = "yyyy/MM/dd";//"M/d/yyyy"; 
+	//每日增量数据库中的日期模式
+	public static final String DB_DATE_FORMAT = "yyyy/MM/ddThh:mm:ss";
 	
 //	//须去除的行业相关数据
 //	protected static final String[] REMOVE_SW_DATA= {
@@ -124,6 +126,7 @@ public abstract class ArffFormat {
 //		"zhangdieting",
 //		IS_SZ50 ,IS_HS300 ,	IS_ZZ500, "is_st",
 	};
+
 	
 	//返回给定数据集里与NOMINAL_ATTRIBS同名字段的位置字符串（从1开始），这主要是为filter使用
 	public static String findNominalAttribs(GeneralInstances data){

@@ -263,7 +263,7 @@ public class ModelPredictor {
 	 * 获取输入数据中的所有日期，并升序排列
 	 * @param data
 	 */
-	public static ArrayList<Date> getTradeDateList(GeneralInstances data) throws Exception{
+	private ArrayList<Date> getTradeDateList(GeneralInstances data) throws Exception{
 		GeneralAttribute tradeDateAtt=data.attribute(ArffFormat.TRADE_DATE);
 		ArrayList<Date> tradeDateList=new ArrayList<Date>();
 		SimpleDateFormat sdFormat=new SimpleDateFormat(ArffFormat.ARFF_DATE_FORMAT);
