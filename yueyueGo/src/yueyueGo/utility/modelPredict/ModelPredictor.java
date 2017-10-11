@@ -118,9 +118,10 @@ public class ModelPredictor {
 
 		// 删除已保存的ID列，让待分类数据与模型数据一致 （此处的index是从1开始）
 		BaseInstanceProcessor instanceProcessor = InstanceHandler.getHandler(predictDataFormat);
-		predictDataFormat = instanceProcessor.removeAttribs(predictDataFormat,
-				Integer.toString(ArffFormat.ID_POSITION) + "-" + ArffFormat.YEAR_MONTH_INDEX);
-//				Integer.toString(ArffFormat.ID_POSITION));
+		//每日预测数据里没有YEARMONTH
+		predictDataFormat = instanceProcessor.removeAttribs(predictDataFormat,new String[]{ArffFormat.ID,ArffFormat.TRADE_DATE,ArffFormat.YEAR_MONTH});
+//				Integer.toString(ArffFormat.ID_POSITION) + "-" + ArffFormat.YEAR_MONTH_INDEX); 
+
 
 		// 获取预测文件中的应该用哪个modelYearSplit的模型
 		String modelYearSplit = thresholdData.getModelYearSplit();
@@ -384,10 +385,9 @@ public class ModelPredictor {
 		// There is additional ID attribute in test instances, so we should save
 		// it and remove before doing prediction
 		double[] ids = miniBatchData.attributeToDoubleArray(ArffFormat.ID_POSITION - 1);
-		// 删除已保存的ID 列，让待分类数据与模型数据一致 （此处的index是从1开始）
+		// 删除已保存的ID 及其他不必要的列，让待分类数据与模型数据一致 （此处的index是从1开始）
 		miniBatchData = InstanceHandler.getHandler(miniBatchData).removeAttribs(miniBatchData,
-				Integer.toString(ArffFormat.ID_POSITION) + "-" + ArffFormat.YEAR_MONTH_INDEX);
-
+				new String[]{ArffFormat.ID,ArffFormat.TRADE_DATE,ArffFormat.YEAR_MONTH}); 		//每日预测数据里没有YEARMONTH
 		
 //		System.out.println("actual -> predicted....... ");
 		int selectedCount = 0;
