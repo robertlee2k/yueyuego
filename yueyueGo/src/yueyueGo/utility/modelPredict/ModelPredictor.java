@@ -173,20 +173,8 @@ public class ModelPredictor {
 			int nextDataSize=oneDayData.size();
 
 //			System.out.println("got one day data. date="+oneDay+" number="+nextDataSize);
-			
-			//开始调整阈值
-			thresholdMin=adjustThreshold(nextDataSize, thresholds, percentiles, targetPercentile, defaultIndex);
-//			System.out.println("adjusted threshold set to " + thresholdMin);
 
-			if (reversedThresholdMax > thresholdMin) {
-				if (reversedModel == model) {
-					throw new Exception("fatal error!!! reversedThreshold(" + reversedThresholdMax + ") > threshold("
-							+ thresholdMin + ") using same model (modelyear=" + reversedModelYearSplit + ")");
-				} else {
-					System.err.println("使用不同模型时反向阀值大于正向阀值了" + "reversedThreshold(" + reversedThresholdMax + ")@"
-							+ reversedModelYearSplit + " > threshold(" + thresholdMin + ")@" + modelYearSplit);
-				}
-			}
+			
 			//输出统计值
 			dailyStatusBuffer.append(yearSplit);
 			dailyStatusBuffer.append(',');
@@ -202,6 +190,20 @@ public class ModelPredictor {
 			dailyStatusBuffer.append(',');
 			dailyStatusBuffer.append(m_predictStatus.getCummulativeSelectRatio());
 			dailyStatusBuffer.append(',');
+
+			//开始调整阈值
+			thresholdMin=adjustThreshold(nextDataSize, thresholds, percentiles, targetPercentile, defaultIndex,dailyStatusBuffer);
+
+
+			if (reversedThresholdMax > thresholdMin) {
+				if (reversedModel == model) {
+					throw new Exception("fatal error!!! reversedThreshold(" + reversedThresholdMax + ") > threshold("
+							+ thresholdMin + ") using same model (modelyear=" + reversedModelYearSplit + ")");
+				} else {
+					System.err.println("使用不同模型时反向阀值大于正向阀值了" + "reversedThreshold(" + reversedThresholdMax + ")@"
+							+ reversedModelYearSplit + " > threshold(" + thresholdMin + ")@" + modelYearSplit);
+				}
+			}
 
 			// 具体预测
 			StringBuffer resultString=predictMiniBatch(clModel,oneDayData, result, yearSplit,model,reversedModel,thresholdMin,reversedThresholdMax);
@@ -287,32 +289,34 @@ public class ModelPredictor {
 	 * @return
 	 */
 	private double adjustThreshold(int nextBatchSize, double[] thresholds, double[] percentiles, double targetPercentile,
-			int currentIndex) {
+			int currentIndex,StringBuffer dailyStatusBuffer) {
 		double adjustedThreshold=0.0;
 		
 		double currentPercentile = (1-m_predictStatus.getCummulativeSelectRatio())*100;
-//		System.out.println("targetPercentile=" + targetPercentile+", currentPercentile="+currentPercentile);
-
+		// 如果迄今为止已选股票的百分比已经大于threshold中的预期百分比，则提升阈值单位。
+		double adjustedPercentile;
 		if (Double.isNaN(currentPercentile)) { // 还未开始本批次预测时
 			adjustedThreshold = thresholds[currentIndex]; // 缺省的判断为1的阈值，大于该值意味着该模型判断其为1
+			adjustedPercentile=targetPercentile;
 		} else {
-			// 如果迄今为止已选股票的百分比已经大于threshold中的预期百分比，则提升阈值单位。
-			double adjustedPercentile;
 
 			// 找到调整的阈值数量
 			double predictedCount=m_predictStatus.getCummulativePredicted();
 			
 			adjustedPercentile = (targetPercentile*(predictedCount+nextBatchSize)-currentPercentile*predictedCount)/nextBatchSize;
 
-			if (adjustedPercentile<100){ //已选股不多还可以继续选
-				// percentile目前假定为是个递减数组 TODO
-				int adjustedInex = findNearestIndexInArray(percentiles, adjustedPercentile);
-				adjustedThreshold = thresholds[adjustedInex]; // 判断为1的阈值，大于该值意味着该模型判断其为1
-			}else {
-				// 已选股太多时直接设该批次不选
-				adjustedThreshold = Double.MAX_VALUE;
-			}
+			//根据需要调节的Percentile找相应的threshold，因为threshold数组的关系，选股比例最少也是0.001，最大是0.1
+//			if (adjustedPercentile<100){ //已选股不多还可以继续选
+				// percentile目前假定为是个递减数组 TODO （应该可以改成binarySearch方式实现）
+			int adjustedInex = findNearestIndexInArray(percentiles, adjustedPercentile);
+			adjustedThreshold = thresholds[adjustedInex]; // 判断为1的阈值，大于该值意味着该模型判断其为1
+//			}else {
+//				// 已选股太多时直接设该批次不选
+//				adjustedThreshold = Double.MAX_VALUE;
+//			}
 		}
+		dailyStatusBuffer.append(adjustedPercentile);
+		dailyStatusBuffer.append(',');
 		return adjustedThreshold;
 	}
 
