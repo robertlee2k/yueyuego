@@ -47,7 +47,7 @@ public abstract class ArffFormat {
 	// ARFF文件中的日期格式
 	public static final String ARFF_DATE_FORMAT = "yyyy/MM/dd";//"M/d/yyyy"; 
 	//每日增量数据库中的日期模式
-	public static final String DB_DATE_FORMAT = "yyyy/MM/ddThh:mm:ss";
+	public static final String DB_DATE_FORMAT = "yyyy/MM/dd'T'hh:mm:ss";
 	
 //	//须去除的行业相关数据
 //	protected static final String[] REMOVE_SW_DATA= {
