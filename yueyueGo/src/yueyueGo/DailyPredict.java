@@ -69,11 +69,11 @@ public class DailyPredict {
 
 		//BaggingM5P当前使用的预测模型
 		classifierName=ClassifyUtility.BAGGING_M5P+ClassifyUtility.MULTI_PCA_SURFIX;
-		addModelData(classifierName,format,"\\trans20052017(9)-baggingM5P-201707 MA ","201707");
+		addModelData(classifierName,format,"\\trans20052017(10)-baggingM5P-201707 MA ","201707");
 
 		//adaboost当前使用的预测模型
 		classifierName=ClassifyUtility.ADABOOST;
-		addModelData(classifierName,format,"\\trans20052017(9)-adaboost-201707 MA ","201707");
+		addModelData(classifierName,format,"\\trans20052017(10)-adaboost-201707 MA ","201707");
 
 
 		// fullmodel不保留legacy
