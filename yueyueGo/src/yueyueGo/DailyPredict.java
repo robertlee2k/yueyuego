@@ -220,11 +220,11 @@ public class DailyPredict {
 		
 		
 		//新格式的bagging m5p预测  (使用PCA版本和计算字段）
-		BaggingM5P cBagModel=new BaggingM5P();
+		BaggingM5P cBagModel=BaggingM5P.initModel(this.ARFF_FORMAT, AbstractModel.FOR_DAILY_PREDICT);
 		GeneralInstances baggingInstances=predictWithDB(cBagModel);
 
 		//Adaboost(使用PCA版本和计算字段）
-		AdaboostClassifier adaModel=new AdaboostClassifier();
+		AdaboostClassifier adaModel=AdaboostClassifier.initModel(this.ARFF_FORMAT, AbstractModel.FOR_DAILY_PREDICT);
 		GeneralInstances adaboostInstances=predictWithDB(adaModel);		
 
 //		System.out.println("******LEGACY*********** output LEGACY  prediction results**************LEGACY**********");
