@@ -388,7 +388,7 @@ public class DailyPredict {
 		
 		//校验一下tradeDate应该不能小于当前日期
 		if (tradeDate.compareTo(FormatUtility.getCurrentDate())<0) {
-			throw new Exception (" tradeDate in daily data =" +tradeDate+" < currentDate!");
+			System.err.println("WARNING!!! tradeDate in daily data =" +tradeDate+" < currentDate!");
 		}
 		GeneralInstances result=predict(clModel,  dailyData,tradeDate);
 
