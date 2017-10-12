@@ -232,8 +232,10 @@ public abstract class ArffFormat {
 			
 			if (leftMA!=null && rightMA!=null) {
 				//这是用于均线策略时的比较，两个MA都不为null时进行比较
-				leftMAValue=leftCurr.value(leftMA);  
-				rightMAValue=rightCurr.value(rightMA);
+				
+				//因为有转换MA为数值的逻辑存在，这里根据各自的属性取其表示值（nominal不能取value）
+				leftMAValue = getDisplayValue(leftCurr,leftMA);
+				rightMAValue=getDisplayValue(rightCurr,rightMA);
 			}else if(leftMA==null && rightMA==null){
 				//这里是用于短线FULLMODEL模型的比较的
 				leftMAValue=-1;
@@ -261,6 +263,25 @@ public abstract class ArffFormat {
 		}
 		return result;
 		
+	}
+
+	/**
+	 * 这里根据字段的属性取其表示值（即numeric直接返回value，nominal和string把其表示的stringvalue转换为数值返回）
+	 * @param data
+	 * @param attribute
+	 * @return
+	 * @throws NumberFormatException
+	 */
+	private static double getDisplayValue(GeneralInstance data, GeneralAttribute attribute)
+			throws NumberFormatException {
+		double leftMAValue;
+		if (attribute.isNumeric()){
+			leftMAValue=data.value(attribute);
+		}else {
+			String label=data.stringValue(attribute);
+			leftMAValue=Double.parseDouble(label);
+		}
+		return leftMAValue;
 	}
 
 
