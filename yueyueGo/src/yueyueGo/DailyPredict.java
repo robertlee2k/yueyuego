@@ -36,6 +36,7 @@ import yueyueGo.utility.modelEvaluation.EvaluationStore;
 import yueyueGo.utility.modelEvaluation.ModelStore;
 import yueyueGo.utility.modelPredict.ModelPredictor;
 import yueyueGo.utility.modelPredict.PredictModelData;
+import yueyueGo.utility.modelPredict.PredictResults;
 import yueyueGo.utility.modelPredict.PredictStatus;
 
 public class DailyPredict {
@@ -265,7 +266,7 @@ public class DailyPredict {
 		System.out.println("-----now output combined predictions----------"+nModel.getIdentifyName()+" (merged with："+cModel.getIdentifyName()+")");
 		GeneralInstances left=DataIOHandler.getSuppier().loadDataFromFile(getLeftArffFileName(nModel)); //获取刚生成的左侧文件（主要存了CODE）
 		MergeClassifyResults merge=new MergeClassifyResults(ARFF_FORMAT.m_policy_group);
-		GeneralInstances nMergedOutput=merge.mergeResults(nInstances,cInstances,ArffFormat.RESULT_PREDICTED_PROFIT,left);
+		GeneralInstances nMergedOutput=merge.mergeResults(nInstances,cInstances,PredictResults.RESULT_PREDICTED_PROFIT,left);
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(nMergedOutput);
 		nMergedOutput=instanceProcessor.removeAttribs(nMergedOutput, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
 		String savedNFileName=PREDICT_RESULT_DIR+ "Merged Selected Result-"+nModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv";
@@ -274,7 +275,7 @@ public class DailyPredict {
 		System.out.println(nModel.getIdentifyName()+"----------prediction ends---------");
 		//以连续分类器为主，合并二分类器
 		System.out.println("-----now output combined predictions----------"+cModel.getIdentifyName()+" (merged with："+nModel.getIdentifyName()+")");
-		GeneralInstances cMergedOutput=merge.mergeResults(cInstances,nInstances,ArffFormat.RESULT_PREDICTED_WIN_RATE,left);
+		GeneralInstances cMergedOutput=merge.mergeResults(cInstances,nInstances,PredictResults.RESULT_PREDICTED_WIN_RATE,left);
 		cMergedOutput=instanceProcessor.removeAttribs(cMergedOutput, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
 		String savedCFileName=PREDICT_RESULT_DIR+ "Merged Selected Result-"+cModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv";
 		DataIOHandler.getSaver().saveCSVFile(cMergedOutput, savedCFileName);
@@ -306,7 +307,7 @@ public class DailyPredict {
 		GeneralInstances left=DataIOHandler.getSuppier().loadDataFromFile(getLeftArffFileName(cFullModel)); //获取刚生成的左侧文件（主要存了CODE）
 
 		MergeClassifyResults merge=new MergeClassifyResults(ARFF_FORMAT.m_policy_group);
-		GeneralInstances mergedOutput=merge.mergeResults(cInstances,nInstances,ArffFormat.RESULT_PREDICTED_WIN_RATE,left);
+		GeneralInstances mergedOutput=merge.mergeResults(cInstances,nInstances,PredictResults.RESULT_PREDICTED_WIN_RATE,left);
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(mergedOutput);
 		mergedOutput=instanceProcessor.removeAttribs(mergedOutput, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
 		String savedCFileName=PREDICT_RESULT_DIR+ "FullModel Selected Result-"+cFullModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv";
@@ -342,7 +343,7 @@ public class DailyPredict {
 		//试着从缓存里加载
 		String cacheKey=String.valueOf(dataFormat);
 		dailyData=this.cached_daily_data.get(cacheKey);
-		
+
 		if(dailyData==null){ //缓存中没有，需要从数据库里加载
 			switch (dataFormat){
 			case ArffFormat.LEGACY_FORMAT:
@@ -360,7 +361,7 @@ public class DailyPredict {
 			//保留DAILY RESULT的LEFT部分在磁盘上，主要为了保存股票代码
 			GeneralInstances left = new DataInstances(dailyData);
 			BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(left);
-			left=instanceProcessor.filterAttribs(dailyData, ARFF_FORMAT.m_daily_predict_left_part);
+			left=instanceProcessor.filterAttribs(dailyData, ARFF_FORMAT.m_result_left_part);
 			//将LEFT中的CODE加上=""，避免输出格式中前导零消失。
 			int codeIndex=BaseInstanceProcessor.findATTPosition(left,ArffFormat.CODE);
 			left=instanceProcessor.nominalToString(left, String.valueOf(codeIndex));
@@ -405,7 +406,7 @@ public class DailyPredict {
 		System.out.println("-----------------------------");
 		
 		GeneralInstances newData = null;
-		GeneralInstances result = null;
+
 
 		//创建存储评估结果的数据容器
 		ClassifySummaries modelSummaries=new ClassifySummaries(clModel.getIdentifyName()+" format="+clModel.modelArffFormat,true);
@@ -431,6 +432,8 @@ public class DailyPredict {
 		String predictPath=getPredictPath(clModel);
 		String evalPredefined=modelData.getEvalFileName();
 		
+		
+		PredictResults result = null;		
 		//分策略组预测
 		for (int j = 0; j < clModel.m_policySubGroup.length; j++) {
 			String policy=clModel.m_policySubGroup[j];
@@ -449,23 +452,11 @@ public class DailyPredict {
 			clModel.setEvaluationStore(evaluation);
 
 			System.out.println(" new data size , row : "+ newData.numInstances() + " column: "	+ newData.numAttributes());
+			
+
 			if (result == null) {// initialize result instances
-//				// remove unnecessary data,leave 均线策略 & code alone
-//				GeneralInstances header = new DataInstances(newData, 0);
-//				BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(header);
-//				result=instanceProcessor.filterAttribs(header, ARFF_FORMAT.m_daily_predict_left_part);
-//
-//				if (clModel instanceof NominalModel ){
-//					result = instanceProcessor.AddAttribute(result, ArffFormat.RESULT_PREDICTED_WIN_RATE,
-//							result.numAttributes());
-//				}else{
-//					result = instanceProcessor.AddAttribute(result, ArffFormat.RESULT_PREDICTED_PROFIT,
-//							result.numAttributes());
-//				}
-//				result = instanceProcessor.AddAttribute(result, ArffFormat.RESULT_SELECTED,
-//						result.numAttributes());
 				
-				result=ModelPredictor.prepareResultInstances(clModel, newData);
+				result=new PredictResults(clModel, newData,ARFF_FORMAT);
 
 			}
 
@@ -500,18 +491,18 @@ public class DailyPredict {
 			//序列化statusList
 			savePredictStatusToFile(predictStatusFile, statusList);
 			
-			System.out.println("accumulated predicted rows: "+ result.numInstances());
+			System.out.println("accumulated predicted rows: "+ result.getResultInstances().numInstances());
 			System.out.println("complete for : "+ clModel.m_policySubGroup[j]);
 			
 		}
 		System.out.println("本次预测所使用目录： "+predictPath);
 		System.out.println("本次预测所使用评估文件： "+evalPredefined);
 
-		if (result.numInstances()!=inData.numInstances()) {
-			throw new Exception("not all data have been processed!!!!! incoming Data number = " +inData.numInstances() + " while predicted number is "+result.numInstances());
+		if (result.getResultInstances().numInstances()!=inData.numInstances()) {
+			throw new Exception("not all data have been processed!!!!! incoming Data number = " +inData.numInstances() + " while predicted number is "+result.getResultInstances().numInstances());
 		}
 
-		return result;
+		return result.getResultInstances();
 	}
 
 

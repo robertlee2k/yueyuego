@@ -2,10 +2,8 @@ package yueyueGo.utility.modelPredict;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
-import java.util.List;
 
 import weka.classifiers.Classifier;
 import weka.core.Instance;
@@ -39,13 +37,13 @@ public class ModelPredictor {
 	/*
 	 * 工作常量定义区域
 	 */
-	private GeneralAttribute m_idAttInResult;
-	private GeneralAttribute m_yearMonthAtt;
-	private GeneralAttribute m_shouyilvAtt;
+//	private GeneralAttribute m_idAttInResult;
+//	private GeneralAttribute m_yearMonthAtt;
+//	private GeneralAttribute m_shouyilvAtt;
 	private GeneralAttribute m_selectedAtt;
 	private GeneralAttribute m_predAtt;
 	private GeneralAttribute m_reversedPredAtt;
-	private ArrayList<GeneralAttribute> m_attributesToCopy;
+
 
 
 	/*
@@ -78,7 +76,7 @@ public class ModelPredictor {
 	 * 预测数据
 	 * result parameter will be changed in this method!
 	 */
-	public void predictData(AbstractModel clModel, GeneralInstances dataToPredict, GeneralInstances result,
+	public void predictData(AbstractModel clModel, GeneralInstances dataToPredict, PredictResults result,
 			String yearSplit, String policy) throws Exception {
 		
 		//以防万一，校验predictStatus对象的有效性
@@ -87,13 +85,12 @@ public class ModelPredictor {
 		}
 
 		// 第一步： 定义输出结果集的各种须特殊设置的Attribute属性
-		m_idAttInResult = result.attribute(ArffFormat.ID);
-		m_yearMonthAtt = result.attribute(ArffFormat.YEAR_MONTH);
-		m_shouyilvAtt = result.attribute(ArffFormat.SHOUYILV);
-		m_selectedAtt = result.attribute(ArffFormat.RESULT_SELECTED);
+		GeneralInstances resultInstances=result.getResultInstances();
+//		m_idAttInResult = resultInstances.attribute(ArffFormat.ID);
+//		m_yearMonthAtt = resultInstances.attribute(ArffFormat.YEAR_MONTH);
+//		m_shouyilvAtt = resultInstances.attribute(ArffFormat.SHOUYILV);
+		m_selectedAtt = resultInstances.attribute(PredictResults.RESULT_SELECTED);
 		
-		// 找出输出结果集中须保留的校验字段 （将测试数据的这些值直接写入输出结果集）
-		m_attributesToCopy = ModelPredictor.findAttributesToCopy(result);
 
 		// 第二步： 从评估文件中获取模型，并校验之。
 		// 先找对应的评估结果
@@ -113,11 +110,11 @@ public class ModelPredictor {
 		if (clModel instanceof NominalModel) {
 			// Nominal数据的格式需要额外处理
 			predictDataFormat = ((NominalModel) clModel).processDataForNominalClassifier(predictDataFormat);
-			m_predAtt = result.attribute(ArffFormat.RESULT_PREDICTED_WIN_RATE);
-			m_reversedPredAtt=result.attribute(ArffFormat.RESULT_REVERSE_PREDICTED_WIN_RATE);
+			m_predAtt = resultInstances.attribute(PredictResults.RESULT_PREDICTED_WIN_RATE);
+			m_reversedPredAtt=resultInstances.attribute(PredictResults.RESULT_REVERSE_PREDICTED_WIN_RATE);
 		} else {
-			m_predAtt = result.attribute(ArffFormat.RESULT_PREDICTED_PROFIT);
-			m_reversedPredAtt=result.attribute(ArffFormat.RESULT_REVERSE_PREDICTED_PROFIT);
+			m_predAtt = resultInstances.attribute(PredictResults.RESULT_PREDICTED_PROFIT);
+			m_reversedPredAtt=resultInstances.attribute(PredictResults.RESULT_REVERSE_PREDICTED_PROFIT);
 		}
 
 		// 删除已保存的ID列，让待分类数据与模型数据一致 （此处的index是从1开始）
@@ -196,7 +193,7 @@ public class ModelPredictor {
 		}
 
 		//根据预测结果完成选股
-		judgePredictResults(clModel, result, yearSplit, policy, thresholdData);
+		judgePredictResults(clModel, result.getResultInstances(), yearSplit, policy, thresholdData);
 
 	}
 
@@ -447,144 +444,72 @@ public class ModelPredictor {
 	 * @throws Exception
 	 * @throws IllegalStateException
 	 */
-	private void predictUsingModels(AbstractModel clModel, GeneralInstances incomingData, GeneralInstances result,
+	private void predictUsingModels(AbstractModel clModel, GeneralInstances orignalData, PredictResults result,
 			String yearSplit, Classifier classifier, Classifier reversedClassifier)
 			throws NumberFormatException, Exception, IllegalStateException {
-		double yearMonth = 0;
-		if (yearSplit.length()>0){
-			yearMonth=Double.valueOf(yearSplit).doubleValue();
-		}
+		
 
-		GeneralInstances shouyilvCache = null;
+		// 从输入数据中删除不必要的列，让待分类数据与模型数据一致 
+		//而此处的orignalData还保留（结果数据里有不少还要其中取出）
+		GeneralInstances dataForModel = InstanceHandler.getHandler(orignalData).removeAttribs(orignalData,
+				new String[]{ArffFormat.ID,ArffFormat.TRADE_DATE,ArffFormat.YEAR_MONTH}); 		
+
 		if (clModel instanceof NominalModel) {
-			// Nominal数据的格式需要额外处理
-			shouyilvCache = cacheShouyilvData(incomingData);
-			incomingData = ((NominalModel) clModel).processDataForNominalClassifier(incomingData);
+			// 二分类器数据的格式需要额外处理，要收益率转换为二分类器的正、负值
+			dataForModel = ((NominalModel) clModel).processDataForNominalClassifier(dataForModel);
 		}
 		
-		// There is additional ID attribute in test instances, so we should save
-		// it and remove before doing prediction
-		double[] ids = incomingData.attributeToDoubleArray(ArffFormat.ID_POSITION - 1);
-
-		// 删除已保存的ID 及其他不必要的列，让待分类数据与模型数据一致 （此处的index是从1开始）
-		GeneralInstances dataForModel = InstanceHandler.getHandler(incomingData).removeAttribs(incomingData,
-				new String[]{ArffFormat.ID,ArffFormat.TRADE_DATE,ArffFormat.YEAR_MONTH}); 		//每日预测数据里没有YEARMONTH
-		
-//		System.out.println("actual -> predicted....... ");
 
 		// 开始循环，用分类模型和阈值对每一条数据进行预测，并存入输出结果集
 		double pred;
 		double reversedPred;
-		for (int i = 0; i < incomingData.numInstances(); i++) {
-			GeneralInstance currentTestRow = incomingData.instance(i);
-			pred = ModelPredictor.classify(classifier, currentTestRow); // 调用分类函数
+		
+		for (int i = 0; i < dataForModel.numInstances(); i++) {
+			GeneralInstance originalRow = orignalData.instance(i); //原始的数据
+			GeneralInstance currentRowForModel = dataForModel.instance(i);
+			pred = ModelPredictor.classify(classifier, currentRowForModel); // 调用分类函数
 			if (reversedClassifier == classifier) { // 如果反向评估模型是同一个类
 				reversedPred = pred;
 			} else {
-				reversedPred = ModelPredictor.classify(reversedClassifier, currentTestRow); // 调用反向评估模型的分类函数
+				reversedPred = ModelPredictor.classify(reversedClassifier, currentRowForModel); // 调用反向评估模型的分类函数
 			}
 
 			// 准备输出结果
-			DataInstance resultRow = new DataInstance(result.numAttributes());
-			resultRow.setDataset(result);
-			// 将相应的ID赋值回去
-			resultRow.setValue(m_idAttInResult, ids[i]);
+			DataInstance resultRow = new DataInstance(result.getResultInstances().numAttributes());
+			result.setInstanceDateSet(resultRow);
+			// 那些无须计算的校验字段的值直接从测试数据集拷贝到输出结果集
+			result.copyDefinedAttributes(originalRow, resultRow);
 			
-			if (yearMonth>0){
-				// 将YearMonth赋值回去用于统计用途，每日预测时没有这个值
-				resultRow.setValue(m_yearMonthAtt, yearMonth);
-			}
-			// Nominal数据的格式需要额外处理
-			if (shouyilvCache != null) {
-				// 获取原始数据中的实际收益率值
-				double shouyilv = getShouyilv(shouyilvCache,i, ids[i], currentTestRow.classValue());
-				resultRow.setValue(m_shouyilvAtt, shouyilv);
-			}
 			// 将获得的预测值设定入结果集
 			resultRow.setValue(m_predAtt, pred);
 			resultRow.setValue(m_reversedPredAtt, reversedPred);
-
-			// 最后将那些无须计算的校验字段的值直接从测试数据集拷贝到输出结果集
-			for (GeneralAttribute resultAttribute : m_attributesToCopy) {
-				GeneralAttribute testAttribute = incomingData.attribute(resultAttribute.name());
-				// test attribute which is be present in the result data set
-				if (testAttribute != null) {
-					if (testAttribute.isNominal()) {
-						String label = currentTestRow.stringValue(testAttribute);
-						int index = testAttribute.indexOfValue(label);
-						if (index != -1) {
-							resultRow.setValue(resultAttribute, index);
-						}
-					} else if (testAttribute.isNumeric()) {
-						resultRow.setValue(resultAttribute, currentTestRow.value(testAttribute));
-					} else {
-						throw new IllegalStateException("Unhandled attribute type!");
-					}
-				}
-			}
-
 			result.add(resultRow);
+			
+//			private ArrayList<GeneralAttribute> m_attributesToCopy;
+//			
+//			for (GeneralAttribute resultAttribute : m_attributesToCopy) {
+//				GeneralAttribute testAttribute = orignalData.attribute(resultAttribute.name());
+//				// test attribute which is be present in the result data set
+//				if (testAttribute != null) {
+//					if (testAttribute.isNominal()) {
+//						String label = currentRowForModel.stringValue(testAttribute);
+//						int index = testAttribute.indexOfValue(label);
+//						if (index != -1) {
+//							resultRow.setValue(resultAttribute, index);
+//						}
+//					} else if (testAttribute.isNumeric()) {
+//						resultRow.setValue(resultAttribute, currentRowForModel.value(testAttribute));
+//					} else {
+//						throw new IllegalStateException("Unhandled attribute type!");
+//					}
+//				}
+//			}
+
+
 		}
 	}
 
-	/**
-	 * @param clModel
-	 * @param fullSetData
-	 * @return
-	 * @throws Exception
-	 */
-	public static GeneralInstances prepareResultInstances(AbstractModel clModel, GeneralInstances fullSetData)
-			throws Exception {
-		
 
-		GeneralInstances result;
-		DataInstances header = new DataInstances(fullSetData, 0);
-		// 去除不必要的字段，保留ID（第1），YEARMONTH（第二）均线策略（第3）、bias5（第4）、收益率（最后一列）、增加预测值、是否被选择。
-		int removeFromIndex = BaseInstanceProcessor.findATTPosition(fullSetData, ArffFormat.BIAS5) + 1;
-		BaseInstanceProcessor instanceProcessor = InstanceHandler.getHandler(header);
-		result = instanceProcessor.removeAttribs(header, removeFromIndex + "-" + (header.numAttributes() - 1));
-//  TODO 是否应改为以下的做法
-//		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(header);
-//		result=instanceProcessor.filterAttribs(header, ARFF_FORMAT.m_daily_predict_left_part);
-
-		if (clModel instanceof NominalModel) {
-			result = instanceProcessor.AddAttribute(result, ArffFormat.RESULT_PREDICTED_WIN_RATE,
-					result.numAttributes());
-			result = instanceProcessor.AddAttribute(result, ArffFormat.RESULT_REVERSE_PREDICTED_WIN_RATE,
-					result.numAttributes());
-		} else {
-			result = instanceProcessor.AddAttribute(result, ArffFormat.RESULT_PREDICTED_PROFIT, result.numAttributes());
-			result = instanceProcessor.AddAttribute(result, ArffFormat.RESULT_REVERSE_PREDICTED_PROFIT, result.numAttributes());
-		}
-		result = instanceProcessor.AddAttribute(result, ArffFormat.RESULT_SELECTED, result.numAttributes());
-		return result;
-
-	}
-
-	/**
-	 * 
-	 * 找出需要从测试数据中直接拷贝至结果集的属性列表（这是那些校验位）
-	 * 
-	 * @param result
-	 *            结果集
-	 */
-	static ArrayList<GeneralAttribute> findAttributesToCopy(GeneralInstances result) {
-		// 这是结果集中会特殊处理的字段，无须拷贝
-		String[] processedAttNames = { ArffFormat.ID, ArffFormat.YEAR_MONTH,
-				// ArffFormat.SHOUYILV,
-				ArffFormat.RESULT_PREDICTED_WIN_RATE, ArffFormat.RESULT_PREDICTED_PROFIT, ArffFormat.RESULT_SELECTED };
-
-		// 从结果集中筛除上述字段
-		List<String> list = Arrays.asList(processedAttNames);
-		ArrayList<GeneralAttribute> allAttributes = result.getAttributeList();
-		ArrayList<GeneralAttribute> attributesToCopy = new ArrayList<GeneralAttribute>();
-		for (GeneralAttribute attribute : allAttributes) {
-			if (list.contains(attribute.name()) == false) {
-				attributesToCopy.add(attribute);
-			}
-		}
-		return attributesToCopy;
-	}
 
 	protected double getShouyilv(GeneralInstances a_shouyilvCache,int index, double id, double newClassValue) throws Exception {
 		if (a_shouyilvCache == null) {

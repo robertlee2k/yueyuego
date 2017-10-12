@@ -19,12 +19,6 @@ public abstract class ArffFormat {
 	public static final String STRING_VALUE_YES = "1";
 	public static final String STRING_VALUE_NO = "0";
 		
-	public static final String RESULT_PREDICTED_PROFIT = "PredictedProfit";
-	public static final String RESULT_REVERSE_PREDICTED_PROFIT = "ReversedProfit";
-	public static final String RESULT_PREDICTED_WIN_RATE="PredictedWinRate";
-	public static final String RESULT_REVERSE_PREDICTED_WIN_RATE = "ReversedWinRate";
-	public static final String RESULT_SELECTED = "selected";
-	
 	public static final String TRADE_DATE = "tradeDate"; // 之所以定义这个字段，是因为所有的数据都要以它排序
 	public static final String SELL_DATE = "mc_date";
 	public static final String DATA_DATE = "dataDate";
@@ -95,13 +89,11 @@ public abstract class ArffFormat {
 	// 每日预测扩展格式数据（数据库和数据文件都是如此)的格式
 	public String[] m_daily_data_to_predict_format;
 	
-	//每日预测数据中的左侧字段，此处顺序无关（positive和收益率其实是二选一的）
-	public String[] m_daily_predict_left_part;
-
-	
 	// 单次收益率增量全部数据的格式 （从数据库获得的数据，不包含计算字段如YearMonth）
 	public  String[] m_arff_data_full;
 
+	//每日预测数据中的左侧字段，此处顺序无关（positive和收益率其实是二选一的）
+	public String[] m_result_left_part;
 	
 	public ArffFormat() {
 		//先调用子类的方法对相应数据赋值
@@ -111,7 +103,13 @@ public abstract class ArffFormat {
 		String[] temp = FormatUtility.concatStrings(new String[]{ID,TRADE_DATE},m_arff_data_not_in_model);
 		m_arff_data_full=FormatUtility.concatStrings(temp,m_model_attribute_format, new String[]{SHOUYILV});
 		
-		m_daily_predict_left_part=new String[]{ID,TRADE_DATE,m_policy_group,BIAS5,CODE,IS_POSITIVE,SHOUYILV};
+		//不同的ArffFormat中m_policy_group不一样
+		m_result_left_part=new String[]{ArffFormat.ID,ArffFormat.TRADE_DATE,
+				m_policy_group,
+				ArffFormat.BIAS5,ArffFormat.CODE,ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV
+				};
+		
+
 	}
 
 	protected abstract void initializeFormat();

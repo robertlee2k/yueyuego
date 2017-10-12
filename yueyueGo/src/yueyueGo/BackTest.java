@@ -58,6 +58,7 @@ import yueyueGo.utility.modelEvaluation.EvaluationStore;
 import yueyueGo.utility.modelEvaluation.ModelStore;
 import yueyueGo.utility.modelEvaluation.ThresholdData;
 import yueyueGo.utility.modelPredict.ModelPredictor;
+import yueyueGo.utility.modelPredict.PredictResults;
 
 public class BackTest {
 	public static final String RESULT_EXTENSION = "-Test Result.csv";
@@ -253,7 +254,7 @@ public class BackTest {
 		String modelPrefix = m_currentArffFormat.m_data_file_prefix + "(" + ArffFormat.CURRENT_FORMAT + ")"; // "extData2005-2016";
 
 		GeneralInstances fullSetData = null;
-		GeneralInstances result = null;
+		PredictResults result = null;
 
 		// 创建存储评估结果的数据容器
 		ClassifySummaries modelSummaries = new ClassifySummaries(
@@ -308,7 +309,7 @@ public class BackTest {
 				BaseInstanceProcessor instanceProcessor = InstanceHandler.getHandler(fullSetData);
 				// 准备输出数据格式
 				if (result == null) {// initialize result instances
-					result = ModelPredictor.prepareResultInstances(clModel, fullSetData);
+					result = new PredictResults(clModel, fullSetData,m_currentArffFormat);
 				}
 				int policyIndex = BaseInstanceProcessor.findATTPosition(fullSetData,
 						m_currentArffFormat.m_policy_group);
@@ -382,8 +383,8 @@ public class BackTest {
 					clModelClone.setClassifySummaries(commonSummaries);
 
 					// 多线程的时候clone一个空result执行分配给线程。
-					DataInstances resultClone = new DataInstances(result);
-					threadResult.add(resultClone);
+					PredictResults resultClone = PredictResults.makeCopy(result);
+					threadResult.add(resultClone.getResultInstances());
 					// 创建实现了Runnable接口对象
 					ProcessFlowExecutor t = new ProcessFlowExecutor(clModelClone, resultClone, splitMark, policy,
 							trainingData, evaluationData, testingData, splitYearTags, modelFilePath, modelPrefix);
@@ -406,7 +407,7 @@ public class BackTest {
 					ProcessFlowExecutor worker = new ProcessFlowExecutor(clModel, result, splitMark, policy,
 							trainingData, evaluationData, testingData, splitYearTags, modelFilePath, modelPrefix);
 					worker.doPredictProcess();
-					System.out.println("accumulated predicted rows: " + result.numInstances());
+					System.out.println("accumulated predicted rows: " + result.getResultInstances().numInstances());
 				}
 
 			} // end for (int j = BEGIN_FROM_POLICY
@@ -415,6 +416,9 @@ public class BackTest {
 			System.out.println(" ");
 		} // end for (int i
 
+
+		//输出的ResultInstances
+		GeneralInstances resultInstances=result.getResultInstances();
 		if (threadPool != null) { // 需要多线程并发
 			// 全部线程已放入线程池，关闭线程池的入口。
 			threadPool.shutdown();
@@ -429,16 +433,16 @@ public class BackTest {
 				e.printStackTrace();
 			}
 			// 将所有线程的result合并
-			BaseInstanceProcessor instanceProcessor = InstanceHandler.getHandler(result);
+			BaseInstanceProcessor instanceProcessor = InstanceHandler.getHandler(resultInstances);
 			for (GeneralInstances temp : threadResult) {
-				result = instanceProcessor.mergeTwoInstances(result, temp);
+				resultInstances = instanceProcessor.mergeTwoInstances(resultInstances, temp);
 			}
 
 			threadResult.removeAllElements(); // 释放内存
 		}
 
 		// 保存评估结果至文件
-		saveBacktestResultFile(result, clModel.getIdentifyName());
+		saveBacktestResultFile(resultInstances, clModel.getIdentifyName());
 
 		FileUtility.write(
 				m_backtest_result_dir + m_currentArffFormat.m_data_file_prefix + "-" + clModel.getIdentifyName()
@@ -451,7 +455,7 @@ public class BackTest {
 				modelSummaries.getDailyHeader() + modelSummaries.getDailySummary(), "GBK");
 		
 		System.out.println(clModel.getIdentifyName() + " test result file saved.");
-		return result;
+		return resultInstances;
 	}
 
 	/**
@@ -573,7 +577,7 @@ public class BackTest {
 	 */
 	private GeneralInstances returnSelectedInstances(GeneralInstances fullOutput) throws Exception {
 		// 返回选股结果
-		int pos = BaseInstanceProcessor.findATTPosition(fullOutput, ArffFormat.RESULT_SELECTED);
+		int pos = BaseInstanceProcessor.findATTPosition(fullOutput, PredictResults.RESULT_SELECTED);
 		BaseInstanceProcessor instanceProcessor = InstanceHandler.getHandler(fullOutput);
 		GeneralInstances fullMarketSelected = instanceProcessor.getInstancesSubset(fullOutput,
 				WekaInstanceProcessor.WEKA_ATT_PREFIX + pos + " = " + ModelPredictor.VALUE_SELECTED);
@@ -673,9 +677,9 @@ public class BackTest {
 				m_currentArffFormat.m_policy_group, targetPolicies, selectedInstances);
 		String dataToAdd = null;
 		if (mainModel instanceof ContinousModel) {
-			dataToAdd = ArffFormat.RESULT_PREDICTED_WIN_RATE;
+			dataToAdd = PredictResults.RESULT_PREDICTED_WIN_RATE;
 		} else {
-			dataToAdd = ArffFormat.RESULT_PREDICTED_PROFIT;
+			dataToAdd = PredictResults.RESULT_PREDICTED_PROFIT;
 		}
 		// 用另一个模型合并选股
 		GeneralInstances classifyResult = mergeResultWithData(mainResult, secondaryResult, dataToAdd,
