@@ -438,7 +438,7 @@ public class ModelPredictor {
 
 	/**
 	 * @param clModel
-	 * @param miniBatchData
+	 * @param incomingData
 	 * @param result
 	 * @param yearSplit
 	 * @param classifier
@@ -447,7 +447,7 @@ public class ModelPredictor {
 	 * @throws Exception
 	 * @throws IllegalStateException
 	 */
-	private void predictUsingModels(AbstractModel clModel, GeneralInstances miniBatchData, GeneralInstances result,
+	private void predictUsingModels(AbstractModel clModel, GeneralInstances incomingData, GeneralInstances result,
 			String yearSplit, Classifier classifier, Classifier reversedClassifier)
 			throws NumberFormatException, Exception, IllegalStateException {
 		double yearMonth = 0;
@@ -458,15 +458,16 @@ public class ModelPredictor {
 		GeneralInstances shouyilvCache = null;
 		if (clModel instanceof NominalModel) {
 			// Nominal数据的格式需要额外处理
-			shouyilvCache = cacheShouyilvData(miniBatchData);
-			miniBatchData = ((NominalModel) clModel).processDataForNominalClassifier(miniBatchData);
+			shouyilvCache = cacheShouyilvData(incomingData);
+			incomingData = ((NominalModel) clModel).processDataForNominalClassifier(incomingData);
 		}
 		
 		// There is additional ID attribute in test instances, so we should save
 		// it and remove before doing prediction
-		double[] ids = miniBatchData.attributeToDoubleArray(ArffFormat.ID_POSITION - 1);
+		double[] ids = incomingData.attributeToDoubleArray(ArffFormat.ID_POSITION - 1);
+
 		// 删除已保存的ID 及其他不必要的列，让待分类数据与模型数据一致 （此处的index是从1开始）
-		miniBatchData = InstanceHandler.getHandler(miniBatchData).removeAttribs(miniBatchData,
+		GeneralInstances dataForModel = InstanceHandler.getHandler(incomingData).removeAttribs(incomingData,
 				new String[]{ArffFormat.ID,ArffFormat.TRADE_DATE,ArffFormat.YEAR_MONTH}); 		//每日预测数据里没有YEARMONTH
 		
 //		System.out.println("actual -> predicted....... ");
@@ -474,8 +475,8 @@ public class ModelPredictor {
 		// 开始循环，用分类模型和阈值对每一条数据进行预测，并存入输出结果集
 		double pred;
 		double reversedPred;
-		for (int i = 0; i < miniBatchData.numInstances(); i++) {
-			GeneralInstance currentTestRow = miniBatchData.instance(i);
+		for (int i = 0; i < incomingData.numInstances(); i++) {
+			GeneralInstance currentTestRow = incomingData.instance(i);
 			pred = ModelPredictor.classify(classifier, currentTestRow); // 调用分类函数
 			if (reversedClassifier == classifier) { // 如果反向评估模型是同一个类
 				reversedPred = pred;
@@ -505,7 +506,7 @@ public class ModelPredictor {
 
 			// 最后将那些无须计算的校验字段的值直接从测试数据集拷贝到输出结果集
 			for (GeneralAttribute resultAttribute : m_attributesToCopy) {
-				GeneralAttribute testAttribute = miniBatchData.attribute(resultAttribute.name());
+				GeneralAttribute testAttribute = incomingData.attribute(resultAttribute.name());
 				// test attribute which is be present in the result data set
 				if (testAttribute != null) {
 					if (testAttribute.isNominal()) {
