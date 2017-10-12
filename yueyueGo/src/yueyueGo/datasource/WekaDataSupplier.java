@@ -218,8 +218,12 @@ public class WekaDataSupplier implements GeneralDataSupplier {
 
 		//全部读进来之后再转nominal，这里读入的数据可能只是子集，所以nominal的index值会不对，所以后续会用calibrateAttributes处理
 		String nominalAttribString=ArffFormat.findNominalAttribs(data);
-		data=InstanceHandler.getHandler(data).numToNominal(data, nominalAttribString);
-		
+		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(data);
+		data=instanceProcessor.numToNominal(data, nominalAttribString);
+		// I do the following according to a saying from the weka forum:
+		//"You can't add a value to a nominal attribute once it has been created. 
+		//If you want to do this, you need to use a string attribute instead."
+		data=instanceProcessor.nominalToString(data, nominalAttribString);
 	
 //		//对数据库取出来的值，我们要检查一下是不是所有的Nominal都已在arffFormat中定义，否则转换回numeric
 //		//Weka的这个函数，会根据数据库字段的定义自动转换Arff类型（比如数据库里是string，则读出来就是nominal）

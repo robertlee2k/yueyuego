@@ -119,7 +119,8 @@ public abstract class ArffFormat {
 
 	//从数据库中获取的各属性值中需要作为nominal或string处理的数据（这里是全量定义，与顺序无关）
 	private static final String[] NOMINAL_ATTRIBS={
-		TRADE_DATE,CODE, SELL_DATE, DATA_DATE, 
+		TRADE_DATE, SELL_DATE, DATA_DATE,
+		CODE,
 		ZHISHU_CODE, 
 		//为保持和TensorFlow兼容，以下数据都作为double处理
 //		AvgLineDataFormat.SELECTED_AVGLINE,
