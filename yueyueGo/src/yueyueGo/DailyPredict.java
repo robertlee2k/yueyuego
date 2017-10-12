@@ -393,6 +393,9 @@ public class DailyPredict {
 			System.err.println("WARNING!!! tradeDate in daily data =" +tradeDate+" < currentDate!");
 		}
 		GeneralInstances result=predict(clModel,  dailyData,tradeDate);
+		
+		//暂时因为tradeDate的问题取消cache
+		this.cached_daily_data.clear();
 
 		return result;
 	}

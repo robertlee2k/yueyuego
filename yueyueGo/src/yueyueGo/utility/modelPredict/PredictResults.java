@@ -5,9 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import weka.core.SerializedObject;
 import yueyueGo.AbstractModel;
@@ -34,7 +32,7 @@ public class PredictResults implements Serializable{
 	public static final String RESULT_SELECTED = "selected";
 	
 	private GeneralInstances m_result_instances;
-	private Set<Map.Entry<GeneralAttribute, GeneralAttribute>> m_attribsToCopy;
+	private HashMap<GeneralAttribute,GeneralAttribute> m_attribsToCopy;
 	
 	public PredictResults(AbstractModel clModel, GeneralInstances fullSetData,ArffFormat currentArff) throws Exception {
 		
@@ -73,7 +71,7 @@ public class PredictResults implements Serializable{
 		List<String> toCopyList = Arrays.asList(currentArff.m_result_left_part);
 
 		ArrayList<GeneralAttribute> allAttributes = fullSetData.getAttributeList();
-		HashMap<GeneralAttribute,GeneralAttribute> temp=new HashMap<GeneralAttribute,GeneralAttribute> ();
+		m_attribsToCopy=new HashMap<GeneralAttribute,GeneralAttribute> ();
 		GeneralAttribute resultAttribute;
 		for (GeneralAttribute srcAttribute : allAttributes) {
 			String attribuateName=srcAttribute.name();
@@ -81,11 +79,11 @@ public class PredictResults implements Serializable{
 				resultAttribute=m_result_instances.attribute(attribuateName);
 				if (resultAttribute!=null){
 					//如果在结果数据中也有
-					temp.put(srcAttribute, resultAttribute);
+					m_attribsToCopy.put(srcAttribute, resultAttribute);
 				}
 			}
 		}
-		m_attribsToCopy=temp.entrySet();
+
 	}
 
 	
@@ -119,7 +117,7 @@ public class PredictResults implements Serializable{
 	}
 	
 	public void copyDefinedAttributes(GeneralInstance srcData,GeneralInstance targetData){
-		for (Entry<GeneralAttribute, GeneralAttribute>  entry : m_attribsToCopy) {
+		for (Entry<GeneralAttribute, GeneralAttribute>  entry : m_attribsToCopy.entrySet()) {
 			GeneralAttribute from=entry.getKey();
 			GeneralAttribute to=entry.getValue();
 			if (from.isNominal()) {
