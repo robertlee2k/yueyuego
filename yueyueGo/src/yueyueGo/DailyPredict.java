@@ -371,7 +371,7 @@ public class DailyPredict {
 				}
 
 
-				//保留DAILY RESULT的LEFT部分在磁盘上，主要为了校验用
+				//保留DAILY RESULT的LEFT部分在磁盘上，主要为了获取股票代码，同时其他字段用于预测后的校验用
 				GeneralInstances left = new DataInstances(dailyData);
 				BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(left);
 				left=instanceProcessor.filterAttribs(dailyData, ARFF_FORMAT.m_result_left_part);
@@ -387,9 +387,9 @@ public class DailyPredict {
 
 				DataIOHandler.getSaver().SaveDataIntoFile(left,  getLeftArffFileName(clModel));
 
-//				//去掉多读入的CODE部分
-//				instanceProcessor=InstanceHandler.getHandler(dailyData);
-//				dailyData=instanceProcessor.removeAttribs(dailyData, new String[]{ArffFormat.CODE});
+				//在送入模型之前，去掉多读入的CODE部分
+				instanceProcessor=InstanceHandler.getHandler(dailyData);
+				dailyData=instanceProcessor.removeAttribs(dailyData, new String[]{ArffFormat.CODE});
 
 				//将结果放入缓存
 				this.cached_daily_data.put(cacheKey, dailyData);
