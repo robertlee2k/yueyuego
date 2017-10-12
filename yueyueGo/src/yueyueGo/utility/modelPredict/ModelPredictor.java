@@ -488,9 +488,11 @@ public class ModelPredictor {
 			resultRow.setDataset(result);
 			// 将相应的ID赋值回去
 			resultRow.setValue(m_idAttInResult, ids[i]);
-			// 将YearMonth赋值回去用于统计用途
-			resultRow.setValue(m_yearMonthAtt, yearMonth);
-
+			
+			if (yearMonth>0){
+				// 将YearMonth赋值回去用于统计用途，每日预测时没有这个值
+				resultRow.setValue(m_yearMonthAtt, yearMonth);
+			}
 			// Nominal数据的格式需要额外处理
 			if (shouyilvCache != null) {
 				// 获取原始数据中的实际收益率值
