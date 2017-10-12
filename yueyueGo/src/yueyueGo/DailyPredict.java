@@ -18,7 +18,6 @@ import yueyueGo.dataFormat.AvgLineDataFormat;
 import yueyueGo.dataFormat.FullModelDataFormat;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.dataProcessor.InstanceHandler;
-import yueyueGo.dataProcessor.WekaInstanceProcessor;
 import yueyueGo.databeans.DataInstances;
 import yueyueGo.databeans.GeneralAttribute;
 import yueyueGo.databeans.GeneralInstance;
@@ -440,7 +439,8 @@ public class DailyPredict {
 			System.out.println("start to load data for policy : "	+ policy);
 			String expression=null;
 			if (maIndex>0){// 均线策略、动量策略
-				expression=WekaInstanceProcessor.WEKA_ATT_PREFIX+ maIndex+" = "+ policy ;
+				expression = BackTest.appendSplitClause("", maIndex, policy);
+//				expression=WekaInstanceProcessor.WEKA_ATT_PREFIX+ maIndex+" = "+ policy ;
 				BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullData);
 				newData = instanceProcessor.getInstancesSubset(fullData, expression);
 			}else{ //短线策略（fullmodel)				
