@@ -100,6 +100,12 @@ public class PredictResults implements Serializable{
 	public GeneralInstances getResultInstances() {
 		return m_result_instances;
 	}
+	/*
+	 * 用当前的数据格式创建一个新的resultInstaces，这个是为了选股时用的
+	 */
+	public void resetResultInstances() {
+		m_result_instances=new DataInstances(m_result_instances,0);
+	}
 
 //	public HashMap<GeneralAttribute, GeneralAttribute> getAttribsToCopy() {
 //		return m_attribsToCopy;

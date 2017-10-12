@@ -193,7 +193,7 @@ public class ModelPredictor {
 		}
 
 		//根据预测结果完成选股
-		judgePredictResults(clModel, result.getResultInstances(), yearSplit, policy, thresholdData);
+		judgePredictResults(clModel, result, yearSplit, policy, thresholdData);
 
 	}
 
@@ -208,7 +208,7 @@ public class ModelPredictor {
 	 * @return
 	 * @throws Exception
 	 */
-	public void judgePredictResults(AbstractModel clModel, GeneralInstances result, String yearSplit, String policy,
+	public void judgePredictResults(AbstractModel clModel, PredictResults result, String yearSplit, String policy,
 			ThresholdData thresholdData) throws Exception {
 		double[] thresholds = thresholdData.getThresholds();
 		double[] percentiles = thresholdData.getPercentiles();
@@ -221,21 +221,25 @@ public class ModelPredictor {
 		double 	reversedThresholdMax = thresholdData.getReversedThreshold();  
 
 
+		//取出预测值的结果集，并将PredictResult的结果清空等待选股
+		GeneralInstances predictedResultInstances=result.getResultInstances();
+		result.resetResultInstances();
+		
 		//获取所有的不同tradeDate，并排序。
-		ArrayList<Date> tradeDateList=getTradeDateList(result);
+		ArrayList<Date> tradeDateList=getTradeDateList(predictedResultInstances);
 		SimpleDateFormat sdFormat=new SimpleDateFormat(ArffFormat.ARFF_DATE_FORMAT);
 		
 		//循环处理每天的数据
 		StringBuffer dailyStatusBuffer=new StringBuffer();
 		
 
-		int tradeDateIndex=result.attribute(ArffFormat.TRADE_DATE).index()+1; //下面过滤的地方index是从1开始
+		int tradeDateIndex=predictedResultInstances.attribute(ArffFormat.TRADE_DATE).index()+1; //下面过滤的地方index是从1开始
 		String oneDay=null;
 		for (Date date : tradeDateList) {
 			//获取一日的数据
 			oneDay=sdFormat.format(date);
 			String split=WekaInstanceProcessor.WEKA_ATT_PREFIX + tradeDateIndex + " is '" + oneDay+"'";
-			GeneralInstances oneDayData=InstanceHandler.getHandler(result).getInstancesSubset(result, split);
+			GeneralInstances oneDayData=InstanceHandler.getHandler(predictedResultInstances).getInstancesSubset(predictedResultInstances, split);
 			int nextDataSize=oneDayData.size();
 
 //			System.out.println("got one day data. date="+oneDay+" number="+nextDataSize);
@@ -272,7 +276,7 @@ public class ModelPredictor {
 //			}
 
 			// 具体预测
-			StringBuffer resultString=judgeResultByMiniBatch(oneDayData, yearSplit,thresholdMin,reversedThresholdMax);
+			StringBuffer resultString=judgeResultByMiniBatch(oneDayData,result,yearSplit,thresholdMin,reversedThresholdMax);
 
 			//输出预测后统计值
 			dailyStatusBuffer.append(resultString);
@@ -387,19 +391,21 @@ public class ModelPredictor {
 	/**
 	 * 按天预测
 	 */
-	private StringBuffer judgeResultByMiniBatch(GeneralInstances result, String yearSplit,
+	private StringBuffer judgeResultByMiniBatch(GeneralInstances predectedValueInstances,PredictResults result, String yearSplit,
 			double thresholdMin, double reversedThresholdMax
 			)	throws Exception {
 		
 		int selectedCount = 0;
-		int predictedCount = result.numInstances();
+		int predictedCount = predectedValueInstances.numInstances();
 		// 用阈值对每一条数据进行选股判定
 		double pred;
 		double reversedPred;
 		for (int i = 0; i < predictedCount; i++) {
-			GeneralInstance resultRow = result.instance(i);
-			pred=resultRow.value(m_predAtt);
-			reversedPred=resultRow.value(m_reversedPredAtt);
+			//从输入中获取一行
+			GeneralInstance predictedRow = predectedValueInstances.instance(i);
+			//获取预测的数据结果
+			pred=predictedRow.value(m_predAtt);
+			reversedPred=predictedRow.value(m_reversedPredAtt);
 			// 计算选股结果
 			double selected = ModelPredictor.VALUE_NOT_SURE;
 			// 先用反向模型判断
@@ -412,7 +418,13 @@ public class ModelPredictor {
 				selected = ModelPredictor.VALUE_SELECTED;
 				selectedCount++;
 			}
-			resultRow.setValue(m_selectedAtt, selected);
+			//将该行格式挂载至输出结果集中
+			result.setInstanceDateSet(predictedRow);
+			//设置选择与否
+			predictedRow.setValue(m_selectedAtt, selected);
+			//将该行数据记入输出结果中
+			result.add(predictedRow);
+			
 		}
 		//更新统计
 		m_predictStatus.addCummulativePredicted(predictedCount);
