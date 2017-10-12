@@ -147,7 +147,13 @@ public abstract class BaseInstanceProcessor {
 								}else {
 									//如果原始值是String或Nominal，则把它的表示值作为数字设入目标值（比如说均线的5/10/20/30会这样处理）
 									String label = copyFrom.stringValue(copyFromAtt);
-									copyTo.setValue(copyToAtt, label);
+									int labelValue=0;
+									try{
+										labelValue=Integer.parseInt(label);
+									}catch (NumberFormatException e) {
+										throw new Exception("data in copyFrom Attribute["+ copyFromAttName + "]="+label+" , but it should be numeric");
+									}
+									copyTo.setValue(copyToAtt, labelValue);
 								}
 							}
 						}
