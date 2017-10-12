@@ -127,11 +127,19 @@ public abstract class ArffFormat {
 //		IS_SZ50 ,IS_HS300 ,	IS_ZZ500, "is_st",
 	};
 
-	
-	//返回给定数据集里与NOMINAL_ATTRIBS同名字段的位置字符串（从1开始），这主要是为filter使用
+	/*
+	 * 返回给定数据集里与NOMINAL_ATTRIBS同名字段的位置字符串（从1开始），这主要是为filter使用
+	 */
 	public static String findNominalAttribs(GeneralInstances data){
-		return BaseInstanceProcessor.returnAttribsPosition(data,NOMINAL_ATTRIBS);
+		return BaseInstanceProcessor.returnAttribsIndex(data,NOMINAL_ATTRIBS);
 	}
+
+//	/*
+//	 * 返回给定数据集里与NOMINAL_ATTRIBS同名字段的位置字符串（从1开始）数组。
+//	 */
+//	public static String[] findNominalAttribsArray(GeneralInstances data){
+//		return BaseInstanceProcessor.returnAttribsIndexArray(data,NOMINAL_ATTRIBS);
+//	}
 	
 	// 从All Transaction Data中删除无关字段 (tradeDate到均线策略之前）
 	public  GeneralInstances prepareTransData(GeneralInstances allData)

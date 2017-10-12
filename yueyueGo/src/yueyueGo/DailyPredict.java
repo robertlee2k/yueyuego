@@ -384,6 +384,7 @@ public class DailyPredict {
 		if (datelist.size()!=1){
 			System.err.println("Warning!! tradeDate is not unique in daily data!!!");
 		}
+		//TODO 当日没有数据时不应该报错
 		Date tradeDate=datelist.get(0);
 		
 		//校验一下tradeDate应该不能小于当前日期

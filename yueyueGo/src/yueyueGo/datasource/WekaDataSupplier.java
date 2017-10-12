@@ -180,7 +180,9 @@ public class WekaDataSupplier implements GeneralDataSupplier {
 		return queryData;
 	}
 
-	/* (non-Javadoc)
+	/* 
+	 * 利用Weka的数据库加载函数创建Arff
+	 * Weka的这个函数，会根据数据库字段的定义自动转换Arff类型（比如数据库里是string，则读出来就是nominal）
 	 * @see yueyueGo.datasource.GeneralDataSupplier#LoadDataFromDB(int)
 	 */
 	@Override
@@ -211,10 +213,38 @@ public class WekaDataSupplier implements GeneralDataSupplier {
 		data = InstanceHandler.getHandler(data).AddAttribute(data, ArffFormat.SHOUYILV,data.numAttributes());
 		// 对读入的数据字段名称校验 确保其顺序完全和内部训练的arff格式一致
 		data=ArffFormat.validateAttributeNames(data,validateFormat);
+
+		
+
 		//全部读进来之后再转nominal，这里读入的数据可能只是子集，所以nominal的index值会不对，所以后续会用calibrateAttributes处理
 		String nominalAttribString=ArffFormat.findNominalAttribs(data);
-		data=InstanceHandler.getHandler(data).numToNominal(data, nominalAttribString);//"2,48-56");
+		data=InstanceHandler.getHandler(data).numToNominal(data, nominalAttribString);
+		
 	
+//		//对数据库取出来的值，我们要检查一下是不是所有的Nominal都已在arffFormat中定义，否则转换回numeric
+//		//Weka的这个函数，会根据数据库字段的定义自动转换Arff类型（比如数据库里是string，则读出来就是nominal）
+//		String[] nominalIndexArray=nominalAttribString.split(",");
+//		//构建查找nominalIndex的数组
+//		int[] nominalIndexes=new int[nominalIndexArray.length];
+//		for (int i=0;i<nominalIndexArray.length;i++){
+//			nominalIndexes[i]=Integer.parseInt(nominalIndexArray[i]);
+//			nominalIndexes[i]--; //因为在wekaInstances的定义中，index是从0开始的，而上面查找的是从1开始，所以这里要再减1
+//		}
+//
+//		ArrayList<GeneralAttribute> attributeList=data.getAttributeList();
+//		for (GeneralAttribute generalAttribute : attributeList) {
+//			if (generalAttribute.isNominal()==true){ //对于传入数据的Nominal字段，检查ArffFormat 的定义
+//				if (Arrays.binarySearch(nominalIndexes, generalAttribute.index())<0){
+//					//如果ArffFormat未定义，则将其转换为numeric
+//					System.out.println("converting attribute["+generalAttribute.name()+"] to numberic, because it is not Nominal Attributes defined in Arffformat");
+//					for (int i=0;i<data.numInstances();i++){
+//						
+//					}
+//
+//				}
+//			}
+//		}
+
 	
 		data.setClassIndex(data.numAttributes()-1);
 		System.out.println("records loaded from database: "+data.numInstances());

@@ -28,8 +28,11 @@ public abstract class BaseInstanceProcessor {
 	public abstract GeneralInstances mergeTwoInstances(GeneralInstances extData, GeneralInstances extDataSecond)
 			throws IllegalStateException;
 
-	//	从input中读取数据， 按照output的数据格式进行转换和校验，然后把数据输出到output中
-	//	* output instances will be changed in this method!
+	/*	从input中读取数据， 按照format的数据格式进行转换和校验，然后把数据输出到output中
+	 *  如果convertNominalToNumeric=true，则需要将format中标识为nominal的字段按值都转换为numeric
+	     output instances will be changed in this method!
+	*/
+	
 	public abstract GeneralInstances calibrateAttributes(GeneralInstances input, GeneralInstances format,boolean convertNominalToNumeric)
 			throws Exception;
 
@@ -129,16 +132,23 @@ public abstract class BaseInstanceProcessor {
 						if (formatAtt==null){ //原样拷贝的程序无须做转换
 							copyTo.setValue(copyToAtt, copyFrom.value(copyFromAtt));
 						}else{
-							if (formatAtt.isNominal()){ //格式属性里这个是Nominal，需要转换
-								//说明这里要nominalToNumeric
+							if (formatAtt.isNominal()){ //格式属性里这个是Nominal，需要转换 （比如对应的大盘指数需要这样转换）
+								//说明这里要nominalToNumeric 
 								String formatAttName=formatAtt.name();
 								if (copyToAttName.equals(formatAttName)==false){
 									throw new Exception("Attribute order error! data target Attribute="+ copyToAttName + " vs. format Attribute"+ formatAttName);
 								}
 								//将copyFromAtt的值根据从format中取Nominal的index值转换至copyTo中
 								copyStringAttribute(copyFrom, copyTo, copyFromAtt, copyToAtt, formatAtt, copyFromAttName,copyToAttName);
-							}else{ //不是nominal的直接原样拷贝无须转换
-								copyTo.setValue(copyToAtt, copyFrom.value(copyFromAtt));	
+							}else{ //目标是数值字段，但Format格式里没有nominal的，不需要通过Format做转换
+								if (copyFromAtt.isNumeric()){
+									//原始值也是数值的，最简单，直接把原始的值拷贝过去
+									copyTo.setValue(copyToAtt, copyFrom.value(copyFromAtt));
+								}else {
+									//如果原始值是String或Nominal，则把它的表示值作为数字设入目标值（比如说均线的5/10/20/30会这样处理）
+									String label = copyFrom.stringValue(copyFromAtt);
+									copyTo.setValue(copyToAtt, label);
+								}
 							}
 						}
 					} else {
@@ -190,24 +200,36 @@ public abstract class BaseInstanceProcessor {
 		String result=header.equalHeadersMsg(test);
 		return result;
 	}
-
-	public static String returnAttribsPosition(GeneralInstances data, String[] searchAttributes) {
-		String nominalAttribPosition=null;
+	
+	/*
+	 * 查找属性的位置（index从1开始），并返回String的数组
+	 */
+	public static String returnAttribsIndex(GeneralInstances data, String[] searchAttributes) {
+		String attribPosition=null;
 		GeneralAttribute incomingAttribue=null;
 		for (int i = 0; i < searchAttributes.length; i++) {
 			incomingAttribue=data.attribute(searchAttributes[i]);
 			if (incomingAttribue!=null){
 				int pos=incomingAttribue.index()+1;//在内部的attribute index是0开始的
-				if (nominalAttribPosition==null){ //找到的第一个
-					nominalAttribPosition=new Integer(pos).toString(); 
+				if (attribPosition==null){ //找到的第一个
+					attribPosition=new Integer(pos).toString(); 
 				}else{
-					nominalAttribPosition+=","+pos;
+					attribPosition+=","+pos;
 				}
 			}
 		}
-		return nominalAttribPosition;
+		return attribPosition;
 	}
 
+	/*
+	 * 查找属性的位置，并返回String数组
+	 */
+	public static String[] returnAttribsIndexArray(GeneralInstances data, String[] searchAttributes) {
+		String positionString= returnAttribsIndex(data,searchAttributes);
+		String[] postions=positionString.split(",");
+		return postions;
+	}	
+	
 	public BaseInstanceProcessor() {
 		super();
 	}

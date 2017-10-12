@@ -236,7 +236,7 @@ public class WekaInstanceProcessor extends BaseInstanceProcessor {
 	//如果输入instances中的包含有string[]所定义的attributes，将其保留，将其他的属性删除。
 	@Override
 	public GeneralInstances filterAttribs(GeneralInstances incomingData, String[] attributeToKeep) throws Exception{
-		String saveString=returnAttribsPosition(incomingData,attributeToKeep);
+		String saveString=returnAttribsIndex(incomingData,attributeToKeep);
 		GeneralInstances result = filterAttribs(incomingData,saveString);
 		return result;
 	}
@@ -244,7 +244,7 @@ public class WekaInstanceProcessor extends BaseInstanceProcessor {
 	//如果输入instances中的包含有string[]所定义的attributes，将其删除，将其他的属性保留。
 	@Override
 	public GeneralInstances removeAttribs(GeneralInstances incomingData, String[] attributeToRemove) throws Exception{
-		String removeString=returnAttribsPosition(incomingData,attributeToRemove);
+		String removeString=returnAttribsIndex(incomingData,attributeToRemove);
 		if (removeString==null){
 			System.out.println("Warning! found nothing to remove from the attributesToRemove, returning the original dataset");
 			return incomingData;
