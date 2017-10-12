@@ -459,6 +459,8 @@ public class ModelPredictor {
 			dataForModel = ((NominalModel) clModel).processDataForNominalClassifier(dataForModel);
 		}
 		
+		// 留下一个校验位
+		double[] ids = orignalData.attributeToDoubleArray(ArffFormat.ID_POSITION - 1);
 
 		// 开始循环，用分类模型和阈值对每一条数据进行预测，并存入输出结果集
 		double pred;
@@ -483,6 +485,9 @@ public class ModelPredictor {
 			// 将获得的预测值设定入结果集
 			resultRow.setValue(m_predAtt, pred);
 			resultRow.setValue(m_reversedPredAtt, reversedPred);
+			if (resultRow.value(ArffFormat.ID_POSITION - 1)!=ids[i]){
+				throw new Exception(" ID verfifications in predict process failed!");
+			}
 			result.add(resultRow);
 			
 //			private ArrayList<GeneralAttribute> m_attributesToCopy;
@@ -532,6 +537,9 @@ public class ModelPredictor {
 		return shouyilv;
 	}
 
+	/*
+	 * 暂存收益率 （可以用于将来的校验）
+	 */
 	protected GeneralInstances cacheShouyilvData(GeneralInstances inData) {
 		GeneralInstances cache = CreateCachedOldClassInstances();
 		double shouyilv = 0;

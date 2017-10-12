@@ -44,7 +44,7 @@ public class DailyPredict {
 	protected ArffFormat ARFF_FORMAT; //当前所用数据文件格式 
 	private static String PREDICT_RESULT_DIR=EnvConstants.PREDICT_WORK_DIR+"\\88-预测结果\\"; 
 	private HashMap<String, PredictModelData> PREDICT_MODELS;
-	
+	private Date m_tradeDate=null;
 	private HashMap<String, GeneralInstances> cached_daily_data=new HashMap<String, GeneralInstances>(); //从数据库里加载的每日预测数据
 
 	private void definePredictModels(){
@@ -357,47 +357,51 @@ public class DailyPredict {
 			default:
 				throw new Exception("invalid arffFormat type");
 			}
-			//保留DAILY RESULT的LEFT部分在磁盘上，主要为了保存股票代码
-			GeneralInstances left = new DataInstances(dailyData);
-			BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(left);
-			left=instanceProcessor.filterAttribs(dailyData, ARFF_FORMAT.m_result_left_part);
-			//将LEFT中的CODE加上=""，避免输出格式中前导零消失。
-			int codeIndex=BaseInstanceProcessor.findATTPosition(left,ArffFormat.CODE);
-			left=instanceProcessor.nominalToString(left, String.valueOf(codeIndex));
-			codeIndex-=1;  //以下的index是从0开始
-			for (int i=0;i<left.size();i++){
-				GeneralInstance originInstance=left.instance(i);
-				String originValue=originInstance.stringValue(codeIndex);
-				originInstance.setValue(codeIndex, " "+originValue);
-			}
 			
-			DataIOHandler.getSaver().SaveDataIntoFile(left,  getLeftArffFileName(clModel));
+			if (dailyData.numInstances()>0){ //如果当日有数据则处理数据
+				//从dailyData中获取tradeDate并校验
+				ArrayList<Date> datelist=getTradeDateList(dailyData);
+				if (datelist.size()!=1){
+					System.err.println("Warning!! tradeDate is not unique in daily data!!!");
+				}
+				m_tradeDate=datelist.get(0);			
+				//校验一下tradeDate应该不能小于当前日期
+				if (m_tradeDate.compareTo(FormatUtility.getCurrentDate())<0) {
+					System.err.println("WARNING!!! tradeDate in daily data =" +m_tradeDate+" < currentDate!");
+				}
 
-			//去掉多读入的CODE部分
-			instanceProcessor=InstanceHandler.getHandler(dailyData);
-			dailyData=instanceProcessor.removeAttribs(dailyData, new String[]{ArffFormat.CODE});
 
-			//将结果放入缓存
-			this.cached_daily_data.put(cacheKey, dailyData);
+				//保留DAILY RESULT的LEFT部分在磁盘上，主要为了保存股票代码
+				GeneralInstances left = new DataInstances(dailyData);
+				BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(left);
+				left=instanceProcessor.filterAttribs(dailyData, ARFF_FORMAT.m_result_left_part);
+				//将LEFT中的CODE加上=""，避免输出格式中前导零消失。
+				int codeIndex=BaseInstanceProcessor.findATTPosition(left,ArffFormat.CODE);
+				left=instanceProcessor.nominalToString(left, String.valueOf(codeIndex));
+				codeIndex-=1;  //以下的index是从0开始
+				for (int i=0;i<left.size();i++){
+					GeneralInstance originInstance=left.instance(i);
+					String originValue=originInstance.stringValue(codeIndex);
+					originInstance.setValue(codeIndex, " "+originValue);
+				}
+
+				DataIOHandler.getSaver().SaveDataIntoFile(left,  getLeftArffFileName(clModel));
+
+				//去掉多读入的CODE部分
+				instanceProcessor=InstanceHandler.getHandler(dailyData);
+				dailyData=instanceProcessor.removeAttribs(dailyData, new String[]{ArffFormat.CODE});
+
+				//将结果放入缓存
+				this.cached_daily_data.put(cacheKey, dailyData);
+			}
 		}
-		//从dailyData中获取tradeDate并校验
-		ArrayList<Date> datelist=getTradeDateList(dailyData);
-		if (datelist.size()!=1){
-			System.err.println("Warning!! tradeDate is not unique in daily data!!!");
-		}
-		//TODO 当日没有数据时不应该报错
-		Date tradeDate=datelist.get(0);
 		
-		//校验一下tradeDate应该不能小于当前日期
-		if (tradeDate.compareTo(FormatUtility.getCurrentDate())<0) {
-			System.err.println("WARNING!!! tradeDate in daily data =" +tradeDate+" < currentDate!");
-		}
-		GeneralInstances result=predict(clModel,  dailyData,tradeDate);
-		
-		//暂时因为tradeDate的问题取消cache
-		this.cached_daily_data.clear();
-
-		return result;
+		if (dailyData.numInstances()>0){
+			GeneralInstances result=predict(clModel,dailyData,m_tradeDate);
+			return result;
+		}else{ //当日无数据
+			return null;
+		}	
 	}
 
 
