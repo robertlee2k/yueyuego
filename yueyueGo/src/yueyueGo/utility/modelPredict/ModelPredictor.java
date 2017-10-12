@@ -450,7 +450,10 @@ public class ModelPredictor {
 	private void predictUsingModels(AbstractModel clModel, GeneralInstances miniBatchData, GeneralInstances result,
 			String yearSplit, Classifier classifier, Classifier reversedClassifier)
 			throws NumberFormatException, Exception, IllegalStateException {
-		double yearMonth = Double.valueOf(yearSplit).doubleValue();
+		double yearMonth = 0;
+		if (yearSplit.length()>0){
+			yearMonth=Double.valueOf(yearSplit).doubleValue();
+		}
 
 		GeneralInstances shouyilvCache = null;
 		if (clModel instanceof NominalModel) {
