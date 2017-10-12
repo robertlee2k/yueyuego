@@ -20,7 +20,9 @@ public abstract class ArffFormat {
 	public static final String STRING_VALUE_NO = "0";
 		
 	public static final String RESULT_PREDICTED_PROFIT = "PredictedProfit";
+	public static final String RESULT_REVERSE_PREDICTED_PROFIT = "ReversedProfit";
 	public static final String RESULT_PREDICTED_WIN_RATE="PredictedWinRate";
+	public static final String RESULT_REVERSE_PREDICTED_WIN_RATE = "ReversedWinRate";
 	public static final String RESULT_SELECTED = "selected";
 	
 	public static final String TRADE_DATE = "tradeDate"; // 之所以定义这个字段，是因为所有的数据都要以它排序
@@ -126,6 +128,8 @@ public abstract class ArffFormat {
 //		"zhangdieting",
 //		IS_SZ50 ,IS_HS300 ,	IS_ZZ500, "is_st",
 	};
+
+
 
 	/*
 	 * 返回给定数据集里与NOMINAL_ATTRIBS同名字段的位置字符串（从1开始），这主要是为filter使用

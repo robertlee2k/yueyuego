@@ -437,12 +437,15 @@ public class UpdateHistoryArffFile {
 			ym=YearMonthProcessor.parseYearMonth(tradeDate);
 			curr.setValue(yearMonthAtt, ym);
 			//修改日期格式
-			curr.setValue(tradeDateAtt, FormatUtility.convertDate(tradeDate));
-			curr.setValue(mcDateAtt, FormatUtility.convertDate(curr.stringValue(mcDateAtt)));
-			curr.setValue(dataDateAtt, FormatUtility.convertDate(curr.stringValue(dataDateAtt)));
+			curr.setValue(tradeDateAtt, convertDate(tradeDate));
+			curr.setValue(mcDateAtt, convertDate(curr.stringValue(mcDateAtt)));
+			curr.setValue(dataDateAtt, convertDate(curr.stringValue(dataDateAtt)));
 		}
 	}
-
+	
+	private static String convertDate(String tradeDate) throws ParseException{
+		return FormatUtility.convertDate(tradeDate,ArffFormat.INPUT_DATE_FORMAT,ArffFormat.ARFF_DATE_FORMAT);
+	}
 
 	/**
 	 * 
@@ -742,7 +745,7 @@ public class UpdateHistoryArffFile {
 							}else{
 								//可能是因为输入文件的date格式不一样，尝试转换一下
 								try {
-									rightLabel=FormatUtility.convertDate(rightLabel);			
+									rightLabel=convertDate(rightLabel);			
 								} catch (ParseException pe) {
 									System.err.println("leftLabel doesn't equal to right label,tried to convert date but failed,seems it is not a date string. at attribute:"+extArffCRC[j]+ " left= "+leftLabel+" while right= "+rightLabel +" @id="+leftID);
 									System.err.println("current left  ====="+ leftCurr.toString());

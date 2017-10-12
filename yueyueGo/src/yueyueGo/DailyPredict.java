@@ -2,6 +2,7 @@ package yueyueGo;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -449,20 +450,22 @@ public class DailyPredict {
 
 			System.out.println(" new data size , row : "+ newData.numInstances() + " column: "	+ newData.numAttributes());
 			if (result == null) {// initialize result instances
-				// remove unnecessary data,leave 均线策略 & code alone
-				GeneralInstances header = new DataInstances(newData, 0);
-				BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(header);
-				result=instanceProcessor.filterAttribs(header, ARFF_FORMAT.m_daily_predict_left_part);
-
-				if (clModel instanceof NominalModel ){
-					result = instanceProcessor.AddAttribute(result, ArffFormat.RESULT_PREDICTED_WIN_RATE,
-							result.numAttributes());
-				}else{
-					result = instanceProcessor.AddAttribute(result, ArffFormat.RESULT_PREDICTED_PROFIT,
-							result.numAttributes());
-				}
-				result = instanceProcessor.AddAttribute(result, ArffFormat.RESULT_SELECTED,
-						result.numAttributes());
+//				// remove unnecessary data,leave 均线策略 & code alone
+//				GeneralInstances header = new DataInstances(newData, 0);
+//				BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(header);
+//				result=instanceProcessor.filterAttribs(header, ARFF_FORMAT.m_daily_predict_left_part);
+//
+//				if (clModel instanceof NominalModel ){
+//					result = instanceProcessor.AddAttribute(result, ArffFormat.RESULT_PREDICTED_WIN_RATE,
+//							result.numAttributes());
+//				}else{
+//					result = instanceProcessor.AddAttribute(result, ArffFormat.RESULT_PREDICTED_PROFIT,
+//							result.numAttributes());
+//				}
+//				result = instanceProcessor.AddAttribute(result, ArffFormat.RESULT_SELECTED,
+//						result.numAttributes());
+				
+				result=ModelPredictor.prepareResultInstances(clModel, newData);
 
 			}
 
@@ -660,25 +663,38 @@ public class DailyPredict {
 	
 	
 	/**
-	 * 获取输入数据中的所有日期，并升序排列
+	 * 该函数会处理两个问题
+	 * 1. 将输入数据的所有日期转换为训练用的标准模式（参数的数值data会产生改变）
+	 * 2. 获取输入数据中的所有日期升序排列，并单独返回LIST
 	 * @param data
 	 */
 	private ArrayList<Date> getTradeDateList(GeneralInstances data) throws Exception{
 		GeneralAttribute tradeDateAtt=data.attribute(ArffFormat.TRADE_DATE);
 		ArrayList<Date> tradeDateList=new ArrayList<Date>();
-		SimpleDateFormat sdFormat=new SimpleDateFormat(ArffFormat.DB_DATE_FORMAT);
+		SimpleDateFormat sdFormat=new SimpleDateFormat(ArffFormat.ARFF_DATE_FORMAT);
 		String current="2099/12/31";
 		String next=null;
 		for (int i=0;i<data.numInstances();i++){
+			//获取日期
 			next=data.get(i).stringValue(tradeDateAtt);
+			//转换为内部标准形式
+			next=convertDate(next);
+			//更新回Arff数据中
+			data.get(i).setValue(tradeDateAtt, next);
+			//对转换后的日期数据进行处理，获取所有不同的日期，加入列表并返回
 			if (current.equals(next)==false){
 				current=next;
 				//转换为日期以便于排序，免得将字符串中的2017/10/5 排在2017/10/21之后了
 				Date d = sdFormat.parse(next);
 				tradeDateList.add(d);
 			}
+			
 		}
 		Collections.sort(tradeDateList);
 		return tradeDateList;
+	}
+	
+	private static String convertDate(String tradeDate) throws ParseException{
+		return FormatUtility.convertDate(tradeDate,ArffFormat.DB_DATE_FORMAT,ArffFormat.ARFF_DATE_FORMAT);
 	}
 }

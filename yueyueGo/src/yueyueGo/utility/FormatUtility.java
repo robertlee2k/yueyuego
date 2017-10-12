@@ -8,7 +8,6 @@ import java.util.Date;
 
 import weka.core.AttributeStats;
 import weka.core.Utils;
-import yueyueGo.dataFormat.ArffFormat;
 
 public class FormatUtility {
 	// 获取指定偏移量的日期String
@@ -70,13 +69,17 @@ public class FormatUtility {
 		df.setMaximumFractionDigits(fractionDigits);// 小数点后保留几位
 		return df.format(d);
 	}
-
-	public static String convertDate(String tradeDate) throws ParseException {
-		SimpleDateFormat input = new SimpleDateFormat(ArffFormat.INPUT_DATE_FORMAT);
-		SimpleDateFormat output = new SimpleDateFormat(ArffFormat.ARFF_DATE_FORMAT);
-		Date tDate = input.parse(tradeDate);
-		String parsed=output.format(tDate);
-		return parsed;
+	
+	public static String convertDate(String tradeDate,String inputFormat,String outputFormat) throws ParseException {
+		if (inputFormat.equals(outputFormat)){
+			return tradeDate;
+		}else {
+			SimpleDateFormat input = new SimpleDateFormat(inputFormat);
+			SimpleDateFormat output = new SimpleDateFormat(outputFormat);
+			Date tDate = input.parse(tradeDate);
+			String parsed=output.format(tDate);
+			return parsed;
+		}
 	}
 	
 	
