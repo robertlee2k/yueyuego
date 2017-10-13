@@ -23,20 +23,17 @@ import yueyueGo.databeans.GeneralAttribute;
 import yueyueGo.databeans.GeneralInstance;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.datasource.DataIOHandler;
-import yueyueGo.fullModel.classifier.BaggingM5PFullModel;
-import yueyueGo.fullModel.classifier.MyNNFullModel;
 import yueyueGo.utility.AppContext;
 import yueyueGo.utility.ClassifySummaries;
 import yueyueGo.utility.ClassifyUtility;
 import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.FormatUtility;
-import yueyueGo.utility.MergeClassifyResults;
 import yueyueGo.utility.modelEvaluation.EvaluationStore;
 import yueyueGo.utility.modelEvaluation.ModelStore;
 import yueyueGo.utility.modelPredict.ModelPredictor;
 import yueyueGo.utility.modelPredict.PredictModelData;
-import yueyueGo.utility.modelPredict.ResultsHolder;
 import yueyueGo.utility.modelPredict.PredictStatus;
+import yueyueGo.utility.modelPredict.ResultsHolder;
 
 public class DailyPredict {
 
@@ -222,11 +219,11 @@ public class DailyPredict {
 		
 		//新格式的bagging m5p预测  (使用PCA版本和计算字段）
 		BaggingM5P cBagModel=BaggingM5P.initModel(this.ARFF_FORMAT, AbstractModel.FOR_DAILY_PREDICT);
-		GeneralInstances baggingInstances=predictWithDB(cBagModel);
+		ResultsHolder  baggingInstances=predictWithDB(cBagModel);
 
 		//Adaboost(使用PCA版本和计算字段）
 		AdaboostClassifier adaModel=AdaboostClassifier.initModel(this.ARFF_FORMAT, AbstractModel.FOR_DAILY_PREDICT);
-		GeneralInstances adaboostInstances=predictWithDB(adaModel);		
+		ResultsHolder  adaboostInstances=predictWithDB(adaModel);		
 
 //		System.out.println("******LEGACY*********** output LEGACY  prediction results**************LEGACY**********");
 //		cOldBagModel.outputClassifySummary();
@@ -249,23 +246,23 @@ public class DailyPredict {
 
 	/**
 	 * @param cModel 连续分类器（预测收益率）
-	 * @param cInstances 连续分类器结果
+	 * @param cResultHolder 连续分类器结果
 	 * @param nModel 二分类器（预测胜率）
-	 * @param nInstances 二分类器结果
+	 * @param nResultHolder 二分类器结果
 	 * @throws Exception
 	 * return 合并的文件名称（暂时返回连续分类器的值）
 	 */
 	public String combinePreditions(AbstractModel cModel,
-			GeneralInstances cInstances, AbstractModel nModel,
-			GeneralInstances nInstances) throws Exception {
+			ResultsHolder cResultHolder, AbstractModel nModel,
+			ResultsHolder nResultHolder) throws Exception {
 		
 		
 		//以二分类器为主，合并连续分类器
 		System.out.println("");
 		System.out.println("-----now output combined predictions----------"+nModel.getIdentifyName()+" (merged with："+cModel.getIdentifyName()+")");
 		GeneralInstances left=DataIOHandler.getSuppier().loadDataFromFile(getLeftArffFileName(nModel)); //获取刚生成的左侧文件（主要存了CODE）
-		MergeClassifyResults merge=new MergeClassifyResults(ARFF_FORMAT.m_policy_group);
-		GeneralInstances nMergedOutput=merge.mergeResults(nInstances,cInstances,ResultsHolder.RESULT_PREDICTED_PROFIT,left);
+		
+		GeneralInstances nMergedOutput=nResultHolder.mergeResults(cResultHolder,ResultsHolder.RESULT_PREDICTED_PROFIT,left);
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(nMergedOutput);
 		nMergedOutput=instanceProcessor.removeAttribs(nMergedOutput, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
 		String savedNFileName=PREDICT_RESULT_DIR+ "Merged Selected Result-"+nModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv";
@@ -274,7 +271,7 @@ public class DailyPredict {
 		System.out.println(nModel.getIdentifyName()+"----------prediction ends---------");
 		//以连续分类器为主，合并二分类器
 		System.out.println("-----now output combined predictions----------"+cModel.getIdentifyName()+" (merged with："+nModel.getIdentifyName()+")");
-		GeneralInstances cMergedOutput=merge.mergeResults(cInstances,nInstances,ResultsHolder.RESULT_PREDICTED_WIN_RATE,left);
+		GeneralInstances cMergedOutput=cResultHolder.mergeResults(nResultHolder,ResultsHolder.RESULT_PREDICTED_WIN_RATE,left);
 		cMergedOutput=instanceProcessor.removeAttribs(cMergedOutput, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
 		String savedCFileName=PREDICT_RESULT_DIR+ "Merged Selected Result-"+cModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv";
 		DataIOHandler.getSaver().saveCSVFile(cMergedOutput, savedCFileName);
@@ -289,29 +286,30 @@ public class DailyPredict {
 	 */
 	private String fullModelPredict() throws Exception {
 
-		//BaggingM5P
-		BaggingM5PFullModel cFullModel=new BaggingM5PFullModel();
-		GeneralInstances cInstances=predictWithDB(cFullModel);		
-
-		//BaggingJ48
-//		BaggingJ48FullModel nFullModel=new BaggingJ48FullModel();
-		MyNNFullModel nFullModel= new MyNNFullModel(); 
-		GeneralInstances nInstances=predictWithDB(nFullModel);		
-
-		cFullModel.outputClassifySummary();
-		nFullModel.outputClassifySummary();
-
-		//合并baggingJ48和baggingM5P
-		System.out.println("-----now output combined predictions----------"+cFullModel.getIdentifyName());
-		GeneralInstances left=DataIOHandler.getSuppier().loadDataFromFile(getLeftArffFileName(cFullModel)); //获取刚生成的左侧文件（主要存了CODE）
-
-		MergeClassifyResults merge=new MergeClassifyResults(ARFF_FORMAT.m_policy_group);
-		GeneralInstances mergedOutput=merge.mergeResults(cInstances,nInstances,ResultsHolder.RESULT_PREDICTED_WIN_RATE,left);
-		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(mergedOutput);
-		mergedOutput=instanceProcessor.removeAttribs(mergedOutput, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
-		String savedCFileName=PREDICT_RESULT_DIR+ "FullModel Selected Result-"+cFullModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv";
-		DataIOHandler.getSaver().saveCSVFile(mergedOutput, savedCFileName);
-		return savedCFileName;
+		return null;
+//		//BaggingM5P
+//		BaggingM5PFullModel cFullModel=new BaggingM5PFullModel();
+//		GeneralInstances cInstances=predictWithDB(cFullModel);		
+//
+//		//BaggingJ48
+////		BaggingJ48FullModel nFullModel=new BaggingJ48FullModel();
+//		MyNNFullModel nFullModel= new MyNNFullModel(); 
+//		GeneralInstances nInstances=predictWithDB(nFullModel);		
+//
+//		cFullModel.outputClassifySummary();
+//		nFullModel.outputClassifySummary();
+//
+//		//合并baggingJ48和baggingM5P
+//		System.out.println("-----now output combined predictions----------"+cFullModel.getIdentifyName());
+//		GeneralInstances left=DataIOHandler.getSuppier().loadDataFromFile(getLeftArffFileName(cFullModel)); //获取刚生成的左侧文件（主要存了CODE）
+//
+//		MergeClassifyResults merge=new MergeClassifyResults(ARFF_FORMAT.m_policy_group);
+//		GeneralInstances mergedOutput=merge.mergeResults(cInstances,nInstances,ResultsHolder.RESULT_PREDICTED_WIN_RATE,left);
+//		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(mergedOutput);
+//		mergedOutput=instanceProcessor.removeAttribs(mergedOutput, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
+//		String savedCFileName=PREDICT_RESULT_DIR+ "FullModel Selected Result-"+cFullModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv";
+//		DataIOHandler.getSaver().saveCSVFile(mergedOutput, savedCFileName);
+//		return savedCFileName;
 	}
 
 
@@ -335,7 +333,7 @@ public class DailyPredict {
 
 
 	//直接访问数据库预测每天的自选股数据，不单独保存每个模型的选股
-	private GeneralInstances predictWithDB(AbstractModel clModel) throws Exception {
+	private ResultsHolder  predictWithDB(AbstractModel clModel) throws Exception {
 		int dataFormat=clModel.getModelArffFormat();
 	
 		GeneralInstances dailyData = null;
@@ -397,9 +395,10 @@ public class DailyPredict {
 		}
 		
 		if (dailyData.numInstances()>0){
-			GeneralInstances result=predict(clModel,dailyData,m_tradeDate);
+			ResultsHolder  result=predict(clModel,dailyData,m_tradeDate);
 			return result;
 		}else{ //当日无数据
+			//TODO 这里不能返回空
 			return null;
 		}	
 	}
@@ -407,7 +406,7 @@ public class DailyPredict {
 
 	//用模型预测数据
 
-	private  GeneralInstances predict(AbstractModel clModel, GeneralInstances inData, Date tradeDate) throws Exception {
+	private  ResultsHolder  predict(AbstractModel clModel, GeneralInstances inData, Date tradeDate) throws Exception {
 		System.out.println("predict using classifier : "+clModel.getIdentifyName()+" @ prediction work path :"+EnvConstants.PREDICT_WORK_DIR);
 		System.out.println("-----------------------------");
 		
@@ -509,7 +508,7 @@ public class DailyPredict {
 			throw new Exception("not all data have been processed!!!!! incoming Data number = " +inData.numInstances() + " while predicted number is "+result.getResultInstances().numInstances());
 		}
 
-		return result.getResultInstances();
+		return result;
 	}
 
 

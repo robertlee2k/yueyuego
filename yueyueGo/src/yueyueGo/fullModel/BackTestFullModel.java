@@ -2,11 +2,10 @@ package yueyueGo.fullModel;
 
 import java.io.IOException;
 
-import yueyueGo.BackTest;
 import yueyueGo.AbstractModel;
+import yueyueGo.BackTest;
 import yueyueGo.ContinousModel;
 import yueyueGo.NominalModel;
-import yueyueGo.dataFormat.ArffFormat;
 import yueyueGo.dataFormat.AvgLineDataFormat;
 import yueyueGo.dataFormat.FullModelDataFormat;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
@@ -17,7 +16,6 @@ import yueyueGo.fullModel.classifier.BaggingM5PFullModel;
 import yueyueGo.fullModel.classifier.MyNNFullModel;
 import yueyueGo.utility.AppContext;
 import yueyueGo.utility.FileUtility;
-import yueyueGo.utility.MergeClassifyResults;
 
 @Deprecated
 public class BackTestFullModel extends BackTest {
@@ -86,31 +84,31 @@ public class BackTestFullModel extends BackTest {
 	 * @throws IOException
 	 */
 	protected void callFullModelTestBack() throws Exception, IOException {
-		//按连续分类器回测历史数据
-		BaggingM5PFullModel cModel=new BaggingM5PFullModel();
-//		BaggingRegressionFullModel cModel=new BaggingRegressionFullModel();
-		if (applyToMaModelInTestBack==true){//用fullModel模型来测试均线模型时不用重新build和评估
-			cModel.initModelPurpose(AbstractModel.FOR_BACKTEST_MODEL);
-		}
-
-		GeneralInstances continuousResult=testBackward(cModel);
-		//不真正回测了，直接从以前的结果文件中加载
-//		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
-
-		//按二分类器回测历史数据
-//		BaggingJ48FullModel nModel=new BaggingJ48FullModel();
-//		AdaboostFullModel nModel=new AdaboostFullModel();
-		MyNNFullModel nModel=new MyNNFullModel();
-		if (applyToMaModelInTestBack==true){//用fullModel模型来测试均线模型时不用重新build和评估
-			nModel.initModelPurpose(AbstractModel.FOR_BACKTEST_MODEL);
-		}	
-		
-		GeneralInstances nominalResult=testBackward(nModel);
-		//不真正回测了，直接从以前的结果文件中加载
-//		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
-
-		
-		saveResultsAndStatistics(nModel, nominalResult, cModel, continuousResult);
+//		//按连续分类器回测历史数据
+//		BaggingM5PFullModel cModel=new BaggingM5PFullModel();
+////		BaggingRegressionFullModel cModel=new BaggingRegressionFullModel();
+//		if (applyToMaModelInTestBack==true){//用fullModel模型来测试均线模型时不用重新build和评估
+//			cModel.initModelPurpose(AbstractModel.FOR_BACKTEST_MODEL);
+//		}
+//
+//		GeneralInstances continuousResult=testBackward(cModel);
+//		//不真正回测了，直接从以前的结果文件中加载
+////		GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
+//
+//		//按二分类器回测历史数据
+////		BaggingJ48FullModel nModel=new BaggingJ48FullModel();
+////		AdaboostFullModel nModel=new AdaboostFullModel();
+//		MyNNFullModel nModel=new MyNNFullModel();
+//		if (applyToMaModelInTestBack==true){//用fullModel模型来测试均线模型时不用重新build和评估
+//			nModel.initModelPurpose(AbstractModel.FOR_BACKTEST_MODEL);
+//		}	
+//		
+//		GeneralInstances nominalResult=testBackward(nModel);
+//		//不真正回测了，直接从以前的结果文件中加载
+////		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
+//
+//		
+//		saveResultsAndStatistics(nModel, nominalResult, cModel, continuousResult);
 	}
 
 //	/**
@@ -210,22 +208,23 @@ public class BackTestFullModel extends BackTest {
 			left=DataIOHandler.getSuppier().loadDataFromFile(AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT_FULLMODEL.m_data_file_prefix+"-left.arff");
 		}
 		
-		MergeClassifyResults merge=new MergeClassifyResults(m_currentArffFormat.m_policy_group);
-		GeneralInstances mergedResult = merge.mergeResults(resultData, referenceData,dataToAdd, left);
-		
-		//返回结果之前需要按TradeDate重新排序
-		int tradeDateIndex=BaseInstanceProcessor.findATTPosition(mergedResult, ArffFormat.TRADE_DATE);
-		mergedResult.sort(tradeDateIndex-1);
-		// 给mergedResult瘦身。 2=yearmonth, 6=datadate,7=positive,8=bias
-		String[] attributeToRemove=new String[]{ArffFormat.YEAR_MONTH,ArffFormat.DATA_DATE,ArffFormat.IS_POSITIVE,ArffFormat.BIAS5};
-		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(mergedResult);
-		mergedResult=instanceProcessor.removeAttribs(mergedResult, attributeToRemove);
-		
-		if (applyToMaModelInTestBack==false){
-			//插入一列“均线策略”为计算程序使用
-			mergedResult=instanceProcessor.AddAttributeWithValue(mergedResult, AvgLineDataFormat.SELECTED_AVGLINE,"numeric","0");
-		}
-		return mergedResult;
+//		MergeClassifyResults merge=new MergeClassifyResults(m_currentArffFormat.m_policy_group);
+//		GeneralInstances mergedResult = merge.mergeResults(resultData, referenceData,dataToAdd, left);
+//		
+//		//返回结果之前需要按TradeDate重新排序
+//		int tradeDateIndex=BaseInstanceProcessor.findATTPosition(mergedResult, ArffFormat.TRADE_DATE);
+//		mergedResult.sort(tradeDateIndex-1);
+//		// 给mergedResult瘦身。 2=yearmonth, 6=datadate,7=positive,8=bias
+//		String[] attributeToRemove=new String[]{ArffFormat.YEAR_MONTH,ArffFormat.DATA_DATE,ArffFormat.IS_POSITIVE,ArffFormat.BIAS5};
+//		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(mergedResult);
+//		mergedResult=instanceProcessor.removeAttribs(mergedResult, attributeToRemove);
+//		
+//		if (applyToMaModelInTestBack==false){
+//			//插入一列“均线策略”为计算程序使用
+//			mergedResult=instanceProcessor.AddAttributeWithValue(mergedResult, AvgLineDataFormat.SELECTED_AVGLINE,"numeric","0");
+//		}
+//		return mergedResult;
+		return null;
 
 	}
 

@@ -49,7 +49,6 @@ import yueyueGo.utility.BlockedThreadPoolExecutor;
 import yueyueGo.utility.ClassifySummaries;
 import yueyueGo.utility.FileUtility;
 import yueyueGo.utility.FormatUtility;
-import yueyueGo.utility.MergeClassifyResults;
 import yueyueGo.utility.ParrallelizedRunning;
 import yueyueGo.utility.YearMonthProcessor;
 import yueyueGo.utility.analysis.DataAnalysis;
@@ -57,7 +56,6 @@ import yueyueGo.utility.analysis.ShouyilvDescriptiveList;
 import yueyueGo.utility.modelEvaluation.EvaluationStore;
 import yueyueGo.utility.modelEvaluation.ModelStore;
 import yueyueGo.utility.modelEvaluation.ThresholdData;
-import yueyueGo.utility.modelPredict.ModelPredictor;
 import yueyueGo.utility.modelPredict.ResultsHolder;
 
 public class BackTest {
@@ -210,14 +208,14 @@ public class BackTest {
 
 		// 按二分类器回测历史数据
 		AdaboostClassifier nModel = AdaboostClassifier.initModel(m_currentArffFormat, AbstractModel.FOR_EVALUATE_MODEL);
-		GeneralInstances nominalResult = testBackward(nModel);
+		ResultsHolder nominalResult = testBackward(nModel);
 		// 不真正回测了，直接从以前的结果文件中加载
 		// GeneralInstances
 		// nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 
 		// 按连续分类器回测历史数据
 		BaggingM5P cModel = BaggingM5P.initModel(m_currentArffFormat, AbstractModel.FOR_EVALUATE_MODEL);
-		GeneralInstances continuousResult = testBackward(cModel);
+		ResultsHolder continuousResult = testBackward(cModel);
 		// 不真正回测了，直接从以前的结果文件中加载
 		// GeneralInstances
 		// continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
@@ -230,13 +228,13 @@ public class BackTest {
 	protected void callTestBack() throws Exception {
 		// 按二分类器回测历史数据
 		AdaboostClassifier nModel = AdaboostClassifier.initModel(m_currentArffFormat, AbstractModel.FOR_BACKTEST_MODEL);
-		GeneralInstances nominalResult = testBackward(nModel);
+		ResultsHolder nominalResult = testBackward(nModel);
 		// 不真正回测了，直接从以前的结果文件中加载
 //		GeneralInstances nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
 
 		// 按连续分类器回测历史数据
 		BaggingM5P cModel = BaggingM5P.initModel(m_currentArffFormat, AbstractModel.FOR_BACKTEST_MODEL);
-		GeneralInstances continuousResult = testBackward(cModel);
+		ResultsHolder continuousResult = testBackward(cModel);
 		// 不真正回测了，直接从以前的结果文件中加载
 //		 GeneralInstances continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 
@@ -247,7 +245,7 @@ public class BackTest {
 	}
 
 	// 历史回测
-	protected GeneralInstances testBackward(AbstractModel clModel) throws Exception {
+	protected ResultsHolder testBackward(AbstractModel clModel) throws Exception {
 
 		// 根据分类器和数据类别确定回测模型的工作目录
 		String modelFilePath = prepareModelWorkPath(clModel);
@@ -267,7 +265,7 @@ public class BackTest {
 
 		// 创建一个可重用固定线程数的线程池
 		ThreadPoolExecutor threadPool = null;
-		Vector<GeneralInstances> threadResult = null;
+		Vector<ResultsHolder> threadResult = null;
 		int threadPoolSize = 0;
 
 		// 如果采用并发模式，则按下面的逻辑创建线程池
@@ -277,7 +275,7 @@ public class BackTest {
 
 		if (threadPoolSize > 1) {
 			threadPool = BlockedThreadPoolExecutor.newFixedThreadPool(threadPoolSize);
-			threadResult = new Vector<GeneralInstances>();
+			threadResult = new Vector<ResultsHolder>();
 			System.out.println("####Thread Pool Created , size=" + threadPoolSize);
 		} else {
 			System.out.println("####Thread Pool will not be used");
@@ -384,7 +382,7 @@ public class BackTest {
 
 					// 多线程的时候clone一个空result执行分配给线程。
 					ResultsHolder resultClone = ResultsHolder.makeCopy(result);
-					threadResult.add(resultClone.getResultInstances());
+					threadResult.add(resultClone);
 					// 创建实现了Runnable接口对象
 					ProcessFlowExecutor t = new ProcessFlowExecutor(clModelClone, resultClone, splitMark, policy,
 							trainingData, evaluationData, testingData, splitYearTags, modelFilePath, modelPrefix);
@@ -417,8 +415,6 @@ public class BackTest {
 		} // end for (int i
 
 
-		//输出的ResultInstances
-		GeneralInstances resultInstances=result.getResultInstances();
 		if (threadPool != null) { // 需要多线程并发
 			// 全部线程已放入线程池，关闭线程池的入口。
 			threadPool.shutdown();
@@ -433,16 +429,15 @@ public class BackTest {
 				e.printStackTrace();
 			}
 			// 将所有线程的result合并
-			BaseInstanceProcessor instanceProcessor = InstanceHandler.getHandler(resultInstances);
-			for (GeneralInstances temp : threadResult) {
-				resultInstances = instanceProcessor.mergeTwoInstances(resultInstances, temp);
+			for (ResultsHolder threadResultsHolder : threadResult) {
+				result.addResults(threadResultsHolder);
 			}
 
 			threadResult.removeAllElements(); // 释放内存
 		}
 
 		// 保存评估结果至文件
-		saveBacktestResultFile(resultInstances, clModel.getIdentifyName());
+		saveBacktestResultFile(result.getResultInstances(), clModel.getIdentifyName());
 
 		FileUtility.write(
 				m_backtest_result_dir + m_currentArffFormat.m_data_file_prefix + "-" + clModel.getIdentifyName()
@@ -455,7 +450,7 @@ public class BackTest {
 				modelSummaries.getDailyHeader() + modelSummaries.getDailySummary(), "GBK");
 		
 		System.out.println(clModel.getIdentifyName() + " test result file saved.");
-		return resultInstances;
+		return result;
 	}
 
 	/**
@@ -517,7 +512,7 @@ public class BackTest {
 	}
 
 	// 合并格式，子类中可覆盖
-	protected GeneralInstances mergeResultWithData(GeneralInstances resultData, GeneralInstances referenceData,
+	protected GeneralInstances mergeResultWithData(ResultsHolder  resultData, ResultsHolder referenceData,
 			String dataToAdd, int format) throws Exception {
 		// 读取磁盘上预先保存的左侧数据
 		GeneralInstances left = null;
@@ -530,8 +525,8 @@ public class BackTest {
 
 		left = DataIOHandler.getSuppier()
 				.loadDataFromFile(AppContext.getC_ROOT_DIRECTORY() + m_currentArffFormat.getLeftDataFileName());
-		MergeClassifyResults merge = new MergeClassifyResults(m_currentArffFormat.m_policy_group);
-		GeneralInstances mergedResult = merge.mergeResults(resultData, referenceData, dataToAdd, left);
+
+		GeneralInstances mergedResult = resultData.mergeResults(referenceData, dataToAdd, left);
 
 		// 返回结果之前需要按TradeDate重新排序
 		int tradeDateIndex = BaseInstanceProcessor.findATTPosition(mergedResult, ArffFormat.TRADE_DATE);
@@ -569,20 +564,7 @@ public class BackTest {
 
 	}
 
-	/**
-	 * @param model
-	 * @param fullOutput
-	 * @return
-	 * @throws Exception
-	 */
-	private GeneralInstances returnSelectedInstances(GeneralInstances fullOutput) throws Exception {
-		// 返回选股结果
-		int pos = BaseInstanceProcessor.findATTPosition(fullOutput, ResultsHolder.RESULT_SELECTED);
-		BaseInstanceProcessor instanceProcessor = InstanceHandler.getHandler(fullOutput);
-		GeneralInstances fullMarketSelected = instanceProcessor.getInstancesSubset(fullOutput,
-				WekaInstanceProcessor.WEKA_ATT_PREFIX + pos + " = " + ModelPredictor.VALUE_SELECTED);
-		return fullMarketSelected;
-	}
+	
 
 	// protected void testForModelStore(){
 	// AdaboostClassifier nModel=new AdaboostClassifier();
@@ -620,8 +602,8 @@ public class BackTest {
 	 * @param continuousResult
 	 * @throws Exception
 	 */
-	protected void saveResultsAndStatistics(NominalModel nModel, GeneralInstances nominalResult, ContinousModel cModel,
-			GeneralInstances continuousResult) throws Exception {
+	protected void saveResultsAndStatistics(NominalModel nModel, ResultsHolder nominalResult, ContinousModel cModel,
+			ResultsHolder continuousResult) throws Exception {
 
 		String[] targetPolicies = { "5", "10", "20", "30", "60" }; // 缺省输出各种均线分布
 		// targetPolicies=cModel.m_policySubGroup;//按模型输出分布
@@ -631,9 +613,9 @@ public class BackTest {
 		ShouyilvDescriptiveList[] monthlyShouyilvAnalysis = new ShouyilvDescriptiveList[3];
 
 		marketTrendAnalysis[0] = DataAnalysis.analyzeByMarketTrend(ShouyilvDescriptiveList.ORIGINAL_DATA, m_startYear + "01", m_endYearMonth,
-				m_currentArffFormat.m_policy_group, targetPolicies, continuousResult);
+				m_currentArffFormat.m_policy_group, targetPolicies, continuousResult.getResultInstances());
 		monthlyShouyilvAnalysis[0] = DataAnalysis.analyzeByMonth(ShouyilvDescriptiveList.ORIGINAL_DATA, m_startYear, m_endYearMonth,
-				m_currentArffFormat.m_policy_group, targetPolicies, continuousResult);
+				m_currentArffFormat.m_policy_group, targetPolicies, continuousResult.getResultInstances());
 
 		// 输出连续分类器的收益率分析统计结果
 		saveStatisiticsForOneModel(cModel, continuousResult, nModel, nominalResult, targetPolicies, marketTrendAnalysis,
@@ -661,8 +643,8 @@ public class BackTest {
 	 * @throws Exception
 	 * @throws IOException
 	 */
-	private void saveStatisiticsForOneModel(AbstractModel mainModel, GeneralInstances mainResult,
-			AbstractModel secondaryModel, GeneralInstances secondaryResult, String[] targetPolicies,
+	private void saveStatisiticsForOneModel(AbstractModel mainModel, ResultsHolder mainResult,
+			AbstractModel secondaryModel, ResultsHolder secondaryResult, String[] targetPolicies,
 			ShouyilvDescriptiveList[] marketTrendAnalysis, ShouyilvDescriptiveList[] monthlyShouyilvAnalysis)
 			throws Exception, IOException {
 		// 输出主分类器结果和参数
@@ -670,7 +652,7 @@ public class BackTest {
 
 		// 输出主分类器的收益率分析统计结果
 		System.out.println("\r\n-----now output main model predictions----------" + mainModel.getIdentifyName());
-		GeneralInstances selectedInstances = returnSelectedInstances(mainResult);
+		GeneralInstances selectedInstances = ResultsHolder.returnSelectedInstances(mainResult.getResultInstances());
 		marketTrendAnalysis[1] = DataAnalysis.analyzeByMarketTrend("单模型选股:"+mainModel.getIdentifyName(), m_startYear + "01", m_endYearMonth,
 				m_currentArffFormat.m_policy_group, targetPolicies, selectedInstances);
 		monthlyShouyilvAnalysis[1] = DataAnalysis.analyzeByMonth("单模型选股:"+mainModel.getIdentifyName(), m_startYear, m_endYearMonth,
@@ -684,7 +666,7 @@ public class BackTest {
 		// 用另一个模型合并选股
 		GeneralInstances classifyResult = mergeResultWithData(mainResult, secondaryResult, dataToAdd,
 				mainModel.getModelArffFormat());
-		selectedInstances = returnSelectedInstances(classifyResult);
+		selectedInstances = ResultsHolder.returnSelectedInstances(classifyResult);
 		System.out.println("--filtered by secondary classifier:( " + secondaryModel.getIdentifyName() + ")");
 		marketTrendAnalysis[2] = DataAnalysis.analyzeByMarketTrend("双模型选股:"+mainModel.getIdentifyName(), m_startYear + "01", m_endYearMonth,
 				m_currentArffFormat.m_policy_group, targetPolicies, selectedInstances);
