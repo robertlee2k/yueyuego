@@ -42,7 +42,7 @@ public class ResultsHolder implements Serializable{
 	 * 数据存储变量区
 	 */
 	private GeneralInstances m_result_instances; //结果集的容器
-	private ArffFormat m_currentArffFormat;	//输入源文件的ARFF定义
+	private String m_policyGroup;	//分组策略
 
 	/*
 	 * 工作常量区
@@ -62,7 +62,7 @@ public class ResultsHolder implements Serializable{
 	 */
 	public ResultsHolder(AbstractModel clModel, GeneralInstances fullSetData,ArffFormat currentArff) throws Exception {
 		
-		m_currentArffFormat=currentArff;
+		m_policyGroup=currentArff.m_policy_group;
 
 		// 根据输入数据，构建空的结果集
 		DataInstances header = new DataInstances(fullSetData, 0);
@@ -105,7 +105,7 @@ public class ResultsHolder implements Serializable{
 		m_predAtt=src.m_predAtt;
 		m_reversedPredAtt=src.m_reversedPredAtt;
 		m_selectedAtt=src.m_selectedAtt;
-		m_currentArffFormat=src.m_currentArffFormat;
+		m_policyGroup=src.m_policyGroup;
 	}
 	
 	/**
@@ -280,7 +280,7 @@ public class ResultsHolder implements Serializable{
 	public GeneralInstances mergeResults(ResultsHolder reference, String dataToAdd,
 			GeneralInstances left) throws Exception {
 	
-		String policyGroup=this.m_currentArffFormat.m_policy_group;
+		String policyGroup=this.m_policyGroup;
 		
 		// 创建输出结果
 		GeneralInstances mergedResult = new DataInstances(left, 0);
