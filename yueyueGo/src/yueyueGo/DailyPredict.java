@@ -92,9 +92,9 @@ public class DailyPredict {
 		try {
 			System.out.println("Database URL in USE : "+EnvConstants.URL + " Please ensure this is the correct environment you want to use.....");
 //			callFullModelPredict();
-			copyPredictModels();
+//			copyPredictModels();
 
-//			callDailyPredict();
+			callDailyPredict();
 			
 
 		} catch (Exception e) {
@@ -190,32 +190,6 @@ public class DailyPredict {
 	 * @throws Exception
 	 */
 	private String dailyPredict() throws Exception {
-
-
-//		//新格式的bagging线性回归预测
-//		BaggingLinearRegression lBagModel=new BaggingLinearRegression();
-//		GeneralInstances linearInstances=predictWithDB(lBagModel);
-//		
-//		//新格式的神经网络预测
-//		MyNNClassifier nnModel=new MyNNClassifier();
-//		GeneralInstances nnInstances=predictWithDB(nnModel);
-		
-//		//数据库迁移，暂时停止第八组数据的预测
-//		System.out.println("******LEGACY*********** output LEGACY  prediction results**************LEGACY**********");
-//		//旧格式的bagging m5p预测 
-//		BaggingM5P cOldBagModel=new BaggingM5P();
-//		cOldBagModel.m_usePCA=true;
-//		cOldBagModel.setModelArffFormat(ArffFormat.LEGACY_FORMAT);
-//		GeneralInstances baggingOldInstances=predictWithDB(cOldBagModel);
-//
-//		//Adaboost(使用PCA版本和计算字段）
-//		AdaboostClassifier adaOldModel=new AdaboostClassifier();
-//		adaOldModel.m_usePCA=true;
-//		adaOldModel.m_positiveLine=0;
-//		adaOldModel.setModelArffFormat(ArffFormat.LEGACY_FORMAT);
-//		GeneralInstances adaboostOldInstances=predictWithDB(adaOldModel);		
-//		combinePreditions(cOldBagModel, baggingOldInstances, adaOldModel, adaboostOldInstances);
-//		System.out.println("******LEGACY*********** end of output LEGACY prediction results**********LEGACY**************");
 		
 		
 		//新格式的bagging m5p预测  (使用PCA版本和计算字段）
@@ -237,8 +211,6 @@ public class DailyPredict {
 		cBagModel.outputClassifySummary();
 		adaModel.outputClassifySummary();
 		System.out.println("***************** end of output prediction results************************");
-		
-		
 		
 		String savedResultFile=combinePreditions(cBagModel, baggingInstances, adaModel, adaboostInstances);
 		return savedResultFile;
@@ -320,21 +292,9 @@ public class DailyPredict {
 		return PREDICT_RESULT_DIR+"LEFT ("+clModel.getModelArffFormat()+") "+FormatUtility.getDateStringFor(1)+".arff";
 	}
 
-	//	//使用文件预测每天的增量数据
-	//	private void predictWithFile(BaseClassifier clModel, String pathName,
-	//			String dataFileName) throws Exception {
-	//		System.out.println("-----------------------------");
-	//		Instances fullData = FileUtility.loadDailyNewDataFromCSVFile(pathName + dataFileName
-	//				+ ".txt");
-	//
-	//		predict(clModel, pathName, fullData);
-	//
-	//		System.out.println("file saved and mission completed.");
-	//	}
-
 
 	//直接访问数据库预测每天的自选股数据，不单独保存每个模型的选股
-	private ResultsHolder  predictWithDB(AbstractModel clModel) throws Exception {
+	private ResultsHolder predictWithDB(AbstractModel clModel) throws Exception {
 		int dataFormat=clModel.getModelArffFormat();
 	
 		GeneralInstances dailyData = null;
@@ -395,18 +355,16 @@ public class DailyPredict {
 			}
 		}
 		
-		if (dailyData.numInstances()>0){
-			ResultsHolder  result=predict(clModel,dailyData,m_tradeDate);
-			return result;
-		}else{ //当日无数据
-			//TODO 这里不能返回空
-			return null;
-		}	
+
+		//调用预测方法，此函数如果当日预测数据为空，会返回一个空的对象
+		ResultsHolder result=predict(clModel,dailyData,m_tradeDate);
+		return result;
 	}
 
 
-	//用模型预测数据
-
+	/*
+	 * 用给定的模型预测当日数据
+	 */
 	private  ResultsHolder  predict(AbstractModel clModel, GeneralInstances inData, Date tradeDate) throws Exception {
 		System.out.println("predict using classifier : "+clModel.getIdentifyName()+" @ prediction work path :"+EnvConstants.PREDICT_WORK_DIR);
 		System.out.println("-----------------------------");
@@ -421,15 +379,9 @@ public class DailyPredict {
 		GeneralInstances fullData=calibrateAttributesForDailyData(inData,clModel);
 
 
-
-
 		//获得”均线策略"的位置属性, 如果数据集内没有“均线策略”（短线策略的fullmodel），MaIndex为-1
 		int maIndex=BaseInstanceProcessor.findATTPosition(fullData,ARFF_FORMAT.m_policy_group);
 
-//		------预测数据中不需要这个了
-//		if (clModel instanceof NominalModel ){
-//			fullData=((NominalModel)clModel).processDataForNominalClassifier(fullData,false);
-//		}
 
 		//获取预定义的model文件
 		String id=clModel.getIdentifyName()+clModel.modelArffFormat;
@@ -439,7 +391,8 @@ public class DailyPredict {
 		String evalPredefined=modelData.getEvalFileName();
 		
 		
-		ResultsHolder result = null;		
+		ResultsHolder result=new ResultsHolder(clModel, newData,ARFF_FORMAT);
+
 		//分策略组预测
 		for (int j = 0; j < clModel.m_policySubGroup.length; j++) {
 			String policy=clModel.m_policySubGroup[j];
@@ -447,7 +400,6 @@ public class DailyPredict {
 			String expression=null;
 			if (maIndex>0){// 均线策略、动量策略
 				expression = BackTest.appendSplitClause("", maIndex, policy);
-//				expression=WekaInstanceProcessor.WEKA_ATT_PREFIX+ maIndex+" = "+ policy ;
 				BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullData);
 				newData = instanceProcessor.getInstancesSubset(fullData, expression);
 			}else{ //短线策略（fullmodel)				
@@ -457,15 +409,7 @@ public class DailyPredict {
 			String evalFileName =  evalPredefined + policy+EvaluationStore.THRESHOLD_EXTENSION;
 			EvaluationStore evaluation=new EvaluationStore(clModel,predictPath,evalFileName,evalTargetSplitYear,policy);
 			clModel.setEvaluationStore(evaluation);
-
 			System.out.println(" new data size , row : "+ newData.numInstances() + " column: "	+ newData.numAttributes());
-			
-
-			if (result == null) {// initialize result instances
-				
-				result=new ResultsHolder(clModel, newData,ARFF_FORMAT);
-
-			}
 
 			//尝试获取保存的本月预测数据统计值
 			String modelID=clModel.getIdentifyName();

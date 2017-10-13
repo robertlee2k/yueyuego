@@ -93,10 +93,10 @@ public class BackTest {
 			worker.init();
 
 			// 调用回测函数回测
-			// worker.callRebuildModels();
+//			 worker.callRebuildModels();
 //			worker.callReEvaluateModels();
-			 worker.callTestBack();
-			// worker.callRefreshModelUseLatestData();
+//			 worker.callTestBack();
+			 worker.callRefreshModelUseLatestData();
 
 			// worker.callDataAnlysis();
 			// worker.testForModelStore();
@@ -127,17 +127,14 @@ public class BackTest {
 		AbstractModel model = null;
 
 		m_startYear = "2017";
-		m_endYearMonth = "201708"; // 结尾月一般是当前月，这个月是没有数据的，最新数据是上月的
+		m_endYearMonth = "201710"; // 结尾月一般是当前月，这个月是没有数据的，最新数据是上月的
 		// m_handSetSplitYear=new String[] {"201701"};
 
 		// 逐次构建新的模型
-		model = new AdaboostClassifier();
-		model.initModelPurpose(AbstractModel.FOR_BUILD_MODEL);
-
+		model = AdaboostClassifier.initModel(m_currentArffFormat, AbstractModel.FOR_BUILD_MODEL);
 		testBackward(model);
-
-		model = new BaggingM5P();
-		model.initModelPurpose(AbstractModel.FOR_BUILD_MODEL);
+	
+		model = BaggingM5P.initModel(m_currentArffFormat, AbstractModel.FOR_BUILD_MODEL);
 		testBackward(model);
 
 		// 重新评估模型 （因为模型的评估数据受影响比构建数据受影响多，所以这里前推一年
@@ -148,12 +145,10 @@ public class BackTest {
 		// "201701","201702","201703","201704","201705"};
 
 		// 逐次构建新的模型
-		model = new AdaboostClassifier();
-		model.initModelPurpose(AbstractModel.FOR_EVALUATE_MODEL);
+		model = AdaboostClassifier.initModel(m_currentArffFormat, AbstractModel.FOR_EVALUATE_MODEL);
 		testBackward(model);
 
-		model = new BaggingM5P();
-		model.initModelPurpose(AbstractModel.FOR_EVALUATE_MODEL);
+		model = BaggingM5P.initModel(m_currentArffFormat, AbstractModel.FOR_EVALUATE_MODEL);
 		testBackward(model);
 
 	}
@@ -165,8 +160,8 @@ public class BackTest {
 	 */
 	protected void callRebuildModels() throws Exception {
 
-		// m_handSetSplitYear=
-		// new String[] {
+//		m_handSetSplitYear=
+//		 new String[] {
 		// 为年度模型使用
 		// "2008","2009","2010","2011","2012","2013","2014","2015","2016","2017",
 		// 为半年度模型使用
@@ -176,7 +171,7 @@ public class BackTest {
 		// 为月度模型使用
 		// "200801","200802","200803","200804","200805","200806","200807","200808","200809","200810","200811","200812","200901","200902","200903","200904","200905","200906","200907","200908","200909","200910","200911","200912","201001","201002","201003","201004","201005","201006","201007","201008","201009","201010","201011","201012","201101","201102","201103","201104","201105","201106","201107","201108","201109","201110","201111","201112","201201","201202","201203","201204","201205","201206","201207","201208","201209","201210","201211","201212","201301","201302","201303","201304","201305","201306","201307","201308","201309","201310","201311","201312","201401","201402","201403","201404","201405","201406","201407","201408","201409","201410","201411","201412","201501","201502","201503","201504","201505","201506","201507","201508","201509","201510","201511","201512","201601","201602","201603",
 		// "201604","201605","201606","201607","201608","201609","201610","201611"
-		// };
+//		 };
 
 		// 按连续分类器回测历史数据
 		BaggingM5P cModel = BaggingM5P.initModel(m_currentArffFormat, AbstractModel.FOR_BUILD_MODEL);
@@ -366,10 +361,10 @@ public class BackTest {
 				System.out.println(" testing raw data size , row : " + testingData.numInstances() + " column: "
 						+ testingData.numAttributes());
 
-				// 在不够强的机器上做模型训练时释放内存，改为每次从硬盘加载的方式
-				if (clModel.is_skipTrainInBacktest() == false) {
-					fullSetData = null; // 释放内存
-				}
+//				// 在不够强的机器上做模型训练时释放内存，改为每次从硬盘加载的方式
+//				if (clModel.is_skipTrainInBacktest() == false) {
+//					fullSetData = null; // 释放内存
+//				}
 
 				if (threadPool != null) { // 需要多线程并发
 					// 多线程的时候clone一个clModel执行任务，当前的Model继续走下去。
