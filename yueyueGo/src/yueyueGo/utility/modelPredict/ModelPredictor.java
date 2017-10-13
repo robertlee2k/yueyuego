@@ -37,21 +37,17 @@ public class ModelPredictor {
 	/*
 	 * 工作常量定义区域
 	 */
-//	private GeneralAttribute m_idAttInResult;
-//	private GeneralAttribute m_yearMonthAtt;
-//	private GeneralAttribute m_shouyilvAtt;
+	// private GeneralAttribute m_idAttInResult;
+	// private GeneralAttribute m_yearMonthAtt;
+	// private GeneralAttribute m_shouyilvAtt;
 	private GeneralAttribute m_selectedAtt;
 	private GeneralAttribute m_predAtt;
 	private GeneralAttribute m_reversedPredAtt;
-
-
 
 	/*
 	 * 存储月度预测状态的变量（用以控制月度阈值）
 	 */
 	private PredictStatus m_predictStatus;
-	
-	
 
 	public PredictStatus getPredictStatus() {
 		return m_predictStatus;
@@ -60,9 +56,9 @@ public class ModelPredictor {
 	/*
 	 * 初始化新的predictStatus对象，这个适合于回测时或预测的第一天
 	 */
-	public ModelPredictor(String modelID,String yearSplit, String policy) {
+	public ModelPredictor(String modelID, String yearSplit, String policy) {
 		// 生成存储预测中间结果的对象
-		m_predictStatus = new PredictStatus(modelID,yearSplit, policy);
+		m_predictStatus = new PredictStatus(modelID, yearSplit, policy);
 	}
 
 	/*
@@ -73,24 +69,23 @@ public class ModelPredictor {
 	}
 
 	/*
-	 * 预测数据
-	 * result parameter will be changed in this method!
+	 * 预测数据 globalResultsHolder parameter will be changed in this method!
 	 */
-	public void predictData(AbstractModel clModel, GeneralInstances dataToPredict, PredictResults result,
+	public void predictData(AbstractModel clModel, GeneralInstances dataToPredict, ResultsHolder globalResultsHolder,
 			String yearSplit, String policy) throws Exception {
-		
-		//以防万一，校验predictStatus对象的有效性
-		if (m_predictStatus.verifyStatusData(clModel.getIdentifyName(), policy)==false){
-			throw new Exception("predictStatus data mismatch for policy="+policy+" modelID="+clModel.getIdentifyName());
+
+		// 以防万一，校验predictStatus对象的有效性
+		if (m_predictStatus.verifyStatusData(clModel.getIdentifyName(), policy) == false) {
+			throw new Exception(
+					"predictStatus data mismatch for policy=" + policy + " modelID=" + clModel.getIdentifyName());
 		}
 
 		// 第一步： 定义输出结果集的各种须特殊设置的Attribute属性
-		GeneralInstances resultInstances=result.getResultInstances();
-//		m_idAttInResult = resultInstances.attribute(ArffFormat.ID);
-//		m_yearMonthAtt = resultInstances.attribute(ArffFormat.YEAR_MONTH);
-//		m_shouyilvAtt = resultInstances.attribute(ArffFormat.SHOUYILV);
-		m_selectedAtt = resultInstances.attribute(PredictResults.RESULT_SELECTED);
-		
+		GeneralInstances resultInstances = globalResultsHolder.getResultInstances();
+		// m_idAttInResult = resultInstances.attribute(ArffFormat.ID);
+		// m_yearMonthAtt = resultInstances.attribute(ArffFormat.YEAR_MONTH);
+		// m_shouyilvAtt = resultInstances.attribute(ArffFormat.SHOUYILV);
+		m_selectedAtt = resultInstances.attribute(ResultsHolder.RESULT_SELECTED);
 
 		// 第二步： 从评估文件中获取模型，并校验之。
 		// 先找对应的评估结果
@@ -105,22 +100,23 @@ public class ModelPredictor {
 		}
 
 		m_predAtt = null;
-		//先new出一个格式对象进行格式校验
+		// 先new出一个格式对象进行格式校验
 		GeneralInstances predictDataFormat = new WekaInstances(dataToPredict, 0);
 		if (clModel instanceof NominalModel) {
 			// Nominal数据的格式需要额外处理
 			predictDataFormat = ((NominalModel) clModel).processDataForNominalClassifier(predictDataFormat);
-			m_predAtt = resultInstances.attribute(PredictResults.RESULT_PREDICTED_WIN_RATE);
-			m_reversedPredAtt=resultInstances.attribute(PredictResults.RESULT_REVERSE_PREDICTED_WIN_RATE);
+			m_predAtt = resultInstances.attribute(ResultsHolder.RESULT_PREDICTED_WIN_RATE);
+			m_reversedPredAtt = resultInstances.attribute(ResultsHolder.RESULT_REVERSE_PREDICTED_WIN_RATE);
 		} else {
-			m_predAtt = resultInstances.attribute(PredictResults.RESULT_PREDICTED_PROFIT);
-			m_reversedPredAtt=resultInstances.attribute(PredictResults.RESULT_REVERSE_PREDICTED_PROFIT);
+			m_predAtt = resultInstances.attribute(ResultsHolder.RESULT_PREDICTED_PROFIT);
+			m_reversedPredAtt = resultInstances.attribute(ResultsHolder.RESULT_REVERSE_PREDICTED_PROFIT);
 		}
 
 		// 删除已保存的ID列，让待分类数据与模型数据一致 （此处的index是从1开始）
 		BaseInstanceProcessor instanceProcessor = InstanceHandler.getHandler(predictDataFormat);
-		//每日预测数据里没有YEARMONTH
-		predictDataFormat = instanceProcessor.removeAttribs(predictDataFormat,new String[]{ArffFormat.ID,ArffFormat.TRADE_DATE,ArffFormat.YEAR_MONTH});
+		// 每日预测数据里没有YEARMONTH
+		predictDataFormat = instanceProcessor.removeAttribs(predictDataFormat,
+				new String[] { ArffFormat.ID, ArffFormat.TRADE_DATE, ArffFormat.YEAR_MONTH });
 
 		// 获取预测文件中的应该用哪个modelYearSplit的模型
 		String modelYearSplit = thresholdData.getModelYearSplit();
@@ -147,25 +143,28 @@ public class ModelPredictor {
 			// 获取model
 			reversedModel = reversedModelStore.loadModelFromFile(predictDataFormat, yearSplit);
 		}
-		//调用分类器进行预测
-		predictUsingModels(clModel, dataToPredict, result, yearSplit, model,reversedModel);
-		
+		// 按照globalResultsHolder的格式创建一个空的预测结果对象
+		ResultsHolder predictResults = new ResultsHolder(globalResultsHolder);
+
+		// 调用分类器进行预测
+		predictUsingModels(clModel, dataToPredict, predictResults, yearSplit, model, reversedModel);
+
 		// 第三步： 输出分类器的参数
 		double[] modelAUC = thresholdData.getModelAUC();
-		double reversedThreshold= thresholdData.getReversedThreshold();
-		double targetPercentile = thresholdData.getDefaultPercentile(); 
+		double reversedThreshold = thresholdData.getReversedThreshold();
+		double targetPercentile = thresholdData.getDefaultPercentile();
 		double reversedPercentile = thresholdData.getReversedPercent();
-		
-		if ("".equals(yearSplit)) { //TODO 预测的时候应该也传相应的yearSplit进来，不应该为空
+
+		if ("".equals(yearSplit)) { // TODO 预测的时候应该也传相应的yearSplit进来，不应该为空
 			// 输出评估结果及所使用阀值及期望样本百分比
-			String evalSummary = "\r\n\t ( with params: modelYearSplit=" + modelYearSplit; 
-//					+ " threshold="+ FormatUtility.formatDouble(thresholdMin, 0, 3);
+			String evalSummary = "\r\n\t ( with params: modelYearSplit=" + modelYearSplit;
+			// + " threshold="+ FormatUtility.formatDouble(thresholdMin, 0, 3);
 			// + " , percentile="+ FormatUtility.formatPercent(targetPercentile
 			// / 100) ;
-			evalSummary += " ,reversedModelYearSplit=" + reversedModelYearSplit 
-//					+" ,reversedThreshold="+ FormatUtility.formatDouble(reversedThresholdMax, 0, 3) 
-					+ " , reversedPercentile="
-					+ FormatUtility.formatPercent(reversedPercentile / 100);
+			evalSummary += " ,reversedModelYearSplit=" + reversedModelYearSplit
+			// +" ,reversedThreshold="+
+			// FormatUtility.formatDouble(reversedThresholdMax, 0, 3)
+					+ " , reversedPercentile=" + FormatUtility.formatPercent(reversedPercentile / 100);
 			evalSummary += " ,modelAUC@focusAreaRatio=";
 			double[] focusAreaRatio = thresholdData.getFocosAreaRatio();
 			for (int i = 0; i < focusAreaRatio.length; i++) {
@@ -181,10 +180,10 @@ public class ModelPredictor {
 		} else {
 
 			// 输出评估结果及所使用阀值及期望样本百分比
-			String evalSummary = yearSplit + "," + policy +",";
+			String evalSummary = yearSplit + "," + policy + ",";
 			evalSummary += reversedModelYearSplit + "," + FormatUtility.formatPercent(reversedPercentile / 100) + ","
-					+FormatUtility.formatDouble(reversedThreshold, 0, 3) + ",";
-			evalSummary += modelYearSplit + ","	 + FormatUtility.formatPercent(targetPercentile / 100) + ",";
+					+ FormatUtility.formatDouble(reversedThreshold, 0, 3) + ",";
+			evalSummary += modelYearSplit + "," + FormatUtility.formatPercent(targetPercentile / 100) + ",";
 			for (double d : modelAUC) {
 				evalSummary += FormatUtility.formatDouble(d, 0, 4) + ",";
 			}
@@ -192,67 +191,127 @@ public class ModelPredictor {
 			clModel.classifySummaries.appendEvaluationSummary(evalSummary);
 		}
 
-		//根据预测结果完成选股
-		judgePredictResults(clModel, result, yearSplit, policy, thresholdData);
+		// 根据预测结果完成选股
+		ResultsHolder judgeResults = judgePredictResults(clModel, predictResults, yearSplit, policy, thresholdData);
+		// 将选股结果加入到全局预测容器内
+		globalResultsHolder.addResults(judgeResults);
 
+	}
+
+	/**
+	 * 使用模型输出预测值（这里的预测值只是预测概率，并未做选股）
+	 * 
+	 * @param clModel
+	 * @param incomingData
+	 * @param result
+	 * @param yearSplit
+	 * @param classifier
+	 * @param reversedClassifier
+	 * @throws Exception
+	 */
+	protected void predictUsingModels(AbstractModel clModel, GeneralInstances orignalData, ResultsHolder result,
+			String yearSplit, Classifier classifier, Classifier reversedClassifier) throws Exception {
+
+		// 从输入数据中删除不必要的列，让待分类数据与模型数据一致
+		// 而此处的orignalData还保留（结果数据里有不少还要其中取出）
+		GeneralInstances dataForModel = InstanceHandler.getHandler(orignalData).removeAttribs(orignalData,
+				new String[] { ArffFormat.ID, ArffFormat.TRADE_DATE, ArffFormat.YEAR_MONTH });
+
+		if (clModel instanceof NominalModel) {
+			// 二分类器数据的格式需要额外处理，要收益率转换为二分类器的正、负值
+			dataForModel = ((NominalModel) clModel).processDataForNominalClassifier(dataForModel);
+		}
+
+		// 留下一个校验位
+		double[] ids = orignalData.attributeToDoubleArray(ArffFormat.ID_POSITION - 1);
+
+		// 开始循环，用分类模型和阈值对每一条数据进行预测，并存入输出结果集
+		double pred;
+		double reversedPred;
+
+		for (int i = 0; i < dataForModel.numInstances(); i++) {
+			GeneralInstance originalRow = orignalData.instance(i); // 原始的数据
+			GeneralInstance currentRowForModel = dataForModel.instance(i);
+			pred = ModelPredictor.classify(classifier, currentRowForModel); // 调用分类函数
+			if (reversedClassifier == classifier) { // 如果反向评估模型是同一个类
+				reversedPred = pred;
+			} else {
+				reversedPred = ModelPredictor.classify(reversedClassifier, currentRowForModel); // 调用反向评估模型的分类函数
+			}
+
+			// 准备输出结果
+			DataInstance resultRow = new DataInstance(result.getResultInstances().numAttributes());
+			result.setInstanceDateSet(resultRow);
+			// 那些无须计算的校验字段的值直接从测试数据集拷贝到输出结果集
+			result.copyDefinedAttributes(originalRow, resultRow);
+
+			// 将获得的预测值设定入结果集
+			resultRow.setValue(m_predAtt, pred);
+			resultRow.setValue(m_reversedPredAtt, reversedPred);
+			if (resultRow.value(ArffFormat.ID_POSITION - 1) != ids[i]) {
+				throw new Exception(" ID verfifications in predict process failed!");
+			}
+			result.addInstance(resultRow);
+		}
 	}
 
 	/**
 	 * 
 	 * 根据分类器的预测结果，结合阈值数据，判断最终的选股结果并输出
+	 * 
 	 * @param clModel
-	 * @param result
+	 * @param predictResultHolder
 	 * @param yearSplit
 	 * @param policy
 	 * @param thresholdData
 	 * @return
 	 * @throws Exception
 	 */
-	public void judgePredictResults(AbstractModel clModel, PredictResults result, String yearSplit, String policy,
-			ThresholdData thresholdData) throws Exception {
+	public ResultsHolder judgePredictResults(AbstractModel clModel, ResultsHolder predictResultHolder, String yearSplit,
+			String policy, ThresholdData thresholdData) throws Exception {
 		double[] thresholds = thresholdData.getThresholds();
 		double[] percentiles = thresholdData.getPercentiles();
-		double targetPercentile = thresholdData.getDefaultPercentile(); //目标值
-		int defaultIndex = thresholdData.getDefaultThresholdIndex(); //初始值
+		double targetPercentile = thresholdData.getDefaultPercentile(); // 目标值
+		int defaultIndex = thresholdData.getDefaultThresholdIndex(); // 初始值
 
-		//初始值（下面的循环内函数内也会重设）
-		double thresholdMin=thresholdData.getDefaultThreshold();
-		//判断为0的阈值，小于该值意味着该模型坚定认为其为0 （这是合并多个模型预测时使用的）
-		double 	reversedThresholdMax = thresholdData.getReversedThreshold();  
+		// 初始值（下面的循环内函数内也会重设）
+		double thresholdMin = thresholdData.getDefaultThreshold();
+		// 判断为0的阈值，小于该值意味着该模型坚定认为其为0 （这是合并多个模型预测时使用的）
+		double reversedThresholdMax = thresholdData.getReversedThreshold();
 
+		// 取出预测值的结果集作为输入
+		GeneralInstances predictedResultInstances = predictResultHolder.getResultInstances();
+		// 按照输入的预测数值result的格式创建一个空的对象
+		ResultsHolder judgeResults = new ResultsHolder(predictResultHolder);
 
-		//取出预测值的结果集，并将PredictResult的结果清空等待选股
-		GeneralInstances predictedResultInstances=result.getResultInstances();
-		result.resetResultInstances();
-		
-		//获取所有的不同tradeDate，并排序。
-		ArrayList<Date> tradeDateList=getTradeDateList(predictedResultInstances);
-		SimpleDateFormat sdFormat=new SimpleDateFormat(ArffFormat.ARFF_DATE_FORMAT);
-		
-		//循环处理每天的数据
-		StringBuffer dailyStatusBuffer=new StringBuffer();
-		
+		// 获取所有的不同tradeDate，并排序。
+		ArrayList<Date> tradeDateList = getTradeDateList(predictedResultInstances);
+		SimpleDateFormat sdFormat = new SimpleDateFormat(ArffFormat.ARFF_DATE_FORMAT);
 
-		int tradeDateIndex=predictedResultInstances.attribute(ArffFormat.TRADE_DATE).index()+1; //下面过滤的地方index是从1开始
-		String oneDay=null;
+		// 循环处理每天的数据
+		StringBuffer dailyStatusBuffer = new StringBuffer();
+
+		int tradeDateIndex = predictedResultInstances.attribute(ArffFormat.TRADE_DATE).index() + 1; // 下面过滤的地方index是从1开始
+		String oneDay = null;
 		for (Date date : tradeDateList) {
-			//获取一日的数据
-			oneDay=sdFormat.format(date);
-			String split=WekaInstanceProcessor.WEKA_ATT_PREFIX + tradeDateIndex + " is '" + oneDay+"'";
-			GeneralInstances oneDayData=InstanceHandler.getHandler(predictedResultInstances).getInstancesSubset(predictedResultInstances, split);
-			int nextDataSize=oneDayData.size();
+			// 获取一日的数据
+			oneDay = sdFormat.format(date);
+			String split = WekaInstanceProcessor.WEKA_ATT_PREFIX + tradeDateIndex + " is '" + oneDay + "'";
+			GeneralInstances oneDayData = InstanceHandler.getHandler(predictedResultInstances)
+					.getInstancesSubset(predictedResultInstances, split);
+			int nextDataSize = oneDayData.size();
 
-//			System.out.println("got one day data. date="+oneDay+" number="+nextDataSize);
+			// System.out.println("got one day data. date="+oneDay+"
+			// number="+nextDataSize);
 
-			
-			//输出统计值
+			// 输出统计值
 			dailyStatusBuffer.append(yearSplit);
 			dailyStatusBuffer.append(',');
 			dailyStatusBuffer.append(policy);
 			dailyStatusBuffer.append(',');
 			dailyStatusBuffer.append(oneDay);
 			dailyStatusBuffer.append(',');
-			dailyStatusBuffer.append(1-targetPercentile/100);
+			dailyStatusBuffer.append(1 - targetPercentile / 100);
 			dailyStatusBuffer.append(',');
 			dailyStatusBuffer.append(m_predictStatus.getCummulativePredicted());
 			dailyStatusBuffer.append(',');
@@ -261,46 +320,101 @@ public class ModelPredictor {
 			dailyStatusBuffer.append(m_predictStatus.getCummulativeSelectRatio());
 			dailyStatusBuffer.append(',');
 
-			//开始调整阈值
-			thresholdMin=adjustThreshold(nextDataSize, thresholds, percentiles, targetPercentile, defaultIndex,dailyStatusBuffer);
+			// 开始调整阈值
+			thresholdMin = adjustThreshold(nextDataSize, thresholds, percentiles, targetPercentile, defaultIndex,
+					dailyStatusBuffer);
 
-
-//			if (reversedThresholdMax > thresholdMin) {
-//				if (reversedModel == model) {
-//					throw new Exception("fatal error!!! reversedThreshold(" + reversedThresholdMax + ") > threshold("
-//							+ thresholdMin + ") using same model (modelyear=" + reversedModelYearSplit + ")");
-//				} else {
-//					System.err.println("使用不同模型时反向阀值大于正向阀值了" + "reversedThreshold(" + reversedThresholdMax + ")@"
-//							+ reversedModelYearSplit + " > threshold(" + thresholdMin + ")@" + modelYearSplit);
-//				}
-//			}
+			// if (reversedThresholdMax > thresholdMin) {
+			// if (reversedModel == model) {
+			// throw new Exception("fatal error!!! reversedThreshold(" +
+			// reversedThresholdMax + ") > threshold("
+			// + thresholdMin + ") using same model (modelyear=" +
+			// reversedModelYearSplit + ")");
+			// } else {
+			// System.err.println("使用不同模型时反向阀值大于正向阀值了" + "reversedThreshold(" +
+			// reversedThresholdMax + ")@"
+			// + reversedModelYearSplit + " > threshold(" + thresholdMin + ")@"
+			// + modelYearSplit);
+			// }
+			// }
 
 			// 具体预测
-			StringBuffer resultString=judgeResultByMiniBatch(oneDayData,result,yearSplit,thresholdMin,reversedThresholdMax);
-
-			//输出预测后统计值
-			dailyStatusBuffer.append(resultString);
-			dailyStatusBuffer.append("\r\n");
-
+			judgeResultByMiniBatch(judgeResults, oneDayData, dailyStatusBuffer, thresholdMin, reversedThresholdMax);
 		}
 		clModel.classifySummaries.appendDailySummary(dailyStatusBuffer.toString());
+		return judgeResults;
+	}
+
+	/**
+	 * 按天预测
+	 */
+	private void judgeResultByMiniBatch(ResultsHolder judgeResults, GeneralInstances predectedValueInstances,
+			StringBuffer dailyStatus, double thresholdMin, double reversedThresholdMax) throws Exception {
+	
+		int selectedCount = 0;
+		int predictedCount = predectedValueInstances.numInstances();
+		// 用阈值对每一条数据进行选股判定
+		double pred;
+		double reversedPred;
+		for (int i = 0; i < predictedCount; i++) {
+			// 从输入中获取一行
+			GeneralInstance predictedRow = predectedValueInstances.instance(i);
+			// 获取预测的数据结果
+			pred = predictedRow.value(m_predAtt);
+			reversedPred = predictedRow.value(m_reversedPredAtt);
+			// 计算选股结果
+			double selected = ModelPredictor.VALUE_NOT_SURE;
+			// 先用反向模型判断
+			if (reversedPred < reversedThresholdMax) {
+				selected = ModelPredictor.VALUE_NEVER_SELECT;// 反向模型坚定认为当前数据为0
+				// （这是合并多个模型预测时使用的）
+			}
+			// 如果正向模型与方向模型得出的值矛盾（在使用不同模型时），则用正向模型的数据覆盖方向模型（因为毕竟正向模型的ratio比较小）
+			if (pred >= thresholdMin) { // 本模型估计当前数据是1值
+				selected = ModelPredictor.VALUE_SELECTED;
+				selectedCount++;
+			}
+			// 将该行格式挂载至输出结果集中
+			judgeResults.setInstanceDateSet(predictedRow);
+			// 设置选择与否
+			predictedRow.setValue(m_selectedAtt, selected);
+			// 将该行数据记入输出结果中
+			judgeResults.addInstance(predictedRow);
+	
+		}
+		// 更新统计
+		m_predictStatus.addCummulativePredicted(predictedCount);
+		m_predictStatus.addCummulativeSelected(selectedCount);
+	
+		// 记录统计数值至CSV
+		dailyStatus.append(thresholdMin);
+		dailyStatus.append(',');
+		dailyStatus.append(predictedCount);
+		dailyStatus.append(',');
+		dailyStatus.append(selectedCount);
+		dailyStatus.append(',');
+		dailyStatus.append(((double) selectedCount) / predictedCount);
+		dailyStatus.append(',');
+		dailyStatus.append(m_predictStatus.getCummulativeSelectRatio());
+	
 	}
 
 	/**
 	 * 获取输入数据中的所有日期，并升序排列
+	 * 
 	 * @param data
 	 */
-	private ArrayList<Date> getTradeDateList(GeneralInstances data) throws Exception{
-		GeneralAttribute tradeDateAtt=data.attribute(ArffFormat.TRADE_DATE);
-		ArrayList<Date> tradeDateList=new ArrayList<Date>();
-		SimpleDateFormat sdFormat=new SimpleDateFormat(ArffFormat.ARFF_DATE_FORMAT);
-		String current="2099/12/31";
-		String next=null;
-		for (int i=0;i<data.numInstances();i++){
-			next=data.get(i).stringValue(tradeDateAtt);
-			if (current.equals(next)==false){
-				current=next;
-				//转换为日期以便于排序，免得将字符串中的2017/10/5 排在2017/10/21之后了
+	private ArrayList<Date> getTradeDateList(GeneralInstances data) throws Exception {
+		GeneralAttribute tradeDateAtt = data.attribute(ArffFormat.TRADE_DATE);
+		ArrayList<Date> tradeDateList = new ArrayList<Date>();
+		SimpleDateFormat sdFormat = new SimpleDateFormat(ArffFormat.ARFF_DATE_FORMAT);
+		String current = "2099/12/31";
+		String next = null;
+		for (int i = 0; i < data.numInstances(); i++) {
+			next = data.get(i).stringValue(tradeDateAtt);
+			if (current.equals(next) == false) {
+				current = next;
+				// 转换为日期以便于排序，免得将字符串中的2017/10/5 排在2017/10/21之后了
 				Date d = sdFormat.parse(next);
 				tradeDateList.add(d);
 			}
@@ -310,10 +424,10 @@ public class ModelPredictor {
 	}
 
 	/**
-	 * 动态调整阈值
-	 * 如果迄今为止已选股票的百分比已经大于threshold中的预期百分比，则提升阈值单位。
-	 * TODO 按总数调整似乎不尽合理（如果某天大涨选了很多票，会影响后续天数的选股），是否应该结合日平均的方式？（但也要排除日100%但选股极少的情况）
+	 * 动态调整阈值 如果迄今为止已选股票的百分比已经大于threshold中的预期百分比，则提升阈值单位。 TODO
+	 * 按总数调整似乎不尽合理（如果某天大涨选了很多票，会影响后续天数的选股），是否应该结合日平均的方式？（但也要排除日100%但选股极少的情况）
 	 * 是否每日分母的机会数用上月的日平均？或中位数？
+	 * 
 	 * @param nextBatchSize
 	 * @param thresholds
 	 * @param percentiles
@@ -321,32 +435,33 @@ public class ModelPredictor {
 	 * @param currentIndex
 	 * @return
 	 */
-	private double adjustThreshold(int nextBatchSize, double[] thresholds, double[] percentiles, double targetPercentile,
-			int currentIndex,StringBuffer dailyStatusBuffer) {
-		double adjustedThreshold=0.0;
-		
-		double currentPercentile = (1-m_predictStatus.getCummulativeSelectRatio())*100;
+	private double adjustThreshold(int nextBatchSize, double[] thresholds, double[] percentiles,
+			double targetPercentile, int currentIndex, StringBuffer dailyStatusBuffer) {
+		double adjustedThreshold = 0.0;
+
+		double currentPercentile = (1 - m_predictStatus.getCummulativeSelectRatio()) * 100;
 		// 如果迄今为止已选股票的百分比已经大于threshold中的预期百分比，则提升阈值单位。
 		double adjustedPercentile;
 		if (Double.isNaN(currentPercentile)) { // 还未开始本批次预测时
 			adjustedThreshold = thresholds[currentIndex]; // 缺省的判断为1的阈值，大于该值意味着该模型判断其为1
-			adjustedPercentile=targetPercentile;
+			adjustedPercentile = targetPercentile;
 		} else {
 
 			// 找到调整的阈值数量
-			double predictedCount=m_predictStatus.getCummulativePredicted();
-			
-			adjustedPercentile = (targetPercentile*(predictedCount+nextBatchSize)-currentPercentile*predictedCount)/nextBatchSize;
+			double predictedCount = m_predictStatus.getCummulativePredicted();
 
-			//根据需要调节的Percentile找相应的threshold，因为threshold数组的关系，选股比例最少也是0.001，最大是0.1
-//			if (adjustedPercentile<100){ //已选股不多还可以继续选
-				// percentile目前假定为是个递减数组 TODO （应该可以改成binarySearch方式实现）
+			adjustedPercentile = (targetPercentile * (predictedCount + nextBatchSize)
+					- currentPercentile * predictedCount) / nextBatchSize;
+
+			// 根据需要调节的Percentile找相应的threshold，因为threshold数组的关系，选股比例最少也是0.001，最大是0.1
+			// if (adjustedPercentile<100){ //已选股不多还可以继续选
+			// percentile目前假定为是个递减数组 TODO （应该可以改成binarySearch方式实现）
 			int adjustedInex = findNearestIndexInArray(percentiles, adjustedPercentile);
 			adjustedThreshold = thresholds[adjustedInex]; // 判断为1的阈值，大于该值意味着该模型判断其为1
-//			}else {
-//				// 已选股太多时直接设该批次不选
-//				adjustedThreshold = Double.MAX_VALUE;
-//			}
+			// }else {
+			// // 已选股太多时直接设该批次不选
+			// adjustedThreshold = Double.MAX_VALUE;
+			// }
 		}
 		dailyStatusBuffer.append(adjustedPercentile);
 		dailyStatusBuffer.append(',');
@@ -384,151 +499,13 @@ public class ModelPredictor {
 		} else {
 			currentIndex = high;
 		}
-//		System.out.println("find targetValue(" + targetValue + ") near" + sortedValues[currentIndex]);
+		// System.out.println("find targetValue(" + targetValue + ") near" +
+		// sortedValues[currentIndex]);
 		return currentIndex;
 	}
 
-	/**
-	 * 按天预测
-	 */
-	private StringBuffer judgeResultByMiniBatch(GeneralInstances predectedValueInstances,PredictResults result, String yearSplit,
-			double thresholdMin, double reversedThresholdMax
-			)	throws Exception {
-		
-		int selectedCount = 0;
-		int predictedCount = predectedValueInstances.numInstances();
-		// 用阈值对每一条数据进行选股判定
-		double pred;
-		double reversedPred;
-		for (int i = 0; i < predictedCount; i++) {
-			//从输入中获取一行
-			GeneralInstance predictedRow = predectedValueInstances.instance(i);
-			//获取预测的数据结果
-			pred=predictedRow.value(m_predAtt);
-			reversedPred=predictedRow.value(m_reversedPredAtt);
-			// 计算选股结果
-			double selected = ModelPredictor.VALUE_NOT_SURE;
-			// 先用反向模型判断
-			if (reversedPred < reversedThresholdMax) {
-				selected = ModelPredictor.VALUE_NEVER_SELECT;// 反向模型坚定认为当前数据为0
-				// （这是合并多个模型预测时使用的）
-			}
-			// 如果正向模型与方向模型得出的值矛盾（在使用不同模型时），则用正向模型的数据覆盖方向模型（因为毕竟正向模型的ratio比较小）
-			if (pred >= thresholdMin) { // 本模型估计当前数据是1值
-				selected = ModelPredictor.VALUE_SELECTED;
-				selectedCount++;
-			}
-			//将该行格式挂载至输出结果集中
-			result.setInstanceDateSet(predictedRow);
-			//设置选择与否
-			predictedRow.setValue(m_selectedAtt, selected);
-			//将该行数据记入输出结果中
-			result.add(predictedRow);
-			
-		}
-		//更新统计
-		m_predictStatus.addCummulativePredicted(predictedCount);
-		m_predictStatus.addCummulativeSelected(selectedCount);
-		
-		//输出统计CSV
-		StringBuffer resultString=new StringBuffer();
-		resultString.append(thresholdMin);
-		resultString.append(',');
-		resultString.append(predictedCount);
-		resultString.append(',');
-		resultString.append(selectedCount);
-		resultString.append(',');
-		resultString.append(((double)selectedCount)/predictedCount);
-		resultString.append(',');
-		resultString.append(m_predictStatus.getCummulativeSelectRatio());
-		return resultString;
-		
-	}
-
-	/**
-	 * @param clModel
-	 * @param incomingData
-	 * @param result
-	 * @param yearSplit
-	 * @param classifier
-	 * @param reversedClassifier
-	 * @throws NumberFormatException
-	 * @throws Exception
-	 * @throws IllegalStateException
-	 */
-	private void predictUsingModels(AbstractModel clModel, GeneralInstances orignalData, PredictResults result,
-			String yearSplit, Classifier classifier, Classifier reversedClassifier)
-			throws NumberFormatException, Exception, IllegalStateException {
-		
-
-		// 从输入数据中删除不必要的列，让待分类数据与模型数据一致 
-		//而此处的orignalData还保留（结果数据里有不少还要其中取出）
-		GeneralInstances dataForModel = InstanceHandler.getHandler(orignalData).removeAttribs(orignalData,
-				new String[]{ArffFormat.ID,ArffFormat.TRADE_DATE,ArffFormat.YEAR_MONTH}); 		
-
-		if (clModel instanceof NominalModel) {
-			// 二分类器数据的格式需要额外处理，要收益率转换为二分类器的正、负值
-			dataForModel = ((NominalModel) clModel).processDataForNominalClassifier(dataForModel);
-		}
-		
-		// 留下一个校验位
-		double[] ids = orignalData.attributeToDoubleArray(ArffFormat.ID_POSITION - 1);
-
-		// 开始循环，用分类模型和阈值对每一条数据进行预测，并存入输出结果集
-		double pred;
-		double reversedPred;
-		
-		for (int i = 0; i < dataForModel.numInstances(); i++) {
-			GeneralInstance originalRow = orignalData.instance(i); //原始的数据
-			GeneralInstance currentRowForModel = dataForModel.instance(i);
-			pred = ModelPredictor.classify(classifier, currentRowForModel); // 调用分类函数
-			if (reversedClassifier == classifier) { // 如果反向评估模型是同一个类
-				reversedPred = pred;
-			} else {
-				reversedPred = ModelPredictor.classify(reversedClassifier, currentRowForModel); // 调用反向评估模型的分类函数
-			}
-
-			// 准备输出结果
-			DataInstance resultRow = new DataInstance(result.getResultInstances().numAttributes());
-			result.setInstanceDateSet(resultRow);
-			// 那些无须计算的校验字段的值直接从测试数据集拷贝到输出结果集
-			result.copyDefinedAttributes(originalRow, resultRow);
-			
-			// 将获得的预测值设定入结果集
-			resultRow.setValue(m_predAtt, pred);
-			resultRow.setValue(m_reversedPredAtt, reversedPred);
-			if (resultRow.value(ArffFormat.ID_POSITION - 1)!=ids[i]){
-				throw new Exception(" ID verfifications in predict process failed!");
-			}
-			result.add(resultRow);
-			
-//			private ArrayList<GeneralAttribute> m_attributesToCopy;
-//			
-//			for (GeneralAttribute resultAttribute : m_attributesToCopy) {
-//				GeneralAttribute testAttribute = orignalData.attribute(resultAttribute.name());
-//				// test attribute which is be present in the result data set
-//				if (testAttribute != null) {
-//					if (testAttribute.isNominal()) {
-//						String label = currentRowForModel.stringValue(testAttribute);
-//						int index = testAttribute.indexOfValue(label);
-//						if (index != -1) {
-//							resultRow.setValue(resultAttribute, index);
-//						}
-//					} else if (testAttribute.isNumeric()) {
-//						resultRow.setValue(resultAttribute, currentRowForModel.value(testAttribute));
-//					} else {
-//						throw new IllegalStateException("Unhandled attribute type!");
-//					}
-//				}
-//			}
-
-
-		}
-	}
-
-
-
-	protected double getShouyilv(GeneralInstances a_shouyilvCache,int index, double id, double newClassValue) throws Exception {
+	protected double getShouyilv(GeneralInstances a_shouyilvCache, int index, double id, double newClassValue)
+			throws Exception {
 		if (a_shouyilvCache == null) {
 			return Double.NaN;
 		}

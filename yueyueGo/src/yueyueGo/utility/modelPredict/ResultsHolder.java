@@ -18,7 +18,11 @@ import yueyueGo.databeans.GeneralAttribute;
 import yueyueGo.databeans.GeneralInstance;
 import yueyueGo.databeans.GeneralInstances;
 
-public class PredictResults implements Serializable{
+
+/*
+ * 用于存放预测结果或选股结果的容器（内部有DataInstances）
+ */
+public class ResultsHolder implements Serializable{
 	
 	/**
 	 * 
@@ -34,7 +38,10 @@ public class PredictResults implements Serializable{
 	private GeneralInstances m_result_instances;
 	private HashMap<GeneralAttribute,GeneralAttribute> m_attribsToCopy;
 	
-	public PredictResults(AbstractModel clModel, GeneralInstances fullSetData,ArffFormat currentArff) throws Exception {
+	/*
+	 * 正常初始化构造函数
+	 */
+	public ResultsHolder(AbstractModel clModel, GeneralInstances fullSetData,ArffFormat currentArff) throws Exception {
 		
 	
 		DataInstances header = new DataInstances(fullSetData, 0);
@@ -43,19 +50,27 @@ public class PredictResults implements Serializable{
 		m_result_instances = instanceProcessor.filterAttribs(header, currentArff.m_result_left_part);
 
 		if (clModel instanceof NominalModel) {
-			m_result_instances = instanceProcessor.AddAttribute(m_result_instances, PredictResults.RESULT_PREDICTED_WIN_RATE,
+			m_result_instances = instanceProcessor.AddAttribute(m_result_instances, ResultsHolder.RESULT_PREDICTED_WIN_RATE,
 					m_result_instances.numAttributes());
-			m_result_instances = instanceProcessor.AddAttribute(m_result_instances, PredictResults.RESULT_REVERSE_PREDICTED_WIN_RATE,
+			m_result_instances = instanceProcessor.AddAttribute(m_result_instances, ResultsHolder.RESULT_REVERSE_PREDICTED_WIN_RATE,
 					m_result_instances.numAttributes());
 		} else {
-			m_result_instances = instanceProcessor.AddAttribute(m_result_instances, PredictResults.RESULT_PREDICTED_PROFIT, m_result_instances.numAttributes());
-			m_result_instances = instanceProcessor.AddAttribute(m_result_instances, PredictResults.RESULT_REVERSE_PREDICTED_PROFIT,
+			m_result_instances = instanceProcessor.AddAttribute(m_result_instances, ResultsHolder.RESULT_PREDICTED_PROFIT, m_result_instances.numAttributes());
+			m_result_instances = instanceProcessor.AddAttribute(m_result_instances, ResultsHolder.RESULT_REVERSE_PREDICTED_PROFIT,
 					m_result_instances.numAttributes());
 		}
-		m_result_instances = instanceProcessor.AddAttribute(m_result_instances, PredictResults.RESULT_SELECTED, m_result_instances.numAttributes());
+		m_result_instances = instanceProcessor.AddAttribute(m_result_instances, ResultsHolder.RESULT_SELECTED, m_result_instances.numAttributes());
 
 		//把需要拷贝的属性定义清楚
 		findAttributesToCopy(fullSetData,currentArff);
+	}
+	
+	/*
+	 * 用当前的格式创建一个新的包含格式但数据为空的Result
+	 */
+	public ResultsHolder(ResultsHolder src){
+		m_result_instances=new DataInstances(src.m_result_instances, 0);
+		m_attribsToCopy=src.m_attribsToCopy;
 	}
 	
 	/**
@@ -85,7 +100,15 @@ public class PredictResults implements Serializable{
 		}
 
 	}
-
+	
+	/*
+	 * 合并第二个结果集到当前结果集的尾部
+	 * 此方法非线程安全
+	 */
+	public void addResults(ResultsHolder another) {
+		BaseInstanceProcessor instanceProcessor = InstanceHandler.getHandler(m_result_instances);
+		m_result_instances = instanceProcessor.mergeTwoInstances(m_result_instances, another.m_result_instances);
+	}
 	
 	/**
 	 * Creates a deep copy of the given result using serialization.
@@ -93,19 +116,14 @@ public class PredictResults implements Serializable{
 	 * @return a deep copy of the result
 	 * @exception Exception if an error occurs
 	 */
-	public static PredictResults makeCopy(PredictResults result) throws Exception {
-		return (PredictResults) new SerializedObject(result).getObject();
+	public static ResultsHolder makeCopy(ResultsHolder result) throws Exception {
+		return (ResultsHolder) new SerializedObject(result).getObject();
 	}
 
 	public GeneralInstances getResultInstances() {
 		return m_result_instances;
 	}
-	/*
-	 * 用当前的数据格式创建一个新的resultInstaces，这个是为了选股时用的
-	 */
-	public void resetResultInstances() {
-		m_result_instances=new DataInstances(m_result_instances,0);
-	}
+
 
 //	public HashMap<GeneralAttribute, GeneralAttribute> getAttribsToCopy() {
 //		return m_attribsToCopy;
@@ -118,7 +136,10 @@ public class PredictResults implements Serializable{
 		row.setDataset(m_result_instances);
 	}
 	
-	public void add(GeneralInstance instance) {
+	/*
+	 * 结果集中增加一列
+	 */
+	public void addInstance(GeneralInstance instance) {
 		m_result_instances.add(instance);
 	}
 	

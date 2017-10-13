@@ -9,11 +9,11 @@ import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.utility.ClassifyUtility;
 import yueyueGo.utility.modelEvaluation.ModelStore;
 import yueyueGo.utility.modelPredict.ModelPredictor;
-import yueyueGo.utility.modelPredict.PredictResults;
+import yueyueGo.utility.modelPredict.ResultsHolder;
 
 public class ProcessFlowExecutor implements Callable<String> {
 	private AbstractModel clModel;
-	private PredictResults result;
+	private ResultsHolder result;
 	private String yearSplit;
 	private String policySplit;
 	private GeneralInstances trainingData;
@@ -24,7 +24,7 @@ public class ProcessFlowExecutor implements Callable<String> {
 	private String modelFilePrefix;
 	
 	public ProcessFlowExecutor(AbstractModel a_clModel,
-			PredictResults a_result, String a_yearSplit,
+			ResultsHolder a_result, String a_yearSplit,
 			String a_policySplit,GeneralInstances a_trainingData,
 			GeneralInstances a_evalData, GeneralInstances a_testingData,GeneralDataTag[] a_dataTags,String a_modelFilePath, String a_modelFilePrefix){
 		clModel=a_clModel;

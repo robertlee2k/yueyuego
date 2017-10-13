@@ -58,7 +58,7 @@ import yueyueGo.utility.modelEvaluation.EvaluationStore;
 import yueyueGo.utility.modelEvaluation.ModelStore;
 import yueyueGo.utility.modelEvaluation.ThresholdData;
 import yueyueGo.utility.modelPredict.ModelPredictor;
-import yueyueGo.utility.modelPredict.PredictResults;
+import yueyueGo.utility.modelPredict.ResultsHolder;
 
 public class BackTest {
 	public static final String RESULT_EXTENSION = "-Test Result.csv";
@@ -69,7 +69,7 @@ public class BackTest {
 	protected String m_currentPolicy; // 策略的名称，只是用于输出。
 	protected ArffFormat m_currentArffFormat; // 当前所用数据文件格式
 
-	protected String m_startYear = "2008";
+	protected String m_startYear = "2017";
 	protected String m_endYearMonth = "201709"; // 结尾月一般是当前月，这个月是没有数据的，最新数据是上月的
 
 	protected String[] m_handSetSplitYear = new String[] {};
@@ -254,7 +254,7 @@ public class BackTest {
 		String modelPrefix = m_currentArffFormat.m_data_file_prefix + "(" + ArffFormat.CURRENT_FORMAT + ")"; // "extData2005-2016";
 
 		GeneralInstances fullSetData = null;
-		PredictResults result = null;
+		ResultsHolder result = null;
 
 		// 创建存储评估结果的数据容器
 		ClassifySummaries modelSummaries = new ClassifySummaries(
@@ -309,7 +309,7 @@ public class BackTest {
 				BaseInstanceProcessor instanceProcessor = InstanceHandler.getHandler(fullSetData);
 				// 准备输出数据格式
 				if (result == null) {// initialize result instances
-					result = new PredictResults(clModel, fullSetData,m_currentArffFormat);
+					result = new ResultsHolder(clModel, fullSetData,m_currentArffFormat);
 				}
 				int policyIndex = BaseInstanceProcessor.findATTPosition(fullSetData,
 						m_currentArffFormat.m_policy_group);
@@ -383,7 +383,7 @@ public class BackTest {
 					clModelClone.setClassifySummaries(commonSummaries);
 
 					// 多线程的时候clone一个空result执行分配给线程。
-					PredictResults resultClone = PredictResults.makeCopy(result);
+					ResultsHolder resultClone = ResultsHolder.makeCopy(result);
 					threadResult.add(resultClone.getResultInstances());
 					// 创建实现了Runnable接口对象
 					ProcessFlowExecutor t = new ProcessFlowExecutor(clModelClone, resultClone, splitMark, policy,
@@ -577,7 +577,7 @@ public class BackTest {
 	 */
 	private GeneralInstances returnSelectedInstances(GeneralInstances fullOutput) throws Exception {
 		// 返回选股结果
-		int pos = BaseInstanceProcessor.findATTPosition(fullOutput, PredictResults.RESULT_SELECTED);
+		int pos = BaseInstanceProcessor.findATTPosition(fullOutput, ResultsHolder.RESULT_SELECTED);
 		BaseInstanceProcessor instanceProcessor = InstanceHandler.getHandler(fullOutput);
 		GeneralInstances fullMarketSelected = instanceProcessor.getInstancesSubset(fullOutput,
 				WekaInstanceProcessor.WEKA_ATT_PREFIX + pos + " = " + ModelPredictor.VALUE_SELECTED);
@@ -677,9 +677,9 @@ public class BackTest {
 				m_currentArffFormat.m_policy_group, targetPolicies, selectedInstances);
 		String dataToAdd = null;
 		if (mainModel instanceof ContinousModel) {
-			dataToAdd = PredictResults.RESULT_PREDICTED_WIN_RATE;
+			dataToAdd = ResultsHolder.RESULT_PREDICTED_WIN_RATE;
 		} else {
-			dataToAdd = PredictResults.RESULT_PREDICTED_PROFIT;
+			dataToAdd = ResultsHolder.RESULT_PREDICTED_PROFIT;
 		}
 		// 用另一个模型合并选股
 		GeneralInstances classifyResult = mergeResultWithData(mainResult, secondaryResult, dataToAdd,

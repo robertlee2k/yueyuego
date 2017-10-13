@@ -9,7 +9,7 @@ import yueyueGo.databeans.GeneralAttribute;
 import yueyueGo.databeans.GeneralInstance;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.utility.modelPredict.ModelPredictor;
-import yueyueGo.utility.modelPredict.PredictResults;
+import yueyueGo.utility.modelPredict.ResultsHolder;
 
 
 public class MergeClassifyResults {
@@ -37,9 +37,9 @@ public class MergeClassifyResults {
 		    // 创建输出结果
 		    GeneralInstances mergedResult = new DataInstances(left, 0);
 		    BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(mergedResult);
-		    mergedResult=instanceProcessor.AddAttribute(mergedResult,PredictResults.RESULT_PREDICTED_PROFIT, mergedResult.numAttributes());
-		    mergedResult=instanceProcessor.AddAttribute(mergedResult,PredictResults.RESULT_PREDICTED_WIN_RATE, mergedResult.numAttributes());
-		    mergedResult=instanceProcessor.AddAttribute(mergedResult,PredictResults.RESULT_SELECTED, mergedResult.numAttributes());
+		    mergedResult=instanceProcessor.AddAttribute(mergedResult,ResultsHolder.RESULT_PREDICTED_PROFIT, mergedResult.numAttributes());
+		    mergedResult=instanceProcessor.AddAttribute(mergedResult,ResultsHolder.RESULT_PREDICTED_WIN_RATE, mergedResult.numAttributes());
+		    mergedResult=instanceProcessor.AddAttribute(mergedResult,ResultsHolder.RESULT_SELECTED, mergedResult.numAttributes());
 			
 	
 		    GeneralInstance leftCurr;
@@ -55,12 +55,12 @@ public class MergeClassifyResults {
 			//结果文件属性
 			GeneralAttribute resultMA=resultData.attribute(m_policy_group);//ArffFormat.SELECTED_AVG_LINE);	
 			GeneralAttribute resultBias5=resultData.attribute(ArffFormat.BIAS5);
-			GeneralAttribute resultSelectedAtt=resultData.attribute(PredictResults.RESULT_SELECTED);
+			GeneralAttribute resultSelectedAtt=resultData.attribute(ResultsHolder.RESULT_SELECTED);
 			
 			//输出文件的属性
-			GeneralAttribute outputSelectedAtt=mergedResult.attribute(PredictResults.RESULT_SELECTED);
-			GeneralAttribute outputPredictAtt=mergedResult.attribute(PredictResults.RESULT_PREDICTED_PROFIT);
-			GeneralAttribute outputWinrateAtt=mergedResult.attribute(PredictResults.RESULT_PREDICTED_WIN_RATE);
+			GeneralAttribute outputSelectedAtt=mergedResult.attribute(ResultsHolder.RESULT_SELECTED);
+			GeneralAttribute outputPredictAtt=mergedResult.attribute(ResultsHolder.RESULT_PREDICTED_PROFIT);
+			GeneralAttribute outputWinrateAtt=mergedResult.attribute(ResultsHolder.RESULT_PREDICTED_WIN_RATE);
 
 			
 			//传入的结果集result不是排序的,而left的数据是按tradeDate日期排序的， 所以都先按ID排序。
@@ -138,22 +138,22 @@ public class MergeClassifyResults {
 						//根据传入的参数判断需要当前有什么，需要补充的数据是什么
 						double profit;
 						double winrate;
-						if (dataToAdd.equals(PredictResults.RESULT_PREDICTED_WIN_RATE)){
+						if (dataToAdd.equals(ResultsHolder.RESULT_PREDICTED_WIN_RATE)){
 							//当前结果集里有什么数据
-							profit=resultCurr.value(resultData.attribute(PredictResults.RESULT_PREDICTED_PROFIT));
+							profit=resultCurr.value(resultData.attribute(ResultsHolder.RESULT_PREDICTED_PROFIT));
 							//需要考虑参考结果集里的数据
-							winrate=referenceCurr.value(referenceData.attribute(PredictResults.RESULT_PREDICTED_WIN_RATE));
+							winrate=referenceCurr.value(referenceData.attribute(ResultsHolder.RESULT_PREDICTED_WIN_RATE));
 						}else{
 							//当前结果集里有什么数据
-							winrate=resultCurr.value(resultData.attribute(PredictResults.RESULT_PREDICTED_WIN_RATE));
+							winrate=resultCurr.value(resultData.attribute(ResultsHolder.RESULT_PREDICTED_WIN_RATE));
 							//需要添加参考集里的什么数据
-							profit=referenceCurr.value(referenceData.attribute(PredictResults.RESULT_PREDICTED_PROFIT));							
+							profit=referenceCurr.value(referenceData.attribute(ResultsHolder.RESULT_PREDICTED_PROFIT));							
 						}
 						
 						//当前结果集的选股结果
 						double selected=resultCurr.value(resultSelectedAtt);
 						//参考结果的选股结果（-1.0的排除）
-						double referenceSelected=referenceCurr.value(referenceData.attribute(PredictResults.RESULT_SELECTED));
+						double referenceSelected=referenceCurr.value(referenceData.attribute(ResultsHolder.RESULT_SELECTED));
 						if (selected==ModelPredictor.VALUE_SELECTED){
 							//当合并数据时，如果参照的二分类器的选择值为-1 则不选择该条记录
 							if (referenceSelected==ModelPredictor.VALUE_NEVER_SELECT){

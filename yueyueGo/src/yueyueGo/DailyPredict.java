@@ -35,7 +35,7 @@ import yueyueGo.utility.modelEvaluation.EvaluationStore;
 import yueyueGo.utility.modelEvaluation.ModelStore;
 import yueyueGo.utility.modelPredict.ModelPredictor;
 import yueyueGo.utility.modelPredict.PredictModelData;
-import yueyueGo.utility.modelPredict.PredictResults;
+import yueyueGo.utility.modelPredict.ResultsHolder;
 import yueyueGo.utility.modelPredict.PredictStatus;
 
 public class DailyPredict {
@@ -265,7 +265,7 @@ public class DailyPredict {
 		System.out.println("-----now output combined predictions----------"+nModel.getIdentifyName()+" (merged with："+cModel.getIdentifyName()+")");
 		GeneralInstances left=DataIOHandler.getSuppier().loadDataFromFile(getLeftArffFileName(nModel)); //获取刚生成的左侧文件（主要存了CODE）
 		MergeClassifyResults merge=new MergeClassifyResults(ARFF_FORMAT.m_policy_group);
-		GeneralInstances nMergedOutput=merge.mergeResults(nInstances,cInstances,PredictResults.RESULT_PREDICTED_PROFIT,left);
+		GeneralInstances nMergedOutput=merge.mergeResults(nInstances,cInstances,ResultsHolder.RESULT_PREDICTED_PROFIT,left);
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(nMergedOutput);
 		nMergedOutput=instanceProcessor.removeAttribs(nMergedOutput, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
 		String savedNFileName=PREDICT_RESULT_DIR+ "Merged Selected Result-"+nModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv";
@@ -274,7 +274,7 @@ public class DailyPredict {
 		System.out.println(nModel.getIdentifyName()+"----------prediction ends---------");
 		//以连续分类器为主，合并二分类器
 		System.out.println("-----now output combined predictions----------"+cModel.getIdentifyName()+" (merged with："+nModel.getIdentifyName()+")");
-		GeneralInstances cMergedOutput=merge.mergeResults(cInstances,nInstances,PredictResults.RESULT_PREDICTED_WIN_RATE,left);
+		GeneralInstances cMergedOutput=merge.mergeResults(cInstances,nInstances,ResultsHolder.RESULT_PREDICTED_WIN_RATE,left);
 		cMergedOutput=instanceProcessor.removeAttribs(cMergedOutput, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
 		String savedCFileName=PREDICT_RESULT_DIR+ "Merged Selected Result-"+cModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv";
 		DataIOHandler.getSaver().saveCSVFile(cMergedOutput, savedCFileName);
@@ -306,7 +306,7 @@ public class DailyPredict {
 		GeneralInstances left=DataIOHandler.getSuppier().loadDataFromFile(getLeftArffFileName(cFullModel)); //获取刚生成的左侧文件（主要存了CODE）
 
 		MergeClassifyResults merge=new MergeClassifyResults(ARFF_FORMAT.m_policy_group);
-		GeneralInstances mergedOutput=merge.mergeResults(cInstances,nInstances,PredictResults.RESULT_PREDICTED_WIN_RATE,left);
+		GeneralInstances mergedOutput=merge.mergeResults(cInstances,nInstances,ResultsHolder.RESULT_PREDICTED_WIN_RATE,left);
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(mergedOutput);
 		mergedOutput=instanceProcessor.removeAttribs(mergedOutput, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
 		String savedCFileName=PREDICT_RESULT_DIR+ "FullModel Selected Result-"+cFullModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv";
@@ -439,7 +439,7 @@ public class DailyPredict {
 		String evalPredefined=modelData.getEvalFileName();
 		
 		
-		PredictResults result = null;		
+		ResultsHolder result = null;		
 		//分策略组预测
 		for (int j = 0; j < clModel.m_policySubGroup.length; j++) {
 			String policy=clModel.m_policySubGroup[j];
@@ -463,7 +463,7 @@ public class DailyPredict {
 
 			if (result == null) {// initialize result instances
 				
-				result=new PredictResults(clModel, newData,ARFF_FORMAT);
+				result=new ResultsHolder(clModel, newData,ARFF_FORMAT);
 
 			}
 
