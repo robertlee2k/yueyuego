@@ -69,7 +69,7 @@ public class BackTest {
 	protected String m_currentPolicy; // 策略的名称，只是用于输出。
 	protected ArffFormat m_currentArffFormat; // 当前所用数据文件格式
 
-	protected String m_startYear = "2017";
+	protected String m_startYear = "2008";
 	protected String m_endYearMonth = "201709"; // 结尾月一般是当前月，这个月是没有数据的，最新数据是上月的
 
 	protected String[] m_handSetSplitYear = new String[] {};
