@@ -67,11 +67,11 @@ public class DailyPredict {
 
 		//BaggingM5P当前使用的预测模型
 		classifierName=ClassifyUtility.BAGGING_M5P+ClassifyUtility.MULTI_PCA_SURFIX;
-		addModelData(classifierName,format,"\\trans20052017(10)-baggingM5P-201707 MA ","201707");
+		addModelData(classifierName,format,"\\trans20052017(10)-baggingM5P-201708 MA ","201708");
 
 		//adaboost当前使用的预测模型
 		classifierName=ClassifyUtility.ADABOOST;
-		addModelData(classifierName,format,"\\trans20052017(10)-adaboost-201707 MA ","201707");
+		addModelData(classifierName,format,"\\trans20052017(10)-adaboost-201708 MA ","201708");
 
 
 		// fullmodel不保留legacy
@@ -123,7 +123,7 @@ public class DailyPredict {
 		int fileNum=0;
 		for (AbstractModel model : models) {
 			fileMap=worker.findModelFiles(model, currentMonth);
-			String targetPath=getPredictPath(model);
+			String targetPath=getPredictPath(model)+"\\new copied\\";
 			FileUtility.mkdirIfNotExist(targetPath);
 
 			String filename;
