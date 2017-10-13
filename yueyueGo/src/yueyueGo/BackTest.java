@@ -24,7 +24,7 @@
 package yueyueGo;
 
 /*
- * 谢谢悦悦的冠名支持
+ * 感谢悦悦的冠名支持:-)
  */
 import java.io.IOException;
 import java.util.HashMap;

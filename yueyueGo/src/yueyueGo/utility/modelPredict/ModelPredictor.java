@@ -13,9 +13,7 @@ import yueyueGo.dataFormat.ArffFormat;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.dataProcessor.InstanceHandler;
 import yueyueGo.dataProcessor.WekaInstanceProcessor;
-import yueyueGo.databeans.DataAttribute;
 import yueyueGo.databeans.DataInstance;
-import yueyueGo.databeans.DataInstances;
 import yueyueGo.databeans.GeneralAttribute;
 import yueyueGo.databeans.GeneralInstance;
 import yueyueGo.databeans.GeneralInstances;
@@ -34,15 +32,6 @@ public class ModelPredictor {
 	public static final int VALUE_NOT_SURE = 0; // 模型预测结果为“无法判断”
 	public static final int VALUE_NEVER_SELECT = -1; // 模型预测结果为“坚决不选”
 
-	/*
-	 * 工作常量定义区域
-	 */
-	// private GeneralAttribute m_idAttInResult;
-	// private GeneralAttribute m_yearMonthAtt;
-	// private GeneralAttribute m_shouyilvAtt;
-	private GeneralAttribute m_selectedAtt;
-	private GeneralAttribute m_predAtt;
-	private GeneralAttribute m_reversedPredAtt;
 
 	/*
 	 * 存储月度预测状态的变量（用以控制月度阈值）
@@ -80,13 +69,6 @@ public class ModelPredictor {
 					"predictStatus data mismatch for policy=" + policy + " modelID=" + clModel.getIdentifyName());
 		}
 
-		// 第一步： 定义输出结果集的各种须特殊设置的Attribute属性
-		GeneralInstances resultInstances = globalResultsHolder.getResultInstances();
-		// m_idAttInResult = resultInstances.attribute(ArffFormat.ID);
-		// m_yearMonthAtt = resultInstances.attribute(ArffFormat.YEAR_MONTH);
-		// m_shouyilvAtt = resultInstances.attribute(ArffFormat.SHOUYILV);
-		m_selectedAtt = resultInstances.attribute(ResultsHolder.RESULT_SELECTED);
-
 		// 第二步： 从评估文件中获取模型，并校验之。
 		// 先找对应的评估结果
 		// 获取评估数据
@@ -99,22 +81,16 @@ public class ModelPredictor {
 			throw new Exception(msg);
 		}
 
-		m_predAtt = null;
 		// 先new出一个格式对象进行格式校验
 		GeneralInstances predictDataFormat = new WekaInstances(dataToPredict, 0);
 		if (clModel instanceof NominalModel) {
 			// Nominal数据的格式需要额外处理
 			predictDataFormat = ((NominalModel) clModel).processDataForNominalClassifier(predictDataFormat);
-			m_predAtt = resultInstances.attribute(ResultsHolder.RESULT_PREDICTED_WIN_RATE);
-			m_reversedPredAtt = resultInstances.attribute(ResultsHolder.RESULT_REVERSE_PREDICTED_WIN_RATE);
-		} else {
-			m_predAtt = resultInstances.attribute(ResultsHolder.RESULT_PREDICTED_PROFIT);
-			m_reversedPredAtt = resultInstances.attribute(ResultsHolder.RESULT_REVERSE_PREDICTED_PROFIT);
-		}
+		} 
 
 		// 删除已保存的ID列，让待分类数据与模型数据一致 （此处的index是从1开始）
 		BaseInstanceProcessor instanceProcessor = InstanceHandler.getHandler(predictDataFormat);
-		// 每日预测数据里没有YEARMONTH
+		// 删除已知的比模型更多的数据列，准备校验（下面的函数这三个列不存在也不会报错，比如每日预测数据里没有YEARMONTH）
 		predictDataFormat = instanceProcessor.removeAttribs(predictDataFormat,
 				new String[] { ArffFormat.ID, ArffFormat.TRADE_DATE, ArffFormat.YEAR_MONTH });
 
@@ -147,7 +123,7 @@ public class ModelPredictor {
 		ResultsHolder predictResults = new ResultsHolder(globalResultsHolder);
 
 		// 调用分类器进行预测
-		predictUsingModels(clModel, dataToPredict, predictResults, yearSplit, model, reversedModel);
+		predictUsingModels(clModel, dataToPredict, predictResults, model, reversedModel);
 
 		// 第三步： 输出分类器的参数
 		double[] modelAUC = thresholdData.getModelAUC();
@@ -204,13 +180,12 @@ public class ModelPredictor {
 	 * @param clModel
 	 * @param incomingData
 	 * @param result
-	 * @param yearSplit
 	 * @param classifier
 	 * @param reversedClassifier
 	 * @throws Exception
 	 */
 	protected void predictUsingModels(AbstractModel clModel, GeneralInstances orignalData, ResultsHolder result,
-			String yearSplit, Classifier classifier, Classifier reversedClassifier) throws Exception {
+			Classifier classifier, Classifier reversedClassifier) throws Exception {
 
 		// 从输入数据中删除不必要的列，让待分类数据与模型数据一致
 		// 而此处的orignalData还保留（结果数据里有不少还要其中取出）
@@ -246,8 +221,8 @@ public class ModelPredictor {
 			result.copyDefinedAttributes(originalRow, resultRow);
 
 			// 将获得的预测值设定入结果集
-			resultRow.setValue(m_predAtt, pred);
-			resultRow.setValue(m_reversedPredAtt, reversedPred);
+			resultRow.setValue(result.predictAttribute(), pred);
+			resultRow.setValue(result.reversedPredAttribute(), reversedPred);
 			if (resultRow.value(ArffFormat.ID_POSITION - 1) != ids[i]) {
 				throw new Exception(" ID verfifications in predict process failed!");
 			}
@@ -360,8 +335,8 @@ public class ModelPredictor {
 			// 从输入中获取一行
 			GeneralInstance predictedRow = predectedValueInstances.instance(i);
 			// 获取预测的数据结果
-			pred = predictedRow.value(m_predAtt);
-			reversedPred = predictedRow.value(m_reversedPredAtt);
+			pred = predictedRow.value(judgeResults.predictAttribute());
+			reversedPred = predictedRow.value(judgeResults.reversedPredAttribute());
 			// 计算选股结果
 			double selected = ModelPredictor.VALUE_NOT_SURE;
 			// 先用反向模型判断
@@ -377,7 +352,7 @@ public class ModelPredictor {
 			// 将该行格式挂载至输出结果集中
 			judgeResults.setInstanceDateSet(predictedRow);
 			// 设置选择与否
-			predictedRow.setValue(m_selectedAtt, selected);
+			predictedRow.setValue(judgeResults.selectedAttribute(), selected);
 			// 将该行数据记入输出结果中
 			judgeResults.addInstance(predictedRow);
 	
@@ -475,6 +450,75 @@ public class ModelPredictor {
 	 * @return
 	 */
 
+	//	protected double getShouyilv(GeneralInstances a_shouyilvCache, int index, double id, double newClassValue)
+	//			throws Exception {
+	//		if (a_shouyilvCache == null) {
+	//			return Double.NaN;
+	//		}
+	//		if (index >= a_shouyilvCache.numInstances()) {
+	//			throw new Exception("Old Class Value has not been cached for index: " + index);
+	//		}
+	//		double cachedID = a_shouyilvCache.instance(index).value(0);
+	//		if (cachedID != id) {
+	//			throw new Exception("Data inconsistent error! Cached old class value id = " + cachedID
+	//					+ " while incoming id =" + id + " for index: " + index);
+	//		}
+	//		double shouyilv = a_shouyilvCache.instance(index).classValue();
+	//		if (newClassValue == 0 && shouyilv > 0 || newClassValue == 1 && shouyilv <= 0) {
+	//			throw new Exception("Data inconsistent error! Cached old class value id = " + shouyilv
+	//					+ " while incoming newClassValue =" + newClassValue + " for index: " + index
+	//					+ " @m_positiveLine=0");
+	//		}
+	//		return shouyilv;
+	//	}
+	//
+	//	/*
+	//	 * 暂存收益率 （可以用于将来的校验）
+	//	 */
+	//	protected GeneralInstances cacheShouyilvData(GeneralInstances inData) {
+	//		GeneralInstances cache = CreateCachedOldClassInstances();
+	//		double shouyilv = 0;
+	//		for (int i = 0; i < inData.numInstances(); i++) {
+	//			shouyilv = inData.instance(i).classValue();
+	//			// 暂存收益率
+	//
+	//			double id = inData.instance(i).value(0);
+	//			DataInstance cacheRow = new DataInstance(cache.numAttributes());
+	//			cacheRow.setDataset(cache);
+	//			cacheRow.setValue(0, id);
+	//			cacheRow.setValue(1, shouyilv);
+	//			cache.add(cacheRow);
+	//		}
+	//		return cache;
+	//	}
+	//
+	//	// 创建暂存oldClassValue（目前情况下为暂存收益率）的arff结构（id-收益率）
+	//	protected GeneralInstances CreateCachedOldClassInstances() {
+	//		DataAttribute pred = new DataAttribute(ArffFormat.ID);
+	//		DataAttribute shouyilv = new DataAttribute(ArffFormat.SHOUYILV);
+	//		ArrayList<GeneralAttribute> fvWekaAttributes = new ArrayList<GeneralAttribute>(2);
+	//		fvWekaAttributes.add(pred);
+	//		fvWekaAttributes.add(shouyilv);
+	//		GeneralInstances structure = new DataInstances("cachedOldClass", fvWekaAttributes, 0);
+	//		structure.setClassIndex(structure.numAttributes() - 1);
+	//		return structure;
+	//	}
+	
+		/**
+		 * classify the results
+		 * 
+		 */
+		public static double classify(Classifier classifier, GeneralInstance targetInstance) throws Exception {
+			Instance curr = WekaInstance.convertToWekaInstance(targetInstance);
+			double[] dist = classifier.distributionForInstance(curr);
+			if (curr.classAttribute().isNominal()) {
+				return dist[NominalModel.CLASS_POSITIVE_INDEX];
+			} else {
+				return dist[0];
+			}
+	
+		}
+
 	/**
 	 * 给定一个从大到小排序的数组，查找数组内最接近某一数组的数值的下标
 	 * 
@@ -504,72 +548,58 @@ public class ModelPredictor {
 		return currentIndex;
 	}
 
-	protected double getShouyilv(GeneralInstances a_shouyilvCache, int index, double id, double newClassValue)
-			throws Exception {
-		if (a_shouyilvCache == null) {
-			return Double.NaN;
-		}
-		if (index >= a_shouyilvCache.numInstances()) {
-			throw new Exception("Old Class Value has not been cached for index: " + index);
-		}
-		double cachedID = a_shouyilvCache.instance(index).value(0);
-		if (cachedID != id) {
-			throw new Exception("Data inconsistent error! Cached old class value id = " + cachedID
-					+ " while incoming id =" + id + " for index: " + index);
-		}
-		double shouyilv = a_shouyilvCache.instance(index).classValue();
-		if (newClassValue == 0 && shouyilv > 0 || newClassValue == 1 && shouyilv <= 0) {
-			throw new Exception("Data inconsistent error! Cached old class value id = " + shouyilv
-					+ " while incoming newClassValue =" + newClassValue + " for index: " + index
-					+ " @m_positiveLine=0");
-		}
-		return shouyilv;
-	}
+//	protected double getShouyilv(GeneralInstances a_shouyilvCache, int index, double id, double newClassValue)
+//			throws Exception {
+//		if (a_shouyilvCache == null) {
+//			return Double.NaN;
+//		}
+//		if (index >= a_shouyilvCache.numInstances()) {
+//			throw new Exception("Old Class Value has not been cached for index: " + index);
+//		}
+//		double cachedID = a_shouyilvCache.instance(index).value(0);
+//		if (cachedID != id) {
+//			throw new Exception("Data inconsistent error! Cached old class value id = " + cachedID
+//					+ " while incoming id =" + id + " for index: " + index);
+//		}
+//		double shouyilv = a_shouyilvCache.instance(index).classValue();
+//		if (newClassValue == 0 && shouyilv > 0 || newClassValue == 1 && shouyilv <= 0) {
+//			throw new Exception("Data inconsistent error! Cached old class value id = " + shouyilv
+//					+ " while incoming newClassValue =" + newClassValue + " for index: " + index
+//					+ " @m_positiveLine=0");
+//		}
+//		return shouyilv;
+//	}
+//
+//	/*
+//	 * 暂存收益率 （可以用于将来的校验）
+//	 */
+//	protected GeneralInstances cacheShouyilvData(GeneralInstances inData) {
+//		GeneralInstances cache = CreateCachedOldClassInstances();
+//		double shouyilv = 0;
+//		for (int i = 0; i < inData.numInstances(); i++) {
+//			shouyilv = inData.instance(i).classValue();
+//			// 暂存收益率
+//
+//			double id = inData.instance(i).value(0);
+//			DataInstance cacheRow = new DataInstance(cache.numAttributes());
+//			cacheRow.setDataset(cache);
+//			cacheRow.setValue(0, id);
+//			cacheRow.setValue(1, shouyilv);
+//			cache.add(cacheRow);
+//		}
+//		return cache;
+//	}
+//
+//	// 创建暂存oldClassValue（目前情况下为暂存收益率）的arff结构（id-收益率）
+//	protected GeneralInstances CreateCachedOldClassInstances() {
+//		DataAttribute pred = new DataAttribute(ArffFormat.ID);
+//		DataAttribute shouyilv = new DataAttribute(ArffFormat.SHOUYILV);
+//		ArrayList<GeneralAttribute> fvWekaAttributes = new ArrayList<GeneralAttribute>(2);
+//		fvWekaAttributes.add(pred);
+//		fvWekaAttributes.add(shouyilv);
+//		GeneralInstances structure = new DataInstances("cachedOldClass", fvWekaAttributes, 0);
+//		structure.setClassIndex(structure.numAttributes() - 1);
+//		return structure;
+//	}
 
-	/*
-	 * 暂存收益率 （可以用于将来的校验）
-	 */
-	protected GeneralInstances cacheShouyilvData(GeneralInstances inData) {
-		GeneralInstances cache = CreateCachedOldClassInstances();
-		double shouyilv = 0;
-		for (int i = 0; i < inData.numInstances(); i++) {
-			shouyilv = inData.instance(i).classValue();
-			// 暂存收益率
-
-			double id = inData.instance(i).value(0);
-			DataInstance cacheRow = new DataInstance(cache.numAttributes());
-			cacheRow.setDataset(cache);
-			cacheRow.setValue(0, id);
-			cacheRow.setValue(1, shouyilv);
-			cache.add(cacheRow);
-		}
-		return cache;
-	}
-
-	// 创建暂存oldClassValue（目前情况下为暂存收益率）的arff结构（id-收益率）
-	protected GeneralInstances CreateCachedOldClassInstances() {
-		DataAttribute pred = new DataAttribute(ArffFormat.ID);
-		DataAttribute shouyilv = new DataAttribute(ArffFormat.SHOUYILV);
-		ArrayList<GeneralAttribute> fvWekaAttributes = new ArrayList<GeneralAttribute>(2);
-		fvWekaAttributes.add(pred);
-		fvWekaAttributes.add(shouyilv);
-		GeneralInstances structure = new DataInstances("cachedOldClass", fvWekaAttributes, 0);
-		structure.setClassIndex(structure.numAttributes() - 1);
-		return structure;
-	}
-
-	/**
-	 * classify the results
-	 * 
-	 */
-	public static double classify(Classifier classifier, GeneralInstance targetInstance) throws Exception {
-		Instance curr = WekaInstance.convertToWekaInstance(targetInstance);
-		double[] dist = classifier.distributionForInstance(curr);
-		if (curr.classAttribute().isNominal()) {
-			return dist[NominalModel.CLASS_POSITIVE_INDEX];
-		} else {
-			return dist[0];
-		}
-
-	}
 }

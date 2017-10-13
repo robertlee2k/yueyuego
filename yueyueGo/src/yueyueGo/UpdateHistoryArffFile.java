@@ -198,13 +198,13 @@ public class UpdateHistoryArffFile {
 			String sourceFilePrefix=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group10\\v_onceyield_group10all";
 			String fileSurfix=".txt"; 
 //			String fileSurfix=".csv";
-			GeneralInstances fullData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2005-2009"+fileSurfix,currentArffFormat);
+			GeneralInstances fullData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2005_2009"+fileSurfix,currentArffFormat);
 
-			GeneralInstances addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2010-2013"+fileSurfix,currentArffFormat);
+			GeneralInstances addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2010_2013"+fileSurfix,currentArffFormat);
 			BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullData);
 			fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
 			System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
-			addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2014-2017"+fileSurfix,currentArffFormat);
+			addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2014_2017"+fileSurfix,currentArffFormat);
 			fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
 			System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
 	

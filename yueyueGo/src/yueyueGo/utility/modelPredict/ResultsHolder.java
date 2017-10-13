@@ -35,33 +35,50 @@ public class ResultsHolder implements Serializable{
 	public static final String RESULT_REVERSE_PREDICTED_WIN_RATE = "ReversedWinRate";
 	public static final String RESULT_SELECTED = "selected";
 	
-	private GeneralInstances m_result_instances;
-	private HashMap<GeneralAttribute,GeneralAttribute> m_attribsToCopy;
+	private GeneralInstances m_result_instances; //结果集的容器
+	private HashMap<GeneralAttribute,GeneralAttribute> m_attribsToCopy; //结果集中需要从输入数据中直接拷贝过来的数据
+	
+	//结果集的属性定义
+	private GeneralAttribute m_selectedAtt; //选股属性
+	private GeneralAttribute m_predAtt;     //正向预测值属性
+	private GeneralAttribute m_reversedPredAtt; //反向预测值属性
+	
 	
 	/*
 	 * 正常初始化构造函数
 	 */
 	public ResultsHolder(AbstractModel clModel, GeneralInstances fullSetData,ArffFormat currentArff) throws Exception {
 		
-	
+
+		// 根据输入数据，构建空的结果集
 		DataInstances header = new DataInstances(fullSetData, 0);
 		// 去掉不必要的字段，保留在Arff定义中的Result左半边数据
 		BaseInstanceProcessor instanceProcessor = InstanceHandler.getHandler(header);
 		m_result_instances = instanceProcessor.filterAttribs(header, currentArff.m_result_left_part);
-
+		
+		//然后再添加相应的预测结果字段，并暂存其属性值
 		if (clModel instanceof NominalModel) {
 			m_result_instances = instanceProcessor.AddAttribute(m_result_instances, ResultsHolder.RESULT_PREDICTED_WIN_RATE,
 					m_result_instances.numAttributes());
 			m_result_instances = instanceProcessor.AddAttribute(m_result_instances, ResultsHolder.RESULT_REVERSE_PREDICTED_WIN_RATE,
 					m_result_instances.numAttributes());
+
+			m_predAtt = m_result_instances.attribute(ResultsHolder.RESULT_PREDICTED_WIN_RATE);
+			m_reversedPredAtt = m_result_instances.attribute(ResultsHolder.RESULT_REVERSE_PREDICTED_WIN_RATE);
+
 		} else {
 			m_result_instances = instanceProcessor.AddAttribute(m_result_instances, ResultsHolder.RESULT_PREDICTED_PROFIT, m_result_instances.numAttributes());
 			m_result_instances = instanceProcessor.AddAttribute(m_result_instances, ResultsHolder.RESULT_REVERSE_PREDICTED_PROFIT,
 					m_result_instances.numAttributes());
+			m_predAtt = m_result_instances.attribute(ResultsHolder.RESULT_PREDICTED_PROFIT);
+			m_reversedPredAtt = m_result_instances.attribute(ResultsHolder.RESULT_REVERSE_PREDICTED_PROFIT);
+
 		}
 		m_result_instances = instanceProcessor.AddAttribute(m_result_instances, ResultsHolder.RESULT_SELECTED, m_result_instances.numAttributes());
+		m_selectedAtt = m_result_instances.attribute(ResultsHolder.RESULT_SELECTED);
 
-		//把需要拷贝的属性定义清楚
+		
+		//查找出需要从输入数据中拷贝的属性
 		findAttributesToCopy(fullSetData,currentArff);
 	}
 	
@@ -76,9 +93,6 @@ public class ResultsHolder implements Serializable{
 	/**
 	 * 
 	 * 找出需要从测试数据中直接拷贝至结果集的属性列表（包括校验字段和训练模型时须舍弃的字段）
-	 * 
-	 * @param result
-	 *            结果集
 	 */
 	private void findAttributesToCopy(GeneralInstances fullSetData,ArffFormat currentArff) {
 
@@ -162,6 +176,18 @@ public class ResultsHolder implements Serializable{
 				throw new IllegalStateException("Unhandled attribute type!");
 			}
 		}
+	}
+
+	public GeneralAttribute selectedAttribute() {
+		return m_selectedAtt;
+	}
+
+	public GeneralAttribute predictAttribute() {
+		return m_predAtt;
+	}
+
+	public GeneralAttribute reversedPredAttribute() {
+		return m_reversedPredAtt;
 	}
 
 }
