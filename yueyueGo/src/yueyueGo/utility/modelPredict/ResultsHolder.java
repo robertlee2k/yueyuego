@@ -43,18 +43,29 @@ public class ResultsHolder implements Serializable{
 	 */
 	private GeneralInstances m_result_instances; //结果集的容器
 	private String m_policyGroup;	//分组策略
+	private int m_resultType; //当前结果集的类型（见下面常量定义）
 
 	/*
 	 * 工作常量区
 	 */
 	private HashMap<GeneralAttribute,GeneralAttribute> m_attribsToCopy; //结果集中需要从输入数据中直接拷贝过来的数据
 	
+	
 	//结果集的属性定义
 	private GeneralAttribute m_selectedAtt; //选股属性
 	private GeneralAttribute m_predAtt;     //正向预测值属性
 	private GeneralAttribute m_reversedPredAtt; //反向预测值属性
-	
 
+	/*
+	 * 常量定义区域
+	 */
+	public static final int VALUE_SELECTED = 1; // 模型预测结果为“选择”
+	public static final int VALUE_NOT_SURE = 0; // 模型预测结果为“无法判断”
+	public static final int VALUE_NEVER_SELECT = -1; // 模型预测结果为“坚决不选”
+	
+	
+	public static final int NOMINAL_RESULT = 666; // 当前结果类型为二分类器结果
+	public static final int CONTINIOUS_RESULT = 888; // 当前结果类型为连续分类器结果
 
 	
 	/*
@@ -79,6 +90,8 @@ public class ResultsHolder implements Serializable{
 
 			m_predAtt = m_result_instances.attribute(ResultsHolder.RESULT_PREDICTED_WIN_RATE);
 			m_reversedPredAtt = m_result_instances.attribute(ResultsHolder.RESULT_REVERSE_PREDICTED_WIN_RATE);
+			
+			m_resultType=ResultsHolder.NOMINAL_RESULT;
 
 		} else {
 			m_result_instances = instanceProcessor.AddAttribute(m_result_instances, ResultsHolder.RESULT_PREDICTED_PROFIT, m_result_instances.numAttributes());
@@ -86,7 +99,8 @@ public class ResultsHolder implements Serializable{
 					m_result_instances.numAttributes());
 			m_predAtt = m_result_instances.attribute(ResultsHolder.RESULT_PREDICTED_PROFIT);
 			m_reversedPredAtt = m_result_instances.attribute(ResultsHolder.RESULT_REVERSE_PREDICTED_PROFIT);
-
+			
+			m_resultType=ResultsHolder.CONTINIOUS_RESULT;
 		}
 		m_result_instances = instanceProcessor.AddAttribute(m_result_instances, ResultsHolder.RESULT_SELECTED, m_result_instances.numAttributes());
 		m_selectedAtt = m_result_instances.attribute(ResultsHolder.RESULT_SELECTED);
@@ -106,6 +120,7 @@ public class ResultsHolder implements Serializable{
 		m_reversedPredAtt=src.m_reversedPredAtt;
 		m_selectedAtt=src.m_selectedAtt;
 		m_policyGroup=src.m_policyGroup;
+		m_resultType=src.m_resultType;
 	}
 	
 	/**
@@ -277,8 +292,7 @@ public class ResultsHolder implements Serializable{
 	 * @return
 	 * @throws Exception
 	 */
-	public GeneralInstances mergeResults(ResultsHolder reference, String dataToAdd,
-			GeneralInstances left) throws Exception {
+	public GeneralInstances mergeResults(ResultsHolder reference, GeneralInstances left) throws Exception {
 	
 		String policyGroup=this.m_policyGroup;
 		
@@ -394,10 +408,10 @@ public class ResultsHolder implements Serializable{
 					BaseInstanceProcessor.copyToNewInstance(leftCurr, newData, srcStartIndex, srcEndIndex,
 							targetStartIndex);
 	
-					// 根据传入的参数判断需要当前有什么，需要补充的数据是什么
+					// 根据目前ResultHolder的属性判断当前有什么，需要补充的数据是什么
 					double profit;
 					double winrate;
-					if (dataToAdd.equals(ResultsHolder.RESULT_PREDICTED_WIN_RATE)) {
+					if (this.m_resultType==ResultsHolder.CONTINIOUS_RESULT) {
 						// 当前结果集里有什么数据
 						profit = resultCurr.value(resultData.attribute(ResultsHolder.RESULT_PREDICTED_PROFIT));
 						// 需要考虑参考结果集里的数据
@@ -414,10 +428,10 @@ public class ResultsHolder implements Serializable{
 					// 参考结果的选股结果（-1.0的排除）
 					double referenceSelected = referenceCurr
 							.value(referenceData.attribute(ResultsHolder.RESULT_SELECTED));
-					if (selected == ModelPredictor.VALUE_SELECTED) {
+					if (selected == ResultsHolder.VALUE_SELECTED) {
 						// 当合并数据时，如果参照的二分类器的选择值为-1 则不选择该条记录
-						if (referenceSelected == ModelPredictor.VALUE_NEVER_SELECT) {
-							selected = ModelPredictor.VALUE_NOT_SURE;
+						if (referenceSelected == ResultsHolder.VALUE_NEVER_SELECT) {
+							selected = ResultsHolder.VALUE_NOT_SURE;
 							resultChanged++;
 							if (shouyilvAtt != null) {
 								double shouyilv = leftCurr.value(shouyilvAtt);
@@ -430,9 +444,9 @@ public class ResultsHolder implements Serializable{
 						} else { // 不需要修改选股结果
 							finalSelected++;
 						}
-					} else if (selected == ModelPredictor.VALUE_NEVER_SELECT) {
+					} else if (selected == ResultsHolder.VALUE_NEVER_SELECT) {
 						// 这个是因为要兼容交易程序（只接受0和1两个值，不接受-1）
-						selected = ModelPredictor.VALUE_NOT_SURE;
+						selected = ResultsHolder.VALUE_NOT_SURE;
 					}
 	
 					newData.setValue(outputPredictAtt, profit);
@@ -479,7 +493,7 @@ public class ResultsHolder implements Serializable{
 		int pos = BaseInstanceProcessor.findATTPosition(selectResultInstances, RESULT_SELECTED);
 		BaseInstanceProcessor instanceProcessor = InstanceHandler.getHandler(selectResultInstances);
 		GeneralInstances fullMarketSelected = instanceProcessor.getInstancesSubset(selectResultInstances,
-				WekaInstanceProcessor.WEKA_ATT_PREFIX + pos + " = " + ModelPredictor.VALUE_SELECTED);
+				WekaInstanceProcessor.WEKA_ATT_PREFIX + pos + " = " + ResultsHolder.VALUE_SELECTED);
 		return fullMarketSelected;
 		
 	}

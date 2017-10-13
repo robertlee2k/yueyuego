@@ -92,9 +92,10 @@ public class DailyPredict {
 		try {
 			System.out.println("Database URL in USE : "+EnvConstants.URL + " Please ensure this is the correct environment you want to use.....");
 //			callFullModelPredict();
-			callDailyPredict();
+			copyPredictModels();
+
+//			callDailyPredict();
 			
-//			copyPredictModels();
 
 		} catch (Exception e) {
 
@@ -106,7 +107,7 @@ public class DailyPredict {
 	 * 从回测模型中选取最新的模型拷贝至目标目录
 	 */
 	public static void copyPredictModels() throws Exception {
-		String currentMonth="201707"; //这是评估有的最新数据的月份
+		String currentMonth="201708"; //这是评估有的最新数据的月份
 		HashMap<String, String> fileMap;
 		BackTest worker=new BackTest();
 		worker.init();
@@ -262,7 +263,7 @@ public class DailyPredict {
 		System.out.println("-----now output combined predictions----------"+nModel.getIdentifyName()+" (merged with："+cModel.getIdentifyName()+")");
 		GeneralInstances left=DataIOHandler.getSuppier().loadDataFromFile(getLeftArffFileName(nModel)); //获取刚生成的左侧文件（主要存了CODE）
 		
-		GeneralInstances nMergedOutput=nResultHolder.mergeResults(cResultHolder,ResultsHolder.RESULT_PREDICTED_PROFIT,left);
+		GeneralInstances nMergedOutput=nResultHolder.mergeResults(cResultHolder,left);
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(nMergedOutput);
 		nMergedOutput=instanceProcessor.removeAttribs(nMergedOutput, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
 		String savedNFileName=PREDICT_RESULT_DIR+ "Merged Selected Result-"+nModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv";
@@ -271,7 +272,7 @@ public class DailyPredict {
 		System.out.println(nModel.getIdentifyName()+"----------prediction ends---------");
 		//以连续分类器为主，合并二分类器
 		System.out.println("-----now output combined predictions----------"+cModel.getIdentifyName()+" (merged with："+nModel.getIdentifyName()+")");
-		GeneralInstances cMergedOutput=cResultHolder.mergeResults(nResultHolder,ResultsHolder.RESULT_PREDICTED_WIN_RATE,left);
+		GeneralInstances cMergedOutput=cResultHolder.mergeResults(nResultHolder,left);
 		cMergedOutput=instanceProcessor.removeAttribs(cMergedOutput, new String[]{ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV}); // 去掉空的收益率或positive字段
 		String savedCFileName=PREDICT_RESULT_DIR+ "Merged Selected Result-"+cModel.getIdentifyName()+"-"+FormatUtility.getDateStringFor(1)+".csv";
 		DataIOHandler.getSaver().saveCSVFile(cMergedOutput, savedCFileName);

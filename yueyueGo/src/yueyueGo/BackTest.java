@@ -68,7 +68,7 @@ public class BackTest {
 	protected ArffFormat m_currentArffFormat; // 当前所用数据文件格式
 
 	protected String m_startYear = "2008";
-	protected String m_endYearMonth = "201709"; // 结尾月一般是当前月，这个月是没有数据的，最新数据是上月的
+	protected String m_endYearMonth = "201710"; // 结尾月一般是当前月，这个月是没有数据的，最新数据是上月的
 
 	protected String[] m_handSetSplitYear = new String[] {};
 
@@ -512,8 +512,7 @@ public class BackTest {
 	}
 
 	// 合并格式，子类中可覆盖
-	protected GeneralInstances mergeResultWithData(ResultsHolder  resultData, ResultsHolder referenceData,
-			String dataToAdd, int format) throws Exception {
+	protected GeneralInstances mergeResultWithData(ResultsHolder  resultData, ResultsHolder referenceData, int format) throws Exception {
 		// 读取磁盘上预先保存的左侧数据
 		GeneralInstances left = null;
 
@@ -526,7 +525,7 @@ public class BackTest {
 		left = DataIOHandler.getSuppier()
 				.loadDataFromFile(AppContext.getC_ROOT_DIRECTORY() + m_currentArffFormat.getLeftDataFileName());
 
-		GeneralInstances mergedResult = resultData.mergeResults(referenceData, dataToAdd, left);
+		GeneralInstances mergedResult = resultData.mergeResults(referenceData,  left);
 
 		// 返回结果之前需要按TradeDate重新排序
 		int tradeDateIndex = BaseInstanceProcessor.findATTPosition(mergedResult, ArffFormat.TRADE_DATE);
@@ -657,14 +656,9 @@ public class BackTest {
 				m_currentArffFormat.m_policy_group, targetPolicies, selectedInstances);
 		monthlyShouyilvAnalysis[1] = DataAnalysis.analyzeByMonth("单模型选股:"+mainModel.getIdentifyName(), m_startYear, m_endYearMonth,
 				m_currentArffFormat.m_policy_group, targetPolicies, selectedInstances);
-		String dataToAdd = null;
-		if (mainModel instanceof ContinousModel) {
-			dataToAdd = ResultsHolder.RESULT_PREDICTED_WIN_RATE;
-		} else {
-			dataToAdd = ResultsHolder.RESULT_PREDICTED_PROFIT;
-		}
+
 		// 用另一个模型合并选股
-		GeneralInstances classifyResult = mergeResultWithData(mainResult, secondaryResult, dataToAdd,
+		GeneralInstances classifyResult = mergeResultWithData(mainResult, secondaryResult ,
 				mainModel.getModelArffFormat());
 		selectedInstances = ResultsHolder.returnSelectedInstances(classifyResult);
 		System.out.println("--filtered by secondary classifier:( " + secondaryModel.getIdentifyName() + ")");

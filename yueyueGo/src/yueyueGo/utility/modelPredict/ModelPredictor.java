@@ -26,14 +26,6 @@ import yueyueGo.utility.modelEvaluation.ThresholdData;
 public class ModelPredictor {
 
 	/*
-	 * 常量定义区域
-	 */
-	public static final int VALUE_SELECTED = 1; // 模型预测结果为“选择”
-	public static final int VALUE_NOT_SURE = 0; // 模型预测结果为“无法判断”
-	public static final int VALUE_NEVER_SELECT = -1; // 模型预测结果为“坚决不选”
-
-
-	/*
 	 * 存储月度预测状态的变量（用以控制月度阈值）
 	 */
 	private PredictStatus m_predictStatus;
@@ -86,7 +78,7 @@ public class ModelPredictor {
 		if (clModel instanceof NominalModel) {
 			// Nominal数据的格式需要额外处理
 			predictDataFormat = ((NominalModel) clModel).processDataForNominalClassifier(predictDataFormat);
-		} 
+		}
 
 		// 删除已保存的ID列，让待分类数据与模型数据一致 （此处的index是从1开始）
 		BaseInstanceProcessor instanceProcessor = InstanceHandler.getHandler(predictDataFormat);
@@ -130,16 +122,16 @@ public class ModelPredictor {
 		double reversedThreshold = thresholdData.getReversedThreshold();
 		double targetPercentile = thresholdData.getDefaultPercentile();
 		double reversedPercentile = thresholdData.getReversedPercent();
+		double reversedThresholdMax=thresholdData.getReversedThreshold();
 
-		if ("".equals(yearSplit)) { // TODO 预测的时候应该也传相应的yearSplit进来，不应该为空
+		if ("".equals(yearSplit)) { 
 			// 输出评估结果及所使用阀值及期望样本百分比
-			String evalSummary = "\r\n\t ( with params: modelYearSplit=" + modelYearSplit;
+			String evalSummary = "\r\n\t ( with params: modelYearSplit=" + modelYearSplit
 			// + " threshold="+ FormatUtility.formatDouble(thresholdMin, 0, 3);
-			// + " , percentile="+ FormatUtility.formatPercent(targetPercentile
-			// / 100) ;
+			 + " , targetPercentile="+ FormatUtility.formatPercent(targetPercentile / 100) ;
+			
 			evalSummary += " ,reversedModelYearSplit=" + reversedModelYearSplit
-			// +" ,reversedThreshold="+
-			// FormatUtility.formatDouble(reversedThresholdMax, 0, 3)
+			 +" ,reversedThreshold="+ FormatUtility.formatDouble(reversedThresholdMax, 0, 3)
 					+ " , reversedPercentile=" + FormatUtility.formatPercent(reversedPercentile / 100);
 			evalSummary += " ,modelAUC@focusAreaRatio=";
 			double[] focusAreaRatio = thresholdData.getFocosAreaRatio();
@@ -242,7 +234,7 @@ public class ModelPredictor {
 	 * @return
 	 * @throws Exception
 	 */
-	public ResultsHolder judgePredictResults(AbstractModel clModel, ResultsHolder predictResultHolder, String yearSplit,
+	protected ResultsHolder judgePredictResults(AbstractModel clModel, ResultsHolder predictResultHolder, String yearSplit,
 			String policy, ThresholdData thresholdData) throws Exception {
 		double[] thresholds = thresholdData.getThresholds();
 		double[] percentiles = thresholdData.getPercentiles();
@@ -325,7 +317,7 @@ public class ModelPredictor {
 	 */
 	private void judgeResultByMiniBatch(ResultsHolder judgeResults, GeneralInstances predectedValueInstances,
 			StringBuffer dailyStatus, double thresholdMin, double reversedThresholdMax) throws Exception {
-	
+
 		int selectedCount = 0;
 		int predictedCount = predectedValueInstances.numInstances();
 		// 用阈值对每一条数据进行选股判定
@@ -338,15 +330,15 @@ public class ModelPredictor {
 			pred = predictedRow.value(judgeResults.predictAttribute());
 			reversedPred = predictedRow.value(judgeResults.reversedPredAttribute());
 			// 计算选股结果
-			double selected = ModelPredictor.VALUE_NOT_SURE;
+			double selected = ResultsHolder.VALUE_NOT_SURE;
 			// 先用反向模型判断
 			if (reversedPred < reversedThresholdMax) {
-				selected = ModelPredictor.VALUE_NEVER_SELECT;// 反向模型坚定认为当前数据为0
+				selected = ResultsHolder.VALUE_NEVER_SELECT;// 反向模型坚定认为当前数据为0
 				// （这是合并多个模型预测时使用的）
 			}
 			// 如果正向模型与方向模型得出的值矛盾（在使用不同模型时），则用正向模型的数据覆盖方向模型（因为毕竟正向模型的ratio比较小）
 			if (pred >= thresholdMin) { // 本模型估计当前数据是1值
-				selected = ModelPredictor.VALUE_SELECTED;
+				selected = ResultsHolder.VALUE_SELECTED;
 				selectedCount++;
 			}
 			// 将该行格式挂载至输出结果集中
@@ -355,12 +347,12 @@ public class ModelPredictor {
 			predictedRow.setValue(judgeResults.selectedAttribute(), selected);
 			// 将该行数据记入输出结果中
 			judgeResults.addInstance(predictedRow);
-	
+
 		}
 		// 更新统计
 		m_predictStatus.addCummulativePredicted(predictedCount);
 		m_predictStatus.addCummulativeSelected(selectedCount);
-	
+
 		// 记录统计数值至CSV
 		dailyStatus.append(thresholdMin);
 		dailyStatus.append(',');
@@ -371,7 +363,7 @@ public class ModelPredictor {
 		dailyStatus.append(((double) selectedCount) / predictedCount);
 		dailyStatus.append(',');
 		dailyStatus.append(m_predictStatus.getCummulativeSelectRatio());
-	
+		dailyStatus.append("\r\n");
 	}
 
 	/**
@@ -444,84 +436,23 @@ public class ModelPredictor {
 	}
 
 	/**
-	 * 根据当前选股计算调整的threshold值
+	 * classify the results
 	 * 
-	 * @param thresholdData
-	 * @return
 	 */
-
-	//	protected double getShouyilv(GeneralInstances a_shouyilvCache, int index, double id, double newClassValue)
-	//			throws Exception {
-	//		if (a_shouyilvCache == null) {
-	//			return Double.NaN;
-	//		}
-	//		if (index >= a_shouyilvCache.numInstances()) {
-	//			throw new Exception("Old Class Value has not been cached for index: " + index);
-	//		}
-	//		double cachedID = a_shouyilvCache.instance(index).value(0);
-	//		if (cachedID != id) {
-	//			throw new Exception("Data inconsistent error! Cached old class value id = " + cachedID
-	//					+ " while incoming id =" + id + " for index: " + index);
-	//		}
-	//		double shouyilv = a_shouyilvCache.instance(index).classValue();
-	//		if (newClassValue == 0 && shouyilv > 0 || newClassValue == 1 && shouyilv <= 0) {
-	//			throw new Exception("Data inconsistent error! Cached old class value id = " + shouyilv
-	//					+ " while incoming newClassValue =" + newClassValue + " for index: " + index
-	//					+ " @m_positiveLine=0");
-	//		}
-	//		return shouyilv;
-	//	}
-	//
-	//	/*
-	//	 * 暂存收益率 （可以用于将来的校验）
-	//	 */
-	//	protected GeneralInstances cacheShouyilvData(GeneralInstances inData) {
-	//		GeneralInstances cache = CreateCachedOldClassInstances();
-	//		double shouyilv = 0;
-	//		for (int i = 0; i < inData.numInstances(); i++) {
-	//			shouyilv = inData.instance(i).classValue();
-	//			// 暂存收益率
-	//
-	//			double id = inData.instance(i).value(0);
-	//			DataInstance cacheRow = new DataInstance(cache.numAttributes());
-	//			cacheRow.setDataset(cache);
-	//			cacheRow.setValue(0, id);
-	//			cacheRow.setValue(1, shouyilv);
-	//			cache.add(cacheRow);
-	//		}
-	//		return cache;
-	//	}
-	//
-	//	// 创建暂存oldClassValue（目前情况下为暂存收益率）的arff结构（id-收益率）
-	//	protected GeneralInstances CreateCachedOldClassInstances() {
-	//		DataAttribute pred = new DataAttribute(ArffFormat.ID);
-	//		DataAttribute shouyilv = new DataAttribute(ArffFormat.SHOUYILV);
-	//		ArrayList<GeneralAttribute> fvWekaAttributes = new ArrayList<GeneralAttribute>(2);
-	//		fvWekaAttributes.add(pred);
-	//		fvWekaAttributes.add(shouyilv);
-	//		GeneralInstances structure = new DataInstances("cachedOldClass", fvWekaAttributes, 0);
-	//		structure.setClassIndex(structure.numAttributes() - 1);
-	//		return structure;
-	//	}
-	
-		/**
-		 * classify the results
-		 * 
-		 */
-		public static double classify(Classifier classifier, GeneralInstance targetInstance) throws Exception {
-			Instance curr = WekaInstance.convertToWekaInstance(targetInstance);
-			double[] dist = classifier.distributionForInstance(curr);
-			if (curr.classAttribute().isNominal()) {
-				return dist[NominalModel.CLASS_POSITIVE_INDEX];
-			} else {
-				return dist[0];
-			}
-	
+	public static double classify(Classifier classifier, GeneralInstance targetInstance) throws Exception {
+		Instance curr = WekaInstance.convertToWekaInstance(targetInstance);
+		double[] dist = classifier.distributionForInstance(curr);
+		if (curr.classAttribute().isNominal()) {
+			return dist[NominalModel.CLASS_POSITIVE_INDEX];
+		} else {
+			return dist[0];
 		}
+
+	}
 
 	/**
 	 * 给定一个从大到小排序的数组，查找数组内最接近某一数组的数值的下标
-	 * 
+	 * （可以考虑用BinarySearch代替）
 	 * @param sortedValues
 	 * @param targetValue
 	 * @return
@@ -548,58 +479,66 @@ public class ModelPredictor {
 		return currentIndex;
 	}
 
-//	protected double getShouyilv(GeneralInstances a_shouyilvCache, int index, double id, double newClassValue)
-//			throws Exception {
-//		if (a_shouyilvCache == null) {
-//			return Double.NaN;
-//		}
-//		if (index >= a_shouyilvCache.numInstances()) {
-//			throw new Exception("Old Class Value has not been cached for index: " + index);
-//		}
-//		double cachedID = a_shouyilvCache.instance(index).value(0);
-//		if (cachedID != id) {
-//			throw new Exception("Data inconsistent error! Cached old class value id = " + cachedID
-//					+ " while incoming id =" + id + " for index: " + index);
-//		}
-//		double shouyilv = a_shouyilvCache.instance(index).classValue();
-//		if (newClassValue == 0 && shouyilv > 0 || newClassValue == 1 && shouyilv <= 0) {
-//			throw new Exception("Data inconsistent error! Cached old class value id = " + shouyilv
-//					+ " while incoming newClassValue =" + newClassValue + " for index: " + index
-//					+ " @m_positiveLine=0");
-//		}
-//		return shouyilv;
-//	}
-//
-//	/*
-//	 * 暂存收益率 （可以用于将来的校验）
-//	 */
-//	protected GeneralInstances cacheShouyilvData(GeneralInstances inData) {
-//		GeneralInstances cache = CreateCachedOldClassInstances();
-//		double shouyilv = 0;
-//		for (int i = 0; i < inData.numInstances(); i++) {
-//			shouyilv = inData.instance(i).classValue();
-//			// 暂存收益率
-//
-//			double id = inData.instance(i).value(0);
-//			DataInstance cacheRow = new DataInstance(cache.numAttributes());
-//			cacheRow.setDataset(cache);
-//			cacheRow.setValue(0, id);
-//			cacheRow.setValue(1, shouyilv);
-//			cache.add(cacheRow);
-//		}
-//		return cache;
-//	}
-//
-//	// 创建暂存oldClassValue（目前情况下为暂存收益率）的arff结构（id-收益率）
-//	protected GeneralInstances CreateCachedOldClassInstances() {
-//		DataAttribute pred = new DataAttribute(ArffFormat.ID);
-//		DataAttribute shouyilv = new DataAttribute(ArffFormat.SHOUYILV);
-//		ArrayList<GeneralAttribute> fvWekaAttributes = new ArrayList<GeneralAttribute>(2);
-//		fvWekaAttributes.add(pred);
-//		fvWekaAttributes.add(shouyilv);
-//		GeneralInstances structure = new DataInstances("cachedOldClass", fvWekaAttributes, 0);
-//		structure.setClassIndex(structure.numAttributes() - 1);
-//		return structure;
-//	}
+	// protected double getShouyilv(GeneralInstances a_shouyilvCache, int index,
+	// double id, double newClassValue)
+	// throws Exception {
+	// if (a_shouyilvCache == null) {
+	// return Double.NaN;
+	// }
+	// if (index >= a_shouyilvCache.numInstances()) {
+	// throw new Exception("Old Class Value has not been cached for index: " +
+	// index);
+	// }
+	// double cachedID = a_shouyilvCache.instance(index).value(0);
+	// if (cachedID != id) {
+	// throw new Exception("Data inconsistent error! Cached old class value id =
+	// " + cachedID
+	// + " while incoming id =" + id + " for index: " + index);
+	// }
+	// double shouyilv = a_shouyilvCache.instance(index).classValue();
+	// if (newClassValue == 0 && shouyilv > 0 || newClassValue == 1 && shouyilv
+	// <= 0) {
+	// throw new Exception("Data inconsistent error! Cached old class value id =
+	// " + shouyilv
+	// + " while incoming newClassValue =" + newClassValue + " for index: " +
+	// index
+	// + " @m_positiveLine=0");
+	// }
+	// return shouyilv;
+	// }
+	//
+	// /*
+	// * 暂存收益率 （可以用于将来的校验）
+	// */
+	// protected GeneralInstances cacheShouyilvData(GeneralInstances inData) {
+	// GeneralInstances cache = CreateCachedOldClassInstances();
+	// double shouyilv = 0;
+	// for (int i = 0; i < inData.numInstances(); i++) {
+	// shouyilv = inData.instance(i).classValue();
+	// // 暂存收益率
+	//
+	// double id = inData.instance(i).value(0);
+	// DataInstance cacheRow = new DataInstance(cache.numAttributes());
+	// cacheRow.setDataset(cache);
+	// cacheRow.setValue(0, id);
+	// cacheRow.setValue(1, shouyilv);
+	// cache.add(cacheRow);
+	// }
+	// return cache;
+	// }
+	//
+	// // 创建暂存oldClassValue（目前情况下为暂存收益率）的arff结构（id-收益率）
+	// protected GeneralInstances CreateCachedOldClassInstances() {
+	// DataAttribute pred = new DataAttribute(ArffFormat.ID);
+	// DataAttribute shouyilv = new DataAttribute(ArffFormat.SHOUYILV);
+	// ArrayList<GeneralAttribute> fvWekaAttributes = new
+	// ArrayList<GeneralAttribute>(2);
+	// fvWekaAttributes.add(pred);
+	// fvWekaAttributes.add(shouyilv);
+	// GeneralInstances structure = new DataInstances("cachedOldClass",
+	// fvWekaAttributes, 0);
+	// structure.setClassIndex(structure.numAttributes() - 1);
+	// return structure;
+	// }
 
 }
