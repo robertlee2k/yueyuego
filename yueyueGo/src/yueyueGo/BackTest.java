@@ -335,7 +335,7 @@ public class BackTest {
 				}
 
 				GeneralInstances evaluationData = null;
-				if (clModel.is_skipEvalInBacktest() == false) {// 如果需要评估模型，则取评估数据
+				if (clModel.is_skipEvalInBacktest() == false || clModel.is_skipTrainInBacktest() == false) {// 如果需要评估模型，则取评估数据（训练后有个confusion matrix也需要评估数据）
 					System.out.println("start to split evaluation set from  data: " + splitEvalClause);
 					evaluationData = instanceProcessor.getInstancesSubset(fullSetData, splitEvalClause);
 					// 对于二分类器，这里要把输入的收益率转换为分类变量
