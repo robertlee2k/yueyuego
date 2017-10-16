@@ -204,7 +204,8 @@ public class ResultsHolder implements Serializable{
 			} else if (from.isNumeric()) {
 				targetData.setValue(to, srcData.value(from));
 			} else if (from.isString()) {
-				targetData.setValue(to, srcData.stringValue(from));
+				String label = srcData.stringValue(from);
+				targetData.setValue(to, label);
 			} else {
 				throw new IllegalStateException("Unhandled attribute type!");
 			}
