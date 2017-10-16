@@ -10,8 +10,8 @@ import yueyueGo.databeans.GeneralDataTag;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.utility.ClassifySummaries;
 import yueyueGo.utility.FormatUtility;
-import yueyueGo.utility.modelEvaluation.EvaluationConfDefinition;
 import yueyueGo.utility.modelEvaluation.EvaluationStore;
+import yueyueGo.utility.modelPredict.TargetSelectRatioConfig;
 
 /**
  * @author robert
@@ -200,7 +200,7 @@ public abstract class AbstractModel implements Serializable{
 		output.append("\r\n");
 		output.append("reversed TOP AREA RATIO="+EvaluationStore.REVERSED_TOP_AREA_RATIO);
 		output.append("\r\n");
-		EvaluationConfDefinition evalConf=new EvaluationConfDefinition(this.classifierName ,this.m_policySubGroup,null);
+		TargetSelectRatioConfig evalConf=new TargetSelectRatioConfig(this.classifierName ,this.m_policySubGroup,null);
 		output.append(evalConf.showEvaluationParameters());
 		output.append("\r\n");
 		output.append("***************************************");

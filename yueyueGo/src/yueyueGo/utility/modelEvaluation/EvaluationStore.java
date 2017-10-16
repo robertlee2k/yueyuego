@@ -50,8 +50,6 @@ public class EvaluationStore {
 
 	public static final int YEAR_SPLIT_LIMIT = 2007; // 回测模型的起始点， 在这之前无数据
 
-	// //以下为不可配置参数，内部存储
-	// public EvaluationConfDefinition m_evalConf; //用于评估的对象
 
 	public static final String THRESHOLD_EXTENSION = ".eval";
 	// 切分构建模型和评估数据的模式常量定义
@@ -123,10 +121,7 @@ public class EvaluationStore {
 		this.m_evalFileName = EvaluationStore.concatFileName(m_filePrefix, m_targetYearSplit, m_policySplit,
 				m_classifierName) + EvaluationStore.THRESHOLD_EXTENSION;
 
-		// //TODO ArffFormat 不能这么设NULL
-		// EvaluationConfDefinition evalConf=new
-		// EvaluationConfDefinition(m_classifierName,clModel.m_policySubGroup,null);
-		// this.m_evalConf=evalConf;
+
 	}
 
 	/*

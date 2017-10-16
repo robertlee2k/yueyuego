@@ -1,4 +1,4 @@
-package yueyueGo.utility.modelEvaluation;
+package yueyueGo.utility.modelPredict;
 
 import java.io.Serializable;
 
@@ -8,12 +8,12 @@ import yueyueGo.dataFormat.MomentumDataFormat;
 import yueyueGo.utility.ClassifyUtility;
 
 
-@Deprecated
+
 /**
  * @author robert
- *  用于评估模型的各种参数
+ * 设定各种均线状态下选股比率目标值
  */
-public class EvaluationConfDefinition implements Serializable{
+public class TargetSelectRatioConfig implements Serializable{
 
 	/**
 	 * 
@@ -28,10 +28,8 @@ public class EvaluationConfDefinition implements Serializable{
 	protected String[] m_policyGroup;
 
 
-	public static double LIFT_UP_TARGET=1.8; //选择样本阀值时TP FP RATIO从何开始，这个是常量
 
-
-	public EvaluationConfDefinition(String classifierName,String[] a_policyGroup,ArffFormat format) {
+	public TargetSelectRatioConfig(String classifierName,String[] a_policyGroup,ArffFormat format) {
 		m_policyGroup=a_policyGroup;
 
 		if (format instanceof AvgLineDataFormat || format==null){			//TODO ArffFormat 不能应该有NULL
@@ -46,9 +44,6 @@ public class EvaluationConfDefinition implements Serializable{
 				SAMPLE_LOWER_LIMIT =new double[] { 0.01};//, 0.015, 0.02, 0.03, 0.03 }; // 各条均线选择样本的下限
 				SAMPLE_UPPER_LIMIT =new double[] { 0.03};//, 0.04, 0.05, 0.06, 0.06 }; // 各条均线选择样本的上限
 
-//				SAMPLE_LOWER_LIMIT =new double[] { 0.02, 0.02, 0.02, 0.03, 0.03 }; // 各条均线选择样本的下限
-//				SAMPLE_UPPER_LIMIT =new double[] { 0.06, 0.06, 0.06, 0.06, 0.06 }; // 各条均线选择样本的上限
-				//			SAMPLE_UPPER_LIMIT =new double[] { 0.1, 0.1, 0.1, 0.1, 0.1 }; // 各条均线选择样本的上限
 				break;
 			case ClassifyUtility.RANDOM_FOREST:
 				SAMPLE_LOWER_LIMIT =new double[] { 0.03, 0.03, 0.03, 0.03, 0.03 }; // 各条均线选择样本的下限
@@ -86,18 +81,11 @@ public class EvaluationConfDefinition implements Serializable{
 			}
 		}else { //format instanceof FullModelDataFormat
 			//未定义的格式
-//		case ClassifyUtility.MYNN_MLP:
-//			SAMPLE_LOWER_LIMIT =new double[] { 0.02}; // 各条均线选择样本的下限
-//			SAMPLE_UPPER_LIMIT =new double[] { 0.04}; // 各条均线选择样本的上限
-//			break;
-//		case ClassifyUtility.BAGGING_M5P:
-//			SAMPLE_LOWER_LIMIT = new double[] {0.02}; // 各条均线选择样本的下限 
-//			SAMPLE_UPPER_LIMIT = new double[]  {0.04};
 //			break;
 		}
 	}
 
-	public EvaluationParams getEvaluationInstance(String policy){
+	public TargetSelectRatio getEvaluationInstance(String policy){
 		int pos=-1;
 		for (int i=0;i<m_policyGroup.length;i++){
 			if (m_policyGroup[i].equals(policy)){
@@ -108,13 +96,12 @@ public class EvaluationConfDefinition implements Serializable{
 		if (pos==-1) {
 			throw new RuntimeException("cannot find policy ["+policy+"]in m_policySubGroup");
 		}
-		return new EvaluationParams(SAMPLE_LOWER_LIMIT[pos],
-				SAMPLE_UPPER_LIMIT[pos], LIFT_UP_TARGET);
+		return new TargetSelectRatio(SAMPLE_LOWER_LIMIT[pos],SAMPLE_UPPER_LIMIT[pos]);
 	}
 
 
 	/*
-	 * 输出当前的评估阀值定义
+	 * 输出当前的目标选股比率定义
 	 */
 	public String showEvaluationParameters(){
 		StringBuffer result=new StringBuffer();
@@ -131,29 +118,7 @@ public class EvaluationConfDefinition implements Serializable{
 			result.append(" / ");
 		}
 		result.append("}\n");
-		result.append("LIFT_UP_TARGET="+LIFT_UP_TARGET);
 		return result.toString();
 	}
 
-	/*
-	 * 输出当前的合并阀值定义
-	 */
-//	public static String showMergeParameters(){
-//		StringBuffer result=new StringBuffer();
-//		result.append("WINRATE_FILTER_FOR_SHOUYILV={");
-//		for (double d : WINRATE_FILTER_FOR_SHOUYILV) {
-//			result.append(d);
-//			result.append(",");
-//		}
-//		result.append("}\n");
-//
-//		result.append("SHOUYILV_FILTER_FOR_WINRATE={");
-//		for (double d : SHOUYILV_FILTER_FOR_WINRATE) {
-//			result.append(d);
-//			result.append(",");
-//		}
-//		result.append("}");
-//		return result.toString();
-
-//	}
 }
