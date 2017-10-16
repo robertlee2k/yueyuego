@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 
 import weka.classifiers.Classifier;
 import weka.core.Instance;
@@ -196,6 +197,9 @@ public class ModelPredictor {
 		// 开始循环，用分类模型和阈值对每一条数据进行预测，并存入输出结果集
 		double pred;
 		double reversedPred;
+		
+		//找出要拷贝的字段定义
+		HashMap<GeneralAttribute,GeneralAttribute> attribsToCopy=result.findAttributesToCopy(orignalData);
 
 		for (int i = 0; i < dataForModel.numInstances(); i++) {
 			GeneralInstance originalRow = orignalData.instance(i); // 原始的数据
@@ -211,7 +215,7 @@ public class ModelPredictor {
 			DataInstance resultRow = new DataInstance(result.getResultInstances().numAttributes());
 			result.setInstanceDateSet(resultRow);
 			// 那些无须计算的校验字段的值直接从测试数据集拷贝到输出结果集
-			result.copyDefinedAttributes(originalRow, resultRow);
+			ResultsHolder.copyDefinedAttributes(attribsToCopy,originalRow, resultRow);
 
 			// 将获得的预测值设定入结果集
 			resultRow.setValue(result.predictAttribute(), pred);

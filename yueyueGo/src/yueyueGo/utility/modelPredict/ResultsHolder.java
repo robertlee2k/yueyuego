@@ -48,8 +48,7 @@ public class ResultsHolder implements Serializable{
 	/*
 	 * 工作常量区
 	 */
-	private HashMap<GeneralAttribute,GeneralAttribute> m_attribsToCopy; //结果集中需要从输入数据中直接拷贝过来的数据
-	
+	String[] m_attribsToCopy;//结果集中需要从输入数据中直接拷贝过来的数据
 	
 	//结果集的属性定义
 	private GeneralAttribute m_selectedAtt; //选股属性
@@ -72,8 +71,10 @@ public class ResultsHolder implements Serializable{
 	 * 正常初始化构造函数
 	 */
 	public ResultsHolder(AbstractModel clModel, GeneralInstances fullSetData,ArffFormat currentArff) throws Exception {
-		
+
+		//定义policyGropu，以及需要从输入数据中拷贝的属性
 		m_policyGroup=currentArff.m_policy_group;
+		m_attribsToCopy=ResultsHolder.defineResultLeftPart(m_policyGroup);
 
 		// 根据输入数据，构建空的结果集
 		DataInstances header = new DataInstances(fullSetData, 0);
@@ -105,9 +106,6 @@ public class ResultsHolder implements Serializable{
 		m_result_instances = instanceProcessor.AddAttribute(m_result_instances, ResultsHolder.RESULT_SELECTED, m_result_instances.numAttributes());
 		m_selectedAtt = m_result_instances.attribute(ResultsHolder.RESULT_SELECTED);
 
-		
-		//查找出需要从输入数据中拷贝的属性
-		findAttributesToCopy(fullSetData,currentArff);
 	}
 	
 	/*
@@ -127,13 +125,13 @@ public class ResultsHolder implements Serializable{
 	 * 
 	 * 找出需要从测试数据中直接拷贝至结果集的属性列表（包括校验字段和训练模型时须舍弃的字段）
 	 */
-	private void findAttributesToCopy(GeneralInstances fullSetData,ArffFormat currentArff) {
+	public HashMap<GeneralAttribute,GeneralAttribute> findAttributesToCopy(GeneralInstances incomingData) {
 
-		// 从输入数据中查找上述定义的直接拷贝的字段
-		List<String> toCopyList = Arrays.asList(currentArff.m_result_left_part);
+		// 从本实体类的定义中获取直接拷贝的字段列表
+		List<String> toCopyList = Arrays.asList(m_attribsToCopy);
 
-		ArrayList<GeneralAttribute> allAttributes = fullSetData.getAttributeList();
-		m_attribsToCopy=new HashMap<GeneralAttribute,GeneralAttribute> ();
+		ArrayList<GeneralAttribute> allAttributes = incomingData.getAttributeList();
+		HashMap<GeneralAttribute,GeneralAttribute> attribsToCopy=new HashMap<GeneralAttribute,GeneralAttribute> ();
 		GeneralAttribute resultAttribute;
 		for (GeneralAttribute srcAttribute : allAttributes) {
 			String attribuateName=srcAttribute.name();
@@ -141,10 +139,11 @@ public class ResultsHolder implements Serializable{
 				resultAttribute=m_result_instances.attribute(attribuateName);
 				if (resultAttribute!=null){
 					//如果在结果数据中也有，注意！这里要用copy新创建出来两个attribute，否则attribute数据可能会在运行中发生变化
-					m_attribsToCopy.put(srcAttribute.copy(), resultAttribute.copy());
+					attribsToCopy.put(srcAttribute.copy(), resultAttribute.copy());
 				}
 			}
 		}
+		return attribsToCopy;
 
 	}
 	
@@ -171,10 +170,6 @@ public class ResultsHolder implements Serializable{
 		return m_result_instances;
 	}
 
-
-//	public HashMap<GeneralAttribute, GeneralAttribute> getAttribsToCopy() {
-//		return m_attribsToCopy;
-//	}
 	
 	/*
 	 * 这个应该是多余的，因为下面的add会setDataSet
@@ -190,8 +185,8 @@ public class ResultsHolder implements Serializable{
 		m_result_instances.add(instance);
 	}
 	
-	public void copyDefinedAttributes(GeneralInstance srcData,GeneralInstance targetData){
-		for (Entry<GeneralAttribute, GeneralAttribute>  entry : m_attribsToCopy.entrySet()) {
+	public static void copyDefinedAttributes(HashMap<GeneralAttribute,GeneralAttribute> attribsToCopy,GeneralInstance srcData,GeneralInstance targetData){
+		for (Entry<GeneralAttribute, GeneralAttribute>  entry : attribsToCopy.entrySet()) {
 			GeneralAttribute from=entry.getKey();
 			GeneralAttribute to=entry.getValue();
 			if (from.isNominal()) {
@@ -482,6 +477,17 @@ public class ResultsHolder implements Serializable{
 		}
 	
 		return mergedResult;
+	}
+
+	/**
+	 * 定义结果集中的左侧数据
+	 * @return
+	 */
+	public static String[] defineResultLeftPart(String policy_group) {
+		return new String[]{ArffFormat.ID,ArffFormat.TRADE_DATE, ArffFormat.YEAR_MONTH,
+				policy_group,
+				ArffFormat.BIAS5,ArffFormat.CODE,ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV
+				};
 	}
 
 	/**

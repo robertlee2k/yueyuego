@@ -6,6 +6,7 @@ import yueyueGo.databeans.GeneralAttribute;
 import yueyueGo.databeans.GeneralInstance;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.utility.FormatUtility;
+import yueyueGo.utility.modelPredict.ResultsHolder;
 
 public abstract class ArffFormat {
 	
@@ -104,10 +105,7 @@ public abstract class ArffFormat {
 		m_arff_data_full=FormatUtility.concatStrings(temp,m_model_attribute_format, new String[]{SHOUYILV});
 		
 		//不同的ArffFormat中m_policy_group不一样
-		m_result_left_part=new String[]{ArffFormat.ID,ArffFormat.TRADE_DATE, ArffFormat.YEAR_MONTH,
-				m_policy_group,
-				ArffFormat.BIAS5,ArffFormat.CODE,ArffFormat.IS_POSITIVE,ArffFormat.SHOUYILV
-				};
+		m_result_left_part=ResultsHolder.defineResultLeftPart(m_policy_group);
 		
 
 	}

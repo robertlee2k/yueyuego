@@ -301,6 +301,11 @@ public class BackTest {
 				if (fullSetData == null) {
 					fullSetData = getBacktestInstances(clModel);
 				}
+				// 准备输出数据格式
+				if (result == null) {// initialize result instances
+					result = new ResultsHolder(clModel,fullSetData, m_currentArffFormat);
+				}
+				
 				BaseInstanceProcessor instanceProcessor = InstanceHandler.getHandler(fullSetData);
 
 				int policyIndex = BaseInstanceProcessor.findATTPosition(fullSetData,
@@ -356,10 +361,7 @@ public class BackTest {
 							+ testingData.numAttributes());
 				}
 				
-				// 准备输出数据格式
-				if (result == null) {// initialize result instances
-					result = new ResultsHolder(clModel, testingData, m_currentArffFormat);
-				}
+	
 				// // 在不够强的机器上做模型训练时释放内存，改为每次从硬盘加载的方式
 				// if (clModel.is_skipTrainInBacktest() == false) {
 				// fullSetData = null; // 释放内存
