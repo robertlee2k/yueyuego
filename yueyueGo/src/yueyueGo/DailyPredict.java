@@ -384,7 +384,7 @@ public class DailyPredict {
 		ResultsHolder result=new ResultsHolder(clModel, fullData,ARFF_FORMAT);
 		if (m_tradeDate==null){ //这应该仅发生当日数据为空的时候
 			if (inData.numInstances()==0){
-				System.out.println("there are no data to predict today");
+				System.err.println("there are no data to predict today");
 				return result; //返回空的结果集
 			}else {
 				throw new Exception("tradeDate is null while there are data to predict today ");

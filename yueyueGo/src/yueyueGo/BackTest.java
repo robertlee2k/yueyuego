@@ -249,7 +249,7 @@ public class BackTest {
 		String modelPrefix = m_currentArffFormat.m_data_file_prefix + "(" + ArffFormat.CURRENT_FORMAT + ")"; // "extData2005-2016";
 
 		GeneralInstances fullSetData = null;
-		ResultsHolder result = null;
+		ResultsHolder selectedResult = null;
 
 		// 创建存储评估结果的数据容器
 		ClassifySummaries modelSummaries = new ClassifySummaries(
@@ -302,8 +302,8 @@ public class BackTest {
 					fullSetData = getBacktestInstances(clModel);
 				}
 				// 准备输出数据格式
-				if (result == null) {// initialize result instances
-					result = new ResultsHolder(clModel,fullSetData, m_currentArffFormat);
+				if (selectedResult == null) {// initialize result instances
+					selectedResult = new ResultsHolder(clModel,fullSetData, m_currentArffFormat);
 				}
 				
 				BaseInstanceProcessor instanceProcessor = InstanceHandler.getHandler(fullSetData);
@@ -377,7 +377,7 @@ public class BackTest {
 					clModelClone.setClassifySummaries(commonSummaries);
 
 					// 多线程的时候clone一个空result执行分配给线程。
-					ResultsHolder resultClone = ResultsHolder.makeCopy(result);
+					ResultsHolder resultClone = ResultsHolder.makeCopy(selectedResult);
 					threadResult.add(resultClone);
 					// 创建实现了Runnable接口对象
 					ProcessFlowExecutor t = new ProcessFlowExecutor(clModelClone, resultClone, splitMark, policy,
@@ -398,10 +398,10 @@ public class BackTest {
 					} while (threadPool.getActiveCount() == threadPool.getMaximumPoolSize());
 				} else {
 					// 不需要多线程并发的时候，还是按传统方式处理
-					ProcessFlowExecutor worker = new ProcessFlowExecutor(clModel, result, splitMark, policy,
+					ProcessFlowExecutor worker = new ProcessFlowExecutor(clModel, selectedResult, splitMark, policy,
 							trainingData, evaluationData, testingData, splitYearTags, modelFilePath, modelPrefix);
 					worker.doPredictProcess();
-					System.out.println("accumulated predicted rows: " + result.getResultInstances().numInstances());
+					System.out.println("accumulated predicted rows: " + selectedResult.getResultInstances().numInstances());
 				}
 
 			} // end for (int j = BEGIN_FROM_POLICY
@@ -425,14 +425,14 @@ public class BackTest {
 			}
 			// 将所有线程的result合并
 			for (ResultsHolder threadResultsHolder : threadResult) {
-				result.addResults(threadResultsHolder);
+				selectedResult.addResults(threadResultsHolder);
 			}
 
 			threadResult.removeAllElements(); // 释放内存
 		}
 
 		// 保存评估结果至文件
-		saveBacktestResultFile(result.getResultInstances(), clModel.getIdentifyName());
+		saveBacktestResultFile(selectedResult.getResultInstances(), clModel.getIdentifyName());
 
 		FileUtility.write(
 				m_backtest_result_dir + m_currentArffFormat.m_data_file_prefix + "-" + clModel.getIdentifyName()
@@ -445,7 +445,7 @@ public class BackTest {
 				modelSummaries.getDailyHeader() + modelSummaries.getDailySummary(), "GBK");
 
 		System.out.println(clModel.getIdentifyName() + " test result file saved.");
-		return result;
+		return selectedResult;
 	}
 
 	/**
