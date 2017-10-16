@@ -67,11 +67,11 @@ public class DailyPredict {
 
 		//BaggingM5P当前使用的预测模型
 		classifierName=ClassifyUtility.BAGGING_M5P+ClassifyUtility.MULTI_PCA_SURFIX;
-		addModelData(classifierName,format,"\\trans20052017(10)-baggingM5P-201708 MA ","201708");
+		addModelData(classifierName,format,"\\trans20052017(10)-baggingM5P-201709 MA ","201709");
 
 		//adaboost当前使用的预测模型
 		classifierName=ClassifyUtility.ADABOOST;
-		addModelData(classifierName,format,"\\trans20052017(10)-adaboost-201708 MA ","201708");
+		addModelData(classifierName,format,"\\trans20052017(10)-adaboost-201709 MA ","201709");
 
 
 		// fullmodel不保留legacy
@@ -107,7 +107,7 @@ public class DailyPredict {
 	 * 从回测模型中选取最新的模型拷贝至目标目录
 	 */
 	public static void copyPredictModels() throws Exception {
-		String currentMonth="201708"; //这是评估有的最新数据的月份
+		String currentMonth="201709"; //这是评估有的最新数据的月份
 		HashMap<String, String> fileMap;
 		BackTest worker=new BackTest();
 		worker.init();
