@@ -140,8 +140,8 @@ public class ResultsHolder implements Serializable{
 			if (toCopyList.contains(attribuateName) == true) { //如果在输入数据中有这个数据
 				resultAttribute=m_result_instances.attribute(attribuateName);
 				if (resultAttribute!=null){
-					//如果在结果数据中也有
-					m_attribsToCopy.put(srcAttribute, resultAttribute);
+					//如果在结果数据中也有，注意！这里要用copy新创建出来两个attribute，否则attribute数据可能会在运行中发生变化
+					m_attribsToCopy.put(srcAttribute.copy(), resultAttribute.copy());
 				}
 			}
 		}

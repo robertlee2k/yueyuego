@@ -191,6 +191,7 @@ public class ModelPredictor {
 
 		// 留下一个校验位
 		double[] ids = orignalData.attributeToDoubleArray(ArffFormat.ID_POSITION - 1);
+		
 
 		// 开始循环，用分类模型和阈值对每一条数据进行预测，并存入输出结果集
 		double pred;
