@@ -565,7 +565,7 @@ public class DailyPredict {
 		}
 		// Arraylist中是时间正序保存的，最近的TradeDate在最后面，我们的目标是选取最近的且不等于TradeDate的status返回去
 		PredictStatus status=null;
-		
+		//倒序从最新的日期开始遍历
 		for(int i=statusList.size()-1;i==0;i--){
 			PredictStatus predictStatus=statusList.get(i);
 			if (predictStatus!=null){
@@ -597,7 +597,11 @@ public class DailyPredict {
 		}
 		SerializationHelper.write(filename, statusList);
 		StringBuffer statusListBuffer=new StringBuffer();
-		for (PredictStatus predictStatus : statusList) {
+		
+		PredictStatus predictStatus=null; 
+		//倒序从最新的日期开始遍历
+		for(int i=statusList.size()-1;i==0;i--){
+			predictStatus=statusList.get(i);
 			if (predictStatus!=null){
 				statusListBuffer.append(predictStatus.toTXTString());
 				statusListBuffer.append("\r\n");
