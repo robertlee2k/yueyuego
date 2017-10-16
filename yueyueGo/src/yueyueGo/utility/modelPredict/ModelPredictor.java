@@ -284,7 +284,7 @@ public class ModelPredictor {
 			dailyStatusBuffer.append(',');
 			dailyStatusBuffer.append(m_predictStatus.getCummulativeSelected());
 			dailyStatusBuffer.append(',');
-			dailyStatusBuffer.append(m_predictStatus.getCummulativeSelectRatio());
+			dailyStatusBuffer.append(m_predictStatus.getAverageSelectedRatio());
 			dailyStatusBuffer.append(',');
 
 			// 开始调整阈值
@@ -350,8 +350,7 @@ public class ModelPredictor {
 
 		}
 		// 更新统计
-		m_predictStatus.addCummulativePredicted(predictedCount);
-		m_predictStatus.addCummulativeSelected(selectedCount);
+		m_predictStatus.updateAfterCurrentPeriod(predictedCount, selectedCount);
 
 		// 记录统计数值至CSV
 		dailyStatus.append(thresholdMin);
@@ -362,7 +361,7 @@ public class ModelPredictor {
 		dailyStatus.append(',');
 		dailyStatus.append(((double) selectedCount) / predictedCount);
 		dailyStatus.append(',');
-		dailyStatus.append(m_predictStatus.getCummulativeSelectRatio());
+		dailyStatus.append(m_predictStatus.getAverageSelectedRatio());
 		dailyStatus.append("\r\n");
 	}
 
@@ -391,23 +390,22 @@ public class ModelPredictor {
 	}
 
 	/**
-	 * 动态调整阈值 如果迄今为止已选股票的百分比已经大于threshold中的预期百分比，则提升阈值单位。 TODO
-	 * 按总数调整似乎不尽合理（如果某天大涨选了很多票，会影响后续天数的选股），是否应该结合日平均的方式？（但也要排除日100%但选股极少的情况）
+	 * 动态调整阈值 如果迄今为止已选股票的百分比已经大于threshold中的预期百分比，则提升阈值单位。 
+	 * 之前版本是按总数调整似乎不尽合理（如果某天大涨选了很多票，会影响后续天数的选股）
+	 * 目前改为日平均的方式（但也要排除日100%但选股极少的情况）
 	 * 是否每日分母的机会数用上月的日平均？或中位数？
-	 * 
-	 * @param nextBatchSize
 	 * @param thresholds
 	 * @param percentiles
 	 * @param targetPercentile
 	 * @param currentIndex
 	 * @return
 	 */
-	private double adjustThreshold(int nextBatchSize, double[] thresholds, double[] percentiles,
+	private double adjustThreshold(int nextBatchSize,double[] thresholds, double[] percentiles,
 			double targetPercentile, int currentIndex, StringBuffer dailyStatusBuffer) {
 		double adjustedThreshold = 0.0;
 
-		double currentPercentile = (1 - m_predictStatus.getCummulativeSelectRatio()) * 100;
-		// 如果迄今为止已选股票的百分比已经大于threshold中的预期百分比，则提升阈值单位。
+		double currentPercentile = (1 - m_predictStatus.getAverageSelectedRatio()) * 100;
+		// 如果迄今为止已选股票的百分比已经大于threshold中的预期百分比，则提升阈值单位。否则降低它。
 		double adjustedPercentile;
 		if (Double.isNaN(currentPercentile)) { // 还未开始本批次预测时
 			adjustedThreshold = thresholds[currentIndex]; // 缺省的判断为1的阈值，大于该值意味着该模型判断其为1
@@ -415,20 +413,19 @@ public class ModelPredictor {
 		} else {
 
 			// 找到调整的阈值数量
-			double predictedCount = m_predictStatus.getCummulativePredicted();
+			int nonZeroPredictedDays=m_predictStatus.getNonZeroPredictedDays();
 
-			adjustedPercentile = (targetPercentile * (predictedCount + nextBatchSize)
-					- currentPercentile * predictedCount) / nextBatchSize;
+			adjustedPercentile= targetPercentile*(nonZeroPredictedDays+1)-currentPercentile*nonZeroPredictedDays;
+//			double predictedCount = m_predictStatus.getCummulativePredicted();
+//			adjustedPercentile = (targetPercentile * (predictedCount + nextBatchSize)
+//					- currentPercentile * predictedCount) / nextBatchSize;
+
 
 			// 根据需要调节的Percentile找相应的threshold，因为threshold数组的关系，选股比例最少也是0.001，最大是0.1
-			// if (adjustedPercentile<100){ //已选股不多还可以继续选
 			// percentile目前假定为是个递减数组 TODO （应该可以改成binarySearch方式实现）
 			int adjustedInex = findNearestIndexInArray(percentiles, adjustedPercentile);
 			adjustedThreshold = thresholds[adjustedInex]; // 判断为1的阈值，大于该值意味着该模型判断其为1
-			// }else {
-			// // 已选股太多时直接设该批次不选
-			// adjustedThreshold = Double.MAX_VALUE;
-			// }
+
 		}
 		dailyStatusBuffer.append(adjustedPercentile);
 		dailyStatusBuffer.append(',');

@@ -21,10 +21,13 @@ public class PredictStatus implements Serializable {
 	private String modelID; //模型的ID
 	private String yearSplit; //年月分类
 	private String policy;  //策略分类
-	private String startDate; //以下的累计数值的起始日 （这个是在每日预测中使用）
+	private String startDate; //以下的累计数值的起始日 （这个是作为参考值记录）
 	private Date tradeDate; //最终更新数据的日期 （这个是在每日预测中使用）
 	private int cummulativePredicted=0; //累计预测总数
 	private int cummulativeSelected=0; //累计选股数
+	
+	private int nonZeroPredictedDays=0;//累计有选股机会时的预测天数
+	private double averageSelectedRatio=0;//当前累计平均比率
 
 	
 	public PredictStatus(String modelID,String yearSplit, String policy) {
@@ -39,9 +42,21 @@ public class PredictStatus implements Serializable {
 	}
 
 
-	public void addCummulativePredicted(int currentPredicted) {
-		this.cummulativePredicted += currentPredicted;
+	/*
+	 * 当期预测结束后，更新统计数据
+	 */
+	public void updateAfterCurrentPeriod(int currentPredicted,int currentSelected){
+
+		if (currentPredicted>0){ //当期进行过预测时更新，否则（机会数为0时）保持原值
+			double ratioInCurrentPeriod=((double)currentSelected)/currentPredicted;
+			this.averageSelectedRatio=(ratioInCurrentPeriod+averageSelectedRatio*nonZeroPredictedDays)/(nonZeroPredictedDays+1);
+			this.cummulativePredicted += currentPredicted;
+			this.cummulativeSelected += currentSelected;				
+			this.nonZeroPredictedDays++;				
+		}
+
 	}
+	
 
 
 	public int getCummulativeSelected() {
@@ -49,20 +64,23 @@ public class PredictStatus implements Serializable {
 	}
 
 
-	public void addCummulativeSelected(int currentSelected) {
-		this.cummulativeSelected += currentSelected;
-	}
+	
 	
 	//累计的选股比率
-	public double getCummulativeSelectRatio(){
-		double ratio=Double.NaN;
-		if (cummulativePredicted>0){
-			ratio=((double)cummulativeSelected)/cummulativePredicted;
-		}
-		return ratio;
-		
-	}
+//	public double getCummulativeSelectRatio(){
+//		
+//		return ratio;
+//		
+//	}
 	
+	public int getNonZeroPredictedDays() {
+		return nonZeroPredictedDays;
+	}
+
+	public double getAverageSelectedRatio() {
+		return averageSelectedRatio;
+	}
+
 	/*
 	 * 输出可读的txt文件
 	 */
