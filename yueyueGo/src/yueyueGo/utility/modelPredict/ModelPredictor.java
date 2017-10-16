@@ -359,7 +359,11 @@ public class ModelPredictor {
 		dailyStatus.append(',');
 		dailyStatus.append(selectedCount);
 		dailyStatus.append(',');
-		dailyStatus.append(((double) selectedCount) / predictedCount);
+		double currentRatio=0;
+		if (predictedCount>0){
+			currentRatio=((double) selectedCount) / predictedCount;
+		}
+		dailyStatus.append(currentRatio);
 		dailyStatus.append(',');
 		dailyStatus.append(m_predictStatus.getAverageSelectedRatio());
 		dailyStatus.append("\r\n");
