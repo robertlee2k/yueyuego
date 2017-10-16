@@ -302,10 +302,7 @@ public class BackTest {
 					fullSetData = getBacktestInstances(clModel);
 				}
 				BaseInstanceProcessor instanceProcessor = InstanceHandler.getHandler(fullSetData);
-				// 准备输出数据格式
-				if (result == null) {// initialize result instances
-					result = new ResultsHolder(clModel, fullSetData, m_currentArffFormat);
-				}
+
 				int policyIndex = BaseInstanceProcessor.findATTPosition(fullSetData,
 						m_currentArffFormat.m_policy_group);
 				String splitTrainClause = appendSplitClause(splitTrainYearClause, policyIndex, policy);
@@ -358,7 +355,11 @@ public class BackTest {
 					System.out.println(" testing raw data size , row : " + testingData.numInstances() + " column: "
 							+ testingData.numAttributes());
 				}
-
+				
+				// 准备输出数据格式
+				if (result == null) {// initialize result instances
+					result = new ResultsHolder(clModel, testingData, m_currentArffFormat);
+				}
 				// // 在不够强的机器上做模型训练时释放内存，改为每次从硬盘加载的方式
 				// if (clModel.is_skipTrainInBacktest() == false) {
 				// fullSetData = null; // 释放内存

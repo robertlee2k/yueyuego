@@ -19,6 +19,7 @@ import yueyueGo.databeans.DataInstances;
 import yueyueGo.databeans.GeneralAttribute;
 import yueyueGo.databeans.GeneralInstance;
 import yueyueGo.databeans.GeneralInstances;
+import yueyueGo.databeans.WekaInstances;
 import yueyueGo.utility.FormatUtility;
 
 
@@ -76,7 +77,7 @@ public class ResultsHolder implements Serializable{
 		m_policyGroup=currentArff.m_policy_group;
 
 		// 根据输入数据，构建空的结果集
-		DataInstances header = new DataInstances(fullSetData, 0);
+		WekaInstances header = new WekaInstances(fullSetData, 0);
 		// 去掉不必要的字段，保留在Arff定义中的Result左半边数据
 		BaseInstanceProcessor instanceProcessor = InstanceHandler.getHandler(header);
 		m_result_instances = instanceProcessor.filterAttribs(header, currentArff.m_result_left_part);
