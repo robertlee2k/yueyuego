@@ -327,7 +327,7 @@ public class DailyPredict {
 				//校验一下tradeDate应该不能小于当前日期
 				Date today=FormatUtility.getCurrentDate();
 				if (m_tradeDate.compareTo(today)<0) {
-					System.err.println("WARNING!!! tradeDate in daily data =" +m_tradeDate+" < currentDate!");
+					throw new Exception("ERROR!!! tradeDate in daily data(" +m_tradeDate+") < currentDate:"+today);
 				}
 
 
