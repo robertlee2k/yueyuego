@@ -325,7 +325,8 @@ public class DailyPredict {
 				}
 				m_tradeDate=datelist.get(0);			
 				//校验一下tradeDate应该不能小于当前日期
-				if (m_tradeDate.compareTo(FormatUtility.getCurrentDate())<0) {
+				Date today=FormatUtility.getCurrentDate();
+				if (m_tradeDate.compareTo(today)<0) {
 					System.err.println("WARNING!!! tradeDate in daily data =" +m_tradeDate+" < currentDate!");
 				}
 
@@ -369,7 +370,7 @@ public class DailyPredict {
 		System.out.println("predict using classifier : "+clModel.getIdentifyName()+" @ prediction work path :"+EnvConstants.PREDICT_WORK_DIR);
 		System.out.println("-----------------------------");
 		
-		GeneralInstances newData = null;
+
 
 
 		//创建存储评估结果的数据容器
@@ -391,8 +392,8 @@ public class DailyPredict {
 		String evalPredefined=modelData.getEvalFileName();
 		
 		
-		ResultsHolder result=new ResultsHolder(clModel, newData,ARFF_FORMAT);
-
+		ResultsHolder result=new ResultsHolder(clModel, fullData,ARFF_FORMAT);
+		GeneralInstances newData = null;
 		//分策略组预测
 		for (int j = 0; j < clModel.m_policySubGroup.length; j++) {
 			String policy=clModel.m_policySubGroup[j];
