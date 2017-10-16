@@ -30,7 +30,11 @@ public class FormatUtility {
 	// 获取当前日期的date格式
 	public static Date getCurrentDate() {
 		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.DATE, 0);
+		int year = cal.get(Calendar.YEAR);   
+		int month = cal.get(Calendar.MONTH);   
+		int date = cal.get(Calendar.DATE); 
+		cal.clear();
+		cal.set(year, month, date, 0, 0, 0);
 		return 	cal.getTime();
 	}
 	
