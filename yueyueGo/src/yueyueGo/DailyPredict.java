@@ -380,6 +380,18 @@ public class DailyPredict {
 		GeneralInstances fullData=calibrateAttributesForDailyData(inData,clModel);
 
 
+		//结果文件
+		ResultsHolder result=new ResultsHolder(clModel, fullData,ARFF_FORMAT);
+		if (m_tradeDate==null){ //这应该仅发生当日数据为空的时候
+			if (inData.numInstances()==0){
+				System.out.println("there are no data to predict today");
+				return result; //返回空的结果集
+			}else {
+				throw new Exception("tradeDate is null while there are data to predict today ");
+			}
+			
+		}
+		
 		//获得”均线策略"的位置属性, 如果数据集内没有“均线策略”（短线策略的fullmodel），MaIndex为-1
 		int maIndex=BaseInstanceProcessor.findATTPosition(fullData,ARFF_FORMAT.m_policy_group);
 
@@ -392,7 +404,7 @@ public class DailyPredict {
 		String evalPredefined=modelData.getEvalFileName();
 		
 		
-		ResultsHolder result=new ResultsHolder(clModel, fullData,ARFF_FORMAT);
+
 		GeneralInstances newData = null;
 		//分策略组预测
 		for (int j = 0; j < clModel.m_policySubGroup.length; j++) {
