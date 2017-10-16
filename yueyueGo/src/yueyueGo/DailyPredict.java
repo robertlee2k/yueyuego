@@ -123,7 +123,7 @@ public class DailyPredict {
 		int fileNum=0;
 		for (AbstractModel model : models) {
 			fileMap=worker.findModelFiles(model, currentMonth);
-			String targetPath=getPredictPath(model)+"\\new copied\\";
+			String targetPath= PREDICT_MODEL_DIR+"\\new copied\\"+model.getIdentifyName()+"\\";  // getPredictPath(model)+"\\new copied\\";
 			FileUtility.mkdirIfNotExist(targetPath);
 
 			String filename;
