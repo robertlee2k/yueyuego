@@ -439,7 +439,10 @@ public class DailyPredict {
 			//进行预测
 			predictor.predictData(clModel,newData,result,"",clModel.m_policySubGroup[j]);
 			//将预测后的新状态数据加入
-			statusList.add(predictor.getPredictStatus());
+			PredictStatus newPredictorStatus=predictor.getPredictStatus();
+			//记录这一天的tradeDate
+			newPredictorStatus.setTradeDate(tradeDate);
+			statusList.add(newPredictorStatus);
 			//序列化statusList
 			savePredictStatusToFile(predictStatusFile, statusList);
 			
@@ -598,6 +601,8 @@ public class DailyPredict {
 			if (predictStatus!=null){
 				statusListBuffer.append(predictStatus.toTXTString());
 				statusListBuffer.append("\r\n");
+			}else {
+				statusListBuffer.append("---reach the very beginning of the predict status\r\n");
 			}
 		}
 		FileUtility.write(filename + ModelStore.TXT_EXTENSION, statusListBuffer.toString(), "utf-8");
