@@ -63,15 +63,6 @@ public class PredictStatus implements Serializable {
 		return cummulativeSelected;
 	}
 
-
-	
-	
-	//累计的选股比率
-//	public double getCummulativeSelectRatio(){
-//		
-//		return ratio;
-//		
-//	}
 	
 	public int getNonZeroPredictedDays() {
 		return nonZeroPredictedDays;
@@ -86,7 +77,7 @@ public class PredictStatus implements Serializable {
 	 */
 	public String toTXTString(){
 		StringBuffer result=new StringBuffer();
-		result.append("startDate="+startDate);
+		result.append("交易日="+tradeDate);
 		result.append("\r\n");
 		result.append("模型ID="+modelID);
 		result.append("\r\n");
@@ -94,16 +85,18 @@ public class PredictStatus implements Serializable {
 		result.append("\r\n");
 		result.append("policy="+policy);
 		result.append("\r\n");
-		result.append("本月累计预测总数="+cummulativePredicted);
+		result.append("统计起始日期= "+startDate);
 		result.append("\r\n");
-		result.append("本月累计选股数"+cummulativeSelected);
+		result.append("累计预测天数（机会数不为0）="+cummulativeSelected);
 		result.append("\r\n");
-		result.append("tradeDate="+tradeDate);
+		result.append("累计预测股数="+cummulativePredicted);
+		result.append("\r\n");
+		result.append("累计选股数"+cummulativeSelected);
+		result.append("\r\n");
+		result.append("日均选股比率"+averageSelectedRatio);
 		result.append("\r\n");
 		return result.toString();
 	}
-
-
 
 	public Date getTradeDate() {
 		return tradeDate;

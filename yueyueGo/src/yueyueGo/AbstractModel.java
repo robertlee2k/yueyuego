@@ -26,12 +26,13 @@ public abstract class AbstractModel implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = -5895562408723104016L;
-	
-	
-	
-//	public final boolean m_noCaculationAttrib=true;  //加入的计算字段与否 ---拟取消
-//	public final boolean m_removeSWData=true;  //是否需要删除行业数据--拟取消
-	
+
+	/*
+	 * 分类器所需的周边辅助类的成员变量
+	 */
+	public EvaluationStore m_evaluationStore;//用于评估分类模型
+	public ClassifySummaries m_classifySummaries;//用于输出的分类器统计信息
+	public TargetSelectRatioConfig m_selectRatioConfig; //用于定义选股比例 
 	
 	
 	//各子分类器的可配置参数
@@ -64,8 +65,6 @@ public abstract class AbstractModel implements Serializable{
 	}
 
 
-	public EvaluationStore m_evaluationStore;//eval的持久化封装类类
-	public ClassifySummaries classifySummaries;//分类的统计信息
 
 	public AbstractModel() {
 		m_positiveLine=0; //缺省的以收益率正负为二分类的正负。
@@ -200,8 +199,7 @@ public abstract class AbstractModel implements Serializable{
 		output.append("\r\n");
 		output.append("reversed TOP AREA RATIO="+EvaluationStore.REVERSED_TOP_AREA_RATIO);
 		output.append("\r\n");
-		TargetSelectRatioConfig evalConf=new TargetSelectRatioConfig(this.classifierName ,this.m_policySubGroup,null);
-		output.append(evalConf.showEvaluationParameters());
+		output.append(this.m_selectRatioConfig.showEvaluationParameters());
 		output.append("\r\n");
 		output.append("***************************************");
 		output.append("\r\n");
@@ -264,12 +262,20 @@ public abstract class AbstractModel implements Serializable{
 		
 	}
 
+	public TargetSelectRatioConfig getSelectRatioConfig() {
+		return m_selectRatioConfig;
+	}
+
+	public void setSelectRatioConfig(TargetSelectRatioConfig selectRatioConfig) {
+		this.m_selectRatioConfig = selectRatioConfig;
+	}
+
 	public ClassifySummaries getClassifySummaries() {
-		return classifySummaries;
+		return m_classifySummaries;
 	}
 
 	public void setClassifySummaries(ClassifySummaries classifySummaries) {
-		this.classifySummaries = classifySummaries;
+		this.m_classifySummaries = classifySummaries;
 		
 	}
 

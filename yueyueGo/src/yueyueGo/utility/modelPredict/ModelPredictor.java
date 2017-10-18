@@ -2,6 +2,7 @@ package yueyueGo.utility.modelPredict;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -31,10 +32,6 @@ public class ModelPredictor {
 	 */
 	private PredictStatus m_predictStatus;
 
-	public PredictStatus getPredictStatus() {
-		return m_predictStatus;
-	}
-
 	/*
 	 * 初始化新的predictStatus对象，这个适合于回测时或预测的第一天
 	 */
@@ -48,6 +45,10 @@ public class ModelPredictor {
 	 */
 	public ModelPredictor(PredictStatus predictStatus) {
 		m_predictStatus = predictStatus;
+	}
+
+	public PredictStatus getPredictStatus() {
+		return m_predictStatus;
 	}
 
 	/*
@@ -69,7 +70,7 @@ public class ModelPredictor {
 		// 校验读入的thresholdData内容是否可以用于目前评估
 		String msg = clModel.m_evaluationStore.validateThresholdData(thresholdData);
 		if (msg == null) {
-			System.out.println("ThresholdData verified for target yearsplit " + yearSplit);
+			System.out.println("ThresholdData verified for target yearsplit " + yearSplit+ " using thredholdFile="+clModel.m_evaluationStore.getWorkFilePath()+clModel.m_evaluationStore.getEvalFileName());
 		} else {
 			throw new Exception(msg);
 		}
@@ -90,17 +91,15 @@ public class ModelPredictor {
 		// 获取预测文件中的应该用哪个modelYearSplit的模型
 		String modelYearSplit = thresholdData.getModelYearSplit();
 		// 从评估结果中找到正向模型文件。
-		Classifier model;
-		Classifier reversedModel;
 		ModelStore modelStore = new ModelStore(clModel.m_evaluationStore.getWorkFilePath(),
 				thresholdData.getModelFileName(), modelYearSplit);
-		model = modelStore.loadModelFromFile(predictDataFormat, yearSplit);
+		Classifier model = modelStore.loadModelFromFile(predictDataFormat, yearSplit);
+		System.out.println("预测用模型文件:  " + modelStore.getWorkFilePath() + modelStore.getModelFileName());
 
 		// 获取预测文件中的应该用哪个反向模型的模型
 		String reversedModelYearSplit = thresholdData.getReversedModelYearSplit();
 
-		// boolean usingOneModel=false;
-		reversedModel = null;
+		Classifier reversedModel = null;
 		ModelStore reversedModelStore = null;
 		if (reversedModelYearSplit.equals(modelYearSplit)) {// 正向模型和方向模型是同一模型的。
 			reversedModel = model;
@@ -112,27 +111,26 @@ public class ModelPredictor {
 			// 获取model
 			reversedModel = reversedModelStore.loadModelFromFile(predictDataFormat, yearSplit);
 		}
-		// 按照globalResultsHolder的格式创建一个空的预测结果对象
-		ResultsHolder predictResults = new ResultsHolder(globalResultsHolder);
+		System.out.println("预测用反向模型文件" + reversedModelStore.getWorkFilePath() + reversedModelStore.getModelFileName());
 
-		// 调用分类器进行预测
-		predictUsingModels(clModel, dataToPredict, predictResults, model, reversedModel);
 
-		// 第三步： 输出分类器的参数
+
+
+		// 输出分类器的参数 TODO 须清理这一段逻辑，并不是很必要输出这么多
 		double[] modelAUC = thresholdData.getModelAUC();
 		double reversedThreshold = thresholdData.getReversedThreshold();
-		double targetPercentile = thresholdData.getDefaultPercentile();
 		double reversedPercentile = thresholdData.getReversedPercent();
-		double reversedThresholdMax=thresholdData.getReversedThreshold();
-
+		//获取选股的目标比率
+		TargetSelectRatio selectRatio=clModel.m_selectRatioConfig.getEvaluationInstance(policy);
+		double targetPercentile = selectRatio.getTargetRatio();
+		
 		if ("".equals(yearSplit)) { 
-			// 输出评估结果及所使用阀值及期望样本百分比
+			// 输出评估结果及所使用阈值及期望样本百分比
 			String evalSummary = "\r\n\t ( with params: modelYearSplit=" + modelYearSplit
-			// + " threshold="+ FormatUtility.formatDouble(thresholdMin, 0, 3);
 			 + " , targetPercentile="+ FormatUtility.formatPercent(targetPercentile / 100) ;
 			
 			evalSummary += " ,reversedModelYearSplit=" + reversedModelYearSplit
-			 +" ,reversedThreshold="+ FormatUtility.formatDouble(reversedThresholdMax, 0, 3)
+			 +" ,reversedThreshold="+ FormatUtility.formatDouble(reversedThreshold, 0, 3)
 					+ " , reversedPercentile=" + FormatUtility.formatPercent(reversedPercentile / 100);
 			evalSummary += " ,modelAUC@focusAreaRatio=";
 			double[] focusAreaRatio = thresholdData.getFocosAreaRatio();
@@ -141,10 +139,7 @@ public class ModelPredictor {
 						+ FormatUtility.formatPercent(focusAreaRatio[i], 3, 0) + ", ";
 			}
 			evalSummary += " )\r\n";
-			System.out.println("预测用模型文件:  " + modelStore.getWorkFilePath() + modelStore.getModelFileName());
-			System.out.println(
-					"预测用反向模型文件" + reversedModelStore.getWorkFilePath() + reversedModelStore.getModelFileName());
-			clModel.classifySummaries.appendEvaluationSummary(evalSummary);
+			clModel.m_classifySummaries.appendEvaluationSummary(evalSummary);
 
 		} else {
 
@@ -157,8 +152,16 @@ public class ModelPredictor {
 				evalSummary += FormatUtility.formatDouble(d, 0, 4) + ",";
 			}
 			evalSummary += "\r\n";
-			clModel.classifySummaries.appendEvaluationSummary(evalSummary);
-		}
+			clModel.m_classifySummaries.appendEvaluationSummary(evalSummary);
+		}		
+		
+		// 按照globalResultsHolder的格式创建一个空的预测结果对象
+		ResultsHolder predictResults = new ResultsHolder(globalResultsHolder);
+
+		// 调用分类器进行预测
+		predictUsingModels(clModel, dataToPredict, predictResults, model, reversedModel);
+
+
 
 		// 根据预测结果完成选股
 		ResultsHolder judgeResults = judgePredictResults(clModel, predictResults, yearSplit, policy, thresholdData);
@@ -243,11 +246,18 @@ public class ModelPredictor {
 			String policy, ThresholdData thresholdData) throws Exception {
 		double[] thresholds = thresholdData.getThresholds();
 		double[] percentiles = thresholdData.getPercentiles();
-		double targetPercentile = thresholdData.getDefaultPercentile(); // 目标值
-		int defaultIndex = thresholdData.getDefaultThresholdIndex(); // 初始值
+		
+		//查找出缺省值
+		TargetSelectRatio selectRatio=clModel.m_selectRatioConfig.getEvaluationInstance(policy);
+		double targetPercentile = selectRatio.getTargetRatio();
+		int defaultIndex = Arrays.binarySearch(percentiles, targetPercentile);
+		if (defaultIndex<0){
+			defaultIndex=-1*defaultIndex-1;
+			System.out.println("cannot find exactly matched targetPercentile("+targetPercentile+") in thredshold Data. Use nearest percentile="+percentiles[defaultIndex]);
+		}
 
 		// 初始值（下面的循环内函数内也会重设）
-		double thresholdMin = thresholdData.getDefaultThreshold();
+		double thresholdMin = thresholds[defaultIndex];
 		// 判断为0的阈值，小于该值意味着该模型坚定认为其为0 （这是合并多个模型预测时使用的）
 		double reversedThresholdMax = thresholdData.getReversedThreshold();
 
@@ -296,24 +306,24 @@ public class ModelPredictor {
 			thresholdMin = adjustThreshold(nextDataSize, thresholds, percentiles, targetPercentile, defaultIndex,
 					dailyStatusBuffer);
 
-			// if (reversedThresholdMax > thresholdMin) {
-			// if (reversedModel == model) {
-			// throw new Exception("fatal error!!! reversedThreshold(" +
-			// reversedThresholdMax + ") > threshold("
-			// + thresholdMin + ") using same model (modelyear=" +
-			// reversedModelYearSplit + ")");
-			// } else {
-			// System.err.println("使用不同模型时反向阀值大于正向阀值了" + "reversedThreshold(" +
-			// reversedThresholdMax + ")@"
-			// + reversedModelYearSplit + " > threshold(" + thresholdMin + ")@"
-			// + modelYearSplit);
-			// }
-			// }
+//			if (reversedThreshold > thresholdData.getDefaultThreshold()) {
+//				String reversedModelYear = reversedModel.getModelYearSplit();
+//				String selectdModelYear = selectedModel.getModelYearSplit();
+//				if (reversedModelYear.equals(selectdModelYear)) {
+//					throw new Exception("thread:" + Thread.currentThread().getName() + "fatal error!!! reversedThreshold("
+//							+ reversedThreshold + ") > threshold(" + thresholdData.getThresholds()
+//							+ ") using same model (modelyear=" + reversedModelYear + ")");
+//				} else {
+//					System.out.println("thread:" + Thread.currentThread().getName() + "使用不同模型时反向阀值大于正向阀值了"
+//							+ "reversedThreshold(" + reversedThreshold + ")@" + reversedModelYear + " > threshold("
+//							+ thresholdData.getThresholds() + ")@" + selectdModelYear);
+//				}
+//			}
 
 			// 具体预测
 			judgeResultByMiniBatch(judgeResults, oneDayData, dailyStatusBuffer, thresholdMin, reversedThresholdMax);
 		}
-		clModel.classifySummaries.appendDailySummary(dailyStatusBuffer.toString());
+		clModel.m_classifySummaries.appendDailySummary(dailyStatusBuffer.toString());
 		return judgeResults;
 	}
 

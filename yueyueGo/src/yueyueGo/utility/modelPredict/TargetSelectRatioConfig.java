@@ -2,6 +2,7 @@ package yueyueGo.utility.modelPredict;
 
 import java.io.Serializable;
 
+import yueyueGo.AbstractModel;
 import yueyueGo.dataFormat.ArffFormat;
 import yueyueGo.dataFormat.AvgLineDataFormat;
 import yueyueGo.dataFormat.MomentumDataFormat;
@@ -29,10 +30,11 @@ public class TargetSelectRatioConfig implements Serializable{
 
 
 
-	public TargetSelectRatioConfig(String classifierName,String[] a_policyGroup,ArffFormat format) {
-		m_policyGroup=a_policyGroup;
+	public TargetSelectRatioConfig(AbstractModel clmodel,ArffFormat format) {
+		String classifierName=clmodel.classifierName;
+		m_policyGroup=clmodel.m_policySubGroup;
 
-		if (format instanceof AvgLineDataFormat || format==null){			//TODO ArffFormat 不能应该有NULL
+		if (format instanceof AvgLineDataFormat){		
 			switch (classifierName) {
 			case ClassifyUtility.BAGGING_M5P:
 				//缩小选股比率
@@ -96,7 +98,7 @@ public class TargetSelectRatioConfig implements Serializable{
 		if (pos==-1) {
 			throw new RuntimeException("cannot find policy ["+policy+"]in m_policySubGroup");
 		}
-		return new TargetSelectRatio(SAMPLE_LOWER_LIMIT[pos],SAMPLE_UPPER_LIMIT[pos]);
+		return new TargetSelectRatio((SAMPLE_LOWER_LIMIT[pos]+SAMPLE_UPPER_LIMIT[pos])/2,SAMPLE_LOWER_LIMIT[pos],SAMPLE_UPPER_LIMIT[pos]);
 	}
 
 

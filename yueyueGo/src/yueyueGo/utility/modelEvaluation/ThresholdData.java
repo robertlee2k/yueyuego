@@ -17,7 +17,7 @@ public class ThresholdData implements Serializable{
 	//正向评估数据
 	private double[] thresholds;   //阈值列表
 	private double[] percentiles;  //阈值对应的percentile列表
-	private int defaultThresholdIndex; 	//缺省阈值在阈值列表中的索引（由0开始），大于该阈值意味着该模型判断其为1
+//	private int defaultThresholdIndex; 	//缺省阈值在阈值列表中的索引（由0开始），大于该阈值意味着该模型判断其为1
 	
 	private String modelYearSplit; //当前评估数据下所选择的模型数据结束年月 
 	private String modelFileName=null;//当前评估数据下所选择的模型文件名称
@@ -48,7 +48,7 @@ public class ThresholdData implements Serializable{
 	public void setReversedThreshold(double reversedThreshold) {
 		this.reversedThreshold = reversedThreshold;
 	}
-	public String toString(){
+	public String toTxtString(){
 		StringBuffer data=new StringBuffer();
 		data.append("model AUC=");
 		for (double auc : modelAUC) {
@@ -148,13 +148,13 @@ public class ThresholdData implements Serializable{
 		this.modelFileName = modelFileName;
 	}
 	
-	public double getDefaultThreshold() {
-		return thresholds[defaultThresholdIndex];
-	}
-
-	public double getDefaultPercentile() {
-		return percentiles[defaultThresholdIndex];
-	}
+//	public double getDefaultThreshold() {
+//		return thresholds[defaultThresholdIndex];
+//	}
+//
+//	public double getDefaultPercentile() {
+//		return percentiles[defaultThresholdIndex];
+//	}
 	public double[] getThresholds() {
 		return thresholds;
 	}
@@ -168,12 +168,12 @@ public class ThresholdData implements Serializable{
 	public void setPercentiles(double[] percentiles) {
 		this.percentiles = percentiles;
 	}
-	public int getDefaultThresholdIndex() {
-		return defaultThresholdIndex;
-	}
-	public void setDefaultThresholdIndex(int defaultThresholdIndex) {
-		this.defaultThresholdIndex = defaultThresholdIndex;
-	}
+//	public int getDefaultThresholdIndex() {
+//		return defaultThresholdIndex;
+//	}
+//	public void setDefaultThresholdIndex(int defaultThresholdIndex) {
+//		this.defaultThresholdIndex = defaultThresholdIndex;
+//	}
 	
 
 

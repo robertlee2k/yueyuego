@@ -199,14 +199,14 @@ public class BackTestFullModel extends BackTest {
 
 	
 	protected GeneralInstances mergeResultWithData(GeneralInstances resultData,GeneralInstances referenceData,String dataToAdd,int format) throws Exception{
-		GeneralInstances left=null;		
-		//读取磁盘上预先保存的左侧数据
-		if (applyToMaModelInTestBack==true){
-			//TODO 这个地方要修改
-//			left=DataIOHandler.getSuppier().loadDataFromFile(EnvConstants.AVG_LINE_ROOT_DIR+ARFF_FORMAT.m_data_file_prefix+"-left.arff");
-		}else{
-			left=DataIOHandler.getSuppier().loadDataFromFile(AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT_FULLMODEL.m_data_file_prefix+"-left.arff");
-		}
+//		GeneralInstances left=null;		
+//		//读取磁盘上预先保存的左侧数据
+//		if (applyToMaModelInTestBack==true){
+//			//TODO 这个地方要修改
+////			left=DataIOHandler.getSuppier().loadDataFromFile(EnvConstants.AVG_LINE_ROOT_DIR+ARFF_FORMAT.m_data_file_prefix+"-left.arff");
+//		}else{
+//			left=DataIOHandler.getSuppier().loadDataFromFile(AppContext.getC_ROOT_DIRECTORY()+ARFF_FORMAT_FULLMODEL.m_data_file_prefix+"-left.arff");
+//		}
 		
 //		MergeClassifyResults merge=new MergeClassifyResults(m_currentArffFormat.m_policy_group);
 //		GeneralInstances mergedResult = merge.mergeResults(resultData, referenceData,dataToAdd, left);

@@ -2,7 +2,6 @@ package yueyueGo.utility.modelEvaluation;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
@@ -42,8 +41,17 @@ public class EvaluationStore {
 
 	protected boolean m_isNominal = false;
 
-	protected double[] m_focusAreaRatio = { EvaluationStore.TOP_AREA_RATIO, 1 };// 评估时关注评估数据的不同Top
-																							// 比例;
+	protected double[] m_focusAreaRatio = { EvaluationStore.TOP_AREA_RATIO, 1 };// 评估时关注评估数据的不同Top比例;
+	
+	//评估时查找的比例 TODO should define this more gracefully
+	protected static final double[] TARGET_SAMPLE_RATIO = {
+			0.001,0.002,0.003,0.004,0.005,0.006,0.007,0.008,0.009,0.01,
+			0.011,0.012,0.013,0.014,0.015,0.016,0.017,0.018,0.019,0.02,
+			0.022,0.025,0.03,0.035,0.04,0.045, 0.05,0.06,0.07,0.08,0.09,
+			EvaluationStore.TOP_AREA_RATIO
+			};
+
+
 	public static final int PREVIOUS_MODELS_NUM=3; 	//暂时选取之前的3个文件（加上9个月评估数据，也就是最大倒推1.5年左右，太久远的数据建模没意义）
 	public static final double REVERSED_TOP_AREA_RATIO=0.5; //缺省定义反向头部为50%
 	public static final double TOP_AREA_RATIO=0.1; //缺省定义头部区域为10%
@@ -232,20 +240,14 @@ public class EvaluationStore {
 		// 获取正向全部的评估结果（要全部的原因是评估的sample_rate是占全部数据的rate）
 		GeneralInstances result = getROCInstances(fullPredictions, 1, false);
 
-		// 获取正向评估结果
-		//FIXME
-		double[] sampleSize = {0.001,0.002,0.003,0.005,0.006,0.008,0.009, 0.01,0.011,0.012,0.013,0.014,0.015,0.016,0.017,0.018,0.019, 0.02,0.022,0.025,0.03,0.035,0.04,0.045, 0.05, 0.06,0.07,0.08,EvaluationStore.TOP_AREA_RATIO};
-		
-		int defaultThresholdIndex=Arrays.binarySearch(sampleSize,0.02);
-
-		double[] thresholds = findThresholds(result, sampleSize);
-		double[] percentiles = new double[sampleSize.length];
-		for (int i = 0; i < sampleSize.length; i++) {
-			percentiles[i] = 100 * (1 - sampleSize[i]); // 将sampleSize转换为percent
+		double[] thresholds = findThresholds(result, TARGET_SAMPLE_RATIO);
+		double[] percentiles = new double[TARGET_SAMPLE_RATIO.length];
+		for (int i = 0; i < TARGET_SAMPLE_RATIO.length; i++) {
+			percentiles[i] = 100 * (1 - TARGET_SAMPLE_RATIO[i]); // 将sampleSize转换为percent
 		}
 		thresholdData.setThresholds(thresholds);
 		thresholdData.setPercentiles(percentiles);
-		thresholdData.setDefaultThresholdIndex(defaultThresholdIndex);
+
 
 		// 再查反向评估
 		ModelStore reversedModel = selectModelByAUC(modelStores, evalData, true);
@@ -272,19 +274,7 @@ public class EvaluationStore {
 			reversedThreshold = reversedThreshold * -1;
 		}
 
-		if (reversedThreshold > thresholdData.getDefaultThreshold()) {
-			String reversedModelYear = reversedModel.getModelYearSplit();
-			String selectdModelYear = selectedModel.getModelYearSplit();
-			if (reversedModelYear.equals(selectdModelYear)) {
-				throw new Exception("thread:" + Thread.currentThread().getName() + "fatal error!!! reversedThreshold("
-						+ reversedThreshold + ") > threshold(" + thresholdData.getThresholds()
-						+ ") using same model (modelyear=" + reversedModelYear + ")");
-			} else {
-				System.out.println("thread:" + Thread.currentThread().getName() + "使用不同模型时反向阀值大于正向阀值了"
-						+ "reversedThreshold(" + reversedThreshold + ")@" + reversedModelYear + " > threshold("
-						+ thresholdData.getThresholds() + ")@" + selectdModelYear);
-			}
-		}
+
 
 		// 将反向评估结果存入数据中
 		thresholdData.setReversedThreshold(reversedThreshold);
@@ -294,7 +284,7 @@ public class EvaluationStore {
 
 		// 保存包含正向和反向的ThresholdData到数据文件中
 		this.saveEvaluationToFile(thresholdData);
-		System.out.println(thresholdData.toString());
+		System.out.println(thresholdData.toTxtString());
 
 	}
 
@@ -794,7 +784,7 @@ public class EvaluationStore {
 	public void saveEvaluationToFile(ThresholdData thresholdData) throws Exception {
 		String evalFileName = m_workFilePath + m_evalFileName;
 		SerializationHelper.write(evalFileName, thresholdData);
-		FileUtility.write(evalFileName + ModelStore.TXT_EXTENSION, thresholdData.toString(), "utf-8");
+		FileUtility.write(evalFileName + ModelStore.TXT_EXTENSION, thresholdData.toTxtString(), "utf-8");
 		// System.out.println("evaluation saved to :"+ evalFileName);
 	}
 

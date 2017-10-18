@@ -57,6 +57,7 @@ import yueyueGo.utility.modelEvaluation.EvaluationStore;
 import yueyueGo.utility.modelEvaluation.ModelStore;
 import yueyueGo.utility.modelEvaluation.ThresholdData;
 import yueyueGo.utility.modelPredict.ResultsHolder;
+import yueyueGo.utility.modelPredict.TargetSelectRatioConfig;
 
 public class BackTest {
 	public static final String RESULT_EXTENSION = "-Test Result.csv";
@@ -94,8 +95,8 @@ public class BackTest {
 
 			// 调用回测函数回测
 //			worker.callRebuildModels();
-//			worker.callReEvaluateModels();
-			 worker.callTestBack();
+			worker.callReEvaluateModels();
+//			 worker.callTestBack();
 			// worker.callRefreshModelUseLatestData();
 
 			// worker.callDataAnlysis();
@@ -251,6 +252,10 @@ public class BackTest {
 		GeneralInstances fullSetData = null;
 		ResultsHolder selectedResult = null;
 
+		// 获取选股比例配置的实例
+		TargetSelectRatioConfig selectRatioConfig=new TargetSelectRatioConfig(clModel,m_currentArffFormat);
+		clModel.setSelectRatioConfig(selectRatioConfig);
+		
 		// 创建存储评估结果的数据容器
 		ClassifySummaries modelSummaries = new ClassifySummaries(
 				clModel.getIdentifyName() + " format=" + clModel.modelArffFormat, false);
@@ -297,6 +302,8 @@ public class BackTest {
 			for (int j = BEGIN_FROM_POLICY; j < clModel.m_policySubGroup.length; j++) {
 
 				policy = clModel.m_policySubGroup[j];
+				
+				
 				// 加载原始arff文件
 				if (fullSetData == null) {
 					fullSetData = getBacktestInstances(clModel);

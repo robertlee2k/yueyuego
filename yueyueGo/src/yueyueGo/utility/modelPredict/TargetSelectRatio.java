@@ -4,22 +4,27 @@ package yueyueGo.utility.modelPredict;
  * 选股比率的实例类
  */
 public class TargetSelectRatio {
-	protected double lower_limit;// 各条均线选择样本的下限
-	protected double upper_limit;// 各条均线选择样本的上限
+	protected double lowerLimit; // 各条均线选择样本的下限
+	protected double upperLimit; // 各条均线选择样本的上限
+	protected double targetRatio; //目标选股比率
 
 	
-	public TargetSelectRatio( double lower_limit,
+	public TargetSelectRatio( double target_ratio,double lower_limit,
 			double upper_limit) {
-		this.lower_limit = lower_limit;
-		this.upper_limit = upper_limit;
+		this.targetRatio=target_ratio;
+		this.lowerLimit = lower_limit;
+		this.upperLimit = upper_limit;
 	}
 	
-	public double getLower_limit() {
-		return lower_limit;
+	public double getLowerLimit() {
+		return lowerLimit;
 	}
 
-	public double getUpper_limit() {
-		return upper_limit;
+	public double getUpperLimit() {
+		return upperLimit;
 	}
-		
+	
+	public double getTargetRatio() {
+		return targetRatio;
+	}
 }
