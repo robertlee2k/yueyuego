@@ -34,6 +34,7 @@ import yueyueGo.utility.modelPredict.ModelPredictor;
 import yueyueGo.utility.modelPredict.PredictModelData;
 import yueyueGo.utility.modelPredict.PredictStatus;
 import yueyueGo.utility.modelPredict.ResultsHolder;
+import yueyueGo.utility.modelPredict.TargetSelectRatioConfig;
 
 public class DailyPredict {
 
@@ -370,9 +371,10 @@ public class DailyPredict {
 		System.out.println("predict using classifier : "+clModel.getIdentifyName()+" @ prediction work path :"+EnvConstants.PREDICT_WORK_DIR);
 		System.out.println("-----------------------------");
 		
-
-
-
+		// 获取选股比例配置的实例
+		TargetSelectRatioConfig selectRatioConfig=new TargetSelectRatioConfig(clModel,ARFF_FORMAT);
+		clModel.setSelectRatioConfig(selectRatioConfig);
+		
 		//创建存储评估结果的数据容器
 		ClassifySummaries modelSummaries=new ClassifySummaries(clModel.getIdentifyName()+" format="+clModel.modelArffFormat,true);
 		clModel.setClassifySummaries(modelSummaries);
