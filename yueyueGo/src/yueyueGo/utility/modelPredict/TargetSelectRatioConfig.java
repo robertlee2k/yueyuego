@@ -107,6 +107,7 @@ public class TargetSelectRatioConfig implements Serializable{
 	 */
 	public String showEvaluationParameters(){
 		StringBuffer result=new StringBuffer();
+
 		result.append("SAMPLE_LOWER_LIMIT={");
 		for (double d : SAMPLE_LOWER_LIMIT) {
 			result.append(d);
@@ -120,6 +121,7 @@ public class TargetSelectRatioConfig implements Serializable{
 			result.append(" / ");
 		}
 		result.append("}\n");
+		
 		return result.toString();
 	}
 
