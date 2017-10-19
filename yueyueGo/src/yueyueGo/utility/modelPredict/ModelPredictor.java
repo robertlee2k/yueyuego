@@ -444,7 +444,7 @@ public class ModelPredictor {
 
 
 			// 根据需要调节的Percentile找相应的threshold，因为threshold数组的关系，选股比例最少也是0.001，最大是0.1
-			// percentile目前假定为是个递减数组 TODO （应该可以改成binarySearch方式实现）
+			// percentile目前假定为是个递增数组 TODO （应该可以改成binarySearch方式实现）
 			int adjustedInex = findNearestIndexInArray(percentiles, adjustedPercentile);
 			adjustedThreshold = thresholds[adjustedInex]; // 判断为1的阈值，大于该值意味着该模型判断其为1
 
@@ -470,7 +470,7 @@ public class ModelPredictor {
 	}
 
 	/**
-	 * 给定一个从大到小排序的数组，查找数组内最接近某一数组的数值的下标
+	 * 给定一个从小到大排序的数组，查找数组内最接近某一数组的数值的下标
 	 * （可以考虑用BinarySearch代替）
 	 * @param sortedValues
 	 * @param targetValue
@@ -478,13 +478,13 @@ public class ModelPredictor {
 	 */
 	public static int findNearestIndexInArray(double[] sortedValues, double targetValue) {
 		int currentIndex;
-		int high = 0;
-		int low = sortedValues.length - 1;
+		int high =sortedValues.length - 1;
+		int low =  0;
 		for (int i = 0; i < sortedValues.length; i++) {
-			if (targetValue < sortedValues[i]) {
-				high = i;
-			} else {
+			if (targetValue > sortedValues[i]) {
 				low = i;
+			} else {
+				high = i;
 				break;
 			}
 		}
