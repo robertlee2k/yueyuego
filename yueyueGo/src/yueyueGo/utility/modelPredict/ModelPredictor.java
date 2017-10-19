@@ -122,7 +122,7 @@ public class ModelPredictor {
 		double reversedPercentile = thresholdData.getReversedPercent();
 		//获取选股的目标比率
 		TargetSelectRatio selectRatio=clModel.m_selectRatioConfig.getEvaluationInstance(policy);
-		double targetPercentile = selectRatio.getTargetRatio();
+		double targetPercentile = 1-selectRatio.getTargetRatio();
 		
 		if ("".equals(yearSplit)) { 
 			// 输出评估结果及所使用阈值及期望样本百分比
