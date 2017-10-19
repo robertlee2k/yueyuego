@@ -249,7 +249,7 @@ public class ModelPredictor {
 		
 		//查找出缺省值
 		TargetSelectRatio selectRatio=clModel.m_selectRatioConfig.getEvaluationInstance(policy);
-		double targetPercentile = selectRatio.getTargetRatio();
+		double targetPercentile = 1-selectRatio.getTargetRatio();
 		int defaultIndex = Arrays.binarySearch(percentiles, targetPercentile);
 		if (defaultIndex<0){
 			defaultIndex=-1*defaultIndex-1;
