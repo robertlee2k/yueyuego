@@ -2,6 +2,7 @@ package yueyueGo.utility.modelEvaluation;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
@@ -241,10 +242,14 @@ public class EvaluationStore {
 		GeneralInstances result = getROCInstances(fullPredictions, 1, false);
 
 		double[] thresholds = findThresholds(result, TARGET_SAMPLE_RATIO);
+
 		double[] percentiles = new double[TARGET_SAMPLE_RATIO.length];
 		for (int i = 0; i < TARGET_SAMPLE_RATIO.length; i++) {
 			percentiles[i] = 100 * (1 - TARGET_SAMPLE_RATIO[i]); // 将sampleSize转换为percent
 		}
+		//因为后续程序中要求这两个数据是升序排列的，所以将其升序排列
+		Arrays.sort(thresholds);
+		Arrays.sort(percentiles);
 		thresholdData.setThresholds(thresholds);
 		thresholdData.setPercentiles(percentiles);
 
