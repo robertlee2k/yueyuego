@@ -24,7 +24,11 @@ public class TargetSelectRatio {
 		return upperLimit;
 	}
 	
-	public double getTargetRatio() {
-		return targetRatio;
+	/*
+	 * 因为程序内部一般是用百分位数来判断，所以选股率要转换为percentile
+	 * 
+	 */
+	public double getTargetPercentile() {
+		return (1-targetRatio)*100;
 	}
 }
