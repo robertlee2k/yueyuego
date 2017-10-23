@@ -433,33 +433,37 @@ public class DailyPredict {
 			String predictStatusFile=predictPath+DailyPredict.concatStatusFileName(policy,modelID);
 			
 			ModelPredictor predictor;
-			PredictStatus predictorStatus=null;
+			ArrayList<PredictStatus> statusHistoryList=null;
  			//初始化ModelPredictor，如果文件不存在则新建status对象，否则从文件里读取    
 			File file =new File(predictStatusFile);   
 			if  (file.exists()) {       
-				predictorStatus=loadPredictStatusFromFile(predictStatusFile, modelID,policy,tradeDate);
+				statusHistoryList=loadPredictStatusFromFile(predictStatusFile, modelID,policy,tradeDate);
 			}
-			if (predictorStatus!=null){ //如果获取到历史的status则接着它运行
-				//复制一个新的status对象，因为原有的status对象也要放入List中
+			if (statusHistoryList==null){ //找不到文件 或者数据为空
+				System.err.println("No predictStatus  serialized file, you will start over predictor");
+				statusHistoryList=new ArrayList<PredictStatus>();
+			}
+			
+			if (statusHistoryList.size()>0){ //如果获取到历史的status则接着它运行
+				PredictStatus predictorStatus=statusHistoryList.get(statusHistoryList.size()-1);
+				//复制一个新的status对象，因为原有的status对象也要放入List中，不要污染了它
 				PredictStatus newStatus=PredictStatus.makeCopy(predictorStatus);
 				predictor=new ModelPredictor(newStatus);
 			}else{ //否则就直接开始预测
 				predictor=new ModelPredictor(modelID,"",policy);
 			}
 			
-			//储存序列化的列表
-			ArrayList<PredictStatus> statusList=new ArrayList<PredictStatus>();
-			//将预测前的旧状态数据加入（为了重复多次运行）
-			statusList.add(predictorStatus);
+
 			//进行预测
 			predictor.predictData(clModel,newData,result,"",clModel.m_policySubGroup[j]);
 			//将预测后的新状态数据加入
 			PredictStatus newPredictorStatus=predictor.getPredictStatus();
 			//记录这一天的tradeDate
 			newPredictorStatus.setTradeDate(tradeDate);
-			statusList.add(newPredictorStatus);
+			//将最新的数据加入储存序列化的列表尾端
+			statusHistoryList.add(newPredictorStatus);
 			//序列化statusList
-			savePredictStatusToFile(predictStatusFile, statusList);
+			savePredictStatusToFile(predictStatusFile, statusHistoryList);
 			
 			System.out.println("accumulated predicted rows: "+ result.getResultInstances().numInstances());
 			System.out.println("complete for : "+ clModel.m_policySubGroup[j]);
@@ -572,37 +576,39 @@ public class DailyPredict {
 	 * 从文件中反序列化数据，取离tradeDate最近的一个，但不能等于TradeDate（因为可能重复运行）
 	 * 有可能返回null的（比如第一天运行时的重复运行时）
 	 */
-	public static PredictStatus loadPredictStatusFromFile(String filename,String a_modelID, String a_policy,Date tradeDate) throws Exception {
+	public static ArrayList<PredictStatus> loadPredictStatusFromFile(String filename,String a_modelID, String a_policy,Date tradeDate) throws Exception {
 		@SuppressWarnings("unchecked")
 		ArrayList<PredictStatus> statusList = (ArrayList<PredictStatus>) SerializationHelper.read(filename);
-		if (statusList.size()!=2){
-			System.err.println("请注意：Status文件中保存的对象数不为2");
-		}
-		// Arraylist中是时间正序保存的，最近的TradeDate在最后面，我们的目标是选取最近的且不等于TradeDate的status返回去
-		PredictStatus status=null;
-		//倒序从最新的日期开始遍历
-		for(int i=statusList.size()-1;i>=0;i--){
-			PredictStatus predictStatus=statusList.get(i);
+
+		if (statusList!=null){
+			// Arraylist中是时间倒序保存的，最近的TradeDate在最后面，为了重复预测的需要，我们要把等于TradeDate的status删除后，list返回去
+			//倒序从最新的日期开始遍历
+			PredictStatus predictStatus=statusList.get(statusList.size()-1);
 			if (predictStatus!=null){
 				Date lastPredictDate=predictStatus.getTradeDate();
 				int compareResult=tradeDate.compareTo(lastPredictDate);
 				if (compareResult>0){
-					System.out.println("获取最新的预测统计数据，lastPredictDate="+lastPredictDate);
-					status=predictStatus;
+					System.out.println("已获取最新的预测统计数据，lastPredictDate="+lastPredictDate);
 				}else if (compareResult<0){
-					System.err.println("Warning!!! date in predictStatus("+lastPredictDate+")is newer than current tradeDate("+tradeDate+")");
+					throw new Exception("Warning!!! date in predictStatus("+lastPredictDate+")is newer than current tradeDate("+tradeDate+")");
 				}else {
-					System.out.println("是否在重新预测？ tradeDate("+tradeDate+") equals to the latest date in predictStatus file ("+lastPredictDate+")");
+					System.err.println("是否在重新预测？ tradeDate("+tradeDate+") equals to the latest date in predictStatus file ("+lastPredictDate+")");
+					System.out.println("重新预测当日： remomved predictStatus of the latest date in predictStatus file ("+lastPredictDate+")");
+					statusList.remove(statusList.size()-1);
+				}
+			}
+			if (statusList.size()==0){
+				System.err.println("No suitable predictStatus in serialized file, you will start over predictor");
+			}else{
+				PredictStatus status=statusList.get(statusList.size()-1);
+				if (status.verifyStatusData(a_modelID, a_policy)==false){
+					throw new Exception("Serialized predictStatus file data mismatch");
 				}
 			}
 		}
-		if (status==null){
-			System.err.println("No suitable predictStatus in serialized file, you will start over predictor");
-		}else if (status.verifyStatusData(a_modelID, a_policy)==false){
-			throw new Exception("Serialized predictStatus file data mismatch");
-		}
+
 		
-		return status;
+		return statusList;
 	}
 	
 	/*
@@ -611,9 +617,7 @@ public class DailyPredict {
 	 * 保存下来当前的status至文件
 	 */
 	public static void savePredictStatusToFile(String filename,ArrayList<PredictStatus> statusList) throws Exception {
-		if (statusList.size()!=2){
-			System.err.println("请注意：Status文件中保存的对象数不为2");
-		}
+
 		SerializationHelper.write(filename, statusList);
 		StringBuffer statusListBuffer=new StringBuffer();
 		
