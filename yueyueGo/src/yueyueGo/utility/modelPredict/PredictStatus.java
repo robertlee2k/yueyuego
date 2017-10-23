@@ -87,13 +87,13 @@ public class PredictStatus implements Serializable {
 		result.append("\r\n");
 		result.append("统计起始日期= "+startDate);
 		result.append("\r\n");
-		result.append("累计预测天数（机会数不为0）="+cummulativeSelected);
+		result.append("累计预测天数（机会数不为0）="+nonZeroPredictedDays);
 		result.append("\r\n");
-		result.append("累计预测股数="+cummulativePredicted);
+		result.append("累计预测股数 ="+cummulativePredicted);
 		result.append("\r\n");
-		result.append("累计选股数"+cummulativeSelected);
+		result.append("累计选股数 ="+cummulativeSelected);
 		result.append("\r\n");
-		result.append("日均选股比率"+averageSelectedRatio);
+		result.append("日均选股比率 ="+averageSelectedRatio);
 		result.append("\r\n");
 		return result.toString();
 	}
