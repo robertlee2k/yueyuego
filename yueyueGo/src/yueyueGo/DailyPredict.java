@@ -587,6 +587,7 @@ public class DailyPredict {
 				Date lastPredictDate=predictStatus.getTradeDate();
 				int compareResult=tradeDate.compareTo(lastPredictDate);
 				if (compareResult>0){
+					System.out.println("获取最新的预测统计数据，lastPredictDate="+lastPredictDate);
 					status=predictStatus;
 				}else if (compareResult<0){
 					System.err.println("Warning!!! date in predictStatus("+lastPredictDate+")is newer than current tradeDate("+tradeDate+")");
