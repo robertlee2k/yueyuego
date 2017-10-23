@@ -628,9 +628,10 @@ public class DailyPredict {
 			if (predictStatus!=null){
 				statusListBuffer.append(predictStatus.toTXTString());
 				statusListBuffer.append("\r\n");
-			}else {
-				statusListBuffer.append("---reach the very beginning of the predict status\r\n");
 			}
+//			else {
+//				statusListBuffer.append("---reach the very beginning of the predict status\r\n");
+//			}
 		}
 		FileUtility.write(filename + ModelStore.TXT_EXTENSION, statusListBuffer.toString(), "utf-8");
 		System.out.println("predict status saved to :"+ filename);
