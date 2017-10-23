@@ -42,7 +42,7 @@ public class DailyPredict {
 	protected ArffFormat ARFF_FORMAT; //当前所用数据文件格式 
 	private static String PREDICT_RESULT_DIR=EnvConstants.PREDICT_WORK_DIR+"\\88-预测结果\\"; 
 	private HashMap<String, PredictModelData> PREDICT_MODELS;
-	private Date m_tradeDate=null;
+	private Date cached_tradeDate=null;
 	private HashMap<String, GeneralInstances> cached_daily_data=new HashMap<String, GeneralInstances>(); //从数据库里加载的每日预测数据
 
 	private void definePredictModels(){
@@ -324,11 +324,11 @@ public class DailyPredict {
 				if (datelist.size()!=1){
 					System.err.println("Warning!! tradeDate is not unique in daily data!!!");
 				}
-				m_tradeDate=datelist.get(0);			
+				Date tradeDate=datelist.get(0);			
 				//校验一下tradeDate应该不能小于当前日期
 				Date today=FormatUtility.getCurrentDate();
-				if (m_tradeDate.compareTo(today)<0) {
-					throw new Exception("ERROR!!! tradeDate in daily data(" +m_tradeDate+") < currentDate:"+today);
+				if (tradeDate.compareTo(today)<0) {
+					throw new Exception("ERROR!!! tradeDate in daily data(" +tradeDate+") < currentDate:"+today);
 				}
 
 
@@ -354,12 +354,13 @@ public class DailyPredict {
 
 				//将结果放入缓存
 				this.cached_daily_data.put(cacheKey, dailyData);
+				this.cached_tradeDate=tradeDate;
 			}
 		}
 		
 
 		//调用预测方法，此函数如果当日预测数据为空，会返回一个空的对象
-		ResultsHolder result=predict(clModel,dailyData,m_tradeDate);
+		ResultsHolder result=predict(clModel,dailyData,cached_tradeDate);
 		return result;
 	}
 
@@ -384,7 +385,7 @@ public class DailyPredict {
 
 		//结果文件
 		ResultsHolder result=new ResultsHolder(clModel, fullData,ARFF_FORMAT);
-		if (m_tradeDate==null){ //这应该仅发生当日数据为空的时候
+		if (tradeDate==null){ //这应该仅发生当日数据为空的时候
 			if (inData.numInstances()==0){
 				System.err.println("there are no data to predict today");
 				return result; //返回空的结果集
@@ -583,11 +584,14 @@ public class DailyPredict {
 		for(int i=statusList.size()-1;i>=0;i--){
 			PredictStatus predictStatus=statusList.get(i);
 			if (predictStatus!=null){
-				int compareResult=tradeDate.compareTo(predictStatus.getTradeDate());
+				Date lastPredictDate=predictStatus.getTradeDate();
+				int compareResult=tradeDate.compareTo(lastPredictDate);
 				if (compareResult>0){
 					status=predictStatus;
 				}else if (compareResult<0){
-					System.err.println("Warning!!! date in predictStatus is newer than current tradeDate");
+					System.err.println("Warning!!! date in predictStatus("+lastPredictDate+")is newer than current tradeDate("+tradeDate+")");
+				}else {
+					System.out.println("是否在重新预测？ tradeDate("+tradeDate+") equals to the latest date in predictStatus file ("+lastPredictDate+")");
 				}
 			}
 		}
