@@ -7,7 +7,7 @@ public class AvgLineDataFormat extends ArffFormat {
 	
 	@Override
 	protected void initializeFormat() {
-		m_data_file_prefix="ma";
+		m_data_file_prefix="trans20052017"; //"ma";
 		m_data_root_directory="\\";
 		
 		//单次收益率数据中不用保存在ARFF文件中的字段
