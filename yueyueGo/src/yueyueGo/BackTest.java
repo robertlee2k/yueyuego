@@ -247,7 +247,7 @@ public class BackTest {
 
 		// 根据分类器和数据类别确定回测模型的工作目录
 		String modelFilePath = prepareModelWorkPath(clModel);
-		String modelPrefix = m_currentArffFormat.m_data_file_prefix + "(" + ArffFormat.CURRENT_FORMAT + ")"; // "extData2005-2016";
+		String modelPrefix = m_currentArffFormat.getModelDataPrefix();
 
 		GeneralInstances fullSetData = null;
 		ResultsHolder selectedResult = null;
@@ -442,12 +442,12 @@ public class BackTest {
 		saveBacktestResultFile(selectedResult.getResultInstances(), clModel.getIdentifyName());
 
 		FileUtility.write(
-				m_backtest_result_dir + m_currentArffFormat.m_data_file_prefix + "-" + clModel.getIdentifyName()
+				m_backtest_result_dir + m_currentArffFormat.getModelDataPrefix() + "-" + clModel.getIdentifyName()
 						+ "-monthlyAUCs.csv",
 				modelSummaries.getEvaluationHeader() + modelSummaries.getEvaluationSummary(), "GBK");
 
 		FileUtility.write(
-				m_backtest_result_dir + m_currentArffFormat.m_data_file_prefix + "-" + clModel.getIdentifyName()
+				m_backtest_result_dir + m_currentArffFormat.getModelDataPrefix() + "-" + clModel.getIdentifyName()
 						+ "-dailySummary.csv",
 				modelSummaries.getDailyHeader() + modelSummaries.getDailySummary(), "GBK");
 
@@ -550,18 +550,18 @@ public class BackTest {
 
 	private void saveBacktestResultFile(GeneralInstances result, String classiferName) throws IOException {
 		DataIOHandler.getSaver().SaveDataIntoFile(result, m_backtest_result_dir + "回测结果-"
-				+ m_currentArffFormat.m_data_file_prefix + "-" + classiferName + ".arff");
+				+ m_currentArffFormat.getModelDataPrefix() + "-" + classiferName + ".arff");
 	}
 
 	protected GeneralInstances loadBackTestResultFromFile(String classiferName) throws Exception {
 		GeneralInstances result = DataIOHandler.getSuppier().loadDataFromFile(m_backtest_result_dir + "回测结果-"
-				+ m_currentArffFormat.m_data_file_prefix + "-" + classiferName + ".arff");
+				+ m_currentArffFormat.getModelDataPrefix() + "-" + classiferName + ".arff");
 		return result;
 	}
 
 	protected void saveSelectedFileForMarkets(GeneralInstances selected, String classiferName) throws Exception {
 		GeneralDataSaver dataSaver = DataIOHandler.getSaver();
-		dataSaver.saveCSVFile(selected, m_backtest_result_dir + "选股-" + m_currentArffFormat.m_data_file_prefix + "-"
+		dataSaver.saveCSVFile(selected, m_backtest_result_dir + "选股-" + m_currentArffFormat.getModelDataPrefix() + "-"
 				+ classiferName + RESULT_EXTENSION);
 
 	}
@@ -762,7 +762,7 @@ public class BackTest {
 			workPath = AppContext.getNOMINAL_CLASSIFIER_DIR() + clModel.getIdentifyName() + "\\";
 		}
 		// 根据不同的原始数据（策略）设置不同的模型工作目录
-		workPath += m_currentArffFormat.m_data_file_prefix + "\\";
+		workPath += m_currentArffFormat.getModelSubDirecotry() + "\\";
 		FileUtility.mkdirIfNotExist(workPath);
 
 		return workPath;
@@ -779,7 +779,7 @@ public class BackTest {
 	protected HashMap<String, String> findModelFiles(AbstractModel clModel, String a_targetYearSplit) throws Exception {
 		// 根据分类器和数据类别确定回测模型的工作目录
 		String modelFilePath = prepareModelWorkPath(clModel);
-		String modelPrefix = m_currentArffFormat.m_data_file_prefix + "(" + ArffFormat.CURRENT_FORMAT + ")";
+		String modelPrefix = m_currentArffFormat.getModelDataPrefix();
 		EvaluationStore evaluationStore = null;
 
 		HashMap<String, String> fileMap = new HashMap<String, String>();
@@ -811,6 +811,25 @@ public class BackTest {
 			fileMap.put(reversedFullname, modelFilePath);
 		}
 		return fileMap;
+	}
+
+	/**
+	 * 根据传入的目标年份找出该模型最近的数据年份
+	 * @param targetYearSplit
+	 * @param clModel
+	 * @return
+	 */
+	public static String findNearestModelYearSplit(String targetYearSplit, AbstractModel clModel) {
+		int modelFileShareMode=clModel.m_modelFileShareMode;
+		int evalDataSplitMode=clModel.m_evalDataSplitMode;
+
+		//根据modelDataSplitMode推算出评估数据的起始区间 （目前主要有三种： 最近6个月、9个月、12个月）
+		String evalYearSplit=YearMonthProcessor.caculateEvalYearSplit(targetYearSplit,evalDataSplitMode);
+
+		//历史数据切掉评估数据后再去getModelYearSplit看选多少作为模型构建数据（因为不是每月都有模型,要根据modelEvalFileShareMode来定）
+		String modelYearSplit=YearMonthProcessor.caculateModelYearSplit(evalYearSplit,modelFileShareMode);
+		//		modelYearSplit = legacyModelName(modelYearSplit);
+		return modelYearSplit;
 	}
 
 	/*

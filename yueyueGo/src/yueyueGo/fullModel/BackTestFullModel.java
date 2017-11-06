@@ -242,7 +242,7 @@ public class BackTestFullModel extends BackTest {
 		FileUtility.mkdirIfNotExist(workPath);
 		
 
-		String modelPrefix=m_currentArffFormat.m_data_file_prefix+"("+FullModelDataFormat.FULLMODEL_FORMAT+")"; //"extData2005-2016";
+		String modelPrefix=m_currentArffFormat.getModelDataPrefix()+"("+FullModelDataFormat.FULLMODEL_FORMAT+")"; //"extData2005-2016";
 		return workPath+modelPrefix;
 	}
 }

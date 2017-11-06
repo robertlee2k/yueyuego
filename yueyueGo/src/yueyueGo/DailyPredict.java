@@ -551,7 +551,7 @@ public class DailyPredict {
 			break;
 		case FullModelDataFormat.FULLMODEL_FORMAT:
 			//TODO 这个地方要修改
-			formatFile=((FullModelDataFormat)ARFF_FORMAT).m_data_file_prefix+"("+FullModelDataFormat.FULLMODEL_FORMAT+")-format.arff";
+			formatFile=((FullModelDataFormat)ARFF_FORMAT).getModelDataPrefix()+"("+FullModelDataFormat.FULLMODEL_FORMAT+")-format.arff";
 			break;			
 		default:
 			throw new Exception("invalid arffFormat type");

@@ -5,13 +5,11 @@ import java.util.Vector;
 
 import weka.classifiers.Classifier;
 import weka.core.SerializationHelper;
-import yueyueGo.AbstractModel;
 import yueyueGo.dataProcessor.BaseInstanceProcessor;
 import yueyueGo.databeans.DataInstances;
 import yueyueGo.databeans.GeneralDataTag;
 import yueyueGo.databeans.GeneralInstances;
 import yueyueGo.utility.FileUtility;
-import yueyueGo.utility.YearMonthProcessor;
 
 public class ModelStore {
 	public static final String TXT_EXTENSION = ".txt";
@@ -25,7 +23,11 @@ public class ModelStore {
 	protected Classifier m_model;
 	protected GeneralInstances m_modelFormat;
 	protected String m_modelFileName;
+	
 	protected String m_workFilePath;
+	protected String m_modelFilePrefix;
+	protected String m_classiferName;
+	protected String m_policy;
 	protected String m_modelYearSplit;          //构建模型数据的结束年月
 
 	public String getModelFileName() {
@@ -42,7 +44,7 @@ public class ModelStore {
 	
 
 	/*
-	 * 从已有模型文件中加载时调用的初始函数
+	 * 预测时调用的--从确定的评估文件中获得模型文件名，然后加载
 	 * workfilePath= 模型的存储目录（绝对路径）
 	 * model_filename= 模型文件名（不含目录名）
 	 * modelYearSplit= 模型建立的年月Split （用做校验）
@@ -52,28 +54,22 @@ public class ModelStore {
 		this.m_modelFileName = model_filename;
 		this.m_modelYearSplit=modelYearSplit; 
 	}
-
-	//回测时调用的，新建模型时设置model文件名称
-	public  ModelStore(String targetYearSplit,String policySplit,String modelFilePath, String modelFilePrefix, AbstractModel clModel){
-		
-		String classifierName=clModel.classifierName;
-		int modelFileShareMode=clModel.m_modelFileShareMode;
-		int evalDataSplitMode=clModel.m_evalDataSplitMode;
+	
+	/*
+	 * 回测或评估时调用
+	 * 
+	 * 回测时新建模型时设置model文件名称
+	 * 评估时根据模型文件的数据年份查找到目标模型的文件。
+	 */
+	public ModelStore(String modelYearSplit,String policySplit, String modelFilePath,String modelFilePrefix, String classifierName) {
 		this.m_workFilePath=modelFilePath;
-		
-		//根据modelDataSplitMode推算出评估数据的起始区间 （目前主要有三种： 最近6个月、9个月、12个月）
-		String evalYearSplit=YearMonthProcessor.caculateEvalYearSplit(targetYearSplit,evalDataSplitMode);
-		
-		//历史数据切掉评估数据后再去getModelYearSplit看选多少作为模型构建数据（因为不是每月都有模型,要根据modelEvalFileShareMode来定）
-		String modelYearSplit=YearMonthProcessor.caculateModelYearSplit(evalYearSplit,modelFileShareMode);
-
-		this.m_modelYearSplit=modelYearSplit;//记录下用于构建的模型月份，以便校验输入的数据
-		
-//		modelYearSplit = legacyModelName(modelYearSplit);
-
-		m_modelFileName=EvaluationStore.concatFileName(modelFilePrefix,modelYearSplit, policySplit , classifierName);
-
+		this.m_modelYearSplit=modelYearSplit; 
+		this.m_classiferName=classifierName;
+		this.m_policy=policySplit;
+		this.m_modelFilePrefix=modelFilePrefix;
+		this.m_modelFileName = this.concatModelFileName();
 	}
+
 
 	/*
 	 * 校验构建模型阶段准备用于Training的data是否符合要求
@@ -209,6 +205,10 @@ public class ModelStore {
 	//			BaseInstanceProcessor.compareInstancesFormat(test, header);
 		}
 		return model;
+	}
+
+	private String concatModelFileName() {
+		return  this.m_modelFilePrefix + "-" + this.m_classiferName + "-" + this.m_modelYearSplit + MA_PREFIX + this.m_policy;
 	}
 
 }

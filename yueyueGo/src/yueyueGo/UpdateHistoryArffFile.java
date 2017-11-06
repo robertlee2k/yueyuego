@@ -402,14 +402,14 @@ public class UpdateHistoryArffFile {
 	 * 定义更新Arff文件时删除数据的文件名（这个未在ArffFormat中定义）
 	 */
 	protected static String getRemovedArffFileName(ArffFormat currentArffFormat){
-		return AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.m_data_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")-removed.arff";
+		return AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.getModelDataPrefix()+")-removed.arff";
 	}
 
 	/*
 	 * 定义Sample数据的的文件名（这个未在ArffFormat中定义）
 	 */
 	protected static String getSampleArffFileName(ArffFormat currentArffFormat){
-		return AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.m_data_file_prefix+"("+ArffFormat.CURRENT_FORMAT+")-sample.arff";
+		return AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.getModelDataPrefix()+")-sample.arff";
 	}
 
 	/**

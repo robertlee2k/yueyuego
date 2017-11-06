@@ -127,9 +127,7 @@ public class EvaluationStore {
 		this.m_classifierName = clModel.classifierName;
 
 		// 这里的fileName用TargetYearSplit来做，而不是evalYearSplit来做
-		this.m_evalFileName = EvaluationStore.concatFileName(m_filePrefix, m_targetYearSplit, m_policySplit,
-				m_classifierName) + EvaluationStore.THRESHOLD_EXTENSION;
-
+		this.m_evalFileName =this.concatEvalFileName();
 
 	}
 
@@ -321,101 +319,14 @@ public class EvaluationStore {
 		}
 	}
 
-	// private ThresholdData computeThresholds(double tp_fp_ratio,
-	// EvaluationParams evalParams, GeneralInstances result) {
-	//
-	// double sample_limit=evalParams.getLower_limit();
-	// double sample_upper=evalParams.getUpper_limit();
-	//
-	// double thresholdBottom = 0.0;
-	// // double lift_max = 0.0;
-	// // double lift_max_tp=0.0;
-	// // double lift_max_fp=0.0;
-	// // double lift_max_sample=0.0;
-	//
-	// double finalSampleSize = 0.0;
-	// double sampleSize = 0.0;
-	// double tp = 0.0;
-	// double fp = 0.0;
-	// double final_tp=0.0;
-	// double final_fp=0.0;
-	// GeneralAttribute att_tp = result.attribute(ThresholdCurve.TRUE_POS_NAME);
-	// GeneralAttribute att_fp =
-	// result.attribute(ThresholdCurve.FALSE_POS_NAME);
-	// // GeneralAttribute att_lift =
-	// result.attribute(ThresholdCurve.LIFT_NAME);
-	// GeneralAttribute att_threshold =
-	// result.attribute(ThresholdCurve.THRESHOLD_NAME);
-	// GeneralAttribute att_samplesize =
-	// result.attribute(ThresholdCurve.SAMPLE_SIZE_NAME);
-	//
-	//
-	// for (int i = 0; i < result.numInstances(); i++) {
-	// GeneralInstance curr = result.instance(i);
-	// sampleSize = curr.value(att_samplesize); // to get sample range
-	// if (sampleSize >= sample_limit && sampleSize <=sample_upper) {
-	// tp = curr.value(att_tp);
-	// fp = curr.value(att_fp);
-	//
-	// //统计该范围内lift最大的值是多少（仅为输出用）
-	// // double current_lift=curr.value(att_lift);
-	// // if (current_lift>lift_max){
-	// // lift_max=current_lift;
-	// // lift_max_tp=tp;
-	// // lift_max_fp=fp;
-	// // lift_max_sample=sampleSize;
-	// // }
-	//
-	// //查找合适的阀值
-	// if (tp>fp*tp_fp_ratio ){
-	// thresholdBottom = curr.value(att_threshold);
-	// finalSampleSize = sampleSize;
-	// final_tp=tp;
-	// final_fp=fp;
-	// }
-	// }
-	// }
-	//
-	//
-	// ThresholdData thresholdData=null;
-	// if (thresholdBottom>0){ //找到阀值时输出并设置对象的值
-	// System.out.print("#############################thresholdBottom is : " +
-	// FormatUtility.formatDouble(thresholdBottom));
-	// System.out.print("/samplesize is : " +
-	// FormatUtility.formatPercent(finalSampleSize) );
-	// System.out.print("/True Positives is : " + final_tp);
-	// System.out.println("/False Positives is : " + final_fp);
-	//
-	// thresholdData=new ThresholdData();
-	// thresholdData.setThreshold(thresholdBottom);
-	// double percentile=100*(1-finalSampleSize); //将sampleSize转换为percent
-	// thresholdData.setPercent(percentile);
-	//
-	//
-	// }else{
-	// // double max_tp_fp_ratio=Double.NaN;
-	// // if (lift_max_fp>0){
-	// // max_tp_fp_ratio=lift_max_tp/lift_max_fp;
-	// // }
-	// // System.out.println("###possible lift max in range is : " +
-	// FormatUtility.formatDouble(lift_max) + "@
-	// sample="+FormatUtility.formatDouble(lift_max_sample)+" where
-	// tp="+lift_max_tp+" /fp="+lift_max_fp);
-	// // System.out.println("### max tp fp ratio="+max_tp_fp_ratio+ " while
-	// trying threshold="+tp_fp_ratio+ "
-	// isNormal="+(max_tp_fp_ratio<tp_fp_ratio));
-	// }
-	//
-	// return thresholdData;
-	// }
+
 
 	/*
 	 * 根据当前评估数据的年份，倒推取N个历史模型用于比较
 	 */
 	private ModelStore[] findModelsToEvaluate() {
 
-		ArrayList<String> modelYears = new ArrayList<String>();// new
-																// String[PREVIOUS_MODELS_NUM];
+		ArrayList<String> modelYears = new ArrayList<String>();
 
 		// 根据modelYear的Share情况，向前查找N个模型的年份。
 		String startYear = m_evalYearSplit;
@@ -444,9 +355,7 @@ public class EvaluationStore {
 		int numberofValidModels = modelYears.size();
 		ModelStore[] modelStores = new ModelStore[numberofValidModels];
 		for (int i = 0; i < numberofValidModels; i++) {
-			String modelFile = EvaluationStore.concatFileName(m_filePrefix, modelYears.get(i), m_policySplit,
-					m_classifierName);
-			modelStores[i] = new ModelStore(m_workFilePath, modelFile, modelYears.get(i));
+			modelStores[i] = new ModelStore(modelYears.get(i),m_policySplit, m_workFilePath,m_filePrefix, m_classifierName);
 		}
 		return modelStores;
 
@@ -800,8 +709,7 @@ public class EvaluationStore {
 		return thresholdData;
 	}
 
-	public static String concatFileName(String filePrefix, String yearSplit, String policySplit,
-			String classifierName) {// BaseClassifier classifier) {
-		return filePrefix + "-" + classifierName + "-" + yearSplit + ModelStore.MA_PREFIX + policySplit;
+	private String concatEvalFileName() {
+		return m_filePrefix + "-" + m_classifierName + "-" + m_targetYearSplit + ModelStore.MA_PREFIX + m_policySplit+ EvaluationStore.THRESHOLD_EXTENSION;
 	}
 }

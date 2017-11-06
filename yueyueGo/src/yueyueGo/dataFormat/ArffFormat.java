@@ -70,9 +70,8 @@ public abstract class ArffFormat {
 	
 	public boolean convertNominalToNumeric=true; //缺省需要将Nominal转换为Numeric （其实目前就只有指数code这一个）
 
-	public String m_data_root_directory; //这类数据模型的根目录（相对目录）
-	public String m_data_file_prefix; //数据文件的前缀名
-
+	public String m_data_root_directory; //这类数据模型的根目录（相对于整体工作的子目录）
+	protected String m_data_file_prefix; //区分数据文件的前缀，同时也用于区分模型文件的子目录
 	
 	public String m_policy_group; // 输入输出文件中的“策略分组”名称
 	//当前模型用的训练字段 （在子类中定义）
@@ -316,4 +315,19 @@ public abstract class ArffFormat {
 		return this.m_data_file_prefix+"("+ArffFormat.CURRENT_FORMAT+").arff";
 	}
 
+	/*
+	 * 回测时使用，获取模型文件的文件名前缀
+	 */
+	public String getModelDataPrefix(){
+		return this.m_data_file_prefix + "(" + ArffFormat.CURRENT_FORMAT + ")" ;
+	}
+	
+	/*
+	 * 回测时使用，获取模型文件的工作路径
+	 */
+	public String getModelSubDirecotry(){
+		return this.m_data_file_prefix;
+	}
 }
+
+

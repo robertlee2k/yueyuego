@@ -10,7 +10,7 @@ public class FullModelDataFormat extends ArffFormat {
 	@Override
 	protected void initializeFormat() {
 		//Arff文件定义
-		m_data_file_prefix="fullModel20052017";
+		m_data_file_prefix="full";
 		m_data_root_directory="\\fullModel\\";
 		
 		//单次收益率数据中不用保存在ARFF文件中的字段
