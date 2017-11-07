@@ -61,13 +61,14 @@ public class FileUtility {
 	 * @param legacyName
 	 */
 	public static void renameFile(String newName, String legacyName) {
+		System.out.println("rename file from="+legacyName+" to="+newName);
 		// Old file  
 		File oldFile = new File(legacyName);  
 		// new file  
 		File newFile = new File(newName);  
 		boolean flag = oldFile.renameTo(newFile);  
 		if (flag) {  
-			System.out.println("File renamed successfully: from="+legacyName+" to="+newName);  
+			System.out.println("File renamed successfully");  
 		} else {  
 			System.out.println("Rename operation failed");  
 		}
