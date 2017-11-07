@@ -95,8 +95,8 @@ public class BackTest {
 
 
 			// 调用回测函数回测
-//			worker.callRebuildModels();
-			worker.callReEvaluateModels();
+			worker.callRebuildModels();
+//			worker.callReEvaluateModels();
 //			worker.callTestBack();
 //			worker.callRefreshModelUseLatestData();
 //			worker.callDataAnlysis();
@@ -176,6 +176,8 @@ public class BackTest {
 
 		// 按连续分类器回测历史数据
 		BaggingM5P cModel = BaggingM5P.initModel(m_currentArffFormat, AbstractModel.FOR_BUILD_MODEL);
+		//构建1年数据的模型
+		cModel.setUseNYearForTraining(ModelStore.ONE_YEAR_DATA);
 		testBackward(cModel);
 		// 不真正回测了，直接从以前的结果文件中加载
 		// GeneralInstances
@@ -183,6 +185,8 @@ public class BackTest {
 
 		// 按二分类器回测历史数据
 		AdaboostClassifier nModel = AdaboostClassifier.initModel(m_currentArffFormat, AbstractModel.FOR_BUILD_MODEL);
+		//构建1年数据的模型
+		nModel.setUseNYearForTraining(ModelStore.ONE_YEAR_DATA);
 		testBackward(nModel);
 		// 不真正回测了，直接从以前的结果文件中加载
 		// GeneralInstances

@@ -44,7 +44,12 @@ public abstract class AbstractModel implements Serializable{
     public int m_SkipRecentNMonthForEval=1; //为了保持和现实预测一致，需要跳过的最近N月评估数据（缺省跳过最近1个月）
     public int m_useRecentNYearForTraining=ModelStore.FIVE_YEAR_DATA; //用多少年的历史数据训练模型（缺省使用5年数据）
     
-    public int modelArffFormat; //arff的格式
+    public void setUseNYearForTraining(int useRecentNYearForTraining) {
+		this.m_useRecentNYearForTraining = useRecentNYearForTraining;
+	}
+
+
+	public int modelArffFormat; //arff的格式
     public boolean m_normalize=false; //是否需要做normalize，缺省设为在进入分类器之前需要对数据做Normalize
     
     
