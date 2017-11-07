@@ -92,15 +92,15 @@ public class BackTest {
 
 			BackTest worker = new BackTest();
 			worker.init();
+			worker.callRenameModels();
 
 			// 调用回测函数回测
 //			worker.callRebuildModels();
-			worker.callReEvaluateModels();
-			 worker.callTestBack();
-			// worker.callRefreshModelUseLatestData();
+//			worker.callReEvaluateModels();
+//			worker.callTestBack();
+//			worker.callRefreshModelUseLatestData();
+//			worker.callDataAnlysis();
 
-			// worker.callDataAnlysis();
-			// worker.testForModelStore();
 
 		} catch (Exception e) {
 
@@ -852,6 +852,50 @@ public class BackTest {
 		}
 
 		return threadNum;
+	}
+	
+	
+	/*
+	 * 以下为临时工具类
+	 */
+	protected void callRenameModels() throws Exception {
+
+		AdaboostClassifier nModel = AdaboostClassifier.initModel(m_currentArffFormat, AbstractModel.FOR_BACKTEST_MODEL);
+		renameModels(nModel);
+
+		BaggingM5P cModel = BaggingM5P.initModel(m_currentArffFormat, AbstractModel.FOR_BACKTEST_MODEL);
+		renameModels(cModel);
+		System.out.println("-----end of rename process------");
+
+	}
+	
+	protected void renameModels(AbstractModel clModel) throws Exception {
+		String[] splitYear = generateSplitYearForModel(clModel, m_startYear, m_endYearMonth);
+		// 根据分类器和数据类别确定回测模型的工作目录
+		String modelFilePath = prepareModelWorkPath(clModel);
+		String modelPrefix = m_currentArffFormat.getModelDataPrefix();
+
+		// 别把数据文件里的ID变成Nominal的，否则读出来的ID就变成相对偏移量了
+		for (int i = 0; i < splitYear.length; i++) {
+			String yearSplit = splitYear[i];
+
+			String policySplit = null;
+
+			//初始化回测创建模型时使用的modelStore对象（按yearSplit和policysplit分割处理）
+			String classifierName=clModel.classifierName;
+			String modelYearSplit = BackTest.findNearestModelYearSplit(yearSplit, clModel);
+			for (int j = BEGIN_FROM_POLICY; j < clModel.m_policySubGroup.length; j++) {
+				policySplit = clModel.m_policySubGroup[j];	
+
+				ModelStore modelStore=new ModelStore(modelYearSplit, policySplit, modelFilePath, modelPrefix, classifierName) ;
+				String newName=modelStore.getModelFileName();
+				String legacyName=modelStore.getLegacyModelFileName();
+
+				FileUtility.renameFile(newName+ModelStore.MODEL_FILE_EXTENSION, legacyName+ModelStore.MODEL_FILE_EXTENSION);  
+				FileUtility.renameFile(newName+ModelStore.TXT_EXTENSION, legacyName+ModelStore.TXT_EXTENSION);
+			}
+		}
+		
 	}
 
 }

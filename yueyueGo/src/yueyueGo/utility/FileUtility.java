@@ -55,5 +55,22 @@ public class FileUtility {
 			System.out.println("dir found at "+pathName+"  seems ok.");  
 		} 
 	}
+
+	/**
+	 * @param newName
+	 * @param legacyName
+	 */
+	public static void renameFile(String newName, String legacyName) {
+		// Old file  
+		File oldFile = new File(legacyName);  
+		// new file  
+		File newFile = new File(newName);  
+		boolean flag = oldFile.renameTo(newFile);  
+		if (flag) {  
+			System.out.println("File renamed successfully: from="+legacyName+" to="+newName);  
+		} else {  
+			System.out.println("Rename operation failed");  
+		}
+	}
 	
 }

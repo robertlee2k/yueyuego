@@ -20,15 +20,23 @@ public class ModelStore {
 	public static final int HALF_YEAR_SHARED_MODEL=6; //回测时按半年共享模型， eval文件则根据yearsplit自行分割。
 	public static final int QUARTER_SHARED_MODEL=3; //回测时按季度共享模型， eval文件则根据yearsplit自行分割。
 
+	
+	//模型文件所用数据的区段长度
+	public static final int ONE_YEAR_DATA=1;
+	public static final int TWO_YEAR_DATA=2;
+	public static final int THREE_YEAR_DATA=3;
+	public static final int FOUR_YEAR_DATA=4;
+	public static final int FIVE_YEAR_DATA=5;
+	
 	protected Classifier m_model;
 	protected GeneralInstances m_modelFormat;
 	protected String m_modelFileName;
 	
 	protected String m_workFilePath;
-	protected String m_modelFilePrefix;
 	protected String m_classiferName;
 	protected String m_policy;
 	protected String m_modelYearSplit;          //构建模型数据的结束年月
+	protected int m_useNyearData;               //使用多少年的数据 
 
 	public String getModelFileName() {
 		return m_modelFileName;
@@ -66,8 +74,7 @@ public class ModelStore {
 		this.m_modelYearSplit=modelYearSplit; 
 		this.m_classiferName=classifierName;
 		this.m_policy=policySplit;
-		this.m_modelFilePrefix=modelFilePrefix;
-		this.m_modelFileName = this.concatModelFileName();
+		this.m_modelFileName = this.concatModelFileName(modelFilePrefix);
 	}
 
 
@@ -195,20 +202,23 @@ public class ModelStore {
 		//验证数据格式是否一致
 		String verify=BaseInstanceProcessor.compareInstancesFormat(targetData, header);
 		if (verify!=null){
-			//System.err.println
 			throw new Exception("attention! model and testing data structure is not the same. Here is the difference: "+verify);
-	//			//如果不一致，试着Calibrate一下。
-	//			DataInstances outTemp=new DataInstances(header,0);
-	//			instanceProcessor.calibrateAttributes(test, outTemp);
-	//			test=outTemp;
-	//			//再比一次
-	//			BaseInstanceProcessor.compareInstancesFormat(test, header);
 		}
 		return model;
 	}
 
-	private String concatModelFileName() {
-		return  this.m_modelFilePrefix + "-" + this.m_classiferName + "-" + this.m_modelYearSplit + MA_PREFIX + this.m_policy;
+	/*
+	 * modelFile的命名规则
+	 */
+	private String concatModelFileName(String modelFilePrefix) {
+		return  modelFilePrefix + "-" + this.m_classiferName + "-" + this.m_modelYearSplit +"(-"+m_useNyearData+")"+ MA_PREFIX + this.m_policy;
 	}
-
+	
+	/*
+	 * 以下为临时工具类
+	 */
+	
+	public String getLegacyModelFileName() {
+		return  "trans20052017(10)-" + this.m_classiferName + "-" + this.m_modelYearSplit + MA_PREFIX + this.m_policy;
+	}
 }
