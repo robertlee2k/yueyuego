@@ -92,16 +92,16 @@ public class BackTest {
 
 			BackTest worker = new BackTest();
 			worker.init();
-			worker.callRenameModels();
+
 
 			// 调用回测函数回测
 //			worker.callRebuildModels();
-//			worker.callReEvaluateModels();
+			worker.callReEvaluateModels();
 //			worker.callTestBack();
 //			worker.callRefreshModelUseLatestData();
 //			worker.callDataAnlysis();
 
-
+//			worker.callRenameModels();
 		} catch (Exception e) {
 
 			e.printStackTrace();
