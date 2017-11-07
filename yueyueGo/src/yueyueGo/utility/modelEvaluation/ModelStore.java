@@ -69,11 +69,12 @@ public class ModelStore {
 	 * 回测时新建模型时设置model文件名称
 	 * 评估时根据模型文件的数据年份查找到目标模型的文件。
 	 */
-	public ModelStore(String modelYearSplit,String policySplit, String modelFilePath,String modelFilePrefix, String classifierName) {
+	public ModelStore(String modelYearSplit,String policySplit, String modelFilePath,String modelFilePrefix, String classifierName,int useNyearData) {
 		this.m_workFilePath=modelFilePath;
 		this.m_modelYearSplit=modelYearSplit; 
 		this.m_classiferName=classifierName;
 		this.m_policy=policySplit;
+		this.m_useNyearData=useNyearData;
 		this.m_modelFileName = this.concatModelFileName(modelFilePrefix);
 	}
 

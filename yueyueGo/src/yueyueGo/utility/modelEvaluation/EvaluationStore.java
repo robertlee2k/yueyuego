@@ -354,8 +354,12 @@ public class EvaluationStore {
 		// 获得所有需要评估的模型文件列表及模型年份年份
 		int numberofValidModels = modelYears.size();
 		ModelStore[] modelStores = new ModelStore[numberofValidModels];
+		int[] dataYears={ModelStore.FIVE_YEAR_DATA,ModelStore.ONE_YEAR_DATA};
 		for (int i = 0; i < numberofValidModels; i++) {
-			modelStores[i] = new ModelStore(modelYears.get(i),m_policySplit, m_workFilePath,m_filePrefix, m_classifierName);
+			for (int dataYear : dataYears) {
+				modelStores[i] = new ModelStore(modelYears.get(i),m_policySplit, m_workFilePath,m_filePrefix, m_classifierName,dataYear);	
+			}
+			
 		}
 		return modelStores;
 

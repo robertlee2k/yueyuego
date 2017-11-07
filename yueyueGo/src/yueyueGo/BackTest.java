@@ -887,9 +887,9 @@ public class BackTest {
 			for (int j = BEGIN_FROM_POLICY; j < clModel.m_policySubGroup.length; j++) {
 				policySplit = clModel.m_policySubGroup[j];	
 
-				ModelStore modelStore=new ModelStore(modelYearSplit, policySplit, modelFilePath, modelPrefix, classifierName) ;
-				String newName=modelStore.getModelFileName();
-				String legacyName=modelStore.getLegacyModelFileName();
+				ModelStore modelStore=new ModelStore(modelYearSplit, policySplit, modelFilePath, modelPrefix, classifierName,clModel.m_useRecentNYearForTraining) ;
+				String newName=modelStore.getWorkFilePath()+modelStore.getModelFileName();
+				String legacyName=modelStore.getWorkFilePath()+modelStore.getLegacyModelFileName();
 
 				FileUtility.renameFile(newName+ModelStore.MODEL_FILE_EXTENSION, legacyName+ModelStore.MODEL_FILE_EXTENSION);  
 				FileUtility.renameFile(newName+ModelStore.TXT_EXTENSION, legacyName+ModelStore.TXT_EXTENSION);
