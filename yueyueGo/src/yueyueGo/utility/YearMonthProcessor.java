@@ -185,7 +185,7 @@ public class YearMonthProcessor {
 
 	/*
 	 * 回测时调用
-	 * 根据给定的起始年月和终止月份自动生成回测的年月阶段
+	 * 根据给定的起始年月和终止月份自动生成回测的年月阶段 （起始年月和终止年月都包含）
 	 * interval表示两个yearMonth中间的间隔周期
 	 */
 	public static String[] manipulateYearMonth(String a_startYearMonth, String endYearMonth, int interval) throws Exception{
@@ -196,12 +196,10 @@ public class YearMonthProcessor {
 		int endYear = Integer.parseInt(endYearMonth.substring(0, 4));
 		int endMonth = Integer.parseInt(endYearMonth.substring(4, 6));
 	
-		//接下来根据业务规则处理传入的startMonth和endMonth
-		//当前月是没有数据的，最新数据是上月的currentMonth-1
-		endMonth-=1;
+		//接下来根据业务规则处理传入的startMonth
 		//如果间隔interval大于1，则将第一个startMonth按interval向前对齐到本年的间隔月份中 （比如5月 的interval为6 的对齐后月份应该是1月，8月为7月）
 		if (interval>1){
-			startMonth=(startMonth/interval)*interval+1;
+			startMonth=((startMonth-1)/interval)*interval+1;
 		}
 		
 
@@ -273,8 +271,8 @@ public class YearMonthProcessor {
 	public static void main(String[] args) {
 		try {
 			
-			int interval=6;
-			String[] result=YearMonthProcessor.manipulateYearMonth("201710", "201711", interval);
+			int interval=3;
+			String[] result=YearMonthProcessor.manipulateYearMonth("201709", "201709", interval);
 			printYearMonthArray(interval, result);
 			
 		} catch (Exception e) {

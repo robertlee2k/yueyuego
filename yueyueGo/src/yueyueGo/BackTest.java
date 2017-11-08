@@ -68,8 +68,8 @@ public class BackTest {
 	protected String m_currentPolicy; // 策略的名称，只是用于输出。
 	protected ArffFormat m_currentArffFormat; // 当前所用数据文件格式
 
-	protected String m_startYearMonth = "201611"; //起始月，包含这个月的数据（设置时不一定需要从1月份开始的）
-	protected String m_endYearMonth = "201710"; // 结尾月一般是当前月，这个月是没有数据的，最新数据是上月的
+	protected String m_startYearMonth = "201709"; //回测的起始月，包含这个月的数据（设置时不一定需要从1月份开始的）
+	protected String m_endYearMonth = "201709"; // 回测的结尾月(该月数据为文件中最新数据）
 
 	protected String[] m_handSetSplitYear = new String[] {};
 
@@ -95,9 +95,9 @@ public class BackTest {
 
 
 			// 调用回测函数回测
-//			worker.callRebuildModels();
-			worker.callReEvaluateModels();
-			worker.callTestBack();
+			worker.callRebuildModels();
+//			worker.callReEvaluateModels();
+//			worker.callTestBack();
 //			worker.callRefreshModelUseLatestData();
 //			worker.callDataAnlysis();
 
@@ -128,7 +128,7 @@ public class BackTest {
 		AbstractModel model = null;
 
 		m_startYearMonth = "201701";
-		m_endYearMonth = "201710"; // 结尾月一般是当前月，这个月是没有数据的，最新数据是上月的
+		m_endYearMonth = "201709";
 		// m_handSetSplitYear=new String[] {"201701"};
 
 		// 逐次构建新的模型
@@ -176,18 +176,32 @@ public class BackTest {
 
 		// 按连续分类器回测历史数据
 		BaggingM5P cModel = BaggingM5P.initModel(m_currentArffFormat, AbstractModel.FOR_BUILD_MODEL);
+		//用6个月的评估区段（不用9个月，免得少生成一个模型）
+		cModel.m_evalDataSplitMode=EvaluationStore.USE_HALF_YEAR_DATA_FOR_EVAL;
 		//构建1年数据的模型
 		cModel.setUseNYearForTraining(ModelStore.ONE_YEAR_DATA);
 		testBackward(cModel);
+		
+		//构建5年数据的模型
+		cModel.setUseNYearForTraining(ModelStore.FIVE_YEAR_DATA);
+		testBackward(cModel);
+		
 		// 不真正回测了，直接从以前的结果文件中加载
 		// GeneralInstances
 		// continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 
 		// 按二分类器回测历史数据
 		AdaboostClassifier nModel = AdaboostClassifier.initModel(m_currentArffFormat, AbstractModel.FOR_BUILD_MODEL);
+		//用6个月的评估区段（不用9个月，免得少生成一个模型）
+		nModel.m_evalDataSplitMode=EvaluationStore.USE_HALF_YEAR_DATA_FOR_EVAL;
+
 		//构建1年数据的模型
 		nModel.setUseNYearForTraining(ModelStore.ONE_YEAR_DATA);
 		testBackward(nModel);
+		//构建5年数据的模型
+		nModel.setUseNYearForTraining(ModelStore.FIVE_YEAR_DATA);
+		testBackward(nModel);
+		
 		// 不真正回测了，直接从以前的结果文件中加载
 		// GeneralInstances
 		// nominalResult=loadBackTestResultFromFile(nModel.getIdentifyName());
