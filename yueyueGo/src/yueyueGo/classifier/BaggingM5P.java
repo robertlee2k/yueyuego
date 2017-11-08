@@ -302,7 +302,7 @@ public class BaggingM5P extends ContinousModel implements ParrallelizedRunning{
 			 	model.divided=500; //将trainingData分成多少份
 	
 			 	model.m_modelFileShareMode=ModelStore.QUARTER_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
-			 	model.m_evalDataSplitMode=EvaluationStore.USE_NINE_MONTHS_DATA_FOR_EVAL;//USE_YEAR_DATA_FOR_EVAL; //评估区间使用一年数据 （截止20170103，这个是效果最好的）
+			 	model.m_evalDataSplitMode=EvaluationStore.USE_HALF_YEAR_DATA_FOR_EVAL; //评估区间使用6个月数据 
 		 }else if (format instanceof MomentumDataFormat){
 			//设置动量策略参数
 			model.m_policySubGroup = new String[]{"" };

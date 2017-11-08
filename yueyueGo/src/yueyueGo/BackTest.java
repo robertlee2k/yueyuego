@@ -95,9 +95,9 @@ public class BackTest {
 
 
 			// 调用回测函数回测
-			worker.callRebuildModels();
-//			worker.callReEvaluateModels();
-//			worker.callTestBack();
+//			worker.callRebuildModels();
+			worker.callReEvaluateModels();
+			worker.callTestBack();
 //			worker.callRefreshModelUseLatestData();
 //			worker.callDataAnlysis();
 
