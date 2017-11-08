@@ -68,7 +68,7 @@ public class BackTest {
 	protected String m_currentPolicy; // 策略的名称，只是用于输出。
 	protected ArffFormat m_currentArffFormat; // 当前所用数据文件格式
 
-	protected String m_startYear = "2008";
+	protected String m_startYearMonth = "201611"; //起始月，包含这个月的数据（设置时不一定需要从1月份开始的）
 	protected String m_endYearMonth = "201710"; // 结尾月一般是当前月，这个月是没有数据的，最新数据是上月的
 
 	protected String[] m_handSetSplitYear = new String[] {};
@@ -111,7 +111,7 @@ public class BackTest {
 	public void callDataAnlysis() throws Exception {
 		AbstractModel cModel = new BaggingM5P();
 		GeneralInstances fulldata = getBacktestInstances(cModel);
-		ShouyilvDescriptiveList shouyilvDescriptions = DataAnalysis.analyzeByMarketTrend("原始数据", m_startYear + "01",
+		ShouyilvDescriptiveList shouyilvDescriptions = DataAnalysis.analyzeByMarketTrend("原始数据", m_startYearMonth,
 				m_endYearMonth, m_currentArffFormat.m_policy_group, cModel.m_policySubGroup, fulldata);
 
 		String outputCSV = shouyilvDescriptions.convertVerticallyToCSV();
@@ -127,7 +127,7 @@ public class BackTest {
 	protected void callRefreshModelUseLatestData() throws Exception {
 		AbstractModel model = null;
 
-		m_startYear = "2017";
+		m_startYearMonth = "201701";
 		m_endYearMonth = "201710"; // 结尾月一般是当前月，这个月是没有数据的，最新数据是上月的
 		// m_handSetSplitYear=new String[] {"201701"};
 
@@ -139,7 +139,7 @@ public class BackTest {
 		testBackward(model);
 
 		// 重新评估模型 （因为模型的评估数据受影响比构建数据受影响多，所以这里前推一年
-		m_startYear = "2016";
+		m_startYearMonth = "201601";
 		// m_handSetSplitYear=
 		// new String[] {"201602","201603","201604","201605","201606","201607",
 		// "201608","201609","201610","201611","201612",
@@ -287,7 +287,7 @@ public class BackTest {
 			System.out.println("####Thread Pool will not be used");
 		}
 
-		String[] splitYear = generateSplitYearForModel(clModel, m_startYear, m_endYearMonth);
+		String[] splitYear = generateSplitYearForModel(clModel, m_startYearMonth, m_endYearMonth);
 
 		// 别把数据文件里的ID变成Nominal的，否则读出来的ID就变成相对偏移量了
 		for (int i = 0; i < splitYear.length; i++) {
@@ -617,9 +617,9 @@ public class BackTest {
 		ShouyilvDescriptiveList[] monthlyShouyilvAnalysis = new ShouyilvDescriptiveList[3];
 
 		marketTrendAnalysis[0] = DataAnalysis.analyzeByMarketTrend(ShouyilvDescriptiveList.ORIGINAL_DATA,
-				m_startYear + "01", m_endYearMonth, m_currentArffFormat.m_policy_group, targetPolicies,
+				m_startYearMonth, m_endYearMonth, m_currentArffFormat.m_policy_group, targetPolicies,
 				continuousResult.getResultInstances());
-		monthlyShouyilvAnalysis[0] = DataAnalysis.analyzeByMonth(ShouyilvDescriptiveList.ORIGINAL_DATA, m_startYear,
+		monthlyShouyilvAnalysis[0] = DataAnalysis.analyzeByMonth(ShouyilvDescriptiveList.ORIGINAL_DATA, m_startYearMonth,
 				m_endYearMonth, m_currentArffFormat.m_policy_group, targetPolicies,
 				continuousResult.getResultInstances());
 
@@ -660,9 +660,9 @@ public class BackTest {
 		System.out.println("\r\n-----now output main model predictions----------" + mainModel.getIdentifyName());
 		GeneralInstances selectedInstances = ResultsHolder.returnSelectedInstances(mainResult.getResultInstances());
 		marketTrendAnalysis[1] = DataAnalysis.analyzeByMarketTrend("单模型选股:" + mainModel.getIdentifyName(),
-				m_startYear + "01", m_endYearMonth, m_currentArffFormat.m_policy_group, targetPolicies,
+				m_startYearMonth , m_endYearMonth, m_currentArffFormat.m_policy_group, targetPolicies,
 				selectedInstances);
-		monthlyShouyilvAnalysis[1] = DataAnalysis.analyzeByMonth("单模型选股:" + mainModel.getIdentifyName(), m_startYear,
+		monthlyShouyilvAnalysis[1] = DataAnalysis.analyzeByMonth("单模型选股:" + mainModel.getIdentifyName(), m_startYearMonth,
 				m_endYearMonth, m_currentArffFormat.m_policy_group, targetPolicies, selectedInstances);
 
 		// 用另一个模型合并选股
@@ -671,9 +671,9 @@ public class BackTest {
 		selectedInstances = ResultsHolder.returnSelectedInstances(classifyResult);
 		System.out.println("--filtered by secondary classifier:( " + secondaryModel.getIdentifyName() + ")");
 		marketTrendAnalysis[2] = DataAnalysis.analyzeByMarketTrend("双模型选股:" + mainModel.getIdentifyName(),
-				m_startYear + "01", m_endYearMonth, m_currentArffFormat.m_policy_group, targetPolicies,
+				m_startYearMonth, m_endYearMonth, m_currentArffFormat.m_policy_group, targetPolicies,
 				selectedInstances);
-		monthlyShouyilvAnalysis[2] = DataAnalysis.analyzeByMonth("双模型选股:" + mainModel.getIdentifyName(), m_startYear,
+		monthlyShouyilvAnalysis[2] = DataAnalysis.analyzeByMonth("双模型选股:" + mainModel.getIdentifyName(), m_startYearMonth,
 				m_endYearMonth, m_currentArffFormat.m_policy_group, targetPolicies, selectedInstances);
 
 		// 输出上述收益率分析的csv文件(按市场和按月）
@@ -691,67 +691,40 @@ public class BackTest {
 		this.saveSelectedFileForMarkets(selectedInstances, mainModel.getIdentifyName());
 	}
 
-	protected String[] generateSplitYearForModel(AbstractModel clModel, String startYear, String endYearMonth) {
+	protected String[] generateSplitYearForModel(AbstractModel clModel, String startYearMonth, String endYearMonth) throws Exception {
 
 		String[] result = null;
+		int interval=0;
 		if (clModel.is_skipTrainInBacktest() == false) { // 需要构建模型
-			switch (clModel.m_modelFileShareMode) {
-			case ModelStore.MONTHLY_MODEL: // 这个是全量模型
-				result = manipulateYearMonth(startYear, endYearMonth, 1);
-				break;
-			case ModelStore.YEAR_SHARED_MODEL: // 生成年度模型
-				result = manipulateYearMonth(startYear, endYearMonth, 12);
-				break;
-			case ModelStore.QUARTER_SHARED_MODEL: // 生成季度模型
-				result = manipulateYearMonth(startYear, endYearMonth, 3);
-				break;
-			case ModelStore.HALF_YEAR_SHARED_MODEL: // 生成半年度模型
-				result = manipulateYearMonth(startYear, endYearMonth, 6);
-				break;
-			}
+			interval=clModel.m_modelFileShareMode;
+			
+//			switch (clModel.m_modelFileShareMode) {
+//			case ModelStore.MONTHLY_MODEL: // 这个是全量模型
+//				result = YearMonthProcessor.manipulateYearMonth(startYearMonth, endYearMonth, 1);
+//				break;
+//			case ModelStore.YEAR_SHARED_MODEL: // 生成年度模型
+//				result = YearMonthProcessor.manipulateYearMonth(startYearMonth, endYearMonth, 12);
+//				break;
+//			case ModelStore.QUARTER_SHARED_MODEL: // 生成季度模型
+//				result = YearMonthProcessor.manipulateYearMonth(startYearMonth, endYearMonth, 3);
+//				break;
+//			case ModelStore.HALF_YEAR_SHARED_MODEL: // 生成半年度模型
+//				result = YearMonthProcessor.manipulateYearMonth(startYearMonth, endYearMonth, 6);
+//				break;
+//			}
 		} else {// 不需要构建模型，则按月生成所有的数据即可
-			result = manipulateYearMonth(startYear, endYearMonth, 1);
+			interval=1;
 		}
+		
+		result = YearMonthProcessor.manipulateYearMonth(startYearMonth, endYearMonth, interval);
 		// 调用手工覆盖的函数接口
 		String[] needOverride = overrideSplitYear();
 		if (needOverride.length > 0) {
 			result = needOverride;
 		}
 
-		System.out.println(" splitYear size=" + result.length);
-		for (String string : result) {
-			System.out.print(string + ",");
-		}
-		System.out.println("");
-		return result;
-	}
+		YearMonthProcessor.printYearMonthArray(interval, result);
 
-	/*
-	 * 根据给定的起始年和终止月份自动生成回测的年月阶段
-	 */
-	public static String[] manipulateYearMonth(String a_startYear, String endYearMonth, int interval) {
-		int startYear = Integer.parseInt(a_startYear);
-		String[] result = null;
-		String currentYearMonth = endYearMonth;// FormatUtility.getCurrentYearMonth();
-		int currentYear = Integer.parseInt(currentYearMonth.substring(0, 4));
-		int currentMonth = Integer.parseInt(currentYearMonth.substring(4, 6));
-
-		int size = 0;
-		int pos = 0;
-		// 计算有多少个周期，当前月是没有数据的，最新数据是上月的currentMonth-1,然后再去减1的原因是超过了interval才会周期进位加一（比如201703除以interval
-		// 3 为1，但不进位）
-		size = (currentYear - startYear) * (12 / interval) + (currentMonth - 1 - 1) / interval + 1;
-		result = new String[size];
-		pos = 0;
-		for (int year = startYear; year <= currentYear; year++) {
-			for (int month = 1; month <= 12; month += interval) {
-				if (year == currentYear && month > currentMonth - 1) { // 当前年的当前月之后是没有数据的
-					break;
-				}
-				result[pos] = "" + (year * 100 + month);
-				pos++;
-			}
-		}
 		return result;
 	}
 
@@ -874,7 +847,7 @@ public class BackTest {
 	}
 	
 	protected void renameModels(AbstractModel clModel) throws Exception {
-		String[] splitYear = generateSplitYearForModel(clModel, m_startYear, m_endYearMonth);
+		String[] splitYear = generateSplitYearForModel(clModel, m_startYearMonth, m_endYearMonth);
 		// 根据分类器和数据类别确定回测模型的工作目录
 		String modelFilePath = prepareModelWorkPath(clModel);
 		String modelPrefix = m_currentArffFormat.getModelDataPrefix();

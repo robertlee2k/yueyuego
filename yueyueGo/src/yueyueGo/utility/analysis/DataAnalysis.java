@@ -7,6 +7,7 @@ import yueyueGo.dataProcessor.InstanceHandler;
 import yueyueGo.dataProcessor.WekaInstanceProcessor;
 import yueyueGo.databeans.GeneralAttribute;
 import yueyueGo.databeans.GeneralInstances;
+import yueyueGo.utility.YearMonthProcessor;
 
 /*
  * 分析历史各阶段的收益率数据分布
@@ -167,8 +168,8 @@ public class DataAnalysis {
 	/*
 	 * 按月分析收益率结果
 	 */
-	public static ShouyilvDescriptiveList analyzeByMonth(String identify,String startYear,String toYearMonth,String policyGroupName,String[] policyStrings,GeneralInstances fullData)throws Exception{
-		String[] monthList=BackTest.manipulateYearMonth(startYear, toYearMonth, 1);
+	public static ShouyilvDescriptiveList analyzeByMonth(String identify,String startYearMonth,String toYearMonth,String policyGroupName,String[] policyStrings,GeneralInstances fullData)throws Exception{
+		String[] monthList=YearMonthProcessor.manipulateYearMonth(startYearMonth, toYearMonth, 1);
 
 //		System.out.println(" now analyzing classifier result by month :"+identify);
 		//先分析全时间段

@@ -36,6 +36,7 @@ public class EvaluationStore {
 	protected String m_classifierName;
 	protected String m_workFilePath;
 	protected String m_filePrefix;
+	protected int m_SkipRecentNMonthForEval; //需要跳过的最近N月评估数据
 
 	protected int m_modelFileShareMode;
 	protected int m_evalDataSplitMode;
@@ -104,6 +105,7 @@ public class EvaluationStore {
 		this.m_evalDataSplitMode = clModel.m_evalDataSplitMode;
 		this.m_policySplit = policySplit;
 		m_evalYearSplit = YearMonthProcessor.caculateEvalYearSplit(m_targetYearSplit, m_evalDataSplitMode);
+
 	}
 
 	// 回测时调用的，设置model文件和eval文件名称
@@ -125,6 +127,7 @@ public class EvaluationStore {
 		this.m_filePrefix = modelFilePrefix;// 记录下回测模型的文件头，以便日后使用
 		this.m_policySplit = policySplit; // 记录下策略分类
 		this.m_classifierName = clModel.classifierName;
+		this.m_SkipRecentNMonthForEval=clModel.m_SkipRecentNMonthForEval;
 
 		// 这里的fileName用TargetYearSplit来做，而不是evalYearSplit来做
 		this.m_evalFileName =this.concatEvalFileName();
@@ -714,6 +717,6 @@ public class EvaluationStore {
 	}
 
 	private String concatEvalFileName() {
-		return m_filePrefix + "-" + m_classifierName + "-" + m_targetYearSplit + ModelStore.MA_PREFIX + m_policySplit+ EvaluationStore.THRESHOLD_EXTENSION;
+		return m_filePrefix + "-" + m_classifierName +"-" + m_evalYearSplit+ "_" + m_targetYearSplit +"(-"+m_SkipRecentNMonthForEval+")"+ ModelStore.MA_PREFIX + m_policySplit+ EvaluationStore.THRESHOLD_EXTENSION;
 	}
 }

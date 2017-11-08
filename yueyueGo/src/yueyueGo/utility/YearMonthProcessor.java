@@ -89,24 +89,11 @@ public class YearMonthProcessor {
 		return String.valueOf(yearMonth);
 	}
 
-//	@Deprecated
-//	/**
-//	 * @param modelYearSplit
-//	 * @return
-//	 * @throws NumberFormatException
-//	 */
-//	public static String legacyModelName(String modelYearSplit) throws NumberFormatException {
-//		//根据历史习惯， 如果模型是第一个月时将其文件名变换为年的形式（如应该把200801变为2008）
-//		if (modelYearSplit.length()==6){
-//			int inputMonth=Integer.parseInt(modelYearSplit.substring(4,6)); 
-//			if (inputMonth==1){
-//				modelYearSplit=modelYearSplit.substring(0,4);
-//			}
-//		}
-//		return modelYearSplit;
-//	}
 
-	//	当前周期前推N个月的分隔线，比如 如果N=9是201003 则返回200909
+
+	/*	
+	 * 当前周期前推N个月的分隔线，比如 如果N=9是201003 则返回200909
+	 */
 	public static String backNMonthsForYearSplit(int nMonths,String yearSplit){
 	
 		int lastPeriod=0;
@@ -194,6 +181,106 @@ public class YearMonthProcessor {
 		int m = cal.get(Calendar.MONTH)+1;
 		double ym = y * 100 + m;
 		return ym;
+	}
+
+	/*
+	 * 回测时调用
+	 * 根据给定的起始年月和终止月份自动生成回测的年月阶段
+	 * interval表示两个yearMonth中间的间隔周期
+	 */
+	public static String[] manipulateYearMonth(String a_startYearMonth, String endYearMonth, int interval) throws Exception{
+		int startYear = Integer.parseInt(a_startYearMonth.substring(0, 4));
+		int startMonth=Integer.parseInt(a_startYearMonth.substring(4, 6));
+		String[] result = null;
+
+		int endYear = Integer.parseInt(endYearMonth.substring(0, 4));
+		int endMonth = Integer.parseInt(endYearMonth.substring(4, 6));
+	
+		//接下来根据业务规则处理传入的startMonth和endMonth
+		//当前月是没有数据的，最新数据是上月的currentMonth-1
+		endMonth-=1;
+		//如果间隔interval大于1，则将第一个startMonth按interval向前对齐到本年的间隔月份中 （比如5月 的interval为6 的对齐后月份应该是1月，8月为7月）
+		if (interval>1){
+			startMonth=(startMonth/interval)*interval+1;
+		}
+		
+
+		/*
+		 * 分成两步计算总共有多少个周期：
+		 * 1. 计算startYearMonth到该年的12月之间有多少周期。
+		 * 2. 计算startYear+1 到 endYear的endMonth有多少周期。
+		 * 总共周期就是上述二者之和 
+		 */
+		int size = 0;
+		int endMonthInFirstYear=12;
+		if (endYear==startYear){//如果endYear是startYear的同一年，就计算概念
+			endMonthInFirstYear=endMonth;
+			size=(endMonth-startMonth)/interval+1; //直接计算。
+		}else if (endYear>startYear) { //如果endYear不是startYear的同一年，则计算中间年份。
+			size+=(12-startMonth)/interval+1; //第一步的计算。
+			size+=(endYear-1-startYear)* (12 / interval)+ (endMonth - 1) / interval + 1; //第二步的计算
+		}else{
+			throw new Exception("endYear is less than startYear");
+		}
+
+		//开始填充数据
+		result = new String[size];
+		int pos = 0;
+
+		//先处理第一年的数据
+		for (int month=startMonth;month<=endMonthInFirstYear;month+=interval){
+			result[pos] = "" + (startYear * 100 + month);
+			pos++;
+		}
+		//再处理第二年到最后一年的数据（如果有的话）
+		for (int year = startYear+1; year <= endYear; year++) {
+			for (int month = 1; month <= 12; month += interval) {
+				if (year == endYear && month > endMonth ) { // 当前年的当前月之后是没有数据的
+					break;
+				}
+				result[pos] = "" + (year * 100 + month);
+				pos++;
+			}
+		}
+		return result;
+	}
+	
+	/**
+	 * 用按年分组的方式打印YearMonth数组
+	 * @param interval
+	 * @param result
+	 */
+	public static void printYearMonthArray(int interval, String[] result) {
+		
+		System.out.println(" splitYear size=" + result.length);
+		int mod=12/interval;
+		for (int i=0;i<result.length;i++){
+			if(i>0){
+				if( (i % mod) ==0 ){
+					System.out.println();
+				}else{
+					System.out.print(",");
+				}
+			}
+			System.out.print(result[i]);
+		}
+		System.out.println("");
+	}
+
+	/*
+	 * 测试用方法
+	 */
+	public static void main(String[] args) {
+		try {
+			
+			int interval=6;
+			String[] result=YearMonthProcessor.manipulateYearMonth("201710", "201711", interval);
+			printYearMonthArray(interval, result);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+
+		}
 	}
 
 }
