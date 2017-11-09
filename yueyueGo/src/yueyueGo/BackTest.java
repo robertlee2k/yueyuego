@@ -95,9 +95,9 @@ public class BackTest {
 
 
 			// 调用回测函数回测
-//			worker.callRebuildModels();
-			worker.callReEvaluateModels();
-			worker.callTestBack();
+			worker.callRebuildModels();
+//			worker.callReEvaluateModels();
+//			worker.callTestBack();
 //			worker.callRefreshModelUseLatestData();
 //			worker.callDataAnlysis();
 
@@ -179,12 +179,12 @@ public class BackTest {
 		//用6个月的评估区段（不用9个月，免得少生成一个模型）
 		cModel.m_evalDataSplitMode=EvaluationStore.USE_HALF_YEAR_DATA_FOR_EVAL;
 		//构建1年数据的模型
-		cModel.setUseNYearForTraining(ModelStore.ONE_YEAR_DATA);
+		cModel.setUseNYearForTraining(ModelStore.TWO_YEAR_DATA);
 		testBackward(cModel);
 		
-		//构建5年数据的模型
-		cModel.setUseNYearForTraining(ModelStore.FIVE_YEAR_DATA);
-		testBackward(cModel);
+//		//构建5年数据的模型
+//		cModel.setUseNYearForTraining(ModelStore.FIVE_YEAR_DATA);
+//		testBackward(cModel);
 		
 		// 不真正回测了，直接从以前的结果文件中加载
 		// GeneralInstances
@@ -196,11 +196,11 @@ public class BackTest {
 		nModel.m_evalDataSplitMode=EvaluationStore.USE_HALF_YEAR_DATA_FOR_EVAL;
 
 		//构建1年数据的模型
-		nModel.setUseNYearForTraining(ModelStore.ONE_YEAR_DATA);
+		nModel.setUseNYearForTraining(ModelStore.TWO_YEAR_DATA);
 		testBackward(nModel);
-		//构建5年数据的模型
-		nModel.setUseNYearForTraining(ModelStore.FIVE_YEAR_DATA);
-		testBackward(nModel);
+//		//构建5年数据的模型
+//		nModel.setUseNYearForTraining(ModelStore.FIVE_YEAR_DATA);
+//		testBackward(nModel);
 		
 		// 不真正回测了，直接从以前的结果文件中加载
 		// GeneralInstances
