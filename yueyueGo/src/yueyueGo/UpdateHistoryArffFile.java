@@ -195,16 +195,19 @@ public class UpdateHistoryArffFile {
 	//		GeneralInstances fullData = loadDataFromIncrementalCSVFile(sourceFile);			
 			
 			//传统
-			String sourceFilePrefix=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group10\\v_onceyield_group10all";
+			String sourceFilePrefix=AppContext.getC_ROOT_DIRECTORY()+"sourceData\\group11\\v_onceyield_group11all_";
 			String fileSurfix=".txt"; 
 //			String fileSurfix=".csv";
-			GeneralInstances fullData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2005_2009"+fileSurfix,currentArffFormat);
+			GeneralInstances fullData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2005_2008"+fileSurfix,currentArffFormat);
 
-			GeneralInstances addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2010_2013"+fileSurfix,currentArffFormat);
+			GeneralInstances addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2009_2011"+fileSurfix,currentArffFormat);
 			BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullData);
 			fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
 			System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
-			addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2014_2017"+fileSurfix,currentArffFormat);
+			addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2012_2014"+fileSurfix,currentArffFormat);
+			fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
+			System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
+			addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2015_2017"+fileSurfix,currentArffFormat);
 			fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
 			System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
 	

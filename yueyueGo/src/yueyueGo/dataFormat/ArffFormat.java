@@ -11,8 +11,8 @@ import yueyueGo.utility.modelPredict.ResultsHolder;
 public abstract class ArffFormat {
 	
 	// 常量定义
-	public static final int LEGACY_FORMAT=9;
-	public static final int CURRENT_FORMAT=10;
+	public static final int LEGACY_FORMAT=10;
+	public static final int CURRENT_FORMAT=11;
 	
 	
 	public static final double DOUBLE_VALUE_YES = 1;
