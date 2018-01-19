@@ -50,7 +50,7 @@ public abstract class AbstractModel implements Serializable{
 
 
 	public int modelArffFormat; //arff的格式
-    public boolean m_normalize=false; //是否需要做normalize，缺省设为在进入分类器之前需要对数据做Normalize
+    public boolean m_normalize=false; //是否需要做normalize，缺省设为在进入分类器之前不需要对数据做Normalize （目前这个参数只有在PCA时有效，以后再改） TODO
     
     
 	protected double m_positiveLine; // 用来定义收益率大于多少时算positive，缺省为0   

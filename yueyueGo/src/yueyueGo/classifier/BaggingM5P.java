@@ -294,7 +294,7 @@ public class BaggingM5P extends ContinousModel implements ParrallelizedRunning{
 			 	model.m_policySubGroup = new String[]{"5","10","20-30-60" };		
 			 	model.m_usePCA=false; //201801019尝试不用PCA    //true; //20121223尝试不使用PCA，效果不佳，恢复PCA
 			 	model.useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
-			 	model.m_normalize=false;//true; //在进入分类器之前需要对数据做Normalize
+			 	model.m_normalize=false; //在进入分类器之前不需要对数据做Normalize  （目前这个参数只有在PCA时有效，以后再改）  
 			 	model.m_preprocesingBeforePCA=MyAttributionSelectorWithPCA.STANDARDIZE_DATA;//MyAttributionSelectorWithPCA.CENTER_DATA;
 	
 			 	model.bagging_iteration=10;	//bagging特有参数
