@@ -95,9 +95,9 @@ public class BackTest {
 
 
 			// 调用回测函数回测
-			worker.callRebuildModels();
-//			worker.callReEvaluateModels();
-//			worker.callTestBack();
+//			worker.callRebuildModels();
+			worker.callReEvaluateModels();
+			worker.callTestBack();
 //			worker.callRefreshModelUseLatestData();
 //			worker.callDataAnlysis();
 
@@ -178,13 +178,12 @@ public class BackTest {
 		BaggingM5P cModel = BaggingM5P.initModel(m_currentArffFormat, AbstractModel.FOR_BUILD_MODEL);
 		//用6个月的评估区段（不用9个月，免得少生成一个模型）
 		cModel.m_evalDataSplitMode=EvaluationStore.USE_HALF_YEAR_DATA_FOR_EVAL;
-		//构建1年数据的模型
-		cModel.setUseNYearForTraining(ModelStore.ONE_YEAR_DATA); //THREE_YEAR_DATA);
-		testBackward(cModel);
-		
-		//构建5年数据的模型
-		cModel.setUseNYearForTraining(ModelStore.FIVE_YEAR_DATA); //FOUR_YEAR_DATA);
-		testBackward(cModel);
+
+		//根据modelStore中的定义数组，构建使用不同年份数据的模型
+		for (int dataYear : ModelStore.DATA_YEARS_TO_COMPARE) {
+			cModel.setUseNYearForTraining(dataYear);	
+			testBackward(cModel);
+		}
 		
 		// 不真正回测了，直接从以前的结果文件中加载
 		// GeneralInstances
@@ -195,12 +194,11 @@ public class BackTest {
 		//用6个月的评估区段（不用9个月，免得少生成一个模型）
 		nModel.m_evalDataSplitMode=EvaluationStore.USE_HALF_YEAR_DATA_FOR_EVAL;
 
-		//构建1年数据的模型
-		nModel.setUseNYearForTraining(ModelStore.ONE_YEAR_DATA); //.THREE_YEAR_DATA);
-		testBackward(nModel);
-		//构建5年数据的模型
-		nModel.setUseNYearForTraining(ModelStore.FIVE_YEAR_DATA); //.FOUR_YEAR_DATA);
-		testBackward(nModel);
+		//根据modelStore中的定义数组，构建使用不同年份数据的模型
+		for (int dataYear : ModelStore.DATA_YEARS_TO_COMPARE) {
+			nModel.setUseNYearForTraining(dataYear);	
+			testBackward(nModel);
+		}
 		
 		// 不真正回测了，直接从以前的结果文件中加载
 		// GeneralInstances

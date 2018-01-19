@@ -28,6 +28,10 @@ public class ModelStore {
 	public static final int FOUR_YEAR_DATA=4;
 	public static final int FIVE_YEAR_DATA=5;
 	
+	//要比较的模型文件数据使用年份
+	public static int[] DATA_YEARS_TO_COMPARE={ModelStore.FIVE_YEAR_DATA,ModelStore.ONE_YEAR_DATA}; //20180119 比较5年的和1年的
+		//{ModelStore.FIVE_YEAR_DATA,ModelStore.FOUR_YEAR_DATA,ModelStore.THREE_YEAR_DATA,ModelStore.TWO_YEAR_DATA,ModelStore.ONE_YEAR_DATA};
+	
 	protected Classifier m_model;
 	protected GeneralInstances m_modelFormat;
 	protected String m_modelFileName;
