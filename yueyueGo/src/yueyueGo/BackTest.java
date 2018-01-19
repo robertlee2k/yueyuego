@@ -69,7 +69,7 @@ public class BackTest {
 	protected ArffFormat m_currentArffFormat; // 当前所用数据文件格式
 
 	protected String m_startYearMonth = "200801"; //回测的起始月，包含这个月的数据（设置时不一定需要从1月份开始的）
-	protected String m_endYearMonth = "201709"; // 回测的结尾月(该月数据为文件中最新数据）
+	protected String m_endYearMonth = "201712"; // 回测的结尾月(该月数据为文件中最新数据）
 
 	protected String[] m_handSetSplitYear = new String[] {};
 
@@ -95,9 +95,9 @@ public class BackTest {
 
 
 			// 调用回测函数回测
-//			worker.callRebuildModels();
+			worker.callRebuildModels();
 //			worker.callReEvaluateModels();
-			worker.callTestBack();
+//			worker.callTestBack();
 //			worker.callRefreshModelUseLatestData();
 //			worker.callDataAnlysis();
 
@@ -179,11 +179,11 @@ public class BackTest {
 		//用6个月的评估区段（不用9个月，免得少生成一个模型）
 		cModel.m_evalDataSplitMode=EvaluationStore.USE_HALF_YEAR_DATA_FOR_EVAL;
 		//构建1年数据的模型
-		cModel.setUseNYearForTraining(ModelStore.THREE_YEAR_DATA);
+		cModel.setUseNYearForTraining(ModelStore.ONE_YEAR_DATA); //THREE_YEAR_DATA);
 		testBackward(cModel);
 		
 		//构建5年数据的模型
-		cModel.setUseNYearForTraining(ModelStore.FOUR_YEAR_DATA);
+		cModel.setUseNYearForTraining(ModelStore.FIVE_YEAR_DATA); //FOUR_YEAR_DATA);
 		testBackward(cModel);
 		
 		// 不真正回测了，直接从以前的结果文件中加载
@@ -196,10 +196,10 @@ public class BackTest {
 		nModel.m_evalDataSplitMode=EvaluationStore.USE_HALF_YEAR_DATA_FOR_EVAL;
 
 		//构建1年数据的模型
-		nModel.setUseNYearForTraining(ModelStore.THREE_YEAR_DATA);
+		nModel.setUseNYearForTraining(ModelStore.ONE_YEAR_DATA); //.THREE_YEAR_DATA);
 		testBackward(nModel);
 		//构建5年数据的模型
-		nModel.setUseNYearForTraining(ModelStore.FOUR_YEAR_DATA);
+		nModel.setUseNYearForTraining(ModelStore.FIVE_YEAR_DATA); //.FOUR_YEAR_DATA);
 		testBackward(nModel);
 		
 		// 不真正回测了，直接从以前的结果文件中加载
