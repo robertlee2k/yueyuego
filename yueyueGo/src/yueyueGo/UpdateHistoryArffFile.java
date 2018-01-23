@@ -165,7 +165,7 @@ public class UpdateHistoryArffFile {
 		System.out.println("finish  loading original File row : "+ fullSetData.numInstances() + " column:"+ fullSetData.numAttributes());
 		
 		//每3年数据分割一个文件
-		int yearInterval=4;
+		int yearInterval=3;
 		int startYear=2005;
 		int endYear=2017;
 		String attPos = WekaInstanceProcessor.WEKA_ATT_PREFIX + ArffFormat.YEAR_MONTH_INDEX;
