@@ -43,14 +43,15 @@ public class UpdateHistoryArffFile {
 			
 //			//重新创建ARFF文件
 //			callCreateTransInstances(currentArffFormat);
-			//校验数据文件
-			analyzeDataAttributes(AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.getFullArffFileName());
 			
 //			//输出原始数值范围，注意这个方法输出的是原始的TXT文件中的范围（用于未来的数据库数据校验）
 //			outputAttributesRange(currentArffFormat);
 			
 			//输出TensorFlow数据
-//			convertDataForTensorFlow(currentArffFormat);
+			convertDataForTensorFlow(currentArffFormat);
+			
+			//分析数据文件的数据范围
+			analyzeDataAttributes(AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.getFullArffFileName());
 			
 //			//用最新的单次交易数据，更新原始的交易数据文件
 //			UpdateHistoryArffFile.callRefreshInstances(currentArffFormat);
@@ -163,8 +164,8 @@ public class UpdateHistoryArffFile {
 		//对原始旧数据进行处理
 		System.out.println("finish  loading original File row : "+ fullSetData.numInstances() + " column:"+ fullSetData.numAttributes());
 		
-		//每5年数据分割一个文件
-		int yearInterval=6;
+		//每3年数据分割一个文件
+		int yearInterval=4;
 		int startYear=2005;
 		int endYear=2017;
 		String attPos = WekaInstanceProcessor.WEKA_ATT_PREFIX + ArffFormat.YEAR_MONTH_INDEX;
