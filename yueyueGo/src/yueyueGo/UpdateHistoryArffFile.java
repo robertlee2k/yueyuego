@@ -41,12 +41,15 @@ public class UpdateHistoryArffFile {
 
 			AppContext.createContext(currentArffFormat.m_data_root_directory);	
 			
-			//重新创建ARFF文件
-			callCreateTransInstances(currentArffFormat);
-			//校验数据文件
-			analyzeDataAttributes(AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.getFullArffFileName());
-			//输出数值范围
-			outputAttributesRange(currentArffFormat);
+//			//重新创建ARFF文件
+//			callCreateTransInstances(currentArffFormat);
+//			//校验数据文件
+//			analyzeDataAttributes(AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.getFullArffFileName());
+			
+//			//输出数值范围
+//			outputAttributesRange(currentArffFormat);
+			//输出TensorFlow数据
+			convertDataForTensorFlow(currentArffFormat);
 			
 //			//用最新的单次交易数据，更新原始的交易数据文件
 //			UpdateHistoryArffFile.callRefreshInstances(currentArffFormat);
@@ -57,11 +60,10 @@ public class UpdateHistoryArffFile {
 //			worker.callRefreshModelUseLatestData();
 			
 
-
-			//处理离群值
+			//处理离群值 这个一般无须调用，因为在callCreateTransaction里已经做了
 //			updateArffFileOutier(currentArffFormat);
-			//输出TensorFlow数据
-//			convertDataForTensorFlow(currentArffFormat);
+
+			
 		} catch (Exception e) {
 			
 			e.printStackTrace();
@@ -169,14 +171,14 @@ public class UpdateHistoryArffFile {
 		for (int i=startYear;i<=endYear;i=i+yearInterval){
 			int fromPeriod=i*100+01;
 			int toPeriod=(i+yearInterval-1)*100+12;
-			if (toPeriod>201709) toPeriod=201709;
+			if (toPeriod>201712) toPeriod=201712;
 			String splitClause="(" + attPos + " >= "+ fromPeriod + ") and (" + attPos + " <= "	+ toPeriod + ") ";
 			System.out.println("start to split fulset for: "+ splitClause);
 			GeneralInstances oneData=instanceProcessor.getInstancesSubset(fullSetData,splitClause);
 			//去掉yearmonth
 			oneData = instanceProcessor.removeAttribs(oneData, ""+ArffFormat.YEAR_MONTH_INDEX);
 
-			String fileName=AppContext.getC_ROOT_DIRECTORY()+"\\sourceData\\tensorFlowData("+fromPeriod+"-"+toPeriod+").csv";
+			String fileName=AppContext.getC_ROOT_DIRECTORY()+"\\sourceData\\tensorFlowData"+fromPeriod+"-"+toPeriod+"(group"+ArffFormat.CURRENT_FORMAT+").csv";
 			DataIOHandler.getSaver().saveCSVFile(oneData, fileName);
 		}
 
