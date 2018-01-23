@@ -46,7 +46,7 @@ public class UpdateHistoryArffFile {
 //			//校验数据文件
 //			analyzeDataAttributes(AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.getFullArffFileName());
 			
-			//输出数值范围
+			//输出原始数值范围，注意这个方法输出的是原始的TXT文件中的范围（用于未来的数据库数据校验）
 			outputAttributesRange(currentArffFormat);
 			//输出TensorFlow数据
 			convertDataForTensorFlow(currentArffFormat);
@@ -884,8 +884,9 @@ public class UpdateHistoryArffFile {
 	}
 	
 	/*
-	 * 为数据生成源程序提供校验文件
-	 * 作用： 分析给定Arff数据文件的每一个属性，并保存数据范围至csv文件
+	 * 为数据生成源job提供校验文件，输出原始数值范围，
+	 * 注意这个方法输出的是原始的TXT文件中的范围，而不是处理过的arff文件（用于未来的数据库数据校验）
+	 * 作用： 分析给定txt文件数据集文件的每一个属性，并保存数据范围至csv文件
 	 * field_name(字段名),min(历史最小值),max(历史最大值),date_type(时间类别"0"标示所有时间，"1" 结束日期前一年)
 	 */
 	protected static void outputAttributesRange(ArffFormat currentArffFormat) throws Exception{
