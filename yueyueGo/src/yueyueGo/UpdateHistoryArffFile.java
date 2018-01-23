@@ -43,13 +43,14 @@ public class UpdateHistoryArffFile {
 			
 //			//重新创建ARFF文件
 //			callCreateTransInstances(currentArffFormat);
-//			//校验数据文件
-//			analyzeDataAttributes(AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.getFullArffFileName());
+			//校验数据文件
+			analyzeDataAttributes(AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.getFullArffFileName());
 			
-			//输出原始数值范围，注意这个方法输出的是原始的TXT文件中的范围（用于未来的数据库数据校验）
-			outputAttributesRange(currentArffFormat);
+//			//输出原始数值范围，注意这个方法输出的是原始的TXT文件中的范围（用于未来的数据库数据校验）
+//			outputAttributesRange(currentArffFormat);
+			
 			//输出TensorFlow数据
-			convertDataForTensorFlow(currentArffFormat);
+//			convertDataForTensorFlow(currentArffFormat);
 			
 //			//用最新的单次交易数据，更新原始的交易数据文件
 //			UpdateHistoryArffFile.callRefreshInstances(currentArffFormat);
