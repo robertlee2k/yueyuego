@@ -46,8 +46,8 @@ public class UpdateHistoryArffFile {
 //			//校验数据文件
 //			analyzeDataAttributes(AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.getFullArffFileName());
 			
-//			//输出数值范围
-//			outputAttributesRange(currentArffFormat);
+			//输出数值范围
+			outputAttributesRange(currentArffFormat);
 			//输出TensorFlow数据
 			convertDataForTensorFlow(currentArffFormat);
 			
