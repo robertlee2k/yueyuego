@@ -263,7 +263,7 @@ public class AdaboostClassifier extends NominalModel {
 			model.classifierName=ClassifyUtility.ADABOOST;
 			
 			 if (format instanceof AvgLineDataFormat){
-					model.m_policySubGroup = new String[]{""};//{"5","10","20","30","60" };
+					model.m_policySubGroup = new String[]{""};//{"5","10","20","30","60" }; //选择使用不分均线的模型预测
 					model.boost_iteration=8; //迭代次数
 					model.divided=500; //将trainingData分成多少份
 					model.leafMinObjNum=300; 	//j48树最小节点叶子数

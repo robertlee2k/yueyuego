@@ -292,7 +292,7 @@ public class BaggingM5P extends ContinousModel implements ParrallelizedRunning{
 		model.initModelPurpose(purpose);
 		 if (format instanceof AvgLineDataFormat){
 			 	model.m_policySubGroup = new String[]{"5","10","20-30-60" };		
-			 	model.m_usePCA=false; //201801019尝试不用PCA    //true; //20121223尝试不使用PCA，效果不佳，恢复PCA
+			 	model.m_usePCA=true;  //20121223尝试不使用PCA，效果不佳，恢复PCA
 			 	model.useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
 			 	model.m_normalize=false; //在进入分类器之前不需要对数据做Normalize  （目前这个参数只有在PCA时有效，以后再改）  
 			 	model.m_preprocesingBeforePCA=MyAttributionSelectorWithPCA.STANDARDIZE_DATA;//MyAttributionSelectorWithPCA.CENTER_DATA;
@@ -301,7 +301,7 @@ public class BaggingM5P extends ContinousModel implements ParrallelizedRunning{
 			 	model.leafMinObjNum=300; //叶子节点最小的
 			 	model.divided=500; //将trainingData分成多少份
 	
-			 	model.m_modelFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL; //201801019尝试半年共享       //   QUARTER_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
+			 	model.m_modelFileShareMode=ModelStore.QUARTER_SHARED_MODEL;   //   QUARTER_SHARED_MODEL; //覆盖父类，设定模型和评估文件的共用模式
 			 	model.m_evalDataSplitMode=EvaluationStore.USE_HALF_YEAR_DATA_FOR_EVAL; //评估区间使用6个月数据 
 		 }else if (format instanceof MomentumDataFormat){
 			//设置动量策略参数
