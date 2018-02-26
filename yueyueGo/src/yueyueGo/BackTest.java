@@ -95,7 +95,7 @@ public class BackTest {
 
 
 			// 调用回测函数回测
-			worker.callRebuildModels();
+//			worker.callRebuildModels();
 			worker.callReEvaluateModels();
 			worker.callTestBack();
 //			worker.callRefreshModelUseLatestData();
@@ -180,7 +180,7 @@ public class BackTest {
 		cModel.m_evalDataSplitMode=EvaluationStore.USE_HALF_YEAR_DATA_FOR_EVAL;
 
 		//根据modelStore中的定义数组，构建使用不同年份数据的模型
-		for (int dataYear : ModelStore.DATA_YEARS_TO_COMPARE) {
+		for (int dataYear :cModel.m_dataYearsToCompare) {
 			cModel.setUseNYearForTraining(dataYear);	
 			testBackward(cModel);
 		}
@@ -195,7 +195,7 @@ public class BackTest {
 		nModel.m_evalDataSplitMode=EvaluationStore.USE_HALF_YEAR_DATA_FOR_EVAL;
 
 		//根据modelStore中的定义数组，构建使用不同年份数据的模型
-		for (int dataYear : ModelStore.DATA_YEARS_TO_COMPARE) {
+		for (int dataYear : nModel.m_dataYearsToCompare) {
 			nModel.setUseNYearForTraining(dataYear);	
 			testBackward(nModel);
 		}

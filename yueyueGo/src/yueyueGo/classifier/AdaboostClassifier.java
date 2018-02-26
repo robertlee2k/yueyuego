@@ -272,6 +272,7 @@ public class AdaboostClassifier extends NominalModel {
 					model.m_usePCA=false; //20180213尝试不使用PCA
 				 	model.m_normalize=false;//true; //在进入分类器之前需要对数据做Normalize
 				 	model.m_preprocesingBeforePCA=MyAttributionSelectorWithPCA.STANDARDIZE_DATA;//MyAttributionSelectorWithPCA.CENTER_DATA;
+				 	model.m_dataYearsToCompare=new int[]{ModelStore.FIVE_YEAR_DATA};//,ModelStore.ONE_YEAR_DATA};	//在不同的数据周期中评估比较哪个模型文件数据更合适（此处比5年和1年）
 	//				model.m_positiveLine=0.03; //尝试3%的阈值
 			 }else if (format instanceof MomentumDataFormat){
 				//设置动量策略参数

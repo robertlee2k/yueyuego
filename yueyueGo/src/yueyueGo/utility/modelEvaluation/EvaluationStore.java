@@ -43,6 +43,8 @@ public class EvaluationStore {
 
 	protected boolean m_isNominal = false;
 
+	protected int[] m_dataYearsToCompare=null;	//在不同的数据周期中评估比较哪个模型文件数据更合适
+
 	protected double[] m_focusAreaRatio = { EvaluationStore.TOP_AREA_RATIO, 1 };// 评估时关注评估数据的不同Top比例;
 	
 	//评估时查找的比例 TODO should define this more gracefully
@@ -128,6 +130,7 @@ public class EvaluationStore {
 		this.m_policySplit = policySplit; // 记录下策略分类
 		this.m_classifierName = clModel.classifierName;
 		this.m_SkipRecentNMonthForEval=clModel.m_SkipRecentNMonthForEval;
+		this.m_dataYearsToCompare=clModel.m_dataYearsToCompare;
 
 		// 这里的fileName用TargetYearSplit来做，而不是evalYearSplit来做
 		this.m_evalFileName =this.concatEvalFileName();
@@ -357,9 +360,8 @@ public class EvaluationStore {
 		// 获得所有需要评估的模型文件列表及模型年份年份
 		int numberofValidModels = modelYears.size();
 		ModelStore[] modelStores = new ModelStore[numberofValidModels];
-		int[] dataYears=ModelStore.DATA_YEARS_TO_COMPARE;
 		for (int i = 0; i < numberofValidModels; i++) {
-			for (int dataYear : dataYears) {
+			for (int dataYear : m_dataYearsToCompare) {
 				modelStores[i] = new ModelStore(modelYears.get(i),m_policySplit, m_workFilePath,m_filePrefix, m_classifierName,dataYear);	
 			}
 			

@@ -43,6 +43,7 @@ public abstract class AbstractModel implements Serializable{
     public int m_evalDataSplitMode;//切分构建模型和评估数据的模式 0、6、9、12 （表示倒推回去切分评估数据的月份）
     public int m_SkipRecentNMonthForEval=1; //为了保持和现实预测一致，需要跳过的最近N月评估数据（缺省跳过最近1个月）
     public int m_useRecentNYearForTraining=ModelStore.FIVE_YEAR_DATA; //用多少年的历史数据训练模型（缺省使用5年数据）
+    public int[] m_dataYearsToCompare={ModelStore.FIVE_YEAR_DATA};	//在不同的数据周期中评估比较哪个模型文件数据更合适（缺省只比5年）
     
     public void setUseNYearForTraining(int useRecentNYearForTraining) {
 		this.m_useRecentNYearForTraining = useRecentNYearForTraining;
