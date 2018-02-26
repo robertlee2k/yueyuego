@@ -43,8 +43,8 @@ public class TargetSelectRatioConfig implements Serializable{
 				break;
 			case ClassifyUtility.ADABOOST:
 				//缩小选股比率
-				SAMPLE_LOWER_LIMIT =new double[] { 0.01};//, 0.015, 0.02, 0.03, 0.03 }; // 各条均线选择样本的下限
-				SAMPLE_UPPER_LIMIT =new double[] { 0.03};//, 0.04, 0.05, 0.06, 0.06 }; // 各条均线选择样本的上限
+				SAMPLE_LOWER_LIMIT =new double[] { 0.0101, 0.0107, 0.0203};//, 0.015, 0.02, 0.03, 0.03 }; // 各条均线选择样本的下限
+				SAMPLE_UPPER_LIMIT =new double[] { 0.03, 0.03, 0.03};//, 0.04, 0.05, 0.06, 0.06 }; // 各条均线选择样本的上限
 
 				break;
 			case ClassifyUtility.RANDOM_FOREST:
