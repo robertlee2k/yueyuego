@@ -328,7 +328,7 @@ public class EvaluationStore {
 
 
 	/*
-	 * 根据当前评估数据的年份，倒推取N个历史模型用于比较
+	 * 根据当前评估数据的年份，倒推取N个历史模型（需要评估的年份X数据区段）用于比较
 	 */
 	private ModelStore[] findModelsToEvaluate() {
 
@@ -358,7 +358,7 @@ public class EvaluationStore {
 		}
 
 		// 获得所有需要评估的模型文件列表及模型年份年份
-		int numberofValidModels = modelYears.size();
+		int numberofValidModels = modelYears.size()*m_dataYearsToCompare.length;
 		ModelStore[] modelStores = new ModelStore[numberofValidModels];
 		for (int i = 0; i < numberofValidModels; i++) {
 			for (int dataYear : m_dataYearsToCompare) {
@@ -719,6 +719,6 @@ public class EvaluationStore {
 	}
 
 	private String concatEvalFileName() {
-		return m_filePrefix + "-" + m_classifierName +"-" + m_evalYearSplit+ "_" + m_targetYearSplit +"(-"+m_SkipRecentNMonthForEval+")"+ ModelStore.MA_PREFIX + m_policySplit+ EvaluationStore.THRESHOLD_EXTENSION;
+		return m_filePrefix + "-" + m_classifierName +"-" + m_evalYearSplit+ "_" + m_targetYearSplit +"(skip"+m_SkipRecentNMonthForEval+")"+ ModelStore.MA_PREFIX + m_policySplit+ EvaluationStore.THRESHOLD_EXTENSION;
 	}
 }
