@@ -208,6 +208,12 @@ public abstract class AbstractModel implements Serializable{
 		}
 		output.append(this.m_selectRatioConfig.showEvaluationParameters());
 		output.append("\r\n");
+		output.append("m_dataYearsToCompare={");
+		for (int eachInt : m_dataYearsToCompare) {
+			output.append(eachInt);
+			output.append("/");
+		}
+		output.append("\r\n");
 		output.append("***************************************");
 		output.append("\r\n");
 		return output.toString();
