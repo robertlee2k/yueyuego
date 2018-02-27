@@ -98,9 +98,9 @@ public class BackTest {
 //			worker.callRebuildModels();
 			worker.callReEvaluateModels();
 			worker.callTestBack();
+			
 //			worker.callRefreshModelUseLatestData();
 //			worker.callDataAnlysis();
-
 //			worker.callRenameModels();
 		} catch (Exception e) {
 
