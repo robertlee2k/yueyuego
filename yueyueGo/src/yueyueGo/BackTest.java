@@ -128,7 +128,7 @@ public class BackTest {
 		AbstractModel model = null;
 
 		m_startYearMonth = "201701";
-		m_endYearMonth = "201709";
+		m_endYearMonth = "201712";
 		// m_handSetSplitYear=new String[] {"201701"};
 
 		// 逐次构建新的模型
@@ -176,8 +176,9 @@ public class BackTest {
 
 		// 按连续分类器回测历史数据
 		BaggingM5P cModel = BaggingM5P.initModel(m_currentArffFormat, AbstractModel.FOR_BUILD_MODEL);
-		//用6个月的评估区段（不用9个月，免得少生成一个模型）
+		//用6个月的评估区段（不用9个月，免得对最近月份少生成一个模型）
 		cModel.m_evalDataSplitMode=EvaluationStore.USE_HALF_YEAR_DATA_FOR_EVAL;
+		m_startYearMonth = "200710"; //因为用了6个月评估区段，容易丢掉最早的一个模型，所以手工补上
 
 		//根据modelStore中的定义数组，构建使用不同年份数据的模型
 		for (int dataYear :cModel.m_dataYearsToCompare) {
