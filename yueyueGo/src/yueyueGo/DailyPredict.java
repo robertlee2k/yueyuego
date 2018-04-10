@@ -76,11 +76,11 @@ public class DailyPredict {
 
 		//BaggingM5P当前使用的预测模型
 		classifierName=ClassifyUtility.BAGGING_M5P+ClassifyUtility.NO_PCA_SURFIX;
-		addModelData(classifierName,format,"\\trans20052017(10)-baggingM5P-201709 MA ","201709");
+		addModelData(classifierName,format,"\\ma(11)-baggingM5P-201706_201712(skip1) MA ","201712");
 
 		//adaboost当前使用的预测模型
 		classifierName=ClassifyUtility.ADABOOST+ClassifyUtility.NO_PCA_SURFIX;
-		addModelData(classifierName,format,"\\trans20052017(10)-adaboost-201709 MA ","201709");
+		addModelData(classifierName,format,"\\ma(11)-adaboost-201706_201712(skip1) MA ","201709");
 
 		// fullmodel不保留legacy
 		//			format=FullModelDataFormat.FULLMODEL_FORMAT;
@@ -100,9 +100,9 @@ public class DailyPredict {
 		try {
 			System.out.println("Database URL in USE : "+EnvConstants.URL + " Please ensure this is the correct environment you want to use.....");
 //			callFullModelPredict();
-			copyPredictModels();
+//			copyPredictModels();
 
-//			callDailyPredict();
+			callDailyPredict();
 			
 
 		} catch (Exception e) {
