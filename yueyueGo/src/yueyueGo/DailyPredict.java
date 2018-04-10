@@ -115,7 +115,7 @@ public class DailyPredict {
 	 * 从回测模型中选取最新的模型拷贝至目标目录
 	 */
 	public static void copyPredictModels() throws Exception {
-		String currentMonth="201802"; //这是评估有的最新数据的月份
+		String currentMonth="201712"; //这是评估有的最新数据的月份
 		HashMap<String, String> fileMap;
 		BackTest worker=new BackTest();
 		worker.init();
