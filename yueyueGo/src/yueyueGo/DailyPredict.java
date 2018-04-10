@@ -64,16 +64,23 @@ public class DailyPredict {
 		//			addModelData(classifierName,format,"\\extData2005-2016-adaboost-201606 MA ");
 
 		//=========================EXT FORMAT 部分========================
+//		//BaggingM5P当前使用的预测模型
+//		classifierName=ClassifyUtility.BAGGING_M5P+ClassifyUtility.MULTI_PCA_SURFIX;
+//		addModelData(classifierName,format,"\\trans20052017(10)-baggingM5P-201709 MA ","201709");
+//
+//		//adaboost当前使用的预测模型
+//		classifierName=ClassifyUtility.ADABOOST;
+//		addModelData(classifierName,format,"\\trans20052017(10)-adaboost-201709 MA ","201709");
+		
 		format=ArffFormat.CURRENT_FORMAT;
 
 		//BaggingM5P当前使用的预测模型
-		classifierName=ClassifyUtility.BAGGING_M5P+ClassifyUtility.MULTI_PCA_SURFIX;
+		classifierName=ClassifyUtility.BAGGING_M5P+ClassifyUtility.NO_PCA_SURFIX;
 		addModelData(classifierName,format,"\\trans20052017(10)-baggingM5P-201709 MA ","201709");
 
 		//adaboost当前使用的预测模型
-		classifierName=ClassifyUtility.ADABOOST;
+		classifierName=ClassifyUtility.ADABOOST+ClassifyUtility.NO_PCA_SURFIX;
 		addModelData(classifierName,format,"\\trans20052017(10)-adaboost-201709 MA ","201709");
-
 
 		// fullmodel不保留legacy
 		//			format=FullModelDataFormat.FULLMODEL_FORMAT;
@@ -93,9 +100,9 @@ public class DailyPredict {
 		try {
 			System.out.println("Database URL in USE : "+EnvConstants.URL + " Please ensure this is the correct environment you want to use.....");
 //			callFullModelPredict();
-//			copyPredictModels();
+			copyPredictModels();
 
-			callDailyPredict();
+//			callDailyPredict();
 			
 
 		} catch (Exception e) {
@@ -108,7 +115,7 @@ public class DailyPredict {
 	 * 从回测模型中选取最新的模型拷贝至目标目录
 	 */
 	public static void copyPredictModels() throws Exception {
-		String currentMonth="201709"; //这是评估有的最新数据的月份
+		String currentMonth="201802"; //这是评估有的最新数据的月份
 		HashMap<String, String> fileMap;
 		BackTest worker=new BackTest();
 		worker.init();
