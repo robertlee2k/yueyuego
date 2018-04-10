@@ -80,7 +80,7 @@ public class DailyPredict {
 
 		//adaboost当前使用的预测模型
 		classifierName=ClassifyUtility.ADABOOST+ClassifyUtility.NO_PCA_SURFIX;
-		addModelData(classifierName,format,"\\ma(11)-adaboost-201706_201712(skip1) MA ","201709");
+		addModelData(classifierName,format,"\\ma(11)-adaboost-201706_201712(skip1) MA ","201712");
 
 		// fullmodel不保留legacy
 		//			format=FullModelDataFormat.FULLMODEL_FORMAT;
