@@ -95,7 +95,7 @@ public class BackTest {
 
 
 			// 调用回测函数回测
-//			worker.callRebuildModels();
+			worker.callRebuildModels();
 			worker.callReEvaluateModels();
 			worker.callTestBack();
 			
@@ -186,24 +186,21 @@ public class BackTest {
 			testBackward(cModel);
 		}
 		
-		// 不真正回测了，直接从以前的结果文件中加载
-		// GeneralInstances
-		// continuousResult=loadBackTestResultFromFile(cModel.getIdentifyName());
 
-		// 按二分类器回测历史数据
-		AdaboostClassifier nModel = AdaboostClassifier.initModel(m_currentArffFormat, AbstractModel.FOR_BUILD_MODEL);
-		//用6个月的评估区段（不用9个月，免得少生成一个模型）
-		nModel.m_evalDataSplitMode=EvaluationStore.USE_HALF_YEAR_DATA_FOR_EVAL;
-
-		//根据modelStore中的定义数组，构建使用不同年份数据的模型
-		for (int dataYear : nModel.m_dataYearsToCompare) {
-			nModel.setUseNYearForTraining(dataYear);	
-			testBackward(nModel);
-		}
+//		// 按二分类器回测历史数据
+//		AdaboostClassifier nModel = AdaboostClassifier.initModel(m_currentArffFormat, AbstractModel.FOR_BUILD_MODEL);
+//		//用6个月的评估区段（不用9个月，免得少生成一个模型）
+//		nModel.m_evalDataSplitMode=EvaluationStore.USE_HALF_YEAR_DATA_FOR_EVAL;
+//
+//		//根据modelStore中的定义数组，构建使用不同年份数据的模型
+//		for (int dataYear : nModel.m_dataYearsToCompare) {
+//			nModel.setUseNYearForTraining(dataYear);	
+//			testBackward(nModel);
+//		}
 		
 
 		// 统一输出统计结果
-		nModel.outputClassifySummary();
+//		nModel.outputClassifySummary();
 		cModel.outputClassifySummary();
 
 		System.out.println("-----end of rebuild models------");

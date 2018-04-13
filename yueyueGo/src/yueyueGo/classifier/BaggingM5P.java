@@ -292,7 +292,7 @@ public class BaggingM5P extends ContinousModel implements ParrallelizedRunning{
 		model.initModelPurpose(purpose);
 		 if (format instanceof AvgLineDataFormat){
 			 	model.m_policySubGroup = new String[]{"5","10","20-30-60" };		
-			 	model.m_usePCA=false;  //20180213尝试不使用PCA
+			 	model.m_usePCA=true;  //20180413使用PCA //20180213尝试不使用PCA
 			 	model.useMultiPCA=true; //bagging 内的每个模型自己有单独的PCA
 			 	model.m_normalize=false; //在进入分类器之前不需要对数据做Normalize  （目前这个参数只有在PCA时有效，以后再改）  
 			 	model.m_preprocesingBeforePCA=MyAttributionSelectorWithPCA.STANDARDIZE_DATA;//MyAttributionSelectorWithPCA.CENTER_DATA;
