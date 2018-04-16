@@ -95,8 +95,8 @@ public class BackTest {
 
 
 			// 调用回测函数回测
-			worker.callRebuildModels();
-			worker.callReEvaluateModels();
+//			worker.callRebuildModels();
+//			worker.callReEvaluateModels();
 			worker.callTestBack();
 			
 //			worker.callRefreshModelUseLatestData();
@@ -178,7 +178,11 @@ public class BackTest {
 		BaggingM5P cModel = BaggingM5P.initModel(m_currentArffFormat, AbstractModel.FOR_BUILD_MODEL);
 		//用6个月的评估区段（不用9个月，免得对最近月份少生成一个模型）
 		cModel.m_evalDataSplitMode=EvaluationStore.USE_HALF_YEAR_DATA_FOR_EVAL;
-		m_startYearMonth = "200710"; //因为用了6个月评估区段，容易丢掉最早的一个模型，所以手工补上
+		
+		//因为用了6个月评估区段，容易丢掉最早的一个模型，所以手工补上，最后再恢复原始数据，以免影响后面的评估
+		String temp_startYearMonth=m_startYearMonth;
+		m_startYearMonth = "200710"; 
+
 
 		//根据modelStore中的定义数组，构建使用不同年份数据的模型
 		for (int dataYear :cModel.m_dataYearsToCompare) {
@@ -187,22 +191,23 @@ public class BackTest {
 		}
 		
 
-//		// 按二分类器回测历史数据
-//		AdaboostClassifier nModel = AdaboostClassifier.initModel(m_currentArffFormat, AbstractModel.FOR_BUILD_MODEL);
-//		//用6个月的评估区段（不用9个月，免得少生成一个模型）
-//		nModel.m_evalDataSplitMode=EvaluationStore.USE_HALF_YEAR_DATA_FOR_EVAL;
-//
-//		//根据modelStore中的定义数组，构建使用不同年份数据的模型
-//		for (int dataYear : nModel.m_dataYearsToCompare) {
-//			nModel.setUseNYearForTraining(dataYear);	
-//			testBackward(nModel);
-//		}
-		
+		// 按二分类器回测历史数据
+		AdaboostClassifier nModel = AdaboostClassifier.initModel(m_currentArffFormat, AbstractModel.FOR_BUILD_MODEL);
+		//用6个月的评估区段（不用9个月，免得少生成一个模型）
+		nModel.m_evalDataSplitMode=EvaluationStore.USE_HALF_YEAR_DATA_FOR_EVAL;
 
+		//根据modelStore中的定义数组，构建使用不同年份数据的模型
+		for (int dataYear : nModel.m_dataYearsToCompare) {
+			nModel.setUseNYearForTraining(dataYear);	
+			testBackward(nModel);
+		}
+		
 		// 统一输出统计结果
-//		nModel.outputClassifySummary();
+		nModel.outputClassifySummary();
 		cModel.outputClassifySummary();
 
+		//恢复暂存的原有startYearMonth
+		m_startYearMonth=temp_startYearMonth;
 		System.out.println("-----end of rebuild models------");
 	}
 
