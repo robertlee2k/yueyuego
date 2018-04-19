@@ -269,10 +269,10 @@ public class AdaboostClassifier extends NominalModel {
 					model.leafMinObjNum=300; 	//j48树最小节点叶子数
 					model.m_modelFileShareMode=ModelStore.HALF_YEAR_SHARED_MODEL;// QUARTER_SHARED_MODEL; //20180213 用半年度模型覆盖父类，设定模型和评估文件的共用模式
 					model.m_evalDataSplitMode=EvaluationStore.USE_HALF_YEAR_DATA_FOR_EVAL; //尝试评估区间使用6个月数据
-					model.m_usePCA=false; //20180213尝试不使用PCA
+					model.m_usePCA=true; //20180419使用PCA;false; //20180213尝试不使用PCA
 				 	model.m_normalize=false;//true; //在进入分类器之前需要对数据做Normalize
 				 	model.m_preprocesingBeforePCA=MyAttributionSelectorWithPCA.STANDARDIZE_DATA;//MyAttributionSelectorWithPCA.CENTER_DATA;
-				 	model.m_dataYearsToCompare=new int[]{ModelStore.FIVE_YEAR_DATA};//,ModelStore.ONE_YEAR_DATA};	//在不同的数据周期中评估比较哪个模型文件数据更合适（此处比5年和1年）
+				 	model.m_dataYearsToCompare=new int[]{ModelStore.FIVE_YEAR_DATA,ModelStore.ONE_YEAR_DATA};	//在不同的数据周期中评估比较哪个模型文件数据更合适（此处比5年和1年）
 	//				model.m_positiveLine=0.03; //尝试3%的阈值
 			 }else if (format instanceof MomentumDataFormat){
 				//设置动量策略参数

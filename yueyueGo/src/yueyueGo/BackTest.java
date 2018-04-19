@@ -69,7 +69,7 @@ public class BackTest {
 	protected ArffFormat m_currentArffFormat; // 当前所用数据文件格式
 
 	protected String m_startYearMonth = "200801"; //回测的起始月，包含这个月的数据（设置时不一定需要从1月份开始的）
-	protected String m_endYearMonth = "201712"; // 回测的结尾月(该月数据为文件中最新数据）
+	protected String m_endYearMonth = "201703"; // 回测的结尾月(该月数据为文件中最新数据）
 
 	protected String[] m_handSetSplitYear = new String[] {};
 
@@ -95,8 +95,8 @@ public class BackTest {
 
 
 			// 调用回测函数回测
-//			worker.callRebuildModels();
-//			worker.callReEvaluateModels();
+			worker.callRebuildModels();
+			worker.callReEvaluateModels();
 			worker.callTestBack();
 			
 //			worker.callRefreshModelUseLatestData();

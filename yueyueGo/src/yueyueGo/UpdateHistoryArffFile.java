@@ -42,13 +42,13 @@ public class UpdateHistoryArffFile {
 			AppContext.createContext(currentArffFormat.m_data_root_directory);	
 			
 //			//重新创建ARFF文件
-//			callCreateTransInstances(currentArffFormat);
+			callCreateTransInstances(currentArffFormat);
 			
 //			//输出原始数值范围，注意这个方法输出的是原始的TXT文件中的范围（用于未来的数据库数据校验）
-//			outputAttributesRange(currentArffFormat);
+			outputAttributesRange(currentArffFormat);
 			
 			//输出TensorFlow数据
-			convertDataForTensorFlow(currentArffFormat);
+//			convertDataForTensorFlow(currentArffFormat);
 			
 			//分析数据文件的数据范围
 			analyzeDataAttributes(AppContext.getC_ROOT_DIRECTORY()+currentArffFormat.getFullArffFileName());
@@ -145,7 +145,7 @@ public class UpdateHistoryArffFile {
 		System.out.println("trans arff file saved. ");
 	
 		//取出前半年的旧数据和当年的新数据作为验证的sample数据
-		String splitSampleClause = "( ATT" + ArffFormat.YEAR_MONTH_INDEX + " >= 201606) and ( ATT" + ArffFormat.YEAR_MONTH_INDEX+ " <= 201712) ";
+		String splitSampleClause = "( ATT" + ArffFormat.YEAR_MONTH_INDEX + " >= 201706) and ( ATT" + ArffFormat.YEAR_MONTH_INDEX+ " <= 201812) ";
 		BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullData);
 		GeneralInstances sampleData=instanceProcessor.getInstancesSubset(fullData, splitSampleClause);
 		DataIOHandler.getSaver().SaveDataIntoFile(sampleData, getSampleArffFileName(currentArffFormat));
@@ -204,14 +204,14 @@ public class UpdateHistoryArffFile {
 //			String fileSurfix=".csv";
 			GeneralInstances fullData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2005_2008"+fileSurfix,currentArffFormat);
 
-			GeneralInstances addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2009_2011"+fileSurfix,currentArffFormat);
+			GeneralInstances addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2009_2013"+fileSurfix,currentArffFormat);
 			BaseInstanceProcessor instanceProcessor=InstanceHandler.getHandler(fullData);
 			fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
 			System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
-			addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2012_2014"+fileSurfix,currentArffFormat);
+			addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2014_2016"+fileSurfix,currentArffFormat);
 			fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
 			System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
-			addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2015_2017"+fileSurfix,currentArffFormat);
+			addData = loadDataFromIncrementalCSVFile(sourceFilePrefix+"2017_2018"+fileSurfix,currentArffFormat);
 			fullData=instanceProcessor.mergeTwoInstances(fullData, addData);
 			System.out.println("merged one File,now row : "+ fullData.numInstances() + " column:"+ fullData.numAttributes());
 	
