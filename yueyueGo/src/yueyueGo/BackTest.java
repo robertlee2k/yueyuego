@@ -181,7 +181,9 @@ public class BackTest {
 		
 		//因为用了6个月评估区段，容易丢掉最早的一个模型，所以手工补上，最后再恢复原始数据，以免影响后面的评估
 		String temp_startYearMonth=m_startYearMonth;
-		m_startYearMonth = "200710"; 
+		if ("200801".equals(m_startYearMonth)){ //如果是在做全量建模则做这个操作
+			m_startYearMonth = "200710";  
+		}
 
 
 		//根据modelStore中的定义数组，构建使用不同年份数据的模型
