@@ -79,7 +79,7 @@ public class DailyPredict {
 		addModelData(classifierName,format,"\\ma(11)-baggingM5P-201709_201803(skip1) MA ","201803");
 
 		//adaboost当前使用的预测模型
-		classifierName=ClassifyUtility.ADABOOST+ClassifyUtility.MULTI_PCA_SURFIX;
+		classifierName=ClassifyUtility.ADABOOST;  //+ClassifyUtility.MULTI_PCA_SURFIX; adaboost的multi-PCA就是不带后缀的
 		addModelData(classifierName,format,"\\ma(11)-adaboost-201709_201803(skip1) MA ","201803");
 
 		// fullmodel不保留legacy
