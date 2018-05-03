@@ -76,11 +76,11 @@ public class DailyPredict {
 
 		//BaggingM5P当前使用的预测模型
 		classifierName=ClassifyUtility.BAGGING_M5P+ClassifyUtility.NO_PCA_SURFIX;
-		addModelData(classifierName,format,"\\ma(11)-baggingM5P-201706_201712(skip1) MA ","201712");
+		addModelData(classifierName,format,"\\ma(11)-baggingM5P-201709_201803(skip1) MA ","201803");
 
 		//adaboost当前使用的预测模型
-		classifierName=ClassifyUtility.ADABOOST+ClassifyUtility.NO_PCA_SURFIX;
-		addModelData(classifierName,format,"\\ma(11)-adaboost-201706_201712(skip1) MA ","201712");
+		classifierName=ClassifyUtility.ADABOOST+ClassifyUtility.MULTI_PCA_SURFIX;
+		addModelData(classifierName,format,"\\ma(11)-adaboost-201709_201803(skip1) MA ","201803");
 
 		// fullmodel不保留legacy
 		//			format=FullModelDataFormat.FULLMODEL_FORMAT;
@@ -527,6 +527,7 @@ public class DailyPredict {
 
 	/**
 	 * @param format
+	 * lastYearSplit=建模数据中最新的月份，用于校验
 	 */
 	private void addModelData(String classifier,int format,String evalFilePrefix,String lastYearSplit) {
 		String id;
