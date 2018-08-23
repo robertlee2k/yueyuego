@@ -20,7 +20,7 @@ public class EnvConstants {
 			//阿里云服务器正式环境
 //		public final static String ROOT_DIR="d:\\trend\\"; //应用系统的根目录
 //		public final static int TRAINING_DATA_LIMIT=5000000; //用于训练单个模型的数据条数上限（这个和机器的内存有关）
-//		public final static int CPU_CORE_NUMBER=12;//cpu个数，用于计算线程数
+//		public final static int CPU_CORE_NUMBER=10;//cpu个数，用于计算线程数
 //		public final static int HEAP_SIZE=48; //java可用heap，单位是G
 //		public final static String URL = "jdbc:mysql://rm-uf6r15yjr74o90j7a3o.mysql.rds.aliyuncs.com:3306/develop?characterEncoding=utf8&autoReconnect=true";
 //		public final static String USER = "meixdata";
